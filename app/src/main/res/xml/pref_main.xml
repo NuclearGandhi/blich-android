@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.blackcracks.blich.preference.ClassPickerPreference
+        android:defaultValue="@string/pref_class_picker_default_value"
+        android:dialogTitle=""
+        android:icon="@drawable/ic_group_gray_24dp"
+        android:key="@string/pref_class_picker_key"
+        android:negativeButtonText="@string/dialog_cancel"
+        android:positiveButtonText="@string/dialog_okay"
+        android:title="@string/pref_class_picker_title" />
+
+</PreferenceScreen>

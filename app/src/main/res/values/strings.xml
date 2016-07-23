@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">בליך</string>
+    <string name="activity_settings">הגדרות</string>
+
+    <string name="action_settings">הגדרות</string>
+    <string name="action_refresh">עדכן</string>
+
+    <string name="dialog_choose_class_title">מהי כיתתך?</string>
+    <string name="dialog_choose_class_content">אנא בחר את כיתתך:</string>
+    <string name="dialog_okay">אישור</string>
+    <string name="dialog_cancel">ביטול</string>
+
+    <string name="pref_class_picker_key">class_picker</string>
+    <string name="pref_class_picker_title">כיתה</string>
+    <string name="pref_class_picker_default_value">ט\'/3</string>
+
+    <string name="snackbar_schedule_fetch_success">מערכת השעות עודכנה</string>
+    <string name="dialog_schedule_fetch_failed">אין אפשרות לעדכן את מערכת השעות כיוון שאין
+    חיבור לאינטרנט</string>
+
+    <string name="dialog_no_connection_title">אין חיבור לאינטרנט</string>
+    <string name="dialog_no_connection_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
+    <string name="dialog_no_connection_try_again">נסה שוב</string>
+
+</resources>
