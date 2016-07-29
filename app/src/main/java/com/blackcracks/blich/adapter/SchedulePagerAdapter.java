@@ -1,7 +1,6 @@
 package com.blackcracks.blich.adapter;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -13,14 +12,11 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
     private static final int TABS_COUNT = 6;
 
     private String[] mTabNames;
-    private ScheduleDayFragment.OnScrollListener mOnScrollListener;
 
     public SchedulePagerAdapter(FragmentManager fm,
-                                String[] tabNames,
-                                @Nullable ScheduleDayFragment.OnScrollListener listener) {
+                                String[] tabNames) {
         super(fm);
         mTabNames = tabNames;
-        mOnScrollListener = listener;
     }
 
     @Override
@@ -29,9 +25,6 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
         args.putInt(ScheduleDayFragment.DAY_KEY, getRealPosition(position) + 1);
         ScheduleDayFragment fragment = new ScheduleDayFragment();
         fragment.setArguments(args);
-        if (mOnScrollListener != null) {
-            fragment.addOnScrollListener(mOnScrollListener);
-        }
         return fragment;
     }
 

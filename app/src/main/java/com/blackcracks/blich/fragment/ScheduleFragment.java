@@ -19,7 +19,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -31,12 +30,11 @@ import com.blackcracks.blich.data.FetchScheduleData;
 
 public class ScheduleFragment extends Fragment implements
         SettingsActivity.SettingsFragment.OnClassPickerPrefChangeListener,
-        ScheduleDayFragment.OnScrollListener,
         FetchBlichData.OnFetchFinishListener {
 
     private static final String NEW_DATA_KEY = "new_data";
 
-    private boolean mNewData = true;
+    private boolean mShouldRefresh = true;
     private CoordinatorLayout mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ChooseClassDialogFragment mDialogFragment;
@@ -58,8 +56,7 @@ public class ScheduleFragment extends Fragment implements
         if (viewPager != null) {
             viewPager.setAdapter(
                     new SchedulePagerAdapter(getActivity().getSupportFragmentManager(),
-                            getResources().getStringArray(R.array.tab_schedule_names),
-                            this));
+                            getResources().getStringArray(R.array.tab_schedule_names)));
             viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1, false);
 
         }
@@ -68,7 +65,6 @@ public class ScheduleFragment extends Fragment implements
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         }
-
         mSwipeRefreshLayout =
                 (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -77,28 +73,13 @@ public class ScheduleFragment extends Fragment implements
                 refreshSchedule();
             }
         });
-
-        //noinspection ConstantConditions
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float v, int i1) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                mSwipeRefreshLayout.setEnabled(false);
-            }
-        });
+        mSwipeRefreshLayout.setEnabled(false);
 
         boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
                         true);
         if (isFirstLaunch) {
-            mNewData = false;
+            mShouldRefresh = false;
             mDialogFragment = new ChooseClassDialogFragment();
             mDialogFragment.show(getActivity().getSupportFragmentManager(), "choose_class");
         }
@@ -111,7 +92,7 @@ public class ScheduleFragment extends Fragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            mNewData = savedInstanceState.getBoolean(NEW_DATA_KEY);
+            mShouldRefresh = savedInstanceState.getBoolean(NEW_DATA_KEY);
 
         }
     }
@@ -150,30 +131,21 @@ public class ScheduleFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (mNewData) {
+        if (mShouldRefresh) {
             refreshSchedule();
-            mNewData = false;
+            mShouldRefresh = false;
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(NEW_DATA_KEY, mNewData);
+        outState.putBoolean(NEW_DATA_KEY, mShouldRefresh);
     }
 
     @Override
     public void onClassPickerPrefChanged() {
-        mNewData = true;
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int scrollState) {
-        if (view.getChildCount() == 0 || view.getChildAt(0).getTop() == 0) {
-            mSwipeRefreshLayout.setEnabled(true);
-        } else {
-            mSwipeRefreshLayout.setEnabled(false);
-        }
+        mShouldRefresh = true;
     }
 
     @Override
@@ -215,5 +187,6 @@ public class ScheduleFragment extends Fragment implements
                 .addOnFetchFinishListener(this)
                 .execute();
     }
+
 
 }

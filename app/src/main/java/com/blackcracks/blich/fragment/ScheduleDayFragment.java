@@ -10,15 +10,11 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScheduleDayFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -49,8 +45,6 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
     public static final String DAY_KEY = "day";
 
-    private List<OnScrollListener> mOnScrollListeners =
-            new ArrayList<>();
 
     private ScheduleAdapter mAdapter;
     private int mDay;
@@ -69,22 +63,6 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
         mAdapter = new ScheduleAdapter(getContext(), null, 0);
         listView.setAdapter(mAdapter);
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                for (OnScrollListener listener :
-                        mOnScrollListeners) {
-                    listener.onScroll(view, scrollState);
-                }
-            }
-
-            @Override
-            public void onScroll(AbsListView view,
-                                 int firstVisibleItem,
-                                 int visibleItemCount,
-                                 int totalItemCount) {
-            }
-        });
         return rootView;
     }
 
@@ -114,14 +92,5 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onLoaderReset(Loader loader) {
         mAdapter.swapCursor(null);
-    }
-
-    public void addOnScrollListener(
-            OnScrollListener listener) {
-        mOnScrollListeners.add(listener);
-    }
-
-    public interface OnScrollListener {
-        void onScroll(AbsListView view, int scrollState);
     }
 }
