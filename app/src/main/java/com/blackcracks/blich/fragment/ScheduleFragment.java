@@ -27,6 +27,8 @@ import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.FetchBlichData;
 import com.blackcracks.blich.data.FetchScheduleData;
 
+import java.util.Calendar;
+
 
 public class ScheduleFragment extends Fragment implements
         SettingsActivity.SettingsFragment.OnClassPickerPrefChangeListener,
@@ -57,7 +59,39 @@ public class ScheduleFragment extends Fragment implements
             viewPager.setAdapter(
                     new SchedulePagerAdapter(getActivity().getSupportFragmentManager(),
                             getResources().getStringArray(R.array.tab_schedule_names)));
-            viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1, false);
+
+            int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            switch (day) {
+                case Calendar.SUNDAY: {
+                    day = 0;
+                    break;
+                }
+                case Calendar.MONDAY: {
+                    day = 1;
+                    break;
+                }
+                case Calendar.TUESDAY: {
+                    day = 2;
+                    break;
+                }
+                case Calendar.WEDNESDAY: {
+                    day = 3;
+                    break;
+                }
+                case Calendar.THURSDAY: {
+                    day = 4;
+                    break;
+                }
+                case Calendar.FRIDAY: {
+                    day = 5;
+                    break;
+                }
+                default: {
+                    day = 0;
+                    break;
+                }
+            }
+            viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day), false);
 
         }
         if (tabLayout != null) {

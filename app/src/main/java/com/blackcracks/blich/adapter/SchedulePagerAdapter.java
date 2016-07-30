@@ -38,7 +38,7 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
         return mTabNames[getRealPosition(position)];
     }
 
-    public int getRealPosition(int position) {
+    public static int getRealPosition(int position) {
         return 5 - position;
     }
 }

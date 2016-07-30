@@ -30,7 +30,7 @@ public class SettingsActivity extends AppCompatActivity {
         Locale locale = new Locale("iw");
         Locale.setDefault(locale);
         Configuration config = getResources().getConfiguration();
-        config.locale = locale;
+        config.setLocale(locale);
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
 
