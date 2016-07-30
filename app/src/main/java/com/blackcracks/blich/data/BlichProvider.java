@@ -18,9 +18,9 @@ public class BlichProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private BlichDatabaseHelper mDatabaseHelper;
 
-    static final int SCHEDULE = 100;
-    static final int SCHEDULE_WITH_DAY = 101;
-    static final int CLASS = 102;
+    private static final int SCHEDULE = 100;
+    private static final int SCHEDULE_WITH_DAY = 101;
+    private static final int CLASS = 102;
 
     @Override
     public boolean onCreate() {

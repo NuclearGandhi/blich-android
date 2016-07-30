@@ -27,7 +27,7 @@ public class ClassPickerPreference extends DialogPreference implements FetchBlic
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
     private MaterialNumberPicker mGradeNumberPicker;
     private MaterialNumberPicker mGradePicker;
-    FrameLayout mProgressBar;
+    private FrameLayout mProgressBar;
     private int mGradeIndex = 1;
     private int mGradeNumber = 1;
 

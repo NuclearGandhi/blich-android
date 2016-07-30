@@ -10,7 +10,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    static final String DATABASE_NAME = "blich.db";
+    private static final String DATABASE_NAME = "blich.db";
 
     public BlichDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

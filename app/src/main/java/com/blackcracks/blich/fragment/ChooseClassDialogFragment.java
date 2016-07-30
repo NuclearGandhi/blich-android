@@ -31,11 +31,10 @@ public class ChooseClassDialogFragment extends DialogFragment implements
 
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
 
-    AlertDialog mDialog;
-
-    MaterialNumberPicker mGradeNumberPicker;
-    MaterialNumberPicker mGradePicker;
-    FrameLayout mProgressBar;
+    private AlertDialog mDialog;
+    private MaterialNumberPicker mGradeNumberPicker;
+    private MaterialNumberPicker mGradePicker;
+    private FrameLayout mProgressBar;
 
     @NonNull
     @Override
