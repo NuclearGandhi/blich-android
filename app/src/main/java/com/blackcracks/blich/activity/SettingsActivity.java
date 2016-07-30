@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
@@ -63,6 +66,17 @@ public class SettingsActivity extends AppCompatActivity {
 
             classPickerPicker.setSummary(grade);
         }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View root = super.onCreateView(inflater, container, savedInstanceState);
+            if (root != null) {
+                ListView list = (ListView) root.findViewById(android.R.id.list);
+                list.setPadding(0, 0, 0, 0);
+            }
+            return root;
+        }
+
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
