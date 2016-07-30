@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private static final String SCHEDULE_FRAGMENT_TAG = "schedule_fragment_tag";
+    private static final String SCHEDULE_FRAGMENT_TAG = "schedule_fragment";
 
     private ScheduleFragment mScheduleFragment;
 

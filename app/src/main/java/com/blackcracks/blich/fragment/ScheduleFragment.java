@@ -93,7 +93,6 @@ public class ScheduleFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             mShouldRefresh = savedInstanceState.getBoolean(NEW_DATA_KEY);
-
         }
     }
 
