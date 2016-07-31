@@ -3,7 +3,12 @@ package com.blackcracks.blich.activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,14 +22,13 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private static final String SCHEDULE_FRAGMENT_TAG = "schedule_fragment";
+    private static final String FRAGMENT_TAG = "schedule_fragment";
 
-    private ScheduleFragment mScheduleFragment;
+    private Fragment mFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         Locale locale = new Locale("iw");
         Locale.setDefault(locale);
@@ -33,16 +37,56 @@ public class MainActivity extends AppCompatActivity {
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
 
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         if (savedInstanceState != null) {
-            mScheduleFragment = (ScheduleFragment) getSupportFragmentManager().
-                    getFragment(savedInstanceState, SCHEDULE_FRAGMENT_TAG);
+            mFragment = getSupportFragmentManager().
+                    getFragment(savedInstanceState, FRAGMENT_TAG);
         } else {
-            mScheduleFragment = new ScheduleFragment();
+            mFragment = new ScheduleFragment();
         }
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment, mScheduleFragment, SCHEDULE_FRAGMENT_TAG)
+                .replace(R.id.fragment, mFragment, FRAGMENT_TAG)
                 .commit();
+
+        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc);
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem item) {
+                        if(!item.isChecked()) item.setChecked(true);
+                        else return false;
+                        drawerLayout.closeDrawers();
+                        Fragment fragment = null;
+                        switch (item.getItemId()) {
+                            case R.id.schedule: {
+                                fragment = new ScheduleFragment();
+                                break;
+                            }
+                        }
+                        if (fragment != null) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment, fragment, FRAGMENT_TAG)
+                                    .commit();
+                            mFragment = fragment;
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+        );
     }
 
     @Override
@@ -58,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -72,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         getSupportFragmentManager().putFragment(outState,
-                SCHEDULE_FRAGMENT_TAG,
-                mScheduleFragment);
+                FRAGMENT_TAG,
+                mFragment);
     }
 }

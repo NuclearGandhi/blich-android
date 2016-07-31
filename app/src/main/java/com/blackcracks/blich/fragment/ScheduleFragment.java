@@ -11,8 +11,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,8 +48,7 @@ public class ScheduleFragment extends Fragment implements
                              Bundle savedInstanceState) {
 
         mRootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_schedule, container, false);
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
         TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
 
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);

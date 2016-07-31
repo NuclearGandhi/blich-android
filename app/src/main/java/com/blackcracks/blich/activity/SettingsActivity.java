@@ -34,7 +34,7 @@ public class SettingsActivity extends AppCompatActivity {
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.settings_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (getWindow().getDecorView().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR) {
             getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
         }
