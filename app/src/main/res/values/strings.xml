@@ -22,4 +22,6 @@
     <string name="dialog_no_connection_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
     <string name="dialog_no_connection_try_again">נסה שוב</string>
 
+    <string name="drawer_schedule_title">מערכת שעות</string>
+
 </resources>

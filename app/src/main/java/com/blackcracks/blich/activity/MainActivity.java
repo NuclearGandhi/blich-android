@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.adapter.DrawerListAdapter;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 
 import java.util.Locale;
@@ -34,11 +32,6 @@ public class MainActivity extends AppCompatActivity {
         config.setLocale(locale);
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
-
-        ListView drawerList = (ListView) findViewById(R.id.drawer_list);
-        String[] titles = getResources().getStringArray(R.array.drawer_titles);
-        int[] icons = new int[]{R.drawable.ic_schedule_grey_24dp};
-        drawerList.setAdapter(new DrawerListAdapter(this, titles, icons));
 
         if (savedInstanceState != null) {
             mScheduleFragment = (ScheduleFragment) getSupportFragmentManager().

@@ -8,8 +8,4 @@
         <item>חמישי</item>
         <item>שישי</item>
     </string-array>
-
-    <string-array name="drawer_titles">
-        <item>מערכת שעות</item>
-    </string-array>
 </resources>
