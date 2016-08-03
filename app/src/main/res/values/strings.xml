@@ -28,4 +28,6 @@
     <string name="drawer_open_desc">פתוח</string>
     <string name="drawer_close_desc">סגור</string>
 
+    <string name="toast_back_pressed">לחץ עוד פעם כדי לעזוב</string>
+
 </resources>

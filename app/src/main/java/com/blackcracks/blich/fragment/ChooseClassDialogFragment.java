@@ -16,7 +16,6 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.FetchBlichData;
 import com.blackcracks.blich.data.FetchClassData;
 import com.blackcracks.blich.util.BlichDataUtils;
@@ -31,10 +30,11 @@ public class ChooseClassDialogFragment extends DialogFragment implements
 
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
 
-    private AlertDialog mDialog;
-    private MaterialNumberPicker mGradeNumberPicker;
-    private MaterialNumberPicker mGradePicker;
-    private FrameLayout mProgressBar;
+    AlertDialog mDialog;
+
+    MaterialNumberPicker mGradeNumberPicker;
+    MaterialNumberPicker mGradePicker;
+    FrameLayout mProgressBar;
 
     @NonNull
     @Override
@@ -68,7 +68,7 @@ public class ChooseClassDialogFragment extends DialogFragment implements
                         SharedPreferences sharedPreferences = PreferenceManager
                                 .getDefaultSharedPreferences(getContext());
                         sharedPreferences.edit()
-                                .putString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
+                                .putString(SettingsFragment.PREF_CLASS_PICKER_KEY,
                                         grade)
                                 .apply();
                         sharedPreferences.edit()

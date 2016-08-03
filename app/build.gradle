@@ -28,4 +28,5 @@ dependencies {
     compile 'org.apache.httpcomponents:httpcore:4.4.5'
     compile 'biz.kasual:materialnumberpicker:1.2.1'
     compile 'com.android.support:support-v4:24.1.1'
+    compile 'com.takisoft.fix:preference-v7:24.1.1.1'
 }

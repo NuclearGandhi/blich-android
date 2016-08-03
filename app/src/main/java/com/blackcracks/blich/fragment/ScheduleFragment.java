@@ -11,6 +11,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.FetchBlichData;
 import com.blackcracks.blich.data.FetchScheduleData;
@@ -29,7 +29,7 @@ import java.util.Calendar;
 
 
 public class ScheduleFragment extends Fragment implements
-        SettingsActivity.SettingsFragment.OnClassPickerPrefChangeListener,
+        SettingsFragment.OnClassPickerPrefChangeListener,
         FetchBlichData.OnFetchFinishListener {
 
     private static final String NEW_DATA_KEY = "new_data";
@@ -41,6 +41,14 @@ public class ScheduleFragment extends Fragment implements
 
     public ScheduleFragment() {
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        //noinspection ConstantConditions
+        activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
     }
 
     @Override
@@ -115,7 +123,7 @@ public class ScheduleFragment extends Fragment implements
             mDialogFragment.show(getActivity().getSupportFragmentManager(), "choose_class");
         }
 
-        SettingsActivity.SettingsFragment.addClassPickerPrefChangeListener(this);
+        SettingsFragment.addClassPickerPrefChangeListener(this);
         return mRootView;
     }
 
@@ -217,6 +225,4 @@ public class ScheduleFragment extends Fragment implements
                 .addOnFetchFinishListener(this)
                 .execute();
     }
-
-
 }
