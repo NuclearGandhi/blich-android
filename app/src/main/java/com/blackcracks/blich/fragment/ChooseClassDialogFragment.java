@@ -16,15 +16,15 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.FetchBlichData;
-import com.blackcracks.blich.data.FetchClassData;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
 
 public class ChooseClassDialogFragment extends DialogFragment implements
-        FetchBlichData.OnFetchFinishListener {
+        BlichSyncAdapter.OnSyncFinishListener {
 
     public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
 
@@ -86,9 +86,7 @@ public class ChooseClassDialogFragment extends DialogFragment implements
     public void onStart() {
         super.onStart();
         mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        new FetchClassData(getContext())
-                .addOnFetchFinishListener(this)
-                .execute();
+        getClassData();
     }
 
     private void setPickerValues(final int[] maxGradeNumber) {
@@ -105,27 +103,40 @@ public class ChooseClassDialogFragment extends DialogFragment implements
     }
 
     @Override
-    public void onFetchFinished(boolean isSuccessful) {
-        if (isSuccessful) {
-            setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+    public void onSyncFinished(final boolean isSuccessful) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isSuccessful) {
+                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+                } else {
+                    View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
+                            null);
+                    TextView message = (TextView) view.findViewById(R.id.dialog_message);
+                    message.setText(R.string.dialog_no_connection_message);
+                    new AlertDialog.Builder(getContext())
+                            .setCancelable(false)
+                            .setView(view)
+                            .setPositiveButton(R.string.dialog_no_connection_try_again,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            getClassData();
+                                        }
+                                    })
+                            .show();
+                }
+            }
+        });
+
+    }
+
+    private void getClassData() {
+        boolean isConnected = Utilities.checkForNetworkConnection(getContext());
+        if (isConnected) {
+            BlichSyncAdapter.syncImmediately(getContext(), false, true, this);
         } else {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                    null);
-            TextView message = (TextView) view.findViewById(R.id.dialog_message);
-            message.setText(R.string.dialog_no_connection_message);
-            new AlertDialog.Builder(getContext())
-                    .setCancelable(false)
-                    .setView(view)
-                    .setPositiveButton(R.string.dialog_no_connection_try_again,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    new FetchClassData(getContext())
-                                            .addOnFetchFinishListener(ChooseClassDialogFragment.this)
-                                            .execute();
-                                }
-                            })
-                    .show();
+            onSyncFinished(false);
         }
     }
 }

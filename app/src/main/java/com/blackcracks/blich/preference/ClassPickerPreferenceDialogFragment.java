@@ -12,16 +12,16 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.FetchBlichData;
-import com.blackcracks.blich.data.FetchClassData;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Arrays;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
 public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmentCompat
-        implements FetchBlichData.OnFetchFinishListener {
+        implements BlichSyncAdapter.OnSyncFinishListener {
 
     private ClassPickerPreference mPreference;
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
@@ -65,7 +65,7 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     public void onStart() {
         super.onStart();
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        new FetchClassData(getContext()).addOnFetchFinishListener(this).execute();
+        getClassData();
     }
 
     @Override
@@ -80,35 +80,39 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     }
 
     @Override
-    public void onFetchFinished(boolean isSuccessful) {
-        if (isSuccessful) {
-            setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
-        } else {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                    null);
-            TextView message = (TextView) view.findViewById(R.id.dialog_message);
-            message.setText(R.string.dialog_no_connection_message);
-            new AlertDialog.Builder(getContext())
-                    .setCancelable(false)
-                    .setView(view)
-                    .setPositiveButton(R.string.dialog_no_connection_try_again,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    new FetchClassData(getContext())
-                                            .addOnFetchFinishListener(ClassPickerPreferenceDialogFragment.this)
-                                            .execute();
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    getDialog().dismiss();
-                                }
-                            })
-                    .show();
-        }
+    public void onSyncFinished(final boolean isSuccessful) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isSuccessful) {
+                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+                } else {
+                    View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
+                            null);
+                    TextView message = (TextView) view.findViewById(R.id.dialog_message);
+                    message.setText(R.string.dialog_no_connection_message);
+                    new AlertDialog.Builder(getContext())
+                            .setCancelable(false)
+                            .setView(view)
+                            .setPositiveButton(R.string.dialog_no_connection_try_again,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            getClassData();
+                                        }
+                                    })
+                            .setNegativeButton(R.string.dialog_cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            getDialog().dismiss();
+                                        }
+                                    })
+                            .show();
+                }
+            }
+        });
+
     }
 
     private void setValue(String value) {
@@ -131,5 +135,14 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
                 mGradeNumberPicker.setMaxValue(maxGradeNumber[newVal - 1]);
             }
         });
+    }
+
+    private void getClassData() {
+        boolean isConnected = Utilities.checkForNetworkConnection(getContext());
+        if (isConnected) {
+            BlichSyncAdapter.syncImmediately(getContext(), false, true, this);
+        } else {
+            onSyncFinished(false);
+        }
     }
 }
