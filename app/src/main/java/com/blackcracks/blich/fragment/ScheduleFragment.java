@@ -24,17 +24,14 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.FetchBlichData;
 import com.blackcracks.blich.data.FetchScheduleData;
+import com.blackcracks.blich.util.BlichDataUtils;
 
 import java.util.Calendar;
 
 
 public class ScheduleFragment extends Fragment implements
-        SettingsFragment.OnClassPickerPrefChangeListener,
         FetchBlichData.OnFetchFinishListener {
 
-    private static final String NEW_DATA_KEY = "new_data";
-
-    private boolean mShouldRefresh = true;
     private CoordinatorLayout mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ChooseClassDialogFragment mDialogFragment;
@@ -118,21 +115,10 @@ public class ScheduleFragment extends Fragment implements
                 .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
                         true);
         if (isFirstLaunch) {
-            mShouldRefresh = false;
             mDialogFragment = new ChooseClassDialogFragment();
             mDialogFragment.show(getActivity().getSupportFragmentManager(), "choose_class");
         }
-
-        SettingsFragment.addClassPickerPrefChangeListener(this);
         return mRootView;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            mShouldRefresh = savedInstanceState.getBoolean(NEW_DATA_KEY);
-        }
     }
 
     @Override
@@ -169,21 +155,10 @@ public class ScheduleFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (mShouldRefresh) {
+        if (BlichDataUtils.ClassUtils.isClassChanged()) {
             refreshSchedule();
-            mShouldRefresh = false;
+            BlichDataUtils.ClassUtils.setClassChanged(false);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(NEW_DATA_KEY, mShouldRefresh);
-    }
-
-    @Override
-    public void onClassPickerPrefChanged() {
-        mShouldRefresh = true;
     }
 
     @Override

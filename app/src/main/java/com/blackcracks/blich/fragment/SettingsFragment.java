@@ -9,17 +9,13 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
+import com.blackcracks.blich.util.BlichDataUtils;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String PREF_CLASS_PICKER_KEY = "class_picker";
-
-    private static List<OnClassPickerPrefChangeListener> sClassPickerListeners = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,9 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
                         .replace("/", "");
 
                 classPickerPicker.setSummary(grade);
-                for (OnClassPickerPrefChangeListener listener : sClassPickerListeners) {
-                    listener.onClassPickerPrefChanged();
-                }
+                BlichDataUtils.ClassUtils.setClassChanged(true);
             }
         }
     }
@@ -84,13 +78,5 @@ public class SettingsFragment extends PreferenceFragmentCompat
         super.onPause();
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    public static void addClassPickerPrefChangeListener(OnClassPickerPrefChangeListener listener) {
-        sClassPickerListeners.add(listener);
-    }
-
-    public interface OnClassPickerPrefChangeListener {
-        void onClassPickerPrefChanged();
     }
 }
