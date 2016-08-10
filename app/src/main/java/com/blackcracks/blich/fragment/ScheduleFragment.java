@@ -2,10 +2,7 @@ package com.blackcracks.blich.fragment;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
@@ -26,6 +23,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 
@@ -183,14 +181,13 @@ public class ScheduleFragment extends Fragment implements
     }
 
     @Override
-    public void onSyncFinished(boolean isSuccessful) {
-        final boolean isSuc = isSuccessful;
+    public void onSyncFinished(final boolean isSuccessful) {
         getActivity().runOnUiThread(
                 new Runnable() {
                     @Override
                     public void run() {
                         mSwipeRefreshLayout.setRefreshing(false);
-                        if (isSuc) {
+                        if (isSuccessful) {
                             Snackbar.make(mRootView,
                                     R.string.snackbar_schedule_fetch_success,
                                     Snackbar.LENGTH_LONG)
@@ -227,14 +224,9 @@ public class ScheduleFragment extends Fragment implements
 
     public void refreshSchedule() {
         mSwipeRefreshLayout.setRefreshing(true);
-        ConnectivityManager cm =
-                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
+        boolean isConnected = Utilities.checkForNetworkConnection(getContext());
         if (isConnected) {
-            BlichSyncAdapter.sync(getContext(), true, this);
+            BlichSyncAdapter.sync(getContext(), true, false, this);
         } else {
             onSyncFinished(false);
         }

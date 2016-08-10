@@ -52,6 +52,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String SCHEDULE_BUTTON_NAME = "dnn$ctr7919$TimeTableView$btnChangesTable";
 
     private static final String SCHEDULE_TABLE_ID = "dnn_ctr7919_TimeTableView_PlaceHolder";
+    private static final String SELECTOR_ID = "dnn_ctr7919_TimeTableView_ClassesList";
 
     private static final String CELL_CLASS = "TTCell";
     private static final String CANCELED_LESSON_CLASS = "TableFreeChange";
@@ -62,6 +63,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private Context mContext;
 
     private static boolean sFetchSchedule = false;
+    private static boolean sFetchClass = false;
     private static OnSyncFinishListener sOnSyncFinishListener;
 
     public BlichSyncAdapter(Context context, boolean autoInitialize) {
@@ -77,9 +79,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     public static void sync(Context context,
                             boolean fetchSchedule,
+                            boolean fetchClass,
                             @Nullable OnSyncFinishListener listener) {
 
         sFetchSchedule = fetchSchedule;
+        sFetchClass = fetchClass;
         sOnSyncFinishListener = listener;
 
         Bundle bundle = new Bundle();
@@ -128,9 +132,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                               ContentProviderClient contentProviderClient,
                               SyncResult syncResult) {
 
-        if (sFetchSchedule) {
-           fetchSchedule();
-        }
+        if (sFetchClass) fetchClass();
+        if (sFetchSchedule) fetchSchedule();
         finishSync(true);
     }
 
@@ -319,6 +322,79 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         mContext.getContentResolver().bulkInsert(
                 BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
+        return true;
+    }
+
+    private boolean fetchClass() {
+        BufferedReader reader = null;
+        String classHtml = "";
+        try {
+            /*
+            get the html
+             */
+            URL viewStateUrl = new URL(SOURCE_URL);
+            URLConnection viewStateCon = viewStateUrl.openConnection();
+            viewStateCon.setDoOutput(true);
+
+            reader = new BufferedReader(new InputStreamReader(viewStateCon.getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+            classHtml = builder.toString();
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (classHtml.equals("")) {
+            return false;
+        }
+
+        Document document = Jsoup.parse(classHtml);
+        Element selector = document.getElementById(SELECTOR_ID);
+        Elements options = selector.getElementsByTag("option");
+        List<ContentValues> classValues = new ArrayList<>();
+        int[] maxNumber = new int[4];
+        for (Element option : options) {
+            int class_index = Integer.parseInt(option.attr("value"));
+            String className = option.text();
+            String[] classNameSeparated = className.split(" - ");
+            String grade = classNameSeparated[0];
+            int grade_index = Integer.parseInt(classNameSeparated[1]);
+
+            switch (grade) {
+                case "ט":
+                    maxNumber[0] = grade_index;
+                    break;
+                case "י":
+                    maxNumber[1] = grade_index;
+                    break;
+                case "יא":
+                    maxNumber[2] = grade_index;
+                    break;
+                case "יב":
+                    maxNumber[3] = grade_index;
+                    break;
+            }
+
+            ContentValues classValue = new ContentValues();
+            classValue.put(BlichContract.ClassEntry.COL_CLASS_INDEX, class_index);
+            classValue.put(BlichContract.ClassEntry.COL_GRADE, grade);
+            classValue.put(BlichContract.ClassEntry.COL_GRADE_INDEX, grade_index);
+            classValues.add(classValue);
+        }
+        BlichDataUtils.ClassUtils.setMaxGradeNumber(maxNumber);
+        mContext.getContentResolver().bulkInsert(
+                BlichContract.ClassEntry.CONTENT_URI, classValues.toArray(new ContentValues[classValues.size()]));
         return true;
     }
 
