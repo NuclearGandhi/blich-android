@@ -1,11 +1,19 @@
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.sync;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncResult;
 import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 
-import com.blackcracks.blich.data.BlichContract.ClassEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.util.BlichDataUtils;
 
 import org.apache.http.NameValuePair;
@@ -27,26 +35,15 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <h1>Fetch Schedule Data from Blich's Website</h1>
- * This class fetches the current schedule of a given class from blich's website by
- * using POST requests to get the html.
- * The html is then parsed and writes the the wanted values to a database.
- *
- * @author zeBlackCracks
- */
-
 @SuppressWarnings("SpellCheckingInspection")
-public class FetchScheduleData extends FetchBlichData<Void, Void> {
-
-    @SuppressWarnings("unused")
-    private static final String LOG_TAG = FetchScheduleData.class.getSimpleName();
+public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private static final String SOURCE_URL =
             "http://blich.iscool.co.il/tabid/2117/language/he-IL/Default.aspx";
 
     private static final String VIEW_STATE = "__VIEWSTATE";
-    private static final String LAST_FOCUS = "__LASTFOCUS";
+    private static final String LAST_FOCUS = "__LAS" +
+            "TFOCUS";
     private static final String EVENT_ARGUMENT = "__EVENTARGUMENT";
     private static final String EVENT_TAGERT = "__EVENTTARGET";
 
@@ -64,12 +61,87 @@ public class FetchScheduleData extends FetchBlichData<Void, Void> {
 
     private Context mContext;
 
-    public FetchScheduleData(Context context) {
+    private static boolean sFetchSchedule = false;
+    private static OnSyncFinishListener sOnSyncFinishListener;
+
+    public BlichSyncAdapter(Context context, boolean autoInitialize) {
+        super(context, autoInitialize);
         mContext = context;
     }
 
+    public BlichSyncAdapter(Context context,
+                            boolean autoInitialize,
+                            boolean allowParallelSyncs) {
+        super(context, autoInitialize, allowParallelSyncs);
+    }
+
+    public static void sync(Context context,
+                            boolean fetchSchedule,
+                            @Nullable OnSyncFinishListener listener) {
+
+        sFetchSchedule = fetchSchedule;
+        sOnSyncFinishListener = listener;
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(
+                getSyncAccount(context),
+                context.getString(R.string.content_authority),
+                bundle);
+    }
+
+    public static Account getSyncAccount(Context context) {
+        // Get an instance of the Android account manager
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+
+        // Create the account type and default account
+        Account newAccount = new Account(
+                context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
+
+        // If the password doesn't exist, the account doesn't exist
+        if ( null == accountManager.getPassword(newAccount) ) {
+
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+            if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
+                return null;
+            }
+            /*
+             * If you don't set android:syncable="true" in
+             * in your <provider> element in the manifest,
+             * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */
+
+        }
+        return newAccount;
+    }
+
     @Override
-    protected Boolean doInBackground(Void... params) {
+    public void onPerformSync(Account account,
+                              Bundle bundle,
+                              String s,
+                              ContentProviderClient contentProviderClient,
+                              SyncResult syncResult) {
+
+        if (sFetchSchedule) {
+           fetchSchedule();
+        }
+        finishSync(true);
+    }
+
+    public void finishSync(boolean isSuccesful) {
+        if (sOnSyncFinishListener != null) {
+            sOnSyncFinishListener.onSyncFinished(isSuccesful);
+        }
+        clearSync();
+    }
+
+    private boolean fetchSchedule() {
         String[] classString = BlichDataUtils.ClassUtils.getCurrentClass(mContext)
                 .split("\'");
 
@@ -78,8 +150,8 @@ public class FetchScheduleData extends FetchBlichData<Void, Void> {
 
         Cursor cursor = mContext.getContentResolver().query(
                 BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{ClassEntry.COL_CLASS_INDEX},
-                ClassEntry.COL_GRADE + " = ? AND " + ClassEntry.COL_GRADE_INDEX + " = ?",
+                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
+                BlichContract.ClassEntry.COL_GRADE + " = ? AND " + BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?",
                 new String[]{grade, gradeNumber},
                 null);
 
@@ -193,23 +265,23 @@ public class FetchScheduleData extends FetchBlichData<Void, Void> {
 
                     switch (div.attr("class")) {
                         case CANCELED_LESSON_CLASS: {
-                            lessonTypes[k] = ScheduleEntry.LESSON_TYPE_CANCELED;
+                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_CANCELED;
                             break;
                         }
                         case CHANGED_LESSON_CLASS: {
-                            lessonTypes[k] = ScheduleEntry.LESSON_TYPE_CHANGED;
+                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_CHANGED;
                             break;
                         }
                         case EXAM_LESSON_CLASS: {
-                            lessonTypes[k] = ScheduleEntry.LESSON_TYPE_EXAM;
+                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_EXAM;
                             break;
                         }
                         case EVENT_LESSON_CLASS: {
-                            lessonTypes[k] = ScheduleEntry.LESSON_TYPE_EVENT;
+                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_EVENT;
                             break;
                         }
                         default: {
-                            lessonTypes[k] = ScheduleEntry.LESSON_TYPE_NORMAL;
+                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL;
                         }
                     }
                 }
@@ -232,22 +304,27 @@ public class FetchScheduleData extends FetchBlichData<Void, Void> {
                 }
 
                 ContentValues value = new ContentValues();
-                value.put(ScheduleEntry.COL_CLASS_SETTINGS, classValue);
-                value.put(ScheduleEntry.COL_DAY, column);
-                value.put(ScheduleEntry.COL_HOUR, row);
-                value.put(ScheduleEntry.COL_SUBJECT, subjectsValue);
-                value.put(ScheduleEntry.COL_CLASSROOM, classroomsValue);
-                value.put(ScheduleEntry.COL_TEACHER, teachersValue);
-                value.put(ScheduleEntry.COL_LESSON_TYPE, lessonTypesValue);
+                value.put(BlichContract.ScheduleEntry.COL_CLASS_SETTINGS, classValue);
+                value.put(BlichContract.ScheduleEntry.COL_DAY, column);
+                value.put(BlichContract.ScheduleEntry.COL_HOUR, row);
+                value.put(BlichContract.ScheduleEntry.COL_SUBJECT, subjectsValue);
+                value.put(BlichContract.ScheduleEntry.COL_CLASSROOM, classroomsValue);
+                value.put(BlichContract.ScheduleEntry.COL_TEACHER, teachersValue);
+                value.put(BlichContract.ScheduleEntry.COL_LESSON_TYPE, lessonTypesValue);
 
                 values.add(value);
             }
 
         }
         mContext.getContentResolver().bulkInsert(
-                ScheduleEntry.CONTENT_URI,
+                BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
         return true;
+    }
+
+    private void clearSync() {
+        sFetchSchedule = false;
+        sOnSyncFinishListener = null;
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
@@ -266,5 +343,9 @@ public class FetchScheduleData extends FetchBlichData<Void, Void> {
         }
 
         return result.toString();
+    }
+
+    public interface OnSyncFinishListener {
+        void onSyncFinished(boolean isSuccessful);
     }
 }

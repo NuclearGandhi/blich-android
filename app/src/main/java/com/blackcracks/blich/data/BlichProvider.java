@@ -126,7 +126,7 @@ public class BlichProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return null;
     }
 
@@ -168,7 +168,7 @@ public class BlichProvider extends ContentProvider {
         }
         db.setTransactionSuccessful();
         db.endTransaction();
-        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return returnCount;
     }
 
@@ -197,7 +197,7 @@ public class BlichProvider extends ContentProvider {
             }
         }
         if (rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            getContext().getContentResolver().notifyChange(uri, null, false);
         }
         return rowsDeleted;
     }
@@ -228,7 +228,7 @@ public class BlichProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         if (rowsUpdated != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            getContext().getContentResolver().notifyChange(uri, null, false);
         }
         return rowsUpdated;
     }

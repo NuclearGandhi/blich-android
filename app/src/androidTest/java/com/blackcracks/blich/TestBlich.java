@@ -9,11 +9,16 @@ import android.test.ApplicationTestCase;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 
-public class TestDatabase extends ApplicationTestCase<Application> {
+public class TestBlich extends ApplicationTestCase<Application> {
 
-    public TestDatabase() {
+    public TestBlich() {
         super(Application.class);
+    }
+
+    public void testSyncAdapter() {
+        BlichSyncAdapter.sync(getContext(), true, null);
     }
 
     public void testScheduleDatabase() {

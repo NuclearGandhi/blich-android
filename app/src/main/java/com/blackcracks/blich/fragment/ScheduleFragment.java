@@ -2,7 +2,10 @@ package com.blackcracks.blich.fragment;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
@@ -22,15 +25,14 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.data.FetchBlichData;
-import com.blackcracks.blich.data.FetchScheduleData;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 
 import java.util.Calendar;
 
 
 public class ScheduleFragment extends Fragment implements
         SettingsFragment.OnClassPickerPrefChangeListener,
-        FetchBlichData.OnFetchFinishListener {
+        BlichSyncAdapter.OnSyncFinishListener {
 
     private static final String NEW_DATA_KEY = "new_data";
 
@@ -106,12 +108,6 @@ public class ScheduleFragment extends Fragment implements
         }
         mSwipeRefreshLayout =
                 (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshSchedule();
-            }
-        });
         mSwipeRefreshLayout.setEnabled(false);
 
         boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(getContext())
@@ -187,42 +183,60 @@ public class ScheduleFragment extends Fragment implements
     }
 
     @Override
-    public void onFetchFinished(boolean isSuccessful) {
-        mSwipeRefreshLayout.setRefreshing(false);
-        if (isSuccessful) {
-            Snackbar.make(mRootView,
-                    R.string.snackbar_schedule_fetch_success,
-                    Snackbar.LENGTH_LONG)
-                    .show();
-        } else {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                    null);
-            TextView message = (TextView) view.findViewById(R.id.dialog_message);
-            message.setText(R.string.dialog_schedule_fetch_failed);
-            new AlertDialog.Builder(getContext())
-                    .setView(view)
-                    .setPositiveButton(R.string.dialog_no_connection_try_again,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    refreshSchedule();
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+    public void onSyncFinished(boolean isSuccessful) {
+        final boolean isSuc = isSuccessful;
+        getActivity().runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        if (isSuc) {
+                            Snackbar.make(mRootView,
+                                    R.string.snackbar_schedule_fetch_success,
+                                    Snackbar.LENGTH_LONG)
+                                    .show();
+                        } else {
+                            View view = LayoutInflater.from(getContext()).inflate(
+                                    R.layout.dialog_no_connection,
+                                    null);
+                            TextView message = (TextView) view.findViewById(R.id.dialog_message);
+                            message.setText(R.string.dialog_schedule_fetch_failed);
+                            new AlertDialog.Builder(getContext())
+                                    .setView(view)
+                                    .setPositiveButton(R.string.dialog_no_connection_try_again,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    refreshSchedule();
+                                                }
+                                            })
+                                    .setNegativeButton(R.string.dialog_cancel,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
 
-                                }
-                            })
-                    .show();
-        }
+                                                }
+                                            })
+                                    .show();
+                        }
+                    }
+                }
+        );
+
     }
 
     public void refreshSchedule() {
         mSwipeRefreshLayout.setRefreshing(true);
-        new FetchScheduleData(getContext())
-                .addOnFetchFinishListener(this)
-                .execute();
+        ConnectivityManager cm =
+                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        if (isConnected) {
+            BlichSyncAdapter.sync(getContext(), true, this);
+        } else {
+            onSyncFinished(false);
+        }
     }
 }

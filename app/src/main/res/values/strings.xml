@@ -30,4 +30,7 @@
 
     <string name="toast_back_pressed">לחץ עוד פעם כדי לעזוב</string>
 
+    <string name="sync_account_type" translatable="false">com.blackcracks.blich</string>
+    <string name="content_authority">com.blackcracks.blich</string>
+
 </resources>
