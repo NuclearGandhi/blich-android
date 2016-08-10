@@ -18,7 +18,7 @@ public class TestBlich extends ApplicationTestCase<Application> {
     }
 
     public void testSyncAdapter() {
-        BlichSyncAdapter.sync(getContext(), true, null);
+        BlichSyncAdapter.syncImmediately(getContext(), true, null);
     }
 
     public void testScheduleDatabase() {

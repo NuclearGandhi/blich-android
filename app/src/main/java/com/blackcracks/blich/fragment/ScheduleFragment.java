@@ -4,7 +4,6 @@ package com.blackcracks.blich.fragment;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -37,7 +36,6 @@ public class ScheduleFragment extends Fragment implements
     private boolean mShouldRefresh = true;
     private CoordinatorLayout mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ChooseClassDialogFragment mDialogFragment;
 
     public ScheduleFragment() {
         setHasOptionsMenu(true);
@@ -108,15 +106,6 @@ public class ScheduleFragment extends Fragment implements
                 (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setEnabled(false);
 
-        boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
-                        true);
-        if (isFirstLaunch) {
-            mShouldRefresh = false;
-            mDialogFragment = new ChooseClassDialogFragment();
-            mDialogFragment.show(getActivity().getSupportFragmentManager(), "choose_class");
-        }
-
         SettingsFragment.addClassPickerPrefChangeListener(this);
         return mRootView;
     }
@@ -144,19 +133,6 @@ public class ScheduleFragment extends Fragment implements
             }
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mDialogFragment != null) {
-            mDialogFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    refreshSchedule();
-                }
-            });
         }
     }
 
@@ -226,7 +202,7 @@ public class ScheduleFragment extends Fragment implements
         mSwipeRefreshLayout.setRefreshing(true);
         boolean isConnected = Utilities.checkForNetworkConnection(getContext());
         if (isConnected) {
-            BlichSyncAdapter.sync(getContext(), true, false, this);
+            BlichSyncAdapter.syncImmediately(getContext(), true, false, this);
         } else {
             onSyncFinished(false);
         }

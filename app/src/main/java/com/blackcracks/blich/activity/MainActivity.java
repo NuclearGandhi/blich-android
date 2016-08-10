@@ -1,9 +1,12 @@
 package com.blackcracks.blich.activity;
 
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -15,8 +18,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.fragment.SettingsFragment;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 
 import java.util.Locale;
 
@@ -29,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment mFragment;
     private View mToolbarElevation;
-    boolean mDoubleBackToExitPressedOnce = false;
+    private DialogFragment mDialogFragment;
 
+    boolean mDoubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc);
+
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
@@ -96,6 +103,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
+                        true);
+        if (isFirstLaunch) {
+            mDialogFragment = new ChooseClassDialogFragment();
+            mDialogFragment.show(getSupportFragmentManager(), "choose_class");
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mDialogFragment!= null) {
+            mDialogFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    initPeriodicSync();
+                }
+            });
+        } else {
+            initPeriodicSync();
+        }
     }
 
     @Override
@@ -105,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
                 FRAGMENT_TAG,
                 mFragment);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -125,6 +154,10 @@ public class MainActivity extends AppCompatActivity {
                 mDoubleBackToExitPressedOnce =false;
             }
         }, 2000);
+    }
+
+    private void initPeriodicSync() {
+        BlichSyncAdapter.initializeSyncAdapter(this);
     }
 
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {

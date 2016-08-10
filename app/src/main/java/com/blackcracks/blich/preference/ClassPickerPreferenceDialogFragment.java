@@ -140,7 +140,7 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     private void getClassData() {
         boolean isConnected = Utilities.checkForNetworkConnection(getContext());
         if (isConnected) {
-            BlichSyncAdapter.sync(getContext(), false, true, this);
+            BlichSyncAdapter.syncImmediately(getContext(), false, true, this);
         } else {
             onSyncFinished(false);
         }

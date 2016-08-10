@@ -7,10 +7,13 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
@@ -38,6 +41,8 @@ import java.util.List;
 @SuppressWarnings("SpellCheckingInspection")
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
+    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
+
     private static final String SOURCE_URL =
             "http://blich.iscool.co.il/tabid/2117/language/he-IL/Default.aspx";
 
@@ -60,9 +65,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
 
+    public static final int SYNC_INTERVAL = 10;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+
     private Context mContext;
 
-    private static boolean sFetchSchedule = false;
+    private static boolean sFetchSchedule = true;
     private static boolean sFetchClass = false;
     private static OnSyncFinishListener sOnSyncFinishListener;
 
@@ -71,28 +79,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         mContext = context;
     }
 
-    public BlichSyncAdapter(Context context,
-                            boolean autoInitialize,
-                            boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
-    }
 
-    public static void sync(Context context,
-                            boolean fetchSchedule,
-                            boolean fetchClass,
-                            @Nullable OnSyncFinishListener listener) {
 
-        sFetchSchedule = fetchSchedule;
-        sFetchClass = fetchClass;
-        sOnSyncFinishListener = listener;
-
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(
-                getSyncAccount(context),
-                context.getString(R.string.content_authority),
-                bundle);
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 
     public static Account getSyncAccount(Context context) {
@@ -121,8 +111,49 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
              * here.
              */
 
+            onAccountCreated(newAccount, context);
         }
         return newAccount;
+    }
+
+    private static void onAccountCreated(Account newAccount, Context context) {
+
+        configurePeriodicSync(context);
+        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
+    }
+
+    public static void configurePeriodicSync(Context context) {
+        Account account = getSyncAccount(context);
+        String authority = context.getString(R.string.content_authority);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic syncImmediately
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(SYNC_INTERVAL, SYNC_FLEXTIME).
+                    setSyncAdapter(account, authority).
+                    setExtras(new Bundle()).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, new Bundle(), SYNC_INTERVAL);
+        }
+    }
+
+    public static void syncImmediately(Context context,
+                                        boolean fetchSchedule,
+                                        boolean fetchClass,
+                                        @Nullable OnSyncFinishListener listener) {
+
+        sFetchSchedule = fetchSchedule;
+        sFetchClass = fetchClass;
+        sOnSyncFinishListener = listener;
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(
+                getSyncAccount(context),
+                context.getString(R.string.content_authority),
+                bundle);
     }
 
     @Override
@@ -132,14 +163,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                               ContentProviderClient contentProviderClient,
                               SyncResult syncResult) {
 
+        Log.d(LOG_TAG, "Syncing");
+
         if (sFetchClass) fetchClass();
         if (sFetchSchedule) fetchSchedule();
-        finishSync(true);
-    }
 
-    public void finishSync(boolean isSuccesful) {
         if (sOnSyncFinishListener != null) {
-            sOnSyncFinishListener.onSyncFinished(isSuccesful);
+            sOnSyncFinishListener.onSyncFinished(true);
         }
         clearSync();
     }
@@ -399,7 +429,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     }
 
     private void clearSync() {
-        sFetchSchedule = false;
+        sFetchSchedule = true;
+        sFetchClass = false;
         sOnSyncFinishListener = null;
     }
 
