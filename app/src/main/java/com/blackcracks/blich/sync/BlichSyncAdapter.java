@@ -2,21 +2,32 @@ package com.blackcracks.blich.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ActivityManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.NotificationCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
+import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.util.BlichDataUtils;
 
 import org.apache.http.NameValuePair;
@@ -36,10 +47,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
+
+    public static final String ACTION_SYNC_FINISHED = "sync_finished";
+    public static final String IS_SUCCESSFUL_EXTRA = "is_successful";
 
     private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
 
@@ -57,7 +72,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String SCHEDULE_BUTTON_NAME = "dnn$ctr7919$TimeTableView$btnChangesTable";
 
     private static final String SCHEDULE_TABLE_ID = "dnn_ctr7919_TimeTableView_PlaceHolder";
-    private static final String SELECTOR_ID = "dnn_ctr7919_TimeTableView_ClassesList";
 
     private static final String CELL_CLASS = "TTCell";
     private static final String CANCELED_LESSON_CLASS = "TableFreeChange";
@@ -65,14 +79,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
 
-    public static final int SYNC_INTERVAL = 10;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private static final int SYNC_INTERVAL = 60 * 60;
+    private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+
+    private static final int NOTIFICATION_UPDATE_ID = 100;
 
     private Context mContext;
+    private List<Lesson> mLessonNotificationList = new ArrayList<>();
 
-    private static boolean sFetchSchedule = true;
-    private static boolean sFetchClass = false;
-    private static OnSyncFinishListener sOnSyncFinishListener;
 
     public BlichSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -82,51 +96,41 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
 
     public static void initializeSyncAdapter(Context context) {
-        getSyncAccount(context);
+        Log.d(LOG_TAG, "Initializing sync");
+        boolean isPeriodicSyncOn = PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SettingsFragment.PREF_IS_SYNCING_ON, true);
+        if (isPeriodicSyncOn) {
+            configurePeriodicSync(context);
+        } else {
+            ContentResolver.removePeriodicSync(BlichSyncAdapter.getSyncAccount(context),
+                    context.getString(R.string.content_authority),
+                    Bundle.EMPTY);
+        }
     }
 
     public static Account getSyncAccount(Context context) {
-        // Get an instance of the Android account manager
+
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
 
-        // Create the account type and default account
         Account newAccount = new Account(
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
-        // If the password doesn't exist, the account doesn't exist
         if ( null == accountManager.getPassword(newAccount) ) {
 
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
             if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
                 return null;
             }
-            /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             */
-
-            onAccountCreated(newAccount, context);
         }
         return newAccount;
     }
 
-    private static void onAccountCreated(Account newAccount, Context context) {
-
-        configurePeriodicSync(context);
-        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
-    }
-
     public static void configurePeriodicSync(Context context) {
         Account account = getSyncAccount(context);
+        ContentResolver.setSyncAutomatically(account,
+                context.getString(R.string.content_authority), true);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // we can enable inexact timers in our periodic syncImmediately
             SyncRequest request = new SyncRequest.Builder().
                     syncPeriodic(SYNC_INTERVAL, SYNC_FLEXTIME).
                     setSyncAdapter(account, authority).
@@ -138,14 +142,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
     }
 
-    public static void syncImmediately(Context context,
-                                        boolean fetchSchedule,
-                                        boolean fetchClass,
-                                        @Nullable OnSyncFinishListener listener) {
-
-        sFetchSchedule = fetchSchedule;
-        sFetchClass = fetchClass;
-        sOnSyncFinishListener = listener;
+    public static void syncImmediately(Context context) {
 
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
@@ -165,13 +162,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         Log.d(LOG_TAG, "Syncing");
 
-        if (sFetchClass) fetchClass();
-        if (sFetchSchedule) fetchSchedule();
+        boolean isSuccessful = fetchSchedule();
 
-        if (sOnSyncFinishListener != null) {
-            sOnSyncFinishListener.onSyncFinished(true);
-        }
-        clearSync();
+        Intent intent = new Intent(ACTION_SYNC_FINISHED);
+        intent.putExtra(IS_SUCCESSFUL_EXTRA, isSuccessful);
+        LocalBroadcastManager.getInstance(getContext())
+                .sendBroadcast(intent);
+
+        notifyUser();
     }
 
     private boolean fetchSchedule() {
@@ -317,6 +315,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                             lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL;
                         }
                     }
+
+                    addLessonToNotificationList(classValue,
+                            column,
+                            row,
+                            subjects[k],
+                            lessonTypes[k]);
                 }
 
                 String subjectsValue = subjects[0];
@@ -355,83 +359,93 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return true;
     }
 
-    private boolean fetchClass() {
-        BufferedReader reader = null;
-        String classHtml = "";
-        try {
-            /*
-            get the html
-             */
-            URL viewStateUrl = new URL(SOURCE_URL);
-            URLConnection viewStateCon = viewStateUrl.openConnection();
-            viewStateCon.setDoOutput(true);
-
-            reader = new BufferedReader(new InputStreamReader(viewStateCon.getInputStream()));
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-            classHtml = builder.toString();
-        } catch (IOException e) {
-            return false;
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void addLessonToNotificationList(int classSettings,
+                                             int day,
+                                             int hour,
+                                             String subject,
+                                             String lessonType) {
+        if (!lessonType.equals(BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL)) {
+            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            int tommorow = today % 7;
+            if (today == day || tommorow == day) {
+                Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
+                mLessonNotificationList.add(lesson);
             }
         }
-
-        if (classHtml.equals("")) {
-            return false;
-        }
-
-        Document document = Jsoup.parse(classHtml);
-        Element selector = document.getElementById(SELECTOR_ID);
-        Elements options = selector.getElementsByTag("option");
-        List<ContentValues> classValues = new ArrayList<>();
-        int[] maxNumber = new int[4];
-        for (Element option : options) {
-            int class_index = Integer.parseInt(option.attr("value"));
-            String className = option.text();
-            String[] classNameSeparated = className.split(" - ");
-            String grade = classNameSeparated[0];
-            int grade_index = Integer.parseInt(classNameSeparated[1]);
-
-            switch (grade) {
-                case "ט":
-                    maxNumber[0] = grade_index;
-                    break;
-                case "י":
-                    maxNumber[1] = grade_index;
-                    break;
-                case "יא":
-                    maxNumber[2] = grade_index;
-                    break;
-                case "יב":
-                    maxNumber[3] = grade_index;
-                    break;
-            }
-
-            ContentValues classValue = new ContentValues();
-            classValue.put(BlichContract.ClassEntry.COL_CLASS_INDEX, class_index);
-            classValue.put(BlichContract.ClassEntry.COL_GRADE, grade);
-            classValue.put(BlichContract.ClassEntry.COL_GRADE_INDEX, grade_index);
-            classValues.add(classValue);
-        }
-        BlichDataUtils.ClassUtils.setMaxGradeNumber(maxNumber);
-        mContext.getContentResolver().bulkInsert(
-                BlichContract.ClassEntry.CONTENT_URI, classValues.toArray(new ContentValues[classValues.size()]));
-        return true;
     }
 
-    private void clearSync() {
-        sFetchSchedule = true;
-        sFetchClass = false;
-        sOnSyncFinishListener = null;
+    private void notifyUser() {
+
+        if (!mLessonNotificationList.isEmpty() && !isAppOnForeground()) {
+            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            NotificationCompat.InboxStyle inboxStyle =
+                    new NotificationCompat.InboxStyle();
+            if (mLessonNotificationList.get(0).getDay() == today) {
+
+                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
+                        R.string.notification_update_today)));
+                for (Lesson lesson : mLessonNotificationList) {
+                    if (lesson.getDay() == today) {
+                        buildTimetableLine(inboxStyle, lesson);
+                    } else {
+                        inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
+                                R.string.notification_update_tomorrow)));
+                        buildTimetableLine(inboxStyle, lesson);
+                    }
+                }
+            } else {
+                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
+                        R.string.notification_update_tomorrow)));
+                for (Lesson lesson : mLessonNotificationList) {
+                    buildTimetableLine(inboxStyle, lesson);
+                }
+            }
+            NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
+                    new NotificationCompat.Builder(getContext())
+                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
+                    .setContentTitle(getContext().getResources().getString(
+                            R.string.notification_update_title));
+
+            notificationBuilder.setStyle(inboxStyle);
+            NotificationManagerCompat.from(getContext())
+                    .notify(NOTIFICATION_UPDATE_ID, notificationBuilder.build());
+        }
+        mLessonNotificationList = new ArrayList<>();
+    }
+
+    private Spannable buildTimetableBoldString(String str) {
+        Spannable sp = new SpannableString(str);
+        sp.setSpan(new StyleSpan(Typeface.BOLD), 0, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sp;
+    }
+
+    private void buildTimetableLine(NotificationCompat.InboxStyle inboxStyle, Lesson lesson) {
+        String str = "שעה " +
+                lesson.getHour() +
+                ": " +
+                lesson.getSubject() +
+                "\n";
+        Spannable sp = new SpannableString(str);
+        sp.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, str.indexOf(":"), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        inboxStyle.addLine(sp);
+    }
+
+    private boolean isAppOnForeground() {
+        ActivityManager activityManager = (ActivityManager) getContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses =
+                activityManager.getRunningAppProcesses();
+        if (appProcesses == null) {
+            return false;
+        }
+        final String packageName = getContext().getPackageName();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                    appProcess.processName.equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
@@ -450,9 +464,5 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
         return result.toString();
-    }
-
-    public interface OnSyncFinishListener {
-        void onSyncFinished(boolean isSuccessful);
     }
 }

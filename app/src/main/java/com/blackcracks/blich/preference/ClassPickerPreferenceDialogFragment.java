@@ -1,7 +1,12 @@
 package com.blackcracks.blich.preference;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
@@ -12,7 +17,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.data.FetchClassService;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
 
@@ -20,8 +25,7 @@ import java.util.Arrays;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
-public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmentCompat
-        implements BlichSyncAdapter.OnSyncFinishListener {
+public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
     private ClassPickerPreference mPreference;
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
@@ -30,6 +34,8 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     private FrameLayout mProgressBar;
     private int mGradeIndex = 1;
     private int mGradeNumber = 1;
+
+    private BroadcastReceiver mFetchBroadcastReceiver;
 
     public static ClassPickerPreferenceDialogFragment newInstance(Preference preference) {
         ClassPickerPreferenceDialogFragment fragment = new ClassPickerPreferenceDialogFragment();
@@ -44,6 +50,19 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
         super.onCreate(savedInstanceState);
         mPreference = (ClassPickerPreference) getPreference();
         setValue(mPreference.getValue());
+
+        mFetchBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean isSuccessful =
+                        intent.getBooleanExtra(FetchClassService.IS_SUCCESSFUL_EXTRA, false);
+                if (isSuccessful) {
+                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+                } else {
+                    onFetchFailed();
+                }
+            }
+        };
     }
 
 
@@ -69,6 +88,21 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getContext())
+                .registerReceiver(mFetchBroadcastReceiver,
+                        new IntentFilter(FetchClassService.ACTION_FINISHED_FETCH));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext())
+                .unregisterReceiver(mFetchBroadcastReceiver);
+    }
+
+    @Override
     public void onDialogClosed(boolean isPositive) {
         if (isPositive) {
             mGradeIndex = mGradePicker.getValue();
@@ -79,40 +113,29 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
         }
     }
 
-    @Override
-    public void onSyncFinished(final boolean isSuccessful) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (isSuccessful) {
-                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
-                } else {
-                    View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                            null);
-                    TextView message = (TextView) view.findViewById(R.id.dialog_message);
-                    message.setText(R.string.dialog_no_connection_message);
-                    new AlertDialog.Builder(getContext())
-                            .setCancelable(false)
-                            .setView(view)
-                            .setPositiveButton(R.string.dialog_no_connection_try_again,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            getClassData();
-                                        }
-                                    })
-                            .setNegativeButton(R.string.dialog_cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            getDialog().dismiss();
-                                        }
-                                    })
-                            .show();
-                }
-            }
-        });
-
+    private void onFetchFailed() {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
+                null);
+        TextView message = (TextView) view.findViewById(R.id.dialog_message);
+        message.setText(R.string.dialog_no_connection_message);
+        new AlertDialog.Builder(getContext())
+                .setCancelable(false)
+                .setView(view)
+                .setPositiveButton(R.string.dialog_no_connection_try_again,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                getClassData();
+                            }
+                        })
+                .setNegativeButton(R.string.dialog_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                getDialog().dismiss();
+                            }
+                        })
+                .show();
     }
 
     private void setValue(String value) {
@@ -138,11 +161,12 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     }
 
     private void getClassData() {
-        boolean isConnected = Utilities.checkForNetworkConnection(getContext());
+        boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
-            BlichSyncAdapter.syncImmediately(getContext(), false, true, this);
+            Intent intent = new Intent(getContext(), FetchClassService.class);
+            getActivity().startService(intent);
         } else {
-            onSyncFinished(false);
+            onFetchFailed();
         }
     }
 }

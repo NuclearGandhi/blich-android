@@ -3,12 +3,17 @@ package com.blackcracks.blich.fragment;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -16,6 +21,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.FetchClassService;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -23,18 +29,34 @@ import com.blackcracks.blich.util.Utilities;
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
 
-public class ChooseClassDialogFragment extends DialogFragment implements
-        BlichSyncAdapter.OnSyncFinishListener {
+public class ChooseClassDialogFragment extends DialogFragment {
 
     public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
 
     private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
 
-    AlertDialog mDialog;
+    private AlertDialog mDialog;
+    private MaterialNumberPicker mGradeNumberPicker;
+    private MaterialNumberPicker mGradePicker;
+    private FrameLayout mProgressBar;
+    private BroadcastReceiver mFetchBroadcastReceiver;
 
-    MaterialNumberPicker mGradeNumberPicker;
-    MaterialNumberPicker mGradePicker;
-    FrameLayout mProgressBar;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mFetchBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean isSuccessful =
+                        intent.getBooleanExtra(FetchClassService.IS_SUCCESSFUL_EXTRA, false);
+                if (isSuccessful) {
+                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+                } else {
+                    onFetchFailed();
+                }
+            }
+        };
+    }
 
     @NonNull
     @Override
@@ -89,6 +111,27 @@ public class ChooseClassDialogFragment extends DialogFragment implements
         getClassData();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getContext())
+                .registerReceiver(mFetchBroadcastReceiver,
+                new IntentFilter(FetchClassService.ACTION_FINISHED_FETCH));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext())
+                .unregisterReceiver(mFetchBroadcastReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        BlichSyncAdapter.initializeSyncAdapter(getContext());
+    }
+
     private void setPickerValues(final int[] maxGradeNumber) {
         mProgressBar.setVisibility(View.GONE);
         mGradeNumberPicker.setVisibility(View.VISIBLE);
@@ -102,41 +145,31 @@ public class ChooseClassDialogFragment extends DialogFragment implements
         });
     }
 
-    @Override
-    public void onSyncFinished(final boolean isSuccessful) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (isSuccessful) {
-                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
-                } else {
-                    View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                            null);
-                    TextView message = (TextView) view.findViewById(R.id.dialog_message);
-                    message.setText(R.string.dialog_no_connection_message);
-                    new AlertDialog.Builder(getContext())
-                            .setCancelable(false)
-                            .setView(view)
-                            .setPositiveButton(R.string.dialog_no_connection_try_again,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            getClassData();
-                                        }
-                                    })
-                            .show();
-                }
-            }
-        });
-
+    private void onFetchFailed() {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
+                null);
+        TextView message = (TextView) view.findViewById(R.id.dialog_message);
+        message.setText(R.string.dialog_no_connection_message);
+        new AlertDialog.Builder(getContext())
+                .setCancelable(false)
+                .setView(view)
+                .setPositiveButton(R.string.dialog_no_connection_try_again,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                getClassData();
+                            }
+                        })
+                .show();
     }
 
     private void getClassData() {
-        boolean isConnected = Utilities.checkForNetworkConnection(getContext());
+        boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
-            BlichSyncAdapter.syncImmediately(getContext(), false, true, this);
+            Intent intent = new Intent(getContext(), FetchClassService.class);
+            getActivity().startService(intent);
         } else {
-            onSyncFinished(false);
+            onFetchFailed();
         }
     }
 }

@@ -15,7 +15,7 @@ public class BlichSyncService extends Service {
     public void onCreate() {
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
-                sSyncAdapter = new BlichSyncAdapter(this, true);
+                sSyncAdapter = new BlichSyncAdapter(this, false);
             }
         }
     }

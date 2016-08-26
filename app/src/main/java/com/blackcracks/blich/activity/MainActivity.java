@@ -1,10 +1,8 @@
 package com.blackcracks.blich.activity;
 
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -22,6 +20,8 @@ import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
 
@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment mFragment;
     private View mToolbarElevation;
-    private DialogFragment mDialogFragment;
 
     boolean mDoubleBackToExitPressedOnce = false;
 
@@ -104,27 +103,13 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
-                        true);
+        boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
-            mDialogFragment = new ChooseClassDialogFragment();
-            mDialogFragment.show(getSupportFragmentManager(), "choose_class");
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (mDialogFragment!= null) {
-            mDialogFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    initPeriodicSync();
-                }
-            });
+            BlichDataUtils.ClassUtils.setClassChanged(false);
+            DialogFragment dialogFragment = new ChooseClassDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "choose_class");
         } else {
-            initPeriodicSync();
+            BlichSyncAdapter.initializeSyncAdapter(this);
         }
     }
 
@@ -154,10 +139,6 @@ public class MainActivity extends AppCompatActivity {
                 mDoubleBackToExitPressedOnce =false;
             }
         }, 2000);
-    }
-
-    private void initPeriodicSync() {
-        BlichSyncAdapter.initializeSyncAdapter(this);
     }
 
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {

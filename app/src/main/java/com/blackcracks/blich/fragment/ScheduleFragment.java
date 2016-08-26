@@ -2,16 +2,21 @@ package com.blackcracks.blich.fragment;
 
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,19 +27,20 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.data.FetchBlichData;
-import com.blackcracks.blich.data.FetchScheduleData;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 
 
-public class ScheduleFragment extends Fragment implements
-        FetchBlichData.OnFetchFinishListener {
+public class ScheduleFragment extends Fragment {
+
+    private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
 
     private CoordinatorLayout mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ChooseClassDialogFragment mDialogFragment;
+    private BroadcastReceiver mSyncBroadcastReceiver;
 
     public ScheduleFragment() {
         setHasOptionsMenu(true);
@@ -44,8 +50,23 @@ public class ScheduleFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        //noinspection ConstantConditions
         activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
+
+        mSyncBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean isSuccessful = intent.getBooleanExtra(BlichSyncAdapter.IS_SUCCESSFUL_EXTRA, false);
+                mSwipeRefreshLayout.setRefreshing(false);
+                if (isSuccessful) {
+                    Snackbar.make(mRootView,
+                            R.string.snackbar_schedule_fetch_success,
+                            Snackbar.LENGTH_LONG)
+                            .show();
+                } else {
+                    onSyncFailed();
+                }
+            }
+        };
     }
 
     @Override
@@ -103,21 +124,16 @@ public class ScheduleFragment extends Fragment implements
         }
         mSwipeRefreshLayout =
                 (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshSchedule();
-            }
-        });
         mSwipeRefreshLayout.setEnabled(false);
-
-        boolean isFirstLaunch = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY,
-                        true);
-        if (isFirstLaunch) {
-            mDialogFragment = new ChooseClassDialogFragment();
-            mDialogFragment.show(getActivity().getSupportFragmentManager(), "choose_class");
+        if (Utilities.isFirstLaunch(getContext())) {
+            mSwipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
+            });
         }
+
         return mRootView;
     }
 
@@ -140,21 +156,12 @@ public class ScheduleFragment extends Fragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        if (mDialogFragment != null) {
-            mDialogFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    refreshSchedule();
-                }
-            });
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(getContext())
+                .registerReceiver(mSyncBroadcastReceiver,
+                        new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
+
         if (BlichDataUtils.ClassUtils.isClassChanged()) {
             refreshSchedule();
             BlichDataUtils.ClassUtils.setClassChanged(false);
@@ -162,42 +169,50 @@ public class ScheduleFragment extends Fragment implements
     }
 
     @Override
-    public void onFetchFinished(boolean isSuccessful) {
-        mSwipeRefreshLayout.setRefreshing(false);
-        if (isSuccessful) {
-            Snackbar.make(mRootView,
-                    R.string.snackbar_schedule_fetch_success,
-                    Snackbar.LENGTH_LONG)
-                    .show();
-        } else {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
-                    null);
-            TextView message = (TextView) view.findViewById(R.id.dialog_message);
-            message.setText(R.string.dialog_schedule_fetch_failed);
-            new AlertDialog.Builder(getContext())
-                    .setView(view)
-                    .setPositiveButton(R.string.dialog_no_connection_try_again,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    refreshSchedule();
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext())
+                .unregisterReceiver(mSyncBroadcastReceiver);
+    }
 
-                                }
-                            })
-                    .show();
-        }
+    public void onSyncFailed() {
+        View view = LayoutInflater.from(getContext()).inflate(
+                R.layout.dialog_no_connection,
+                null);
+        TextView message = (TextView) view.findViewById(R.id.dialog_message);
+        message.setText(R.string.dialog_schedule_fetch_failed);
+        new AlertDialog.Builder(getContext())
+                .setView(view)
+                .setPositiveButton(R.string.dialog_no_connection_try_again,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshSchedule();
+                            }
+                        })
+                .setNegativeButton(R.string.dialog_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                .show();
     }
 
     public void refreshSchedule() {
-        mSwipeRefreshLayout.setRefreshing(true);
-        new FetchScheduleData(getContext())
-                .addOnFetchFinishListener(this)
-                .execute();
+        Log.d(LOG_TAG, "Refreshing");
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        });
+        boolean isConnected = Utilities.isThereNetworkConnection(getContext());
+        if (isConnected) {
+            BlichSyncAdapter.syncImmediately(getContext());
+        } else {
+            onSyncFailed();
+        }
     }
 }

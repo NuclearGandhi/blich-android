@@ -16,6 +16,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String PREF_CLASS_PICKER_KEY = "class_picker";
+    public static final String PREF_IS_SYNCING_ON = "sync_on";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
