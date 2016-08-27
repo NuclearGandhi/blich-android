@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "schedule_fragment";
 
+    private static final String IS_FIRST_INSTANCE_KEY = "is_first";
+
     private Fragment mFragment;
     private View mToolbarElevation;
 
@@ -65,8 +67,13 @@ public class MainActivity extends AppCompatActivity {
 
         final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc);
+                this, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
 
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, 0);
+            }
+        };
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
@@ -108,13 +115,16 @@ public class MainActivity extends AppCompatActivity {
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
         } else {
             BlichSyncAdapter.initializeSyncAdapter(this);
-            BlichSyncAdapter.syncImmediately(this);
+            if (savedInstanceState == null && !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
+                BlichSyncAdapter.syncImmediately(this);
+            }
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean(IS_FIRST_INSTANCE_KEY, false);
         getSupportFragmentManager().putFragment(outState,
                 FRAGMENT_TAG,
                 mFragment);
