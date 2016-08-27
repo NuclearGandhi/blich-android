@@ -9,7 +9,6 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
-import com.blackcracks.blich.util.BlichDataUtils;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat
@@ -62,7 +61,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
                         .replace("/", "");
 
                 classPickerPicker.setSummary(grade);
-                BlichDataUtils.ClassUtils.setClassChanged(true);
             }
         }
     }

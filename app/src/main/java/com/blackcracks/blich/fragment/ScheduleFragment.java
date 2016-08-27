@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -27,8 +30,11 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
-import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.PrefUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
@@ -49,8 +55,6 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
 
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -138,6 +142,14 @@ public class ScheduleFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.fragment_schedule, menu);
     }
@@ -162,10 +174,7 @@ public class ScheduleFragment extends Fragment {
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
 
-        if (BlichDataUtils.ClassUtils.isClassChanged()) {
-            refreshSchedule();
-            BlichDataUtils.ClassUtils.setClassChanged(false);
-        }
+        new GetCurrentClassTask().execute();
     }
 
     @Override
@@ -213,6 +222,60 @@ public class ScheduleFragment extends Fragment {
             BlichSyncAdapter.syncImmediately(getContext());
         } else {
             onSyncFailed();
+        }
+    }
+
+    private class GetCurrentClassTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+
+            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+            Cursor scheduleCursor = getContext().getContentResolver().query(
+                    ScheduleEntry.CONTENT_URI,
+                    new String[]{ScheduleEntry.COL_CLASS_SETTINGS},
+                    null,
+                    null,
+                    ScheduleEntry.COL_DAY + " LIMIT 1");
+
+            String classIndex = "";
+
+            if (scheduleCursor != null && scheduleCursor.moveToFirst()) {
+                classIndex = scheduleCursor.getString(scheduleCursor
+                        .getColumnIndex(ScheduleEntry.COL_CLASS_SETTINGS));
+                scheduleCursor.close();
+            }
+
+            Cursor classCursor = getContext().getContentResolver().query(
+                    ClassEntry.CONTENT_URI,
+                    new String[] {ClassEntry.COL_GRADE, ClassEntry.COL_GRADE_INDEX},
+                    ClassEntry.COL_CLASS_INDEX + " = ?",
+                    new String[] {classIndex},
+                    null);
+
+            String currentClass = "";
+
+            if (classCursor != null && classCursor.moveToFirst()) {
+                currentClass = classCursor.getString(classCursor
+                        .getColumnIndex(ClassEntry.COL_GRADE)) + "'/" +
+                        classCursor.getInt(classCursor
+                        .getColumnIndex(ClassEntry.COL_GRADE_INDEX));
+                Log.d(LOG_TAG, currentClass);
+                classCursor.close();
+            }
+
+            String classSettings = PrefUtils.getClassSettings(getContext());
+            Log.d(LOG_TAG, classSettings);
+            return !currentClass.equals(classSettings);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean didClassChange) {
+            if (didClassChange) {
+                refreshSchedule();
+            }
         }
     }
 }

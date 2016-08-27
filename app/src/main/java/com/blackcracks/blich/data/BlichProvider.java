@@ -136,6 +136,8 @@ public class BlichProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         int returnCount = 0;
 
+        db.delete(ScheduleEntry.TABLE_NAME, null, null);
+
         switch (sUriMatcher.match(uri)) {
             case SCHEDULE: {
                 db.beginTransaction();

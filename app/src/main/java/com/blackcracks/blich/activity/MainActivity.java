@@ -20,7 +20,6 @@ import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
-import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
@@ -105,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
 
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
-            BlichDataUtils.ClassUtils.setClassChanged(false);
             DialogFragment dialogFragment = new ChooseClassDialogFragment();
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
         } else {
             BlichSyncAdapter.initializeSyncAdapter(this);
+            BlichSyncAdapter.syncImmediately(this);
         }
     }
 

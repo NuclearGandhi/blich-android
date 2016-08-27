@@ -134,7 +134,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             SyncRequest request = new SyncRequest.Builder().
                     syncPeriodic(SYNC_INTERVAL, SYNC_FLEXTIME).
                     setSyncAdapter(account, authority).
-                    setExtras(new Bundle()).build();
+                    setExtras(Bundle.EMPTY).build();
             ContentResolver.requestSync(request);
         } else {
             ContentResolver.addPeriodicSync(account,
