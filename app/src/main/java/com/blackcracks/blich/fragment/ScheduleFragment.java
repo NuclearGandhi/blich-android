@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -30,9 +29,8 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
-import com.blackcracks.blich.data.BlichDatabaseHelper;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.PrefUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -173,8 +171,9 @@ public class ScheduleFragment extends Fragment {
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
-
-        new GetCurrentClassTask().execute();
+        if (!Utilities.isFirstLaunch(getContext())) {
+            new GetCurrentClassTask().execute();
+        }
     }
 
     @Override
@@ -229,9 +228,6 @@ public class ScheduleFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-
-            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
             Cursor scheduleCursor = getContext().getContentResolver().query(
                     ScheduleEntry.CONTENT_URI,
