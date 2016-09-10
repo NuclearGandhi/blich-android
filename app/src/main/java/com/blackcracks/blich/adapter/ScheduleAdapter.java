@@ -45,10 +45,22 @@ public class ScheduleAdapter extends CursorAdapter {
 
         holder.hourView.setText(String.format(Locale.getDefault(), "%d", hour));
 
-        String[] subjects = subjectsValue.split(",");
-        String[] classrooms = classroomsValue.split(",");
-        String[] teachers = teachersValue.split(",");
-        String[] lessonTypes = lessonTypesValue.split(",");
+        String[] subjects = subjectsValue.split(";");
+
+        String[] classrooms;
+        if (classroomsValue != null) {
+            classrooms = classroomsValue.split(";");
+        } else {
+            classrooms = new String[subjects.length + 1];
+        }
+        String[] teachers;
+        if (teachersValue != null) {
+            teachers = teachersValue.split(";");
+        } else {
+            teachers = new String[subjects.length + 1];
+        }
+
+        String[] lessonTypes = lessonTypesValue.split(";");
         holder.infoLinearLayout.removeAllViews();
 
         for (int i = 0; i < subjects.length; i++) {
@@ -60,24 +72,31 @@ public class ScheduleAdapter extends CursorAdapter {
             infoHolder.subjectView.setText(subjects[i]);
             infoHolder.teacherView.setText(teachers[i]);
             infoHolder.classroomView.setText(classrooms[i]);
+
+            int background = 0;
             switch (lessonTypes[i]) {
                 case ScheduleEntry.LESSON_TYPE_CANCELED: {
-                    info.setBackgroundColor(ContextCompat.getColor(context, R.color.lesson_canceled));
+                    background = ContextCompat.getColor(context, R.color.lesson_canceled);
                     break;
                 }
                 case ScheduleEntry.LESSON_TYPE_CHANGED: {
-                    info.setBackgroundColor(ContextCompat.getColor(context, R.color.lesson_changed));
+                    background = ContextCompat.getColor(context, R.color.lesson_changed);
                     break;
                 }
                 case ScheduleEntry.LESSON_TYPE_EXAM: {
-                    info.setBackgroundColor(ContextCompat.getColor(context, R.color.lesson_exam));
+                    background = ContextCompat.getColor(context, R.color.lesson_exam);
                     break;
                 }
                 case ScheduleEntry.LESSON_TYPE_EVENT: {
-                    info.setBackgroundColor(ContextCompat.getColor(context, R.color.lesson_event));
+                    background = ContextCompat.getColor(context, R.color.lesson_event);
                     break;
                 }
             }
+
+            if (background != 0) {
+                infoHolder.subjectView.setTextColor(background);
+            }
+
             if (i == subjects.length - 1) {
                 int padding_in_dp = 16;
                 final float scale = context.getResources().getDisplayMetrics().density;

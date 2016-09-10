@@ -139,6 +139,7 @@ public class ScheduleFragment extends Fragment {
         return mRootView;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -254,10 +255,13 @@ public class ScheduleFragment extends Fragment {
             String currentClass = "";
 
             if (classCursor != null && classCursor.moveToFirst()) {
-                currentClass = classCursor.getString(classCursor
-                        .getColumnIndex(ClassEntry.COL_GRADE)) + "'/" +
-                        classCursor.getInt(classCursor
-                        .getColumnIndex(ClassEntry.COL_GRADE_INDEX));
+                String gradeName = classCursor.getString(classCursor.getColumnIndex(ClassEntry.COL_GRADE));
+                int gradeIndex = classCursor.getInt(classCursor.getColumnIndex(ClassEntry.COL_GRADE_INDEX));
+                if (gradeIndex == 0) {
+                    currentClass = gradeName;
+                } else {
+                    currentClass = gradeName + "'" + gradeIndex;
+                }
                 Log.d(LOG_TAG, currentClass);
                 classCursor.close();
             }

@@ -35,6 +35,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
@@ -173,17 +174,27 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     }
 
     private boolean fetchSchedule() {
-        String[] classString = BlichDataUtils.ClassUtils.getCurrentClass(mContext)
-                .split("\'");
 
-        String grade = classString[0];
-        String gradeNumber = classString[1];
+        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(getContext());
+        String selection;
+        String[] selectionArgs;
+
+        if (currentClass.contains("'")) {
+            selectionArgs = currentClass.split("'");
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
+                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
+        } else {
+            selectionArgs = new String[]{currentClass};
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
+        }
+
+
 
         Cursor cursor = mContext.getContentResolver().query(
                 BlichContract.ClassEntry.CONTENT_URI,
                 new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                BlichContract.ClassEntry.COL_GRADE + " = ? AND " + BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?",
-                new String[]{grade, gradeNumber},
+                selection,
+                selectionArgs,
                 null);
 
         int classValue;
@@ -274,6 +285,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             Element lesson = lessons.get(i);
             Elements divs = lesson.getElementsByTag("div");
 
+            Elements trs = lesson.getElementsByTag("tr");
+            Elements tds = new Elements();
+            for (Element tr : trs) {
+                tds.add(tr.getElementsByTag("td").get(0));
+            }
+
+            divs.addAll(tds);
+
             if (divs.size() != 0) {
                 String[] subjects = new String[divs.size()];
                 String[] classrooms = new String[divs.size()];
@@ -284,14 +303,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     String html = div.html();
                     String[] text = html.split("</b>");
 
-                    subjects[k] = text[0].replace("<b>", "");
+                    subjects[k] = text[0].replace("<b>", "").replace("<br>", " ");
+                    subjects[k] = Parser.unescapeEntities(subjects[k], false);
 
-                    if (!text[1].equals("")) {
+                    if (text.length == 2) {
                         text = text[1].split("<br>");
 
                         classrooms[k] = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
 
                         teachers[k] = text[1];
+                    } else {
+                        classrooms[k] = " ";
+                        teachers[k] = " ";
                     }
 
                     switch (div.attr("class")) {
@@ -325,19 +348,19 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                 String subjectsValue = subjects[0];
                 for (int j = 1; j < subjects.length; j++) {
-                    subjectsValue = subjectsValue + "," + subjects[j];
+                    subjectsValue = subjectsValue + ";" + subjects[j];
                 }
                 String classroomsValue = classrooms[0];
                 for (int j = 1; j < classrooms.length; j++) {
-                    classroomsValue = classroomsValue + "," + classrooms[j];
+                    classroomsValue = classroomsValue + ";" + classrooms[j];
                 }
                 String teachersValue = teachers[0];
                 for (int j = 1; j < teachers.length; j++) {
-                    teachersValue = teachersValue + "," + teachers[j];
+                    teachersValue = teachersValue + ";" + teachers[j];
                 }
                 String lessonTypesValue = lessonTypes[0];
                 for (int j = 1; j < lessonTypes.length; j++) {
-                    lessonTypesValue = lessonTypesValue + "," + lessonTypes[j];
+                    lessonTypesValue = lessonTypesValue + ";" + lessonTypes[j];
                 }
 
                 ContentValues value = new ContentValues();

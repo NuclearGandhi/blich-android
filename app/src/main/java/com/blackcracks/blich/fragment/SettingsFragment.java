@@ -57,8 +57,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             case PREF_CLASS_PICKER_KEY: {
                 ClassPickerPreference classPickerPicker = (ClassPickerPreference) findPreference(key);
                 String grade = sharedPreferences.getString(key,
-                        getResources().getString(R.string.pref_class_picker_default_value))
-                        .replace("/", "");
+                        getString(R.string.pref_class_picker_default_value));
 
                 classPickerPicker.setSummary(grade);
             }

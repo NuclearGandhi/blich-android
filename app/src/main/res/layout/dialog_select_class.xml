@@ -19,13 +19,13 @@
         android:text="@string/dialog_choose_class_title" />
 
     <TextView
+        android:id="@+id/dialog_choose_class_content"
         style="?android:attr/textAppearanceMedium"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="24dp"
         android:gravity="start"
-        android:paddingBottom="16dp"
-        android:paddingEnd="24dp"
-        android:paddingStart="24dp"
         android:text="@string/dialog_choose_class_content" />
 
     <LinearLayout
@@ -42,10 +42,10 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
+            android:visibility="gone"
             app:npBackgroundColor="@android:color/transparent"
             app:npDefaultValue="1"
-            app:npMaxValue="4"
-            app:npMinValue="1"
+            app:npMinValue="0"
             app:npSeparatorColor="@color/colorAccent"
             app:npTextColor="@color/black_text"
             app:npTextSize="20sp"
@@ -53,9 +53,8 @@
 
         <biz.kasual.materialnumberpicker.MaterialNumberPicker
             android:id="@+id/dialog_choose_class_number_picker"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:visibility="gone"
             app:npBackgroundColor="@android:color/transparent"
             app:npDefaultValue="1"
@@ -78,8 +77,6 @@
                 android:layout_gravity="center"
                 android:indeterminate="true" />
         </FrameLayout>
-
-
     </LinearLayout>
 
 </LinearLayout>

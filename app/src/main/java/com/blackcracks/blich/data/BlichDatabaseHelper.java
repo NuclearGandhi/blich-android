@@ -8,7 +8,7 @@ import com.blackcracks.blich.data.BlichContract.*;
 
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_NAME = "blich.db";
 
@@ -34,7 +34,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 ClassEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ClassEntry.COL_CLASS_INDEX + " INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
                 ClassEntry.COL_GRADE + " TEXT NOT NULL, " +
-                ClassEntry.COL_GRADE_INDEX + " INTEGER NOT NULL);";
+                ClassEntry.COL_GRADE_INDEX + " INTEGER);";
 
         db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
         db.execSQL(SQL_CREATE_CLASS_TABLE);

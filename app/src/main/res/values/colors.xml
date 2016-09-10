@@ -10,8 +10,8 @@
     <color name="black_text">#212121</color>
     <color name="white_text">#FFFFFF</color>
 
-    <color name="lesson_canceled">#EF9A9A</color>
-    <color name="lesson_changed">#64B5F6</color>
-    <color name="lesson_exam">#FFF176</color>
-    <color name="lesson_event">#81C784</color>
+    <color name="lesson_canceled">#E53935</color>
+    <color name="lesson_changed">#1976D2</color>
+    <color name="lesson_exam">#FF8F00</color>
+    <color name="lesson_event">#388E3C</color>
 </resources>

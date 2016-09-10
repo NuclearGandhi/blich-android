@@ -2,6 +2,8 @@
   <dictionary name="Administrator">
     <words>
       <w>blich</w>
+      <w>linearlayout</w>
+      <w>snackbar</w>
     </words>
   </dictionary>
 </component>

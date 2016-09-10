@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -17,23 +20,23 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.data.FetchClassService;
-import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
 public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
     private ClassPickerPreference mPreference;
-    private static final String[] sDisplayedValues = new String[]{"ט'", "י'", "יא'", "יב'"};
+
     private MaterialNumberPicker mGradeNumberPicker;
     private MaterialNumberPicker mGradePicker;
     private FrameLayout mProgressBar;
-    private int mGradeIndex = 1;
-    private int mGradeNumber = 1;
 
     private BroadcastReceiver mFetchBroadcastReceiver;
 
@@ -49,7 +52,6 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPreference = (ClassPickerPreference) getPreference();
-        setValue(mPreference.getValue());
 
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -57,14 +59,13 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
                 boolean isSuccessful =
                         intent.getBooleanExtra(FetchClassService.IS_SUCCESSFUL_EXTRA, false);
                 if (isSuccessful) {
-                    setPickerValues(BlichDataUtils.ClassUtils.getMaxGradeNumber());
+                    new GetGradesTask().execute();
                 } else {
                     onFetchFailed();
                 }
             }
         };
     }
-
 
     @Override
     protected void onBindDialogView(View view) {
@@ -75,7 +76,6 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
                 (MaterialNumberPicker) view.findViewById(R.id.dialog_choose_class_number_picker);
         mGradePicker =
                 (MaterialNumberPicker) view.findViewById(R.id.dialog_choose_class_name_picker);
-        mGradePicker.setDisplayedValues(sDisplayedValues);
 
         mProgressBar = (FrameLayout) view.findViewById(R.id.picker_progressbar);
     }
@@ -105,11 +105,14 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     @Override
     public void onDialogClosed(boolean isPositive) {
         if (isPositive) {
-            mGradeIndex = mGradePicker.getValue();
-            String currentGrade = sDisplayedValues[mGradeIndex - 1];
-            mGradeNumber = mGradeNumberPicker.getValue();
-            String grade = currentGrade + "/" + mGradeNumber;
-            mPreference.setValue(grade);
+            String[] displayedValues = mGradePicker.getDisplayedValues();
+            String gradeName = displayedValues[mGradePicker.getValue()];
+            int gradeIndex = mGradeNumberPicker.getValue();
+            if (gradeIndex == 0) {
+                mPreference.setValue(gradeName);
+            } else {
+                mPreference.setValue(gradeName + "'" + gradeIndex);
+            }
         }
     }
 
@@ -138,28 +141,6 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
                 .show();
     }
 
-    private void setValue(String value) {
-        String[] grade = value.split("/");
-        String gradeString = grade[0];
-        mGradeIndex = Arrays.asList(sDisplayedValues).indexOf(gradeString) + 1;
-        mGradeNumber = Integer.parseInt(grade[1]);
-    }
-
-    private void setPickerValues(final int[] maxGradeNumber) {
-        mProgressBar.setVisibility(View.GONE);
-        mGradeNumberPicker.setVisibility(View.VISIBLE);
-        ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-        mGradeNumberPicker.setMaxValue(maxGradeNumber[mGradeIndex - 1]);
-        mGradeNumberPicker.setValue(mGradeNumber);
-        mGradePicker.setValue(mGradeIndex);
-        mGradePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                mGradeNumberPicker.setMaxValue(maxGradeNumber[newVal - 1]);
-            }
-        });
-    }
-
     private void getClassData() {
         boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
@@ -167,6 +148,106 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
             getActivity().startService(intent);
         } else {
             onFetchFailed();
+        }
+    }
+
+    private class GetGradesTask extends AsyncTask<Void, Void, Void> {
+
+        List<String> mNormalGradesNamesArray = new ArrayList<>();
+        List<String> mAbnormalGradesNamesArray = new ArrayList<>();
+        List<Integer> mGradesIndexArray = new ArrayList<>();
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+            Cursor cursor = db.query(
+                    ClassEntry.TABLE_NAME,
+                    new String[]{ClassEntry.COL_GRADE,
+                            "MAX(" + ClassEntry.COL_GRADE_INDEX + ")"},
+                    null,
+                    null,
+                    ClassEntry.COL_GRADE,
+                    null, null);
+
+            if (cursor.moveToFirst()) {
+                int gradeNameCursorIndex = cursor.getColumnIndex(ClassEntry.COL_GRADE);
+                int gradeIndexCursorIndex =
+                        cursor.getColumnIndex("MAX(" + ClassEntry.COL_GRADE_INDEX + ")");
+
+                mNormalGradesNamesArray = new ArrayList<>();
+                mAbnormalGradesNamesArray = new ArrayList<>();
+                mGradesIndexArray = new ArrayList<>();
+
+                if (cursor.getInt(gradeIndexCursorIndex) != 0) {
+                    mGradesIndexArray.add(cursor.getInt(gradeIndexCursorIndex));
+                    mNormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
+                } else {
+                    mAbnormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
+                }
+                while (cursor.moveToNext()) {
+                    if (cursor.getInt(gradeIndexCursorIndex) != 0) {
+                        mGradesIndexArray.add(cursor.getInt(gradeIndexCursorIndex));
+                        mNormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
+                    } else {
+                        mAbnormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
+                    }
+                }
+            }
+
+            cursor.close();
+            db.close();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void param) {
+
+
+            final List<String> displayedValues = mNormalGradesNamesArray;
+            displayedValues.addAll(mAbnormalGradesNamesArray);
+
+            int displayedValuesSize = displayedValues.size();
+
+            mGradePicker.setMaxValue(displayedValuesSize - 1);
+            mGradePicker.setDisplayedValues(displayedValues.toArray(new String[displayedValuesSize]));
+            NumberPicker.OnValueChangeListener onValueChangeListener =
+                    new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
+                    if (newVal > mGradesIndexArray.size() - 1) {
+                        mGradeNumberPicker.setVisibility(View.INVISIBLE);
+                        mGradeNumberPicker.setMinValue(0);
+                        mGradeNumberPicker.setValue(0);
+                    } else {
+                        mGradeNumberPicker.setVisibility(View.VISIBLE);
+                        mGradeNumberPicker.setMinValue(1);
+                        mGradeNumberPicker.setMaxValue(mGradesIndexArray.get(newVal));
+                    }
+                }
+            };
+            mGradePicker.setOnValueChangedListener(onValueChangeListener);
+
+            if (mPreference.getValue().contains("'")) {
+                String[] currentValue = mPreference.getValue().split("'");
+                int gradeNamePosition = displayedValues.indexOf(currentValue[0]);
+                int gradeNumber = Integer.parseInt(currentValue[1]);
+                onValueChangeListener.onValueChange(mGradePicker, 1, gradeNamePosition);
+                mGradePicker.setValue(gradeNamePosition);
+                mGradeNumberPicker.setValue(gradeNumber);
+                mGradeNumberPicker.setVisibility(View.VISIBLE);
+            } else {
+                int gradePosition = displayedValues.indexOf(mPreference.getValue());
+                mGradePicker.setValue(gradePosition);
+                mGradeNumberPicker.setMinValue(0);
+                mGradeNumberPicker.setValue(0);
+                mGradeNumberPicker.setVisibility(View.INVISIBLE);
+            }
+
+            mProgressBar.setVisibility(View.GONE);
+            mGradePicker.setVisibility(View.VISIBLE);
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
         }
     }
 }

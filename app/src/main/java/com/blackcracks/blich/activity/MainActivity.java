@@ -1,8 +1,8 @@
 package com.blackcracks.blich.activity;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
@@ -35,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment mFragment;
     private View mToolbarElevation;
-
-    boolean mDoubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +112,9 @@ public class MainActivity extends AppCompatActivity {
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
         } else {
             BlichSyncAdapter.initializeSyncAdapter(this);
-            if (savedInstanceState == null && !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
+            if (savedInstanceState == null) {
+                BlichSyncAdapter.syncImmediately(this);
+            } else if (!savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 BlichSyncAdapter.syncImmediately(this);
             }
         }
@@ -130,29 +129,12 @@ public class MainActivity extends AppCompatActivity {
                 mFragment);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mDoubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
-
-        this.mDoubleBackToExitPressedOnce = true;
-        Toast.makeText(this, R.string.toast_back_pressed, Toast.LENGTH_SHORT)
-                .show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                mDoubleBackToExitPressedOnce =false;
-            }
-        }, 2000);
-    }
-
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {
+
+        @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment, fragment, FRAGMENT_TAG);
+
         if (addToBackStack) {
             transaction.addToBackStack(null);
         }

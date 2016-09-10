@@ -11,7 +11,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginRight="72dp">
 
         <TextView
             android:id="@+id/listview_subject_textview"

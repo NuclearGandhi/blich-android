@@ -5,8 +5,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.blackcracks.blich.util.BlichDataUtils;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -80,36 +78,26 @@ public class FetchClassService extends IntentService {
         Element selector = document.getElementById(SELECTOR_ID);
         Elements options = selector.getElementsByTag("option");
         List<ContentValues> classValues = new ArrayList<>();
-        int[] maxNumber = new int[4];
         for (Element option : options) {
             int class_index = Integer.parseInt(option.attr("value"));
             String className = option.text();
-            String[] classNameSeparated = className.split(" - ");
-            String grade = classNameSeparated[0];
-            int grade_index = Integer.parseInt(classNameSeparated[1]);
+            if (className.contains("-")) {
+                String[] classNameSeparated = className.split(" - ");
+                String grade = classNameSeparated[0];
+                int grade_index = Integer.parseInt(classNameSeparated[1]);
 
-            switch (grade) {
-                case "ט":
-                    maxNumber[0] = grade_index;
-                    break;
-                case "י":
-                    maxNumber[1] = grade_index;
-                    break;
-                case "יא":
-                    maxNumber[2] = grade_index;
-                    break;
-                case "יב":
-                    maxNumber[3] = grade_index;
-                    break;
+                ContentValues classValue = new ContentValues();
+                classValue.put(BlichContract.ClassEntry.COL_CLASS_INDEX, class_index);
+                classValue.put(BlichContract.ClassEntry.COL_GRADE, grade);
+                classValue.put(BlichContract.ClassEntry.COL_GRADE_INDEX, grade_index);
+                classValues.add(classValue);
+            } else {
+                ContentValues classValue = new ContentValues();
+                classValue.put(BlichContract.ClassEntry.COL_CLASS_INDEX, class_index);
+                classValue.put(BlichContract.ClassEntry.COL_GRADE, className);
+                classValues.add(classValue);
             }
-
-            ContentValues classValue = new ContentValues();
-            classValue.put(BlichContract.ClassEntry.COL_CLASS_INDEX, class_index);
-            classValue.put(BlichContract.ClassEntry.COL_GRADE, grade);
-            classValue.put(BlichContract.ClassEntry.COL_GRADE_INDEX, grade_index);
-            classValues.add(classValue);
         }
-        BlichDataUtils.ClassUtils.setMaxGradeNumber(maxNumber);
         getBaseContext().getContentResolver().bulkInsert(
                 BlichContract.ClassEntry.CONTENT_URI,
                 classValues.toArray(new ContentValues[classValues.size()]));

@@ -17,11 +17,13 @@ public class ClassPickerPreference extends DialogPreference {
 
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        String defValue = (String) defaultValue;
         if (restorePersistedValue) {
-            mValue = getPersistedString((String) defaultValue);
+            mValue = getPersistedString(defValue);
         } else {
-            mValue = (String) defaultValue;
+            mValue = defValue;
         }
+        mValue = mValue.replace("/", "");
     }
 
     public void setValue(String value) {
