@@ -20,9 +20,11 @@
     <string name="pref_class_picker_title">כיתה</string>
     <string name="pref_class_picker_default_value">ט\'3</string>
 
+    <string name="pref_notification_category_title">התראות</string>
+
     <string name="pref_notification_toggle_key">notification_toggle</string>
     <string name="pref_notification_toggle_title">התראות</string>
-    <string name="pref_notification_toggle_default_value">On</string>
+    <string name="pref_notification_toggle_default_value">false</string>
 
     <string name="snackbar_schedule_fetch_success">מערכת השעות עודכנה</string>
     <string name="dialog_schedule_fetch_failed">אין אפשרות לעדכן את מערכת השעות כיוון שאין

@@ -32,7 +32,6 @@ import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
-import com.blackcracks.blich.util.PrefUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
@@ -266,7 +265,8 @@ public class ScheduleFragment extends Fragment {
                 classCursor.close();
             }
 
-            String classSettings = PrefUtils.getClassSettings(getContext());
+            String classSettings = Utilities.getPreferenceString(getContext(),
+                    SettingsFragment.PREF_CLASS_PICKER_KEY);
             Log.d(LOG_TAG, classSettings);
             return !currentClass.equals(classSettings);
         }

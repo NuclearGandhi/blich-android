@@ -15,8 +15,8 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.text.Spannable;
@@ -29,6 +29,7 @@ import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.util.BlichDataUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -95,11 +96,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     }
 
 
-
     public static void initializeSyncAdapter(Context context) {
         Log.d(LOG_TAG, "Initializing sync");
-        boolean isPeriodicSyncOn = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(SettingsFragment.PREF_IS_SYNCING_ON, true);
+        boolean isPeriodicSyncOn = Utilities.getPreferenceBoolean(context,
+                SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY);
         if (isPeriodicSyncOn) {
             configurePeriodicSync(context);
         } else {
@@ -403,6 +403,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();
+
+            int changesNum = 0;
             if (mLessonNotificationList.get(0).getDay() == today) {
 
                 inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
@@ -410,10 +412,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 for (Lesson lesson : mLessonNotificationList) {
                     if (lesson.getDay() == today) {
                         buildTimetableLine(inboxStyle, lesson);
+                        changesNum ++;
                     } else {
                         inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
                                 R.string.notification_update_tomorrow)));
                         buildTimetableLine(inboxStyle, lesson);
+                        changesNum ++;
                     }
                 }
             } else {
@@ -421,13 +425,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                         R.string.notification_update_tomorrow)));
                 for (Lesson lesson : mLessonNotificationList) {
                     buildTimetableLine(inboxStyle, lesson);
+                    changesNum ++;
                 }
             }
+            inboxStyle.setSummaryText("ישנם " + changesNum + "שינויים חדשים");
+
             NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
                     new NotificationCompat.Builder(getContext())
-                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
-                    .setContentTitle(getContext().getResources().getString(
-                            R.string.notification_update_title));
+                            .setSmallIcon(R.drawable.ic_timetable_white_24dp)
+                            .setContentTitle(getContext().getResources().getString(
+                            R.string.notification_update_title))
+                            .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+
 
             notificationBuilder.setStyle(inboxStyle);
             NotificationManagerCompat.from(getContext())

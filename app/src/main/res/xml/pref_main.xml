@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <com.blackcracks.blich.preference.ClassPickerPreference
         android:defaultValue="@string/pref_class_picker_default_value"
         android:dialogTitle=""
@@ -8,4 +9,12 @@
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_class_picker_title" />
 
+    <PreferenceCategoryFix
+        android:title="@string/pref_notification_category_title">
+        <SwitchPreferenceCompat
+            android:defaultValue="@string/pref_notification_toggle_default_value"
+            android:key="@string/pref_notification_toggle_key"
+            android:title="@string/pref_notification_toggle_title" />
+
+    </PreferenceCategoryFix>
 </android.support.v7.preference.PreferenceScreen>

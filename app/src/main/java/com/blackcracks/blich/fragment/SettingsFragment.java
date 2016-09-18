@@ -9,30 +9,29 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
+import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String PREF_CLASS_PICKER_KEY = "class_picker";
-    public static final String PREF_IS_SYNCING_ON = "sync_on";
+    public static final String PREF_NOTIFICATION_TOGGLE_KEY = "notification_toggle";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_main);
 
-        ClassPickerPreference classPickerPicker =
-                (ClassPickerPreference) findPreference(PREF_CLASS_PICKER_KEY);
-        String grade = getPreferenceScreen().getSharedPreferences().getString(PREF_CLASS_PICKER_KEY,
-                getResources().getString(R.string.pref_class_picker_default_value))
-                .replace("/", "");
-
-        classPickerPicker.setSummary(grade);
-
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         //noinspection ConstantConditions
         activity.getSupportActionBar().setTitle(R.string.drawer_settings_title);
+
+        ClassPickerPreference classPickerPreference =
+                (ClassPickerPreference) findPreference(PREF_CLASS_PICKER_KEY);
+        String grade = classPickerPreference.getValue();
+
+        classPickerPreference.setSummary(grade);
     }
 
     @Override
@@ -55,11 +54,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case PREF_CLASS_PICKER_KEY: {
-                ClassPickerPreference classPickerPicker = (ClassPickerPreference) findPreference(key);
+                ClassPickerPreference preference = (ClassPickerPreference) findPreference(key);
                 String grade = sharedPreferences.getString(key,
                         getString(R.string.pref_class_picker_default_value));
 
-                classPickerPicker.setSummary(grade);
+                preference.setSummary(grade);
+            }
+            case PREF_NOTIFICATION_TOGGLE_KEY: {
+                BlichSyncAdapter.initializeSyncAdapter(getContext());
             }
         }
     }
