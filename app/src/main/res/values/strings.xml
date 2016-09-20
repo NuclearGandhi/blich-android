@@ -24,7 +24,7 @@
 
     <string name="pref_notification_toggle_key">notification_toggle</string>
     <string name="pref_notification_toggle_title">התראות</string>
-    <string name="pref_notification_toggle_default_value">false</string>
+    <string name="pref_notification_toggle_default_value">true</string>
 
     <string name="snackbar_schedule_fetch_success">מערכת השעות עודכנה</string>
     <string name="dialog_schedule_fetch_failed">אין אפשרות לעדכן את מערכת השעות כיוון שאין
@@ -40,7 +40,7 @@
     <string name="drawer_open_desc">פתוח</string>
     <string name="drawer_close_desc">סגור</string>
     
-    <string name="notification_update_title">ישנם שינויים חדשים</string>
+    <string name="notification_update_title">בליך</string>
     <string name="notification_update_today">היום:</string>
     <string name="notification_update_tomorrow">מחר:</string>
     

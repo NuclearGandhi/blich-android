@@ -2,7 +2,7 @@ package com.blackcracks.blich.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
+import android.app.Notification;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -81,7 +81,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
 
-    private static final int SYNC_INTERVAL = 60 * 60;
+    private static final int SYNC_INTERVAL = 180 * 60;
     private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
 
     private static final int NOTIFICATION_UPDATE_ID = 100;
@@ -170,7 +170,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
 
-        notifyUser();
+        boolean manual = bundle.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
+
+        if (!manual) {
+            notifyUser();
+        }
     }
 
     private boolean fetchSchedule() {
@@ -389,7 +393,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                                              String lessonType) {
         if (!lessonType.equals(BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int tommorow = today % 7;
+            int tommorow = today + 1;
+            if (tommorow == 7) tommorow = 0;
             if (today == day || tommorow == day) {
                 Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
                 mLessonNotificationList.add(lesson);
@@ -399,7 +404,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private void notifyUser() {
 
-        if (!mLessonNotificationList.isEmpty() && !isAppOnForeground()) {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (!mLessonNotificationList.isEmpty() && Utilities.isAppOnForeground(getContext()) &&
+                !(8 < hour && hour < 17)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();
@@ -409,13 +418,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                 inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
                         R.string.notification_update_today)));
+
+                boolean tomorrow = false;
                 for (Lesson lesson : mLessonNotificationList) {
                     if (lesson.getDay() == today) {
                         buildTimetableLine(inboxStyle, lesson);
                         changesNum ++;
                     } else {
-                        inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
-                                R.string.notification_update_tomorrow)));
+                        if (!tomorrow) {
+                            inboxStyle.addLine(buildTimetableBoldString(getContext().getResources()
+                                    .getString(R.string.notification_update_tomorrow)));
+                        }
+                        tomorrow = true;
                         buildTimetableLine(inboxStyle, lesson);
                         changesNum ++;
                     }
@@ -428,19 +442,26 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     changesNum ++;
                 }
             }
-            inboxStyle.setSummaryText("ישנם " + changesNum + "שינויים חדשים");
 
-            NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
-                    new NotificationCompat.Builder(getContext())
+            String summery;
+            if (changesNum == 1) summery = "ישנו שינוי אחד חדש";
+            else summery = "ישנם " + changesNum + " שינויים חדשים";
+            inboxStyle.setSummaryText(summery);
+
+            Notification notification = new NotificationCompat.Builder(getContext())
                             .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                             .setContentTitle(getContext().getResources().getString(
                             R.string.notification_update_title))
-                            .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+                            .setContentText(summery)
+                            .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                            .setStyle(inboxStyle)
+                            .build();
 
+            notification.defaults |= Notification.DEFAULT_SOUND;
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
 
-            notificationBuilder.setStyle(inboxStyle);
             NotificationManagerCompat.from(getContext())
-                    .notify(NOTIFICATION_UPDATE_ID, notificationBuilder.build());
+                    .notify(NOTIFICATION_UPDATE_ID, notification);
         }
         mLessonNotificationList = new ArrayList<>();
     }
@@ -460,24 +481,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Spannable sp = new SpannableString(str);
         sp.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, str.indexOf(":"), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         inboxStyle.addLine(sp);
-    }
-
-    private boolean isAppOnForeground() {
-        ActivityManager activityManager = (ActivityManager) getContext()
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses =
-                activityManager.getRunningAppProcesses();
-        if (appProcesses == null) {
-            return false;
-        }
-        final String packageName = getContext().getPackageName();
-        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
-                    appProcess.processName.equals(packageName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
