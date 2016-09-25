@@ -13,6 +13,7 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
@@ -448,16 +449,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             else summery = "ישנם " + changesNum + " שינויים חדשים";
             inboxStyle.setSummaryText(summery);
 
+            Uri ringtone = Uri.parse(Utilities
+                    .getPreferenceString(getContext(), SettingsFragment.PREF_NOTIFICATION_SOUND_KEY, true));
+
             Notification notification = new NotificationCompat.Builder(getContext())
                             .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                             .setContentTitle(getContext().getResources().getString(
                             R.string.notification_update_title))
                             .setContentText(summery)
+                            .setSound(ringtone)
                             .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
                             .setStyle(inboxStyle)
                             .build();
-
-            notification.defaults |= Notification.DEFAULT_SOUND;
             notification.defaults |= Notification.DEFAULT_VIBRATE;
 
             NotificationManagerCompat.from(getContext())

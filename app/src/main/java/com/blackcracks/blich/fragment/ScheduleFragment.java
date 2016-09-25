@@ -18,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -166,8 +167,8 @@ public class ScheduleFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
@@ -177,8 +178,8 @@ public class ScheduleFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         LocalBroadcastManager.getInstance(getContext())
                 .unregisterReceiver(mSyncBroadcastReceiver);
     }

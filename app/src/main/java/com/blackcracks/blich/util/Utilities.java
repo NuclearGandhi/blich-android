@@ -5,6 +5,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.SettingsFragment;
@@ -16,10 +18,14 @@ public class Utilities {
 
     public static final HashMap<String, Object> PREFERENCES = new HashMap<>();
 
+    private static final String LOG_TAG = Utilities.class.getSimpleName();
+
     public static void initializeUtils() {
 
         PREFERENCES.put(SettingsFragment.PREF_CLASS_PICKER_KEY, "ט'3");
         PREFERENCES.put(SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY, true);
+        PREFERENCES.put(SettingsFragment.PREF_NOTIFICATION_SOUND_KEY,
+                Settings.System.DEFAULT_NOTIFICATION_URI.toString());
     }
 
 
@@ -57,10 +63,19 @@ public class Utilities {
     }
 
     public static String getPreferenceString(Context context, String key) {
+
+        Log.d(LOG_TAG, key);
+
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(key,
                         (String) PREFERENCES.get(key))
                 .replace("/", "");
+    }
+
+    public static String getPreferenceString(Context context, String key, boolean isUri) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(key,
+                        (String) PREFERENCES.get(key));
     }
 
     public static boolean getPreferenceBoolean(Context context, String key) {
