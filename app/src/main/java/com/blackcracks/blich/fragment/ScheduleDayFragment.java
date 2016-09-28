@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +63,8 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
         ListView listView = (ListView) rootView.findViewById(R.id.listview_schedule_day);
         mAdapter = new ScheduleAdapter(getContext(), null, 0);
         listView.setAdapter(mAdapter);
+
+        ViewCompat.setNestedScrollingEnabled(listView, true);
 
         return rootView;
     }

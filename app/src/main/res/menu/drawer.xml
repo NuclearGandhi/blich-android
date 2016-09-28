@@ -16,6 +16,7 @@
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_settings_grey600_24dp"
-            android:title="@string/drawer_settings_title" />
+            android:title="@string/drawer_settings_title"
+            android:checkable="false"/>
     </group>
 </menu>

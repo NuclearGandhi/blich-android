@@ -136,10 +136,9 @@ public class BlichProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         int returnCount = 0;
 
-        db.delete(ScheduleEntry.TABLE_NAME, null, null);
-
         switch (sUriMatcher.match(uri)) {
             case SCHEDULE: {
+                db.delete(ScheduleEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(
@@ -153,6 +152,7 @@ public class BlichProvider extends ContentProvider {
                 break;
             }
             case CLASS: {
+                db.delete(ClassEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(

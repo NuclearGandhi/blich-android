@@ -10,43 +10,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.design.widget.AppBarLayout
+        <FrameLayout
+            android:id="@+id/fragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            app:elevation="0dp">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-        </android.support.design.widget.AppBarLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <FrameLayout
-                android:id="@+id/fragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <View
-                android:id="@+id/toolbar_elevation"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@drawable/elevation"
-                android:layout_alignParentTop="true"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:visibility="gone"/>
-
-        </RelativeLayout>
-
+            android:layout_height="match_parent" />
 
     </LinearLayout>
-
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"

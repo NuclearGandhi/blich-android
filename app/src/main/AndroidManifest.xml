@@ -20,7 +20,7 @@
             android:name=".data.BlichProvider"
             android:authorities="@string/content_authority"
             android:exported="false"
-            android:syncable="true"/>
+            android:syncable="true" />
 
         <activity
             android:name=".activity.MainActivity"
@@ -32,6 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/activity_settings"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activity.MainActivity"/>
 
         <service android:name=".sync.BlichAuthenticatorService">
             <intent-filter>
@@ -41,13 +46,14 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-        
+
         <service android:name=".sync.BlichSyncService">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter"/>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
         </service>
 
         <service android:name=".data.FetchClassService" />

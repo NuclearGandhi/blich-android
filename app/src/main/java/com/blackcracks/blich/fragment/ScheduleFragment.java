@@ -16,8 +16,9 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
@@ -77,8 +79,9 @@ public class ScheduleFragment extends Fragment {
 
         mRootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_schedule, container, false);
 
-        TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
 
+
+        TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);
         if (viewPager != null) {
             viewPager.setAdapter(
@@ -144,8 +147,24 @@ public class ScheduleFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        MainActivity activity = (MainActivity) getActivity();
+        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
+
+        DrawerLayout drawerLayout = activity.getDrawerLayout();
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, 0);
+            }
+        };
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+
     }
 
     @Override
@@ -262,13 +281,11 @@ public class ScheduleFragment extends Fragment {
                 } else {
                     currentClass = gradeName + "'" + gradeIndex;
                 }
-                Log.d(LOG_TAG, currentClass);
                 classCursor.close();
             }
 
             String classSettings = Utilities.getPreferenceString(getContext(),
                     SettingsFragment.PREF_CLASS_PICKER_KEY);
-            Log.d(LOG_TAG, classSettings);
             return !currentClass.equals(classSettings);
         }
 

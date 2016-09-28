@@ -1,8 +1,10 @@
 package com.blackcracks.blich.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -17,7 +19,6 @@ import android.view.View;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
 
@@ -33,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String IS_FIRST_INSTANCE_KEY = "is_first";
 
     private Fragment mFragment;
-    private View mToolbarElevation;
+    private DrawerLayout mDrawerLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Locale locale = new Locale("iw");
@@ -53,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mToolbarElevation = findViewById(R.id.toolbar_elevation);
-
         if (savedInstanceState != null) {
             mFragment = getSupportFragmentManager().
                     getFragment(savedInstanceState, FRAGMENT_TAG);
@@ -64,16 +63,16 @@ public class MainActivity extends AppCompatActivity {
 
         replaceFragment(mFragment, false);
 
-        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
+                this, mDrawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
 
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 super.onDrawerSlide(drawerView, 0);
             }
         };
-        drawerLayout.addDrawerListener(drawerToggle);
+        mDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
 
@@ -83,25 +82,19 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem item) {
-                        if(!item.isChecked()) item.setChecked(true);
-                        else return false;
-                        drawerLayout.closeDrawers();
-                        Fragment fragment = null;
+                        if(item.isChecked()) return false;
+                        mDrawerLayout.closeDrawers();
                         switch (item.getItemId()) {
                             case R.id.schedule: {
-                                fragment = new ScheduleFragment();
-                                mToolbarElevation.setVisibility(View.GONE);
-                                break;
+                                replaceFragment(new ScheduleFragment(), true);
+                                item.setChecked(true);
+                                return true;
                             }
                             case R.id.settings: {
-                                fragment = new SettingsFragment();
-                                mToolbarElevation.setVisibility(View.VISIBLE);
-                                break;
+                                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                                startActivity(intent);
+                                return true;
                             }
-                        }
-                        if (fragment != null) {
-                            replaceFragment(fragment, false);
-                            return true;
                         }
                         return false;
                     }
@@ -142,5 +135,9 @@ public class MainActivity extends AppCompatActivity {
         }
         transaction.commit();
         mFragment = fragment;
+    }
+
+    public DrawerLayout getDrawerLayout() {
+        return mDrawerLayout;
     }
 }

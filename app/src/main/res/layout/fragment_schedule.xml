@@ -13,6 +13,14 @@
         android:theme="@style/AppTheme.AppBarOverlay"
         app:elevation="0dp">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
         <com.blackcracks.blich.widget.ScheduleTabLayout
             android:id="@+id/tablayout_schedule_days"
             android:layout_width="match_parent"
@@ -24,12 +32,11 @@
 
     </android.support.design.widget.AppBarLayout>
 
-
     <View
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:background="@drawable/elevation"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh_schedule"
@@ -37,11 +44,13 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+
         <android.support.v4.view.ViewPager
             android:id="@+id/viewpager_schedule"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>
