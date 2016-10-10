@@ -3,6 +3,7 @@ package com.blackcracks.blich.sync;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -26,6 +27,7 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.fragment.SettingsFragment;
@@ -91,7 +93,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private List<Lesson> mLessonNotificationList = new ArrayList<>();
 
 
-    public BlichSyncAdapter(Context context, boolean autoInitialize) {
+    BlichSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
     }
@@ -110,7 +112,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
     }
 
-    public static Account getSyncAccount(Context context) {
+    private static Account getSyncAccount(Context context) {
 
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
@@ -127,7 +129,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return newAccount;
     }
 
-    public static void configurePeriodicSync(Context context) {
+    private static void configurePeriodicSync(Context context) {
         Account account = getSyncAccount(context);
         ContentResolver.setSyncAutomatically(account,
                 context.getString(R.string.content_authority), true);
@@ -161,8 +163,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                               String s,
                               ContentProviderClient contentProviderClient,
                               SyncResult syncResult) {
+        boolean manual = bundle.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
 
-        Log.d(LOG_TAG, "Syncing");
+        if (manual) {
+            Log.d(LOG_TAG, "Syncing: Manual");
+        } else {
+            Log.d(LOG_TAG, "Syncing: Periodic");
+        }
 
         boolean isSuccessful = fetchSchedule();
 
@@ -170,8 +177,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         intent.putExtra(IS_SUCCESSFUL_EXTRA, isSuccessful);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
-
-        boolean manual = bundle.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
 
         if (!manual) {
             notifyUser();
@@ -395,8 +400,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         if (!lessonType.equals(BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int tommorow = today + 1;
-            if (tommorow == 7) tommorow = 0;
-            if (today == day || tommorow == day) {
+            if (tommorow == 8) tommorow = 1;
+
+            int dayHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            if ((today == day && dayHour < 17) || tommorow == day) {
                 Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
                 mLessonNotificationList.add(lesson);
             }
@@ -408,7 +415,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-        if (!mLessonNotificationList.isEmpty() && Utilities.isAppOnForeground(getContext()) &&
+        boolean foreground = Utilities.isAppOnForeground(getContext());
+
+        if (!mLessonNotificationList.isEmpty() && !foreground &&
                 !(8 < hour && hour < 17)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
@@ -452,6 +461,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             Uri ringtone = Uri.parse(Utilities
                     .getPreferenceString(getContext(), SettingsFragment.PREF_NOTIFICATION_SOUND_KEY, true));
 
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    getContext(),
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
             Notification notification = new NotificationCompat.Builder(getContext())
                             .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                             .setContentTitle(getContext().getResources().getString(
@@ -460,6 +476,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                             .setSound(ringtone)
                             .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
                             .setStyle(inboxStyle)
+                            .setContentIntent(pendingIntent)
                             .build();
             notification.defaults |= Notification.DEFAULT_VIBRATE;
 

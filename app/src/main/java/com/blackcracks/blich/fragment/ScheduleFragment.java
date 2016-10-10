@@ -89,32 +89,34 @@ public class ScheduleFragment extends Fragment {
                             getResources().getStringArray(R.array.tab_schedule_names)));
 
             int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            if (hour > 18) day = day % 7 + 1;
             switch (day) {
-                case Calendar.SUNDAY: {
+                case 1: {
                     day = 0;
                     break;
                 }
-                case Calendar.MONDAY: {
+                case 2: {
                     day = 1;
                     break;
                 }
-                case Calendar.TUESDAY: {
+                case 3: {
                     day = 2;
                     break;
                 }
-                case Calendar.WEDNESDAY: {
+                case 4: {
                     day = 3;
                     break;
                 }
-                case Calendar.THURSDAY: {
+                case 5: {
                     day = 4;
                     break;
                 }
-                case Calendar.FRIDAY: {
+                case 6: {
                     day = 5;
                     break;
                 }
-                default: {
+                case 7: {
                     day = 0;
                     break;
                 }
