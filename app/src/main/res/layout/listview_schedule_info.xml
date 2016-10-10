@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="72dp"
@@ -12,7 +13,7 @@
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginRight="72dp">
+        android:layout_marginStart="72dp">
 
         <TextView
             android:id="@+id/listview_subject_textview"
@@ -38,6 +39,7 @@
         android:ellipsize="none"
         android:singleLine="true"
         android:textColor="@color/black_text"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        tools:ignore="Deprecated" />
 
 </LinearLayout>

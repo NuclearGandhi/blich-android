@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 
 public class BlichSyncService extends Service {
 
-    private static BlichSyncAdapter sSyncAdapter;
+    private BlichSyncAdapter sSyncAdapter;
 
     private static final Object sSyncAdapterLock = new Object();
 

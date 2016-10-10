@@ -11,7 +11,7 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
 
     private static final int TABS_COUNT = 6;
 
-    private String[] mTabNames;
+    private final String[] mTabNames;
 
     public SchedulePagerAdapter(FragmentManager fm,
                                 String[] tabNames) {

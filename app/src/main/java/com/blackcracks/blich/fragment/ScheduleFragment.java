@@ -205,7 +205,7 @@ public class ScheduleFragment extends Fragment {
                 .unregisterReceiver(mSyncBroadcastReceiver);
     }
 
-    public void onSyncFailed() {
+    private void onSyncFailed() {
         View view = LayoutInflater.from(getContext()).inflate(
                 R.layout.dialog_no_connection,
                 null);
@@ -230,7 +230,7 @@ public class ScheduleFragment extends Fragment {
                 .show();
     }
 
-    public void refreshSchedule() {
+    private void refreshSchedule() {
         Log.d(LOG_TAG, "Refreshing");
         mSwipeRefreshLayout.post(new Runnable() {
             @Override

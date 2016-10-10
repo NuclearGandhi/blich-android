@@ -40,6 +40,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onCreatePreferencesFix(Bundle savedInstanceState, String rootKey) {
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

@@ -2,13 +2,13 @@ package com.blackcracks.blich.data;
 
 public class Lesson {
 
-    int mClassSettings;
-    int mDay;
-    int mHour;
-    String mSubject;
-    String mClassroom;
-    String mTeacher;
-    String mLessonType;
+    private int mClassSettings;
+    private int mDay;
+    private int mHour;
+    private String mSubject;
+    private String mClassroom;
+    private String mTeacher;
+    private String mLessonType;
 
     public Lesson(int classSettings, int day, int hour, String subject, String lessonType) {
         mClassSettings = classSettings;

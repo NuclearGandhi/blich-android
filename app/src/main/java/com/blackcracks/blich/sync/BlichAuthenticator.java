@@ -7,9 +7,9 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 
-public class BlichAuthenticator extends AbstractAccountAuthenticator {
+class BlichAuthenticator extends AbstractAccountAuthenticator {
 
-    public BlichAuthenticator(Context context) {
+    BlichAuthenticator(Context context) {
         super(context);
     }
 

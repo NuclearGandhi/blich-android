@@ -38,7 +38,8 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".activity.MainActivity"/>
 
-        <service android:name=".sync.BlichAuthenticatorService">
+        <service android:name=".sync.BlichAuthenticatorService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -47,7 +48,8 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <service android:name=".sync.BlichSyncService">
+        <service android:name=".sync.BlichSyncService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>

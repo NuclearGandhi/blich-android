@@ -8,10 +8,10 @@ public class BlichContract {
 
     public static final String CONTENT_AUTHORITY = "com.blackcracks.blich";
 
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-    public static final String PATH_SCHEDULE = "schedule";
-    public static final String PATH_CLASS = "class";
+    static final String PATH_CLASS = "class";
+    static final String PATH_SCHEDULE = "schedule";
 
     public static final class ScheduleEntry implements BaseColumns {
 
@@ -19,7 +19,7 @@ public class BlichContract {
                 .appendPath(PATH_SCHEDULE)
                 .build();
 
-        public static final String CONTENT_TYPE =
+        static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SCHEDULE;
         @SuppressWarnings("unused")
         public static final String CONTENT_ITEM_TYPE =

@@ -89,13 +89,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private static final int NOTIFICATION_UPDATE_ID = 100;
 
-    private Context mContext;
+    private final Context mContext = getContext();
     private List<Lesson> mLessonNotificationList = new ArrayList<>();
-
 
     BlichSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        mContext = context;
     }
 
 

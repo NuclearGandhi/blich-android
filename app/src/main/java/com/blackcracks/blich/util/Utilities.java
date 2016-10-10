@@ -16,7 +16,7 @@ import java.util.List;
 
 public class Utilities {
 
-    public static final HashMap<String, Object> PREFERENCES = new HashMap<>();
+    private static final HashMap<String, Object> PREFERENCES = new HashMap<>();
 
     private static final String LOG_TAG = Utilities.class.getSimpleName();
 
@@ -34,9 +34,8 @@ public class Utilities {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
+        return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
-        return isConnected;
     }
 
     public static boolean isFirstLaunch(Context context) {
@@ -73,9 +72,11 @@ public class Utilities {
     }
 
     public static String getPreferenceString(Context context, String key, boolean isUri) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
+        String returnString = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(key,
                         (String) PREFERENCES.get(key));
+        if (isUri) return returnString;
+        else return returnString.replace("/", "");
     }
 
     public static boolean getPreferenceBoolean(Context context, String key) {
