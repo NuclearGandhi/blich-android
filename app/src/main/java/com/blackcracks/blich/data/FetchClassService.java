@@ -18,6 +18,9 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is used to fetch the current classes there are at Blich, from Blich's website
+ */
 public class FetchClassService extends IntentService {
 
     public static final String ACTION_FINISHED_FETCH = "finish_fetch";
@@ -74,6 +77,7 @@ public class FetchClassService extends IntentService {
             return false;
         }
 
+        //Parse the html
         Document document = Jsoup.parse(classHtml);
         Element selector = document.getElementById(SELECTOR_ID);
         Elements options = selector.getElementsByTag("option");
@@ -81,6 +85,7 @@ public class FetchClassService extends IntentService {
         for (Element option : options) {
             int class_index = Integer.parseInt(option.attr("value"));
             String className = option.text();
+            //Insert the values to the Class Table.
             if (className.contains("-")) {
                 String[] classNameSeparated = className.split(" - ");
                 String grade = classNameSeparated[0];

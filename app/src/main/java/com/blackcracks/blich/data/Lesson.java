@@ -1,5 +1,8 @@
 package com.blackcracks.blich.data;
 
+/**
+ * A base class for each lesson in the Schedule Table
+ */
 public class Lesson {
 
     private int mClassSettings;

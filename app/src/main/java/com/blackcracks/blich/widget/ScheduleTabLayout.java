@@ -19,6 +19,7 @@ public class ScheduleTabLayout extends TabLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    //Fix the tabs to take the whole width of the screen
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

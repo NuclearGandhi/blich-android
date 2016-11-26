@@ -37,6 +37,7 @@ public class ScheduleAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
+        //Get the data from the cursor
         int hour = cursor.getInt(ScheduleDayFragment.COL_HOUR);
         String subjectsValue = cursor.getString(ScheduleDayFragment.COL_SUBJECT);
         String classroomsValue = cursor.getString(ScheduleDayFragment.COL_CLASSROOM);
@@ -45,8 +46,8 @@ public class ScheduleAdapter extends CursorAdapter {
 
         holder.hourView.setText(String.format(Locale.getDefault(), "%d", hour));
 
+        //Handle the the cases of more than one lesson, or missing teacher/classroom
         String[] subjects = subjectsValue.split(";");
-
         String[] classrooms;
         if (classroomsValue != null) {
             classrooms = classroomsValue.split(";");
@@ -73,6 +74,7 @@ public class ScheduleAdapter extends CursorAdapter {
             infoHolder.teacherView.setText(teachers[i]);
             infoHolder.classroomView.setText(classrooms[i]);
 
+            //Color the background accordingly
             int background = 0;
             switch (lessonTypes[i]) {
                 case ScheduleEntry.LESSON_TYPE_CANCELED: {
@@ -97,6 +99,7 @@ public class ScheduleAdapter extends CursorAdapter {
                 infoHolder.subjectView.setTextColor(background);
             }
 
+            //Correct padding
             if (i == subjects.length - 1) {
                 int padding_in_dp = 16;
                 final float scale = context.getResources().getDisplayMetrics().density;
@@ -108,21 +111,21 @@ public class ScheduleAdapter extends CursorAdapter {
     }
 
     private static class ViewHolder {
-        public final TextView hourView;
-        public final LinearLayout infoLinearLayout;
+        private final TextView hourView;
+        private final LinearLayout infoLinearLayout;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             hourView = (TextView) view.findViewById(R.id.listview_hour_textview);
             infoLinearLayout = (LinearLayout) view.findViewById(R.id.listview_info_linearlayout);
         }
     }
 
     private static class InfoViewHolder {
-        public final TextView subjectView;
-        public final TextView classroomView;
-        public final TextView teacherView;
+        private final TextView subjectView;
+        private final TextView classroomView;
+        private final TextView teacherView;
 
-        public InfoViewHolder(View view) {
+        private InfoViewHolder(View view) {
             subjectView = (TextView) view.findViewById(R.id.listview_subject_textview);
             classroomView = (TextView) view.findViewById(R.id.listview_classroom_textview);
             teacherView = (TextView) view.findViewById(R.id.listview_teacher_textview);

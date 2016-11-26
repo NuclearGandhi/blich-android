@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
+import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
@@ -39,7 +40,10 @@ import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 
-
+/**
+ * The ScheduleFragment class is responsible for getting and displaying the schedule
+ * of the user
+ */
 public class ScheduleFragment extends Fragment {
 
     private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
@@ -78,8 +82,6 @@ public class ScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         mRootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_schedule, container, false);
-
-
 
         TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);
@@ -287,7 +289,9 @@ public class ScheduleFragment extends Fragment {
             }
 
             String classSettings = Utilities.getPreferenceString(getContext(),
-                    SettingsFragment.PREF_CLASS_PICKER_KEY);
+                    SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
+                    SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_DEFAULT,
+                    false);
             return !currentClass.equals(classSettings);
         }
 

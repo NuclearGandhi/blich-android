@@ -28,9 +28,9 @@ import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
+import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.fragment.SettingsFragment;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
 
@@ -100,7 +100,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static void initializeSyncAdapter(Context context) {
         Log.d(LOG_TAG, "Initializing sync");
         boolean isPeriodicSyncOn = Utilities.getPreferenceBoolean(context,
-                SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY);
+                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY);
         if (isPeriodicSyncOn) {
             configurePeriodicSync(context);
         } else {
@@ -457,7 +457,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             inboxStyle.setSummaryText(summery);
 
             Uri ringtone = Uri.parse(Utilities
-                    .getPreferenceString(getContext(), SettingsFragment.PREF_NOTIFICATION_SOUND_KEY, true));
+                    .getPreferenceString(getContext(), SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_KEY, true));
 
             Intent intent = new Intent(getContext(), MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(

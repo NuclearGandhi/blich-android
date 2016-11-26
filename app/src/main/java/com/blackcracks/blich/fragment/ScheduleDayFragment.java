@@ -17,6 +17,9 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
+/**
+ * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
+ */
 public class ScheduleDayFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int SCHEDULE_LOADER_ID = 100;

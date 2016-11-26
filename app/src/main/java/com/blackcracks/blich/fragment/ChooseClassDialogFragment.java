@@ -24,6 +24,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.data.FetchClassService;
@@ -35,7 +36,12 @@ import java.util.List;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 
-
+/**
+ * This DialogFragment is showed when the user launches the app for the first time to configure
+ * some settings.
+ * A similar dialog is shown when the user wants to change these settings:
+ * {@link com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment}
+ */
 public class ChooseClassDialogFragment extends DialogFragment {
 
     public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
@@ -49,6 +55,10 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /**
+         * Create a {@link BroadcastReceiver} to listen when the data has finished downloading
+         */
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -63,6 +73,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         };
     }
 
+    //Setup the Dialog
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -99,7 +110,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         SharedPreferences sharedPreferences = PreferenceManager
                                 .getDefaultSharedPreferences(getContext());
                         sharedPreferences.edit()
-                                .putString(SettingsFragment.PREF_CLASS_PICKER_KEY,
+                                .putString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
                                         grade)
                                 .apply();
                         sharedPreferences.edit()
@@ -116,12 +127,14 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        //Disable the "okay" button
         mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
         getClassData();
     }
 
     @Override
     public void onResume() {
+        //Start the listener
         super.onResume();
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mFetchBroadcastReceiver,
@@ -130,6 +143,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
 
     @Override
     public void onPause() {
+        //Stop the listener
         super.onPause();
         LocalBroadcastManager.getInstance(getContext())
                 .unregisterReceiver(mFetchBroadcastReceiver);
@@ -138,9 +152,11 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //Start the periodic syncing of
         BlichSyncAdapter.initializeSyncAdapter(getContext());
     }
 
+    //If the fetching failed, show a Dialog
     private void onFetchFailed() {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
                 null);
@@ -159,6 +175,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                 .show();
     }
 
+    //Start to fetch the data
     private void getClassData() {
         boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
@@ -169,6 +186,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         }
     }
 
+    //Get the downloaded data from the Class table
     private class GetGradesTask extends AsyncTask<Void, Void, Void> {
 
         List<String> mNormalGradesNamesArray = new ArrayList<>();
