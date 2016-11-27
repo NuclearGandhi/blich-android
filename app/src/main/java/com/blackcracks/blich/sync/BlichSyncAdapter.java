@@ -100,7 +100,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static void initializeSyncAdapter(Context context) {
         Log.d(LOG_TAG, "Initializing sync");
         boolean isPeriodicSyncOn = Utilities.getPreferenceBoolean(context,
-                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY);
+                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
+                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
         if (isPeriodicSyncOn) {
             configurePeriodicSync(context);
         } else {
@@ -457,7 +458,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             inboxStyle.setSummaryText(summery);
 
             Uri ringtone = Uri.parse(Utilities
-                    .getPreferenceString(getContext(), SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_KEY, true));
+                    .getPreferenceString(getContext(),
+                            SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_KEY,
+                            SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_DEFAULT,
+                            true));
 
             Intent intent = new Intent(getContext(), MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -475,6 +479,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                             .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
                             .setStyle(inboxStyle)
                             .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
                             .build();
             notification.defaults |= Notification.DEFAULT_VIBRATE;
 
