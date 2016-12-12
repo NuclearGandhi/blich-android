@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         }
         replaceFragment(mFragment, false);
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(
@@ -88,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
             DialogFragment dialogFragment = new ChooseClassDialogFragment();
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
         } else {
-            BlichSyncAdapter.initializeSyncAdapter(this);
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 BlichSyncAdapter.syncImmediately(this);
             }

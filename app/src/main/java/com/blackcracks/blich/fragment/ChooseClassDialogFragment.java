@@ -154,6 +154,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         super.onDestroy();
         //Start the periodic syncing of
         BlichSyncAdapter.initializeSyncAdapter(getContext());
+        BlichSyncAdapter.syncImmediately(getContext());
     }
 
     //If the fetching failed, show a Dialog

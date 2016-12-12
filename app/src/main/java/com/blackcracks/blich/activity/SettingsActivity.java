@@ -61,9 +61,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onCreatePreferencesFix(Bundle savedInstanceState, String rootKey) {
-            super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_main);
-
+            getPreferenceScreen().getSharedPreferences()
+                    .registerOnSharedPreferenceChangeListener(this);
             initPrefSummery();
         }
 
@@ -84,8 +84,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPause() {
-            super.onPause();
+        public void onStop() {
+            super.onStop();
             getPreferenceScreen().getSharedPreferences()
                     .unregisterOnSharedPreferenceChangeListener(this);
         }
