@@ -64,8 +64,8 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean isSuccessful = intent.getBooleanExtra(BlichSyncAdapter.IS_SUCCESSFUL_EXTRA, false);
-                mSwipeRefreshLayout.setRefreshing(false);
                 if (isSuccessful) {
+                    mSwipeRefreshLayout.setRefreshing(false);
                     Snackbar.make(mRootView,
                             R.string.snackbar_schedule_fetch_success,
                             Snackbar.LENGTH_LONG)
@@ -208,6 +208,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void onSyncFailed() {
+        mSwipeRefreshLayout.setRefreshing(false);
         View view = LayoutInflater.from(getContext()).inflate(
                 R.layout.dialog_no_connection,
                 null);
@@ -234,12 +235,7 @@ public class ScheduleFragment extends Fragment {
 
     private void refreshSchedule() {
         Log.d(LOG_TAG, "Refreshing");
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
-            }
-        });
+        mSwipeRefreshLayout.setRefreshing(true);
         boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
             BlichSyncAdapter.syncImmediately(getContext());
