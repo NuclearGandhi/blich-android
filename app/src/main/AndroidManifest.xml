@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -65,6 +66,13 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="blich_notify" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".sync.BlichSyncAdapter$StartPeriodicSyncBootReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

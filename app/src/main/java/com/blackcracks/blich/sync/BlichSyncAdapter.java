@@ -7,12 +7,14 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -109,6 +111,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 intent,
                 0);
 
+        ComponentName receiver = new ComponentName(context, StartPeriodicSyncBootReceiver.class);
+        PackageManager pm = context.getPackageManager();
+
         boolean isPeriodicSyncOn = Utilities.getPreferenceBoolean(context,
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
@@ -119,6 +124,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     context.getString(R.string.content_authority),
                     true);
             configurePeriodicSync(alarmManager, alarmIntent, alarmIntent1);
+
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
         } else {
             Log.d(LOG_TAG, "Initializing sync: off");
             ContentResolver.setSyncAutomatically(
@@ -127,6 +136,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     false);
             alarmManager.cancel(alarmIntent);
             alarmManager.cancel(alarmIntent1);
+
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
         }
     }
 
@@ -559,6 +572,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return result.toString();
     }
 
+
+    //A receiver that kicks off at 21:30 and 7:00
     public static class BlichUpdateReceiver extends BroadcastReceiver {
 
         @Override
@@ -570,6 +585,17 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             ContentResolver.requestSync(getSyncAccount(context),
                     context.getString(R.string.content_authority),
                     bundle);
+        }
+    }
+
+    //A receiver that starts the Alarm Service when the device boots.
+    public static class StartPeriodicSyncBootReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+                initializeSyncAdapter(context);
+            }
         }
     }
 }
