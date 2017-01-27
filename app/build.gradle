@@ -10,6 +10,8 @@ android {
         targetSdkVersion 25
         versionCode 3
         versionName "1.2"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -29,4 +31,8 @@ dependencies {
     compile 'biz.kasual:materialnumberpicker:1.2.1'
     compile 'com.android.support:support-v4:25.0.1'
     compile 'com.takisoft.fix:preference-v7:25.0.1.0'
+    androidTestCompile 'com.android.support:support-annotations:25.0.1'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'org.hamcrest:hamcrest-library:1.3'
 }

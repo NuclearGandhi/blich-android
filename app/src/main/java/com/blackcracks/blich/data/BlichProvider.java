@@ -21,6 +21,7 @@ public class BlichProvider extends ContentProvider {
     private static final int SCHEDULE = 100;
     private static final int SCHEDULE_WITH_DAY = 101;
     private static final int CLASS = 102;
+    private static final int EXAMS = 103;
 
     @Override
     public boolean onCreate() {
@@ -72,6 +73,17 @@ public class BlichProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
+            case EXAMS: {
+                cursor = db.query(
+                        ExamsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        sortOrder
+                );
+                break;
+            }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
@@ -93,6 +105,9 @@ public class BlichProvider extends ContentProvider {
             }
             case CLASS: {
                 return ClassEntry.CONTENT_TYPE;
+            }
+            case EXAMS: {
+                return ExamsEntry.CONTENT_TYPE;
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -117,6 +132,14 @@ public class BlichProvider extends ContentProvider {
             case CLASS: {
                 long _id = db.insert(
                         ClassEntry.TABLE_NAME,
+                        null,
+                        values);
+                validateId(_id, uri);
+                break;
+            }
+            case EXAMS: {
+                long _id = db.insert(
+                        ExamsEntry.TABLE_NAME,
                         null,
                         values);
                 validateId(_id, uri);
@@ -165,6 +188,20 @@ public class BlichProvider extends ContentProvider {
                 }
                 break;
             }
+            case EXAMS: {
+                db.delete(ExamsEntry.TABLE_NAME, null, null);
+                db.beginTransaction();
+                for (ContentValues value : values) {
+                    long _id = db.insert(
+                            ExamsEntry.TABLE_NAME,
+                            null,
+                            value);
+                    if (_id != - 1) {
+                        returnCount++;
+                    }
+                }
+                break;
+            }
             default:
                 return super.bulkInsert(uri, values);
         }
@@ -190,6 +227,13 @@ public class BlichProvider extends ContentProvider {
             case CLASS: {
                 rowsDeleted = db.delete(
                         ClassEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
+            }
+            case EXAMS: {
+                rowsDeleted = db.delete(
+                        ExamsEntry.TABLE_NAME,
                         selection,
                         selectionArgs);
                 break;
@@ -226,6 +270,14 @@ public class BlichProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
+            case EXAMS: {
+                rowsUpdated = db.update(
+                        ExamsEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -242,6 +294,7 @@ public class BlichProvider extends ContentProvider {
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE, SCHEDULE);
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_DAY);
         uriMatcher.addURI(authority, BlichContract.PATH_CLASS, CLASS);
+        uriMatcher.addURI(authority, BlichContract.PATH_EXAMS, EXAMS);
 
         return uriMatcher;
     }

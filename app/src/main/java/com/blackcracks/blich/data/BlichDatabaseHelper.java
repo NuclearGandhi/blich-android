@@ -8,9 +8,9 @@ import com.blackcracks.blich.data.BlichContract.*;
 
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
-    private static final String DATABASE_NAME = "blich.db";
+    public static final String DATABASE_NAME = "blich.db";
 
     public BlichDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,6 +30,17 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 "UNIQUE (" + ScheduleEntry.COL_DAY + ", " + ScheduleEntry.COL_HOUR +
                 ") ON CONFLICT REPLACE);";
 
+        final String SQL_CREATE_EXAMS_TABLE = "EXAMS TABLE " + ExamsEntry.TABLE_NAME + " (" +
+                ExamsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ExamsEntry.COL_SUBJECT + "TEXT NOT NULL," +
+                ExamsEntry.COL_DATE + "TEXT NOT NULL, " +
+                ExamsEntry.COL_TEACHER + "TEXT NOT NULL, " +
+                ExamsEntry.COL_ROOM + "TEXT NOT NULL, " +
+                ExamsEntry.COL_START_HOUR + "INTEGER NOT NULL, " +
+                ExamsEntry.COL_END_HOUR + "INTEGER NOT NULL, " +
+                "UNIQUE (" + ExamsEntry.COL_SUBJECT + ", " + ExamsEntry.COL_DATE + ", " +
+                ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
+
         final String SQL_CREATE_CLASS_TABLE = "CREATE TABLE " + ClassEntry.TABLE_NAME + " (" +
                 ClassEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ClassEntry.COL_CLASS_INDEX + " INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
@@ -37,13 +48,25 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 ClassEntry.COL_GRADE_INDEX + " INTEGER);";
 
         db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
+        db.execSQL(SQL_CREATE_EXAMS_TABLE);
         db.execSQL(SQL_CREATE_CLASS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + ScheduleEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + ClassEntry.TABLE_NAME);
-        onCreate(db);
+        if (newVersion < 3) {
+            final String SQL_CREATE_EXAMS_TABLE = "EXAMS TABLE " + ExamsEntry.TABLE_NAME + " (" +
+                    ExamsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    ExamsEntry.COL_SUBJECT + "TEXT NOT NULL," +
+                    ExamsEntry.COL_DATE + "TEXT NOT NULL, " +
+                    ExamsEntry.COL_TEACHER + "TEXT NOT NULL, " +
+                    ExamsEntry.COL_ROOM + "TEXT NOT NULL, " +
+                    ExamsEntry.COL_START_HOUR + "INTEGER NOT NULL, " +
+                    ExamsEntry.COL_END_HOUR + "INTEGER NOT NULL, " +
+                    "UNIQUE (" + ExamsEntry.COL_SUBJECT + ", " + ExamsEntry.COL_DATE + ", " +
+                    ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
+
+            db.execSQL(SQL_CREATE_EXAMS_TABLE);
+        }
     }
 }
