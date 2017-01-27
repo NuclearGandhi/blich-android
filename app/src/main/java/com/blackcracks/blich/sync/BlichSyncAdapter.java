@@ -18,7 +18,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -237,45 +239,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private boolean fetchSchedule() {
 
-        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(getContext());
-        String selection;
-        String[] selectionArgs;
-
-        if (currentClass.contains("'")) {
-            selectionArgs = currentClass.split("'");
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
-        } else {
-            selectionArgs = new String[]{currentClass};
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
-        }
-
-
-
-        Cursor cursor = mContext.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                selection,
-                selectionArgs,
-                null);
-
-        int classValue;
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                classValue = cursor.getInt(0);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        cursor.close();
-
+        int classValue = 0;
         BufferedReader reader = null;
         String classHtml = "";
 
         try {
+
+            classValue = getClassValue();
+
             /*
             get the html
              */
@@ -324,6 +295,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             classHtml = builder.toString();
         } catch (IOException e) {
             return false;
+        } catch (BlichFetchException e) {
+            e.printStackTrace();
         } finally {
             if (reader != null) {
                 try {
@@ -442,6 +415,44 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
         return true;
+    }
+
+    private int getClassValue() throws BlichFetchException {
+        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(getContext());
+        String selection;
+        String[] selectionArgs;
+
+        if (currentClass.contains("'")) {
+            selectionArgs = currentClass.split("'");
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
+                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
+        } else {
+            selectionArgs = new String[]{currentClass};
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
+        }
+
+
+
+        Cursor cursor = mContext.getContentResolver().query(
+                BlichContract.ClassEntry.CONTENT_URI,
+                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
+                selection,
+                selectionArgs,
+                null);
+
+        int classValue;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                classValue = cursor.getInt(0);
+            } else {
+                throw new BlichFetchException("Can't get the user's class. Did the user configure his class?");
+            }
+        } else {
+            throw new NullPointerException("Queried cursor is null");
+        }
+
+        cursor.close();
+        return classValue;
     }
 
     private void addLessonToNotificationList(int classSettings,
@@ -596,6 +607,29 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
                 initializeSyncAdapter(context);
             }
+        }
+    }
+
+    public static class BlichFetchException extends Exception {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        protected BlichFetchException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
+
+        public BlichFetchException() {
+            super();
+        }
+
+        public BlichFetchException(String message) {
+            super(message);
+        }
+
+        public BlichFetchException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public BlichFetchException(Throwable cause) {
+            super(cause);
         }
     }
 }
