@@ -37,9 +37,6 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 ExamsEntry.COL_SUBJECT + " TEXT NOT NULL," +
                 ExamsEntry.COL_DATE + " TEXT NOT NULL, " +
                 ExamsEntry.COL_TEACHER + " TEXT NOT NULL, " +
-                ExamsEntry.COL_ROOM + " TEXT NOT NULL, " +
-                ExamsEntry.COL_START_HOUR + " INTEGER NOT NULL, " +
-                ExamsEntry.COL_END_HOUR + " INTEGER NOT NULL, " +
                 "UNIQUE (" + ExamsEntry.COL_SUBJECT + ", " + ExamsEntry.COL_DATE + ", " +
                 ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
 

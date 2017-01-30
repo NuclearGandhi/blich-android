@@ -68,10 +68,7 @@ public class BlichContract {
 
         public static final String COL_DATE = "date";
         public static final String COL_SUBJECT = "subject";
-        public static final String COL_START_HOUR = "start_hour";
-        public static final String COL_END_HOUR = "end_hour";
         public static final String COL_TEACHER = "teacher";
-        public static final String COL_ROOM = "room";
     }
 
     public static final class ClassEntry implements BaseColumns {
