@@ -10,7 +10,7 @@ import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
 
     public static final String DATABASE_NAME = "blich.db";
 
@@ -56,5 +56,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ScheduleEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + ExamsEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + ClassEntry.TABLE_NAME);
+
+        onCreate(db);
     }
 }
