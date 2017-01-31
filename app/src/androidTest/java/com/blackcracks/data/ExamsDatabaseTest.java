@@ -35,10 +35,7 @@ public class ExamsDatabaseTest {
         ContentValues contentValues = new ContentValues();
         contentValues.put(ExamsEntry.COL_DATE, "27.1.2016");
         contentValues.put(ExamsEntry.COL_SUBJECT, "אנגלית");
-        contentValues.put(ExamsEntry.COL_START_HOUR, 5);
-        contentValues.put(ExamsEntry.COL_END_HOUR, 6);
         contentValues.put(ExamsEntry.COL_TEACHER, "אורלי");
-        contentValues.put(ExamsEntry.COL_ROOM, "י1 - 105");
 
         mContext.getContentResolver().insert(ExamsEntry.CONTENT_URI, contentValues);
 
