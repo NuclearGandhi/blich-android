@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">בליך</string>
     <string name="activity_settings">הגדרות</string>
-    
+
     <string name="sync_account_type" translatable="false">com.blackcracks.blich</string>
     <string name="content_authority">com.blackcracks.blich</string>
 
@@ -38,9 +38,9 @@
 
     <string name="drawer_open_desc">פתוח</string>
     <string name="drawer_close_desc">סגור</string>
-    
+
     <string name="notification_update_title">בליך</string>
     <string name="notification_update_today">היום:</string>
     <string name="notification_update_tomorrow">מחר:</string>
-    
+
 </resources>
