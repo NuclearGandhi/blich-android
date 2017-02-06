@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -89,6 +90,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String CHANGED_LESSON_CLASS = "TableFillChange";
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
+
+
+    private static final String EXAMS_BASE_URL =
+            "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
+
+    private static final String EXAMS_TABLE_ID = "ChangesList";
 
     private static final int NOTIFICATION_UPDATE_ID = 100;
 
@@ -225,7 +232,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             Log.d(LOG_TAG, "Syncing: Manual");
         }
 
-        boolean isSuccessful = fetchSchedule();
+        boolean isSuccessful = false;
+        try {
+            isSuccessful = fetchSchedule() && fetchExams();
+        } catch (BlichFetchException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+        }
 
         Intent intent = new Intent(ACTION_SYNC_FINISHED);
         intent.putExtra(IS_SUCCESSFUL_EXTRA, isSuccessful);
@@ -417,8 +429,90 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return true;
     }
 
-    private int getClassValue() throws BlichFetchException {
-        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(getContext());
+    private boolean fetchExams() throws BlichSyncAdapter.BlichFetchException {
+
+        int classValue;
+        BufferedReader reader = null;
+        String html = "";
+
+        final String CLASS_VALUE_PARAM = "cls";
+
+        //Get the exams html from Blich's site
+        try {
+            classValue = getClassValue();
+            Uri baseUri = Uri.parse(EXAMS_BASE_URL).buildUpon()
+                    .appendQueryParameter(CLASS_VALUE_PARAM, String.valueOf(classValue))
+                    .build();
+
+            URL url = new URL(baseUri.toString());
+            URLConnection urlConnection = url.openConnection();
+            urlConnection.setDoOutput(true);
+
+            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+
+            while((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            html = stringBuilder.toString();
+
+        } catch (BlichSyncAdapter.BlichFetchException e) {
+            Log.e(LOG_TAG, "Error while trying to get user's class value", e);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
+        }
+
+        if (html.equals(""))
+            return false;
+
+
+        //Parse the html
+        Document document = Jsoup.parse(html);
+        Elements exams = document.getElementById(EXAMS_TABLE_ID).getElementsByTag("tr");
+
+        List<ContentValues> contentValues = new ArrayList<>();
+
+        //Parse the table rows in the html from the second row
+        //(first row is the header of each column)
+        for (int i = 1; i < exams.size(); i++) {
+            Element exam = exams.get(i);
+            Elements innerData = exam.getElementsByTag("td");
+            String date = innerData.get(0).text();
+            String subject = innerData.get(1).text();
+            String teachers = innerData.get(2).text().replace(", ", ";");
+
+            ContentValues row = new ContentValues();
+            row.put(BlichContract.ExamsEntry.COL_DATE, date);
+            row.put(BlichContract.ExamsEntry.COL_SUBJECT, subject);
+            row.put(BlichContract.ExamsEntry.COL_TEACHER, teachers);
+
+            contentValues.add(row);
+        }
+
+        mContext.getContentResolver().bulkInsert(
+                BlichContract.ExamsEntry.CONTENT_URI,
+                contentValues.toArray(new ContentValues[contentValues.size()]));
+
+        Cursor cursor = mContext.getContentResolver().query(
+                BlichContract.ExamsEntry.CONTENT_URI,
+                null, null, null, null, null);
+
+        Log.d(LOG_TAG, DatabaseUtils.dumpCursorToString(cursor));
+        return true;
+    }
+
+    private int getClassValue() throws BlichSyncAdapter.BlichFetchException {
+        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(mContext);
         String selection;
         String[] selectionArgs;
 
@@ -445,7 +539,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             if (cursor.moveToFirst()) {
                 classValue = cursor.getInt(0);
             } else {
-                throw new BlichFetchException("Can't get the user's class. Did the user configure his class?");
+                throw new BlichSyncAdapter.BlichFetchException("Can't get the user's class. Did the user configure his class?");
             }
         } else {
             throw new NullPointerException("Queried cursor is null");
