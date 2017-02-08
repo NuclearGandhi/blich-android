@@ -3,33 +3,34 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="192dp"
+    android:layout_margin="16dp"
     app:cardElevation="4dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/exam_background"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/subject_math"/>
+            />
 
         <LinearLayout
             android:id="@+id/exam_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="8dp">
 
             <TextView
                 android:id="@+id/exam_day"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:layout_margin="12dp"
                 android:background="@drawable/ic_calendar_blank"
                 android:gravity="center"
@@ -37,7 +38,7 @@
                 android:text="24"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textSize="24sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/exam_month_year"
@@ -56,8 +57,12 @@
             android:id="@+id/exam_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@id/exam_date"
+            android:layout_toRightOf="@id/exam_date"
+            android:maxLines="1"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:paddingTop="16dp"
             android:text="מתמטיקה"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -65,11 +70,12 @@
 
         <TextView
             android:id="@+id/exam_teachers"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_below="@id/exam_subject"
-            android:layout_toLeftOf="@id/exam_date"
-            android:paddingTop="12dp"
+            android:layout_toRightOf="@id/exam_date"
+            android:padding="16dp"
             android:text="שלום אורלי"/>
 
     </RelativeLayout>

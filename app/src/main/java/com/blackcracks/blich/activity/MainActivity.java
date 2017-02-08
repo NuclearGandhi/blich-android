@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
+import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
@@ -77,6 +78,11 @@ public class MainActivity extends AppCompatActivity {
                             case R.id.settings: {
                                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                                 startActivity(intent);
+                                return true;
+                            }
+                            case R.id.exams: {
+                                replaceFragment(new ExamsFragment(), true);
+                                item.setChecked(true);
                                 return true;
                             }
                         }

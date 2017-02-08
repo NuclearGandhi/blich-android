@@ -489,7 +489,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             Elements innerData = exam.getElementsByTag("td");
             String date = innerData.get(0).text();
             String subject = innerData.get(1).text();
-            String teachers = innerData.get(2).text().replace(", ", ";");
+            String teachers = innerData.get(2).text();
 
             ContentValues row = new ContentValues();
             row.put(BlichContract.ExamsEntry.COL_DATE, date);
