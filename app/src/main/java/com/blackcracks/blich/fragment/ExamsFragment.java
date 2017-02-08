@@ -10,13 +10,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.*;
@@ -33,26 +37,47 @@ public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallb
     };
 
     Context mContext;
+
+    View mRootView;
     RecyclerView mRecyclerView;
     ExamAdapter mAdapter;
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, this);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_exams, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_exams, container, false);
         mContext = getContext();
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.exam_recycler_view);
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.exam_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new ExamAdapter(mContext, null);
         mRecyclerView.setAdapter(mAdapter);
-        return rootView;
+        return mRootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        MainActivity activity = (MainActivity) getActivity();
+        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        activity.setSupportActionBar(toolbar);
+        activity.getSupportActionBar().setTitle(R.string.drawer_exams_title);
+
+        DrawerLayout drawerLayout = activity.getDrawerLayout();
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, 0);
+            }
+        };
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+
+        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, this);
     }
 
     @Override
