@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -507,7 +506,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 BlichContract.ExamsEntry.CONTENT_URI,
                 null, null, null, null, null);
 
-        Log.d(LOG_TAG, DatabaseUtils.dumpCursorToString(cursor));
+        //Log.d(LOG_TAG, DatabaseUtils.dumpCursorToString(cursor));
         return true;
     }
 

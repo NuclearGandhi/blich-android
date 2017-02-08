@@ -7,7 +7,12 @@
         <item
             android:id="@+id/schedule"
             android:icon="@drawable/ic_timetable_grey600_24dp"
-            android:title="@string/drawer_schedule_title" />
+            android:title="@string/drawer_schedule_title"/>
+
+        <item
+            android:id="@+id/exams"
+            android:icon="@drawable/ic_clipboard_text"
+            android:title="@string/drawer_exams_title"/>
     </group>
     <group
         android:id="@+id/system"
@@ -15,8 +20,8 @@
         android:orderInCategory="2">
         <item
             android:id="@+id/settings"
+            android:checkable="false"
             android:icon="@drawable/ic_settings_grey600_24dp"
-            android:title="@string/drawer_settings_title"
-            android:checkable="false"/>
+            android:title="@string/drawer_settings_title"/>
     </group>
 </menu>

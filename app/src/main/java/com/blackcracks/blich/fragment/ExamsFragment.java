@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,12 +19,28 @@ import android.view.ViewGroup;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
+import com.blackcracks.blich.data.BlichContract.*;
 
 public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    private static final int EXAMS_LOADER_ID = 101;
+
+    private static final String[] EXAMS_COLUMNS = {
+            ExamsEntry._ID,
+            ExamsEntry.COL_DATE,
+            ExamsEntry.COL_SUBJECT,
+            ExamsEntry.COL_TEACHER
+    };
 
     Context mContext;
     RecyclerView mRecyclerView;
     ExamAdapter mAdapter;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,12 +57,13 @@ public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri uri = BlichContract.ClassEntry.CONTENT_URI;
+        Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
 
         return new CursorLoader(
                 mContext,
                 uri,
-                null, null, null, null);
+                EXAMS_COLUMNS,
+                null, null, null);
     }
 
     @Override

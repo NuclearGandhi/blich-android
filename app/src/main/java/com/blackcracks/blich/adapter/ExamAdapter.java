@@ -2,12 +2,7 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.Shader;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,8 +13,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,7 +43,7 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
+    public void onBindViewHolder(final ViewHolder viewHolder, Cursor cursor) {
 
         String subject = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_SUBJECT));
         String date = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_DATE));
@@ -85,41 +78,13 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
             backgroundId = R.drawable.subject_physics;
         } else {
             isBackground = false;
-            viewHolder.examBackground.setVisibility(View.GONE);
+            viewHolder.examBackground.setBackground(null);
         }
 
         if (isBackground) {
-            Picasso.with(mContext)
-                    .load(backgroundId)
-                    .transform(new Transformation() {
-                        @Override
-                        public Bitmap transform(Bitmap source) {
-
-                            int x = source.getWidth();
-                            int y = source.getHeight();
-
-                            Bitmap gradientBitmap = source.copy(source.getConfig(), true);
-                            Canvas canvas = new Canvas(gradientBitmap);
-                            LinearGradient gradient = new LinearGradient(0, 0 , x, y,
-                                    Color.WHITE, Color.WHITE,
-                                    Shader.TileMode.CLAMP);
-
-                            Paint paint = new Paint();
-                            paint.setShader(gradient);
-                            canvas.drawPaint(paint);
-                            source.recycle();
-                            return gradientBitmap;
-                        }
-
-                        @Override
-                        public String key() {
-                            return "brighten";
-                        }
-                    })
-                    .into(viewHolder.examBackground);
+            viewHolder.examBackground.setBackground(
+                    ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
         }
-
-
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
