@@ -20,6 +20,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -51,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Retention;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -59,12 +61,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 @SuppressWarnings("SpellCheckingInspection")
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
+    @Retention(SOURCE)
+    @IntDef({RESPONSE_SUCCESFUL, RESPONSE_EMPTY_HTML})
+    public @interface FetchResponse {}
+
+    public static final int RESPONSE_SUCCESFUL = 0;
+    public static final int RESPONSE_EMPTY_HTML = 1;
+
     public static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
-    public static final String IS_SUCCESSFUL_EXTRA = "is_successful";
+    public static final String FETCH_RESPONSE = "fetch_status";
 
     private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
     private static final String SYNC_IS_PERIODIC = "is_periodic";
@@ -231,24 +242,31 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             Log.d(LOG_TAG, "Syncing: Manual");
         }
 
-        boolean isSuccessful = false;
-        try {
-            isSuccessful = fetchSchedule() && fetchExams();
-        } catch (BlichFetchException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-        }
-
-        Intent intent = new Intent(ACTION_SYNC_FINISHED);
-        intent.putExtra(IS_SUCCESSFUL_EXTRA, isSuccessful);
-        LocalBroadcastManager.getInstance(getContext())
-                .sendBroadcast(intent);
+        /*
+        Start the fetch.
+        If there is a problem while fetching, send the response in the broadcast.
+         */
+        int callback;
+        if (    (callback = fetchSchedule()) != RESPONSE_SUCCESFUL ||
+                (callback = fetchExams()) != RESPONSE_SUCCESFUL)
+            sendBroadcast(callback);
+        else
+            sendBroadcast(RESPONSE_SUCCESFUL);
 
         if (periodic) {
             notifyUser();
         }
     }
 
-    private boolean fetchSchedule() {
+    private void sendBroadcast(@FetchResponse int callback) {
+        Intent intent = new Intent(ACTION_SYNC_FINISHED);
+        intent.putExtra(FETCH_RESPONSE, callback);
+        LocalBroadcastManager.getInstance(getContext())
+                .sendBroadcast(intent);
+    }
+
+    private @FetchResponse
+    int fetchSchedule() {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -304,22 +322,20 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 builder.append(line);
             }
             classHtml = builder.toString();
-        } catch (IOException e) {
-            return false;
-        } catch (BlichFetchException e) {
-            e.printStackTrace();
+        } catch (IOException | BlichFetchException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, e.getMessage(), e);
                 }
             }
         }
 
         if (classHtml.equals("")) {
-            return false;
+            return RESPONSE_EMPTY_HTML;
         }
         Document document = Jsoup.parse(classHtml);
         Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
@@ -425,10 +441,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         mContext.getContentResolver().bulkInsert(
                 BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
-        return true;
+        return RESPONSE_SUCCESFUL;
     }
 
-    private boolean fetchExams() throws BlichSyncAdapter.BlichFetchException {
+    private @FetchResponse
+    int fetchExams() {
 
         int classValue;
         BufferedReader reader = null;
@@ -472,7 +489,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
         if (html.equals(""))
-            return false;
+            return RESPONSE_EMPTY_HTML;
 
 
         //Parse the html
@@ -502,12 +519,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 BlichContract.ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
-        Cursor cursor = mContext.getContentResolver().query(
-                BlichContract.ExamsEntry.CONTENT_URI,
-                null, null, null, null, null);
-
-        //Log.d(LOG_TAG, DatabaseUtils.dumpCursorToString(cursor));
-        return true;
+        return RESPONSE_SUCCESFUL;
     }
 
     private int getClassValue() throws BlichSyncAdapter.BlichFetchException {
