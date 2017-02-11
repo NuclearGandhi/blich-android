@@ -82,7 +82,7 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
         }
 
         if (isBackground) {
-            viewHolder.examBackground.setBackground(
+            viewHolder.examBackground.setImageDrawable(
                     ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
         }
     }

@@ -11,13 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/exam_background"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/white_gradient"
-            />
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/exam_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/white_gradient"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/white_gradient" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/exam_date"
