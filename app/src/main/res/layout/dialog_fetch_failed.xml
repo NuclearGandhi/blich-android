@@ -7,14 +7,14 @@
 
     <TextView
         style="?android:attr/textAppearanceLarge"
+        android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start"
         android:paddingBottom="20dp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
-        android:paddingTop="24dp"
-        android:text="@string/dialog_no_connection_title" />
+        android:paddingTop="24dp"/>
 
     <TextView
         android:id="@+id/dialog_message"

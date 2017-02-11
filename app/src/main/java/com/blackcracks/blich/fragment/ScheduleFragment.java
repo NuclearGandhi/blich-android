@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -63,16 +64,10 @@ public class ScheduleFragment extends Fragment {
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                boolean isSuccessful = intent.getBooleanExtra(BlichSyncAdapter.IS_SUCCESSFUL_EXTRA, false);
-                if (isSuccessful) {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    Snackbar.make(mRootView,
-                            R.string.snackbar_schedule_fetch_success,
-                            Snackbar.LENGTH_LONG)
-                            .show();
-                } else {
-                    onSyncFailed();
-                }
+                @BlichSyncAdapter.FetchResponse int response =
+                        intent.getIntExtra(BlichSyncAdapter.FETCH_RESPONSE,
+                        BlichSyncAdapter.RESPONSE_UNSUCCESSFUL);
+                onSyncFinished(response);
             }
         };
     }
@@ -207,16 +202,46 @@ public class ScheduleFragment extends Fragment {
                 .unregisterReceiver(mSyncBroadcastReceiver);
     }
 
-    private void onSyncFailed() {
+    private void onSyncFinished(@BlichSyncAdapter.FetchResponse int response) {
         mSwipeRefreshLayout.setRefreshing(false);
         View view = LayoutInflater.from(getContext()).inflate(
-                R.layout.dialog_no_connection,
+                R.layout.dialog_fetch_failed,
                 null);
+
+        @StringRes int titleString = R.string.dialog_fetch_unsuccessful_title;
+        @StringRes int messageString = R.string.dialog_fetch_unsuccessful_message;
+        switch (response) {
+            case BlichSyncAdapter.RESPONSE_SUCCESSFUL: {
+                Snackbar.make(mRootView,
+                        R.string.snackbar_fetch_successful,
+                        Snackbar.LENGTH_LONG)
+                        .show();
+                return;
+            }
+            case BlichSyncAdapter.RESPONSE_NO_CONNECTION: {
+                titleString = R.string.dialog_no_connection_title;
+                messageString = R.string.dialog_fetch_no_connection_message;
+                break;
+            }
+            case BlichSyncAdapter.RESPONSE_UNSUCCESSFUL: {
+                titleString = R.string.dialog_fetch_unsuccessful_title;
+                messageString = R.string.dialog_fetch_unsuccessful_message;
+                break;
+            }
+            case BlichSyncAdapter.RESPONSE_EMPTY_HTML: {
+                titleString = R.string.dialog_fetch_empty_html_title;
+                messageString = R.string.dialog_fetch_empty_html_message;
+                break;
+            }
+        }
+        TextView title = (TextView) view.findViewById(R.id.dialog_title);
+        title.setText(titleString);
         TextView message = (TextView) view.findViewById(R.id.dialog_message);
-        message.setText(R.string.dialog_schedule_fetch_failed);
+        message.setText(messageString);
+
         new AlertDialog.Builder(getContext())
                 .setView(view)
-                .setPositiveButton(R.string.dialog_no_connection_try_again,
+                .setPositiveButton(R.string.dialog_try_again,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -240,7 +265,7 @@ public class ScheduleFragment extends Fragment {
         if (isConnected) {
             BlichSyncAdapter.syncImmediately(getContext());
         } else {
-            onSyncFailed();
+            onSyncFinished(BlichSyncAdapter.RESPONSE_NO_CONNECTION);
         }
     }
 

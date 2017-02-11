@@ -67,11 +67,13 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     @Retention(SOURCE)
-    @IntDef({RESPONSE_SUCCESFUL, RESPONSE_EMPTY_HTML})
+    @IntDef({RESPONSE_SUCCESSFUL, RESPONSE_UNSUCCESSFUL, RESPONSE_NO_CONNECTION, RESPONSE_EMPTY_HTML})
     public @interface FetchResponse {}
 
-    public static final int RESPONSE_SUCCESFUL = 0;
-    public static final int RESPONSE_EMPTY_HTML = 1;
+    public static final int RESPONSE_SUCCESSFUL = 0;
+    public static final int RESPONSE_UNSUCCESSFUL = 1;
+    public static final int RESPONSE_NO_CONNECTION = 2;
+    public static final int RESPONSE_EMPTY_HTML = 3;
 
     public static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
@@ -246,21 +248,21 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Start the fetch.
         If there is a problem while fetching, send the response in the broadcast.
          */
-        int callback;
-        if (    (callback = fetchSchedule()) != RESPONSE_SUCCESFUL ||
-                (callback = fetchExams()) != RESPONSE_SUCCESFUL)
-            sendBroadcast(callback);
+        int response;
+        if (    (response = fetchSchedule()) != RESPONSE_SUCCESSFUL ||
+                (response = fetchExams()) != RESPONSE_SUCCESSFUL)
+            sendBroadcast(response);
         else
-            sendBroadcast(RESPONSE_SUCCESFUL);
+            sendBroadcast(RESPONSE_SUCCESSFUL);
 
         if (periodic) {
             notifyUser();
         }
     }
 
-    private void sendBroadcast(@FetchResponse int callback) {
+    private void sendBroadcast(@FetchResponse int response) {
         Intent intent = new Intent(ACTION_SYNC_FINISHED);
-        intent.putExtra(FETCH_RESPONSE, callback);
+        intent.putExtra(FETCH_RESPONSE, response);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
     }
@@ -441,7 +443,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         mContext.getContentResolver().bulkInsert(
                 BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
-        return RESPONSE_SUCCESFUL;
+        return RESPONSE_SUCCESSFUL;
     }
 
     private @FetchResponse
@@ -519,7 +521,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 BlichContract.ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
-        return RESPONSE_SUCCESFUL;
+        return RESPONSE_SUCCESSFUL;
     }
 
     private int getClassValue() throws BlichSyncAdapter.BlichFetchException {

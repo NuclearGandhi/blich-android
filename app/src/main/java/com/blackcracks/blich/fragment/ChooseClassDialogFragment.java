@@ -159,14 +159,14 @@ public class ChooseClassDialogFragment extends DialogFragment {
 
     //If the fetching failed, show a Dialog
     private void onFetchFailed() {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_no_connection,
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
                 null);
         TextView message = (TextView) view.findViewById(R.id.dialog_message);
         message.setText(R.string.dialog_no_connection_message);
         new AlertDialog.Builder(getContext())
                 .setCancelable(false)
                 .setView(view)
-                .setPositiveButton(R.string.dialog_no_connection_try_again,
+                .setPositiveButton(R.string.dialog_try_again,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
