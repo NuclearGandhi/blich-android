@@ -162,7 +162,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
                 null);
         TextView message = (TextView) view.findViewById(R.id.dialog_message);
-        message.setText(R.string.dialog_no_connection_message);
+        message.setText(R.string.dialog_fetch_class_no_connection_message);
         new AlertDialog.Builder(getContext())
                 .setCancelable(false)
                 .setView(view)

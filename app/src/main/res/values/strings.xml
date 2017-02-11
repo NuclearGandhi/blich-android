@@ -7,11 +7,6 @@
 
     <string name="action_refresh">עדכן</string>
 
-    <string name="dialog_choose_class_title">מהי כיתתך?</string>
-    <string name="dialog_choose_class_content">כיתה:</string>
-    <string name="dialog_okay">אישור</string>
-    <string name="dialog_try_again">נסה שוב</string>
-    <string name="dialog_cancel">ביטול</string>
 
     <string name="pref_class_picker_key">class_picker</string>
     <string name="pref_class_picker_title">כיתה</string>
@@ -26,15 +21,21 @@
     <string name="pref_notification_sound_title">צליל</string>
 
 
+    <string name="dialog_choose_class_title">מהי כיתתך?</string>
+    <string name="dialog_choose_class_content">כיתה:</string>
+    <string name="dialog_okay">אישור</string>
+    <string name="dialog_try_again">נסה שוב</string>
+    <string name="dialog_cancel">ביטול</string>
+
     <string name="snackbar_fetch_successful">מערכת השעות עודכנה</string>
+    <string name="dialog_fetch_no_connection_title">אין חיבור לאינטרנט</string>
     <string name="dialog_fetch_no_connection_message">אין אפשרות לעדכן את מערכת השעות כיוון שאין חיבור לאינטרנט.</string>
     <string name="dialog_fetch_empty_html_message">אירעה שגיאה בהשגת המידע מאתר בליך.\nהאם האתר פועל?</string>
     <string name="dialog_fetch_unsuccessful_message">אירעה שגיאה בהשגת המידע מאתר בליך.</string>
     <string name="dialog_fetch_empty_html_title">אתר ריק</string>
     <string name="dialog_fetch_unsuccessful_title">שגיאה</string>
+    <string name="dialog_fetch_class_no_connection_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
 
-    <string name="dialog_no_connection_title">אין חיבור לאינטרנט</string>
-    <string name="dialog_no_connection_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
 
     <string name="drawer_schedule_title">מערכת שעות</string>
     <string name="drawer_exams_title">מבחנים</string>
@@ -42,6 +43,7 @@
 
     <string name="drawer_open_desc">פתוח</string>
     <string name="drawer_close_desc">סגור</string>
+
 
     <string name="notification_update_title">בליך</string>
     <string name="notification_update_today">היום:</string>

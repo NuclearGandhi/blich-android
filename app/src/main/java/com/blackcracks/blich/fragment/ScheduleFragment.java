@@ -219,7 +219,7 @@ public class ScheduleFragment extends Fragment {
                 return;
             }
             case BlichSyncAdapter.RESPONSE_NO_CONNECTION: {
-                titleString = R.string.dialog_no_connection_title;
+                titleString = R.string.dialog_fetch_no_connection_title;
                 messageString = R.string.dialog_fetch_no_connection_message;
                 break;
             }
