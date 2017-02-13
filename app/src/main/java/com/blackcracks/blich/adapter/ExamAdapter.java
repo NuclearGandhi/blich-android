@@ -68,8 +68,7 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
         viewHolder.examSubject.setText(subject);
         viewHolder.examTeachers.setText(teachers);
 
-        int backgroundId = 0;
-        boolean isBackground = true;
+        int backgroundId;
         if (subject.contains("מתמטיקה")) {
             backgroundId = R.drawable.subject_math;
         } else if (subject.contains("אנגלית")) {
@@ -77,14 +76,10 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
         } else if (subject.contains("פיזיקה")) {
             backgroundId = R.drawable.subject_physics;
         } else {
-            isBackground = false;
-            viewHolder.examBackground.setBackground(null);
+            backgroundId = R.drawable.subject_unknown;
         }
-
-        if (isBackground) {
-            viewHolder.examBackground.setImageDrawable(
-                    ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
-        }
+        viewHolder.examBackground.setImageDrawable(
+                ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
