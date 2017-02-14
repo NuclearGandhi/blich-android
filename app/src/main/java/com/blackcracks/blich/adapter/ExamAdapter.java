@@ -75,6 +75,8 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
             backgroundId = R.drawable.subject_english;
         } else if (subject.contains("פיזיקה")) {
             backgroundId = R.drawable.subject_physics;
+        } else if (subject.contains("היסטוריה")) {
+            backgroundId = R.drawable.subject_history;
         } else {
             backgroundId = R.drawable.subject_unknown;
         }
