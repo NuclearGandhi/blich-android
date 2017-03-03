@@ -204,58 +204,57 @@ public class ScheduleFragment extends Fragment {
 
     private void onSyncFinished(@BlichSyncAdapter.FetchResponse int response) {
         mSwipeRefreshLayout.setRefreshing(false);
-        View view = LayoutInflater.from(getContext()).inflate(
-                R.layout.dialog_fetch_failed,
-                null);
 
-        @StringRes int titleString = R.string.dialog_fetch_unsuccessful_title;
-        @StringRes int messageString = R.string.dialog_fetch_unsuccessful_message;
-        switch (response) {
-            case BlichSyncAdapter.RESPONSE_SUCCESSFUL: {
-                Snackbar.make(mRootView,
-                        R.string.snackbar_fetch_successful,
-                        Snackbar.LENGTH_LONG)
-                        .show();
-                return;
+        if (response == BlichSyncAdapter.RESPONSE_SUCCESSFUL) {
+            Snackbar.make(mRootView,
+                    R.string.snackbar_fetch_successful,
+                    Snackbar.LENGTH_LONG)
+                    .show();
+        } else {
+            View view = LayoutInflater.from(getContext()).inflate(
+                    R.layout.dialog_fetch_failed,
+                    null);
+
+            @StringRes int titleString;
+            @StringRes int messageString;
+            switch (response) {
+                case BlichSyncAdapter.RESPONSE_NO_CONNECTION: {
+                    titleString = R.string.dialog_fetch_no_connection_title;
+                    messageString = R.string.dialog_fetch_no_connection_message;
+                    break;
+                }
+                case BlichSyncAdapter.RESPONSE_EMPTY_HTML: {
+                    titleString = R.string.dialog_fetch_empty_html_title;
+                    messageString = R.string.dialog_fetch_empty_html_message;
+                    break;
+                }
+                default:
+                    titleString = R.string.dialog_fetch_unsuccessful_title;
+                    messageString = R.string.dialog_fetch_unsuccessful_message;
             }
-            case BlichSyncAdapter.RESPONSE_NO_CONNECTION: {
-                titleString = R.string.dialog_fetch_no_connection_title;
-                messageString = R.string.dialog_fetch_no_connection_message;
-                break;
-            }
-            case BlichSyncAdapter.RESPONSE_UNSUCCESSFUL: {
-                titleString = R.string.dialog_fetch_unsuccessful_title;
-                messageString = R.string.dialog_fetch_unsuccessful_message;
-                break;
-            }
-            case BlichSyncAdapter.RESPONSE_EMPTY_HTML: {
-                titleString = R.string.dialog_fetch_empty_html_title;
-                messageString = R.string.dialog_fetch_empty_html_message;
-                break;
-            }
+            TextView title = (TextView) view.findViewById(R.id.dialog_title);
+            title.setText(titleString);
+            TextView message = (TextView) view.findViewById(R.id.dialog_message);
+            message.setText(messageString);
+
+            new AlertDialog.Builder(getContext())
+                    .setView(view)
+                    .setPositiveButton(R.string.dialog_try_again,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    refreshSchedule();
+                                }
+                            })
+                    .setNegativeButton(R.string.dialog_cancel,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                    .show();
         }
-        TextView title = (TextView) view.findViewById(R.id.dialog_title);
-        title.setText(titleString);
-        TextView message = (TextView) view.findViewById(R.id.dialog_message);
-        message.setText(messageString);
-
-        new AlertDialog.Builder(getContext())
-                .setView(view)
-                .setPositiveButton(R.string.dialog_try_again,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                refreshSchedule();
-                            }
-                        })
-                .setNegativeButton(R.string.dialog_cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        })
-                .show();
     }
 
     private void refreshSchedule() {
