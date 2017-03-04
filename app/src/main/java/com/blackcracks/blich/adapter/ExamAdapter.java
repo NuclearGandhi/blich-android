@@ -69,17 +69,17 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
         viewHolder.examTeachers.setText(teachers);
 
         int backgroundId;
-        if (subject.contains("מתמטיקה")) {
-            backgroundId = R.drawable.subject_math;
-        } else if (subject.contains("אנגלית")) {
-            backgroundId = R.drawable.subject_english;
-        } else if (subject.contains("פיזיקה")) {
-            backgroundId = R.drawable.subject_physics;
-        } else if (subject.contains("היסטוריה")) {
-            backgroundId = R.drawable.subject_history;
-        } else {
-            backgroundId = R.drawable.subject_unknown;
-        }
+        if (subject.contains("מתמטיקה") || subject.contains("מתימטיקה")) backgroundId = R.drawable.subject_math;
+        else if (subject.contains("אנגלית")) backgroundId = R.drawable.subject_english;
+        else if (subject.contains("פיזיקה")) backgroundId = R.drawable.subject_physics;
+        else if (subject.contains("כימיה")) backgroundId = R.drawable.subject_chemistry;
+        else if (subject.contains("ביולוגיה")) backgroundId = R.drawable.subject_biology;
+        else if (subject.contains("היסטוריה")) backgroundId = R.drawable.subject_history;
+        else if (subject.contains("יסודות המחשב") || subject.contains("סייבר")) backgroundId = R.drawable.subject_computer;
+        else if (subject.contains("ערבית") || subject.contains("צרפתית") || subject.contains("סינית") || subject.contains("אסלאם"))
+            backgroundId = R.drawable.subject_language;
+        else backgroundId = R.drawable.subject_unknown;
+
         viewHolder.examBackground.setImageDrawable(
                 ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
     }
