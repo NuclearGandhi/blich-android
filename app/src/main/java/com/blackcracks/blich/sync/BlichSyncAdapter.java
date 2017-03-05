@@ -67,17 +67,17 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     @Retention(SOURCE)
-    @IntDef({RESPONSE_SUCCESSFUL, RESPONSE_UNSUCCESSFUL, RESPONSE_NO_CONNECTION, RESPONSE_EMPTY_HTML})
-    public @interface FetchResponse {}
+    @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL, FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML})
+    public @interface FetchStatus {}
 
-    public static final int RESPONSE_SUCCESSFUL = 0;
-    public static final int RESPONSE_UNSUCCESSFUL = 1;
-    public static final int RESPONSE_NO_CONNECTION = 2;
-    public static final int RESPONSE_EMPTY_HTML = 3;
+    public static final int FETCH_STATUS_SUCCESSFUL = 0;
+    public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
+    public static final int FETCH_STATUS_NO_CONNECTION = 2;
+    public static final int FETCH_STATUS_EMPTY_HTML = 3;
 
     public static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
-    public static final String FETCH_RESPONSE = "fetch_status";
+    public static final String FETCH_STATUS = "fetch_status";
 
     private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
     private static final String SYNC_IS_PERIODIC = "is_periodic";
@@ -246,28 +246,28 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         /*
         Start the fetch.
-        If there is a problem while fetching, send the response in the broadcast.
+        If there is a problem while fetching, send the status in the broadcast.
          */
-        int response;
-        if (    (response = fetchSchedule()) != RESPONSE_SUCCESSFUL ||
-                (response = fetchExams()) != RESPONSE_SUCCESSFUL)
-            sendBroadcast(response);
+        int status;
+        if (    (status = fetchSchedule()) != FETCH_STATUS_SUCCESSFUL ||
+                (status = fetchExams()) != FETCH_STATUS_SUCCESSFUL)
+            sendBroadcast(status);
         else
-            sendBroadcast(RESPONSE_SUCCESSFUL);
+            sendBroadcast(FETCH_STATUS_SUCCESSFUL);
 
         if (periodic) {
             notifyUser();
         }
     }
 
-    private void sendBroadcast(@FetchResponse int response) {
+    private void sendBroadcast(@FetchStatus int status) {
         Intent intent = new Intent(ACTION_SYNC_FINISHED);
-        intent.putExtra(FETCH_RESPONSE, response);
+        intent.putExtra(FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
     }
 
-    private @FetchResponse
+    private @FetchStatus
     int fetchSchedule() {
 
         int classValue = 0;
@@ -337,7 +337,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
         if (classHtml.equals("")) {
-            return RESPONSE_EMPTY_HTML;
+            return FETCH_STATUS_EMPTY_HTML;
         }
         Document document = Jsoup.parse(classHtml);
         Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
@@ -443,10 +443,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         mContext.getContentResolver().bulkInsert(
                 BlichContract.ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
-        return RESPONSE_SUCCESSFUL;
+        return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private @FetchResponse
+    private @FetchStatus
     int fetchExams() {
 
         int classValue;
@@ -491,7 +491,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
         if (html.equals(""))
-            return RESPONSE_EMPTY_HTML;
+            return FETCH_STATUS_EMPTY_HTML;
 
 
         //Parse the html
@@ -521,7 +521,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 BlichContract.ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
-        return RESPONSE_SUCCESSFUL;
+        return FETCH_STATUS_SUCCESSFUL;
     }
 
     private int getClassValue() throws BlichSyncAdapter.BlichFetchException {

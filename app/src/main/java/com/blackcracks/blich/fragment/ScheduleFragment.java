@@ -64,9 +64,9 @@ public class ScheduleFragment extends Fragment {
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                @BlichSyncAdapter.FetchResponse int response =
-                        intent.getIntExtra(BlichSyncAdapter.FETCH_RESPONSE,
-                        BlichSyncAdapter.RESPONSE_UNSUCCESSFUL);
+                @BlichSyncAdapter.FetchStatus int response =
+                        intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
+                        BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
                 onSyncFinished(response);
             }
         };
@@ -202,10 +202,10 @@ public class ScheduleFragment extends Fragment {
                 .unregisterReceiver(mSyncBroadcastReceiver);
     }
 
-    private void onSyncFinished(@BlichSyncAdapter.FetchResponse int response) {
+    private void onSyncFinished(@BlichSyncAdapter.FetchStatus int status) {
         mSwipeRefreshLayout.setRefreshing(false);
 
-        if (response == BlichSyncAdapter.RESPONSE_SUCCESSFUL) {
+        if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
             Snackbar.make(mRootView,
                     R.string.snackbar_fetch_successful,
                     Snackbar.LENGTH_LONG)
@@ -217,13 +217,13 @@ public class ScheduleFragment extends Fragment {
 
             @StringRes int titleString;
             @StringRes int messageString;
-            switch (response) {
-                case BlichSyncAdapter.RESPONSE_NO_CONNECTION: {
+            switch (status) {
+                case BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION: {
                     titleString = R.string.dialog_fetch_no_connection_title;
                     messageString = R.string.dialog_fetch_no_connection_message;
                     break;
                 }
-                case BlichSyncAdapter.RESPONSE_EMPTY_HTML: {
+                case BlichSyncAdapter.FETCH_STATUS_EMPTY_HTML: {
                     titleString = R.string.dialog_fetch_empty_html_title;
                     messageString = R.string.dialog_fetch_empty_html_message;
                     break;
@@ -264,7 +264,7 @@ public class ScheduleFragment extends Fragment {
         if (isConnected) {
             BlichSyncAdapter.syncImmediately(getContext());
         } else {
-            onSyncFinished(BlichSyncAdapter.RESPONSE_NO_CONNECTION);
+            onSyncFinished(BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
         }
     }
 
