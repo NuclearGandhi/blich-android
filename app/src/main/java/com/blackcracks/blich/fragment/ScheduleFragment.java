@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -34,7 +36,7 @@ import java.util.Calendar;
  * The ScheduleFragment class is responsible for getting and displaying the schedule
  * of the user
  */
-public class ScheduleFragment extends Fragment {
+public class ScheduleFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
 
@@ -53,10 +55,10 @@ public class ScheduleFragment extends Fragment {
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                @BlichSyncAdapter.FetchStatus int response =
+                @BlichSyncAdapter.FetchStatus int status =
                         intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
                         BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                Utilities.onSyncFinished(context, mRootView, response);
+                Utilities.onSyncFinished(context, mRootView, status);
             }
         };
     }
@@ -118,14 +120,6 @@ public class ScheduleFragment extends Fragment {
         mSwipeRefreshLayout =
                 (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setEnabled(false);
-        if (Utilities.isFirstLaunch(getContext())) {
-            mSwipeRefreshLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    mSwipeRefreshLayout.setRefreshing(true);
-                }
-            });
-        }
 
         return mRootView;
     }
@@ -176,9 +170,11 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
+        mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_fetching_key), true));
     }
 
     @Override
@@ -186,5 +182,13 @@ public class ScheduleFragment extends Fragment {
         super.onDestroy();
         LocalBroadcastManager.getInstance(getContext())
                 .unregisterReceiver(mSyncBroadcastReceiver);
+        PreferenceManager.getDefaultSharedPreferences(getContext()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_is_fetching_key))) {
+            mSwipeRefreshLayout.setRefreshing(sharedPreferences.getBoolean(getString(R.string.pref_is_fetching_key), true));
+        }
     }
 }
