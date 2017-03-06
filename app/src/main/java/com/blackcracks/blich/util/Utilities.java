@@ -132,15 +132,17 @@ public class Utilities {
 
     //Call BlichSyncAdapter to begin a sync
     public static void updateBlichData(Context context, View view) {
-        Log.d(LOG_TAG, "Refreshing");
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
-                .apply();
-        boolean isConnected = Utilities.isThereNetworkConnection(context);
-        if (isConnected) {
-            BlichSyncAdapter.syncImmediately(context);
-        } else {
-            onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
+        if (!getPreferenceBoolean(context, context.getString(R.string.pref_is_fetching_key), true)) {
+            Log.d(LOG_TAG, "Refreshing");
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
+                    .apply();
+            boolean isConnected = Utilities.isThereNetworkConnection(context);
+            if (isConnected) {
+                BlichSyncAdapter.syncImmediately(context);
+            } else {
+                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
+            }
         }
     }
 }
