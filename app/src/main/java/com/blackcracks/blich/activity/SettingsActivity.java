@@ -173,6 +173,7 @@ public class SettingsActivity extends AppCompatActivity {
                             getString(R.string.pref_class_picker_default_value));
 
                     preference.setSummary(grade);
+
                 }
                 case PREF_NOTIFICATION_TOGGLE_KEY: {
                     BlichSyncAdapter.initializeSyncAdapter(getContext());

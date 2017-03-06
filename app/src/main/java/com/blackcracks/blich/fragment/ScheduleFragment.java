@@ -1,18 +1,12 @@
 package com.blackcracks.blich.fragment;
 
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -21,21 +15,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.data.BlichContract.ClassEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
 
@@ -67,7 +56,7 @@ public class ScheduleFragment extends Fragment {
                 @BlichSyncAdapter.FetchStatus int response =
                         intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
                         BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                onSyncFinished(response);
+                Utilities.onSyncFinished(context, mRootView, response);
             }
         };
     }
@@ -176,7 +165,7 @@ public class ScheduleFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                refreshSchedule();
+                Utilities.updateBlichData(getContext(), mRootView);
                 return true;
             }
             default:
@@ -190,9 +179,6 @@ public class ScheduleFragment extends Fragment {
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
-        if (!Utilities.isFirstLaunch(getContext())) {
-            new GetCurrentClassTask().execute();
-        }
     }
 
     @Override
@@ -200,126 +186,5 @@ public class ScheduleFragment extends Fragment {
         super.onDestroy();
         LocalBroadcastManager.getInstance(getContext())
                 .unregisterReceiver(mSyncBroadcastReceiver);
-    }
-
-    private void onSyncFinished(@BlichSyncAdapter.FetchStatus int status) {
-        mSwipeRefreshLayout.setRefreshing(false);
-
-        if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
-            Snackbar.make(mRootView,
-                    R.string.snackbar_fetch_successful,
-                    Snackbar.LENGTH_LONG)
-                    .show();
-        } else {
-            View view = LayoutInflater.from(getContext()).inflate(
-                    R.layout.dialog_fetch_failed,
-                    null);
-
-            @StringRes int titleString;
-            @StringRes int messageString;
-            switch (status) {
-                case BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION: {
-                    titleString = R.string.dialog_fetch_no_connection_title;
-                    messageString = R.string.dialog_fetch_no_connection_message;
-                    break;
-                }
-                case BlichSyncAdapter.FETCH_STATUS_EMPTY_HTML: {
-                    titleString = R.string.dialog_fetch_empty_html_title;
-                    messageString = R.string.dialog_fetch_empty_html_message;
-                    break;
-                }
-                default:
-                    titleString = R.string.dialog_fetch_unsuccessful_title;
-                    messageString = R.string.dialog_fetch_unsuccessful_message;
-            }
-            TextView title = (TextView) view.findViewById(R.id.dialog_title);
-            title.setText(titleString);
-            TextView message = (TextView) view.findViewById(R.id.dialog_message);
-            message.setText(messageString);
-
-            new AlertDialog.Builder(getContext())
-                    .setView(view)
-                    .setPositiveButton(R.string.dialog_try_again,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    refreshSchedule();
-                                }
-                            })
-                    .setNegativeButton(R.string.dialog_cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                    .show();
-        }
-    }
-
-    private void refreshSchedule() {
-        Log.d(LOG_TAG, "Refreshing");
-        mSwipeRefreshLayout.setRefreshing(true);
-        boolean isConnected = Utilities.isThereNetworkConnection(getContext());
-        if (isConnected) {
-            BlichSyncAdapter.syncImmediately(getContext());
-        } else {
-            onSyncFinished(BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
-        }
-    }
-
-    private class GetCurrentClassTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-
-            Cursor scheduleCursor = getContext().getContentResolver().query(
-                    ScheduleEntry.CONTENT_URI,
-                    new String[]{ScheduleEntry.COL_CLASS_SETTINGS},
-                    null,
-                    null,
-                    ScheduleEntry.COL_DAY + " LIMIT 1");
-
-            String classIndex = "";
-
-            if (scheduleCursor != null && scheduleCursor.moveToFirst()) {
-                classIndex = scheduleCursor.getString(scheduleCursor
-                        .getColumnIndex(ScheduleEntry.COL_CLASS_SETTINGS));
-                scheduleCursor.close();
-            }
-
-            Cursor classCursor = getContext().getContentResolver().query(
-                    ClassEntry.CONTENT_URI,
-                    new String[] {ClassEntry.COL_GRADE, ClassEntry.COL_GRADE_INDEX},
-                    ClassEntry.COL_CLASS_INDEX + " = ?",
-                    new String[] {classIndex},
-                    null);
-
-            String currentClass = "";
-
-            if (classCursor != null && classCursor.moveToFirst()) {
-                String gradeName = classCursor.getString(classCursor.getColumnIndex(ClassEntry.COL_GRADE));
-                int gradeIndex = classCursor.getInt(classCursor.getColumnIndex(ClassEntry.COL_GRADE_INDEX));
-                if (gradeIndex == 0) {
-                    currentClass = gradeName;
-                } else {
-                    currentClass = gradeName + "'" + gradeIndex;
-                }
-                classCursor.close();
-            }
-
-            String classSettings = Utilities.getPreferenceString(getContext(),
-                    SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
-                    SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_DEFAULT,
-                    false);
-            return !currentClass.equals(classSettings);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean didClassChange) {
-            if (didClassChange) {
-                refreshSchedule();
-            }
-        }
     }
 }
