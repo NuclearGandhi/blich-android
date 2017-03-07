@@ -67,13 +67,15 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     @Retention(SOURCE)
-    @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL, FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML})
+    @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
+            FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,})
     public @interface FetchStatus {}
 
     public static final int FETCH_STATUS_SUCCESSFUL = 0;
     public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
     public static final int FETCH_STATUS_NO_CONNECTION = 2;
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
+
 
     public static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
@@ -267,8 +269,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 .sendBroadcast(intent);
     }
 
-    private @FetchStatus
-    int fetchSchedule() {
+    private @FetchStatus int fetchSchedule() {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -283,6 +284,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
              */
             URL viewStateUrl = new URL(SOURCE_URL);
             URLConnection viewStateCon = viewStateUrl.openConnection();
+            viewStateCon.setConnectTimeout(10000);
             viewStateCon.setDoOutput(true);
 
             reader = new BufferedReader(new InputStreamReader(viewStateCon.getInputStream()));
@@ -305,6 +307,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
              */
             URL scheduleUrl = new URL(SOURCE_URL);
             HttpURLConnection scheduleCon = (HttpURLConnection) scheduleUrl.openConnection();
+            scheduleCon.setConnectTimeout(10000);
             scheduleCon.setDoOutput(true);
 
             List<NameValuePair> nameValuePairs = new ArrayList<>();
@@ -446,8 +449,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private @FetchStatus
-    int fetchExams() {
+    private @FetchStatus int fetchExams() {
 
         int classValue;
         BufferedReader reader = null;
@@ -464,6 +466,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
             URL url = new URL(baseUri.toString());
             URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(10000);
             urlConnection.setDoOutput(true);
 
             reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
