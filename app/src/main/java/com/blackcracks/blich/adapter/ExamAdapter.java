@@ -2,7 +2,6 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,20 +67,20 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
         viewHolder.examSubject.setText(subject);
         viewHolder.examTeachers.setText(teachers);
 
-        int backgroundId;
-        if (subject.contains("מתמטיקה") || subject.contains("מתימטיקה")) backgroundId = R.drawable.subject_math;
-        else if (subject.contains("אנגלית")) backgroundId = R.drawable.subject_english;
-        else if (subject.contains("פיזיקה")) backgroundId = R.drawable.subject_physics;
-        else if (subject.contains("כימיה")) backgroundId = R.drawable.subject_chemistry;
-        else if (subject.contains("ביולוגיה")) backgroundId = R.drawable.subject_biology;
-        else if (subject.contains("היסטוריה")) backgroundId = R.drawable.subject_history;
-        else if (subject.contains("יסודות המחשב") || subject.contains("סייבר")) backgroundId = R.drawable.subject_computer;
-        else if (subject.contains("ערבית") || subject.contains("צרפתית") || subject.contains("סינית") || subject.contains("אסלאם"))
-            backgroundId = R.drawable.subject_language;
-        else backgroundId = R.drawable.subject_unknown;
-
-        viewHolder.examBackground.setImageDrawable(
-                ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
+//        int backgroundId;
+//        if (subject.contains("מתמטיקה") || subject.contains("מתימטיקה")) backgroundId = R.drawable.subject_math;
+//        else if (subject.contains("אנגלית")) backgroundId = R.drawable.subject_english;
+//        else if (subject.contains("פיזיקה")) backgroundId = R.drawable.subject_physics;
+//        else if (subject.contains("כימיה")) backgroundId = R.drawable.subject_chemistry;
+//        else if (subject.contains("ביולוגיה")) backgroundId = R.drawable.subject_biology;
+//        else if (subject.contains("היסטוריה")) backgroundId = R.drawable.subject_history;
+//        else if (subject.contains("יסודות המחשב") || subject.contains("סייבר")) backgroundId = R.drawable.subject_computer;
+//        else if (subject.contains("ערבית") || subject.contains("צרפתית") || subject.contains("סינית") || subject.contains("אסלאם"))
+//            backgroundId = R.drawable.subject_language;
+//        else backgroundId = R.drawable.subject_unknown;
+//
+//        viewHolder.examBackground.setImageDrawable(
+//                ResourcesCompat.getDrawable(mContext.getResources(), backgroundId, null));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

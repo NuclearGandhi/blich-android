@@ -12,6 +12,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,7 +24,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
-import com.blackcracks.blich.data.BlichContract.*;
+import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 
 public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -49,9 +50,14 @@ public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallb
         mContext = getContext();
 
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.exam_recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        mRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new ExamAdapter(mContext, null);
         mRecyclerView.setAdapter(mAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
+                layoutManager.getOrientation());
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
         return mRootView;
     }
 
