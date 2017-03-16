@@ -72,6 +72,11 @@ public class Utilities {
                 .getBoolean(key, defaultValue);
     }
 
+    public static long getPreferenceLong(Context context, String key, long defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getLong(key, defaultValue);
+    }
+
     //Callback from BlichSyncAdapter's sync
     public static void onSyncFinished(final Context context, final View view, @BlichSyncAdapter.FetchStatus int status) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()

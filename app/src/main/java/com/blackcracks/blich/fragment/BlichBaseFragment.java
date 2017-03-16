@@ -82,6 +82,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         activity.getSupportActionBar().setTitle(getFragmentTitle());
 
         DrawerLayout drawerLayout = activity.getDrawerLayout();
+
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
 

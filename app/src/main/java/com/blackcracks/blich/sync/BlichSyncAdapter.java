@@ -26,6 +26,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -254,8 +255,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         if (    (status = fetchSchedule()) != FETCH_STATUS_SUCCESSFUL ||
                 (status = fetchExams()) != FETCH_STATUS_SUCCESSFUL)
             sendBroadcast(status);
-        else
+        else {
             sendBroadcast(FETCH_STATUS_SUCCESSFUL);
+
+            long currentTime = Calendar.getInstance().getTimeInMillis();
+            PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+                    .putLong(getContext().getString(R.string.pref_latest_update), currentTime)
+                    .apply();
+
+        }
 
         if (periodic) {
             notifyUser();
