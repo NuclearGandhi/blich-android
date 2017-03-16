@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -85,7 +84,6 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView examBackground;
         TextView examDay;
         TextView examMonthYear;
         TextView examTeachers;
@@ -93,7 +91,6 @@ public class ExamAdapter extends CursorRecyclerViewAdapter<ExamAdapter.ViewHolde
 
         ViewHolder(View itemView) {
             super(itemView);
-            examBackground = (ImageView) itemView.findViewById(R.id.exam_background);
             examDay = (TextView) itemView.findViewById(R.id.exam_day);
             examMonthYear = (TextView) itemView.findViewById(R.id.exam_month_year);
             examTeachers = (TextView) itemView.findViewById(R.id.exam_teachers);
