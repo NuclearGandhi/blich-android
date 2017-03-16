@@ -6,27 +6,24 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.util.Utilities;
 
-public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int EXAMS_LOADER_ID = 101;
 
@@ -46,7 +43,7 @@ public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_exams, container, false);
+        mRootView = super.onCreateView(inflater, container, savedInstanceState);
         mContext = getContext();
 
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.exam_recycler_view);
@@ -64,26 +61,35 @@ public class ExamsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        MainActivity activity = (MainActivity) getActivity();
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-        activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setTitle(R.string.drawer_exams_title);
-
-        DrawerLayout drawerLayout = activity.getDrawerLayout();
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
-
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, 0);
-            }
-        };
-        drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
-
-
         getLoaderManager().initLoader(EXAMS_LOADER_ID, null, this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_refresh: {
+                Utilities.updateBlichData(getContext(), mRootView);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected int getFragmentLayout() {
+        return R.layout.fragment_exams;
+    }
+
+    @Override
+    protected int getFragmentTitle() {
+        return R.string.drawer_exams_title;
+    }
+
+    @Override
+    protected int getMenuResource() {
+        return R.menu.fragment_schedule;
     }
 
     @Override

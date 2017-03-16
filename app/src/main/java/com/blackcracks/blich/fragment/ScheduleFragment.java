@@ -1,33 +1,16 @@
 package com.blackcracks.blich.fragment;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
@@ -36,38 +19,16 @@ import java.util.Calendar;
  * The ScheduleFragment class is responsible for getting and displaying the schedule
  * of the user
  */
-public class ScheduleFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class ScheduleFragment extends BlichBaseFragment {
 
     private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
 
-    private CoordinatorLayout mRootView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private BroadcastReceiver mSyncBroadcastReceiver;
-
-    public ScheduleFragment() {
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mSyncBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                @BlichSyncAdapter.FetchStatus int status =
-                        intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
-                        BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                Utilities.onSyncFinished(context, mRootView, status);
-            }
-        };
-    }
+    private View mRootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        mRootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_schedule, container, false);
+        mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
         TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);
@@ -117,41 +78,23 @@ public class ScheduleFragment extends Fragment implements SharedPreferences.OnSh
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         }
-        mSwipeRefreshLayout =
-                (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
-        mSwipeRefreshLayout.setEnabled(false);
 
         return mRootView;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        MainActivity activity = (MainActivity) getActivity();
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-        activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setTitle(R.string.drawer_schedule_title);
-
-        DrawerLayout drawerLayout = activity.getDrawerLayout();
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
-
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, 0);
-            }
-        };
-        drawerLayout.addDrawerListener(drawerToggle);
-        drawerToggle.syncState();
-
-
+    protected int getFragmentLayout() {
+        return R.layout.fragment_schedule;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.fragment_schedule, menu);
+    protected int getFragmentTitle() {
+        return R.string.drawer_schedule_title;
+    }
+
+    @Override
+    protected int getMenuResource() {
+        return R.menu.fragment_schedule;
     }
 
     @Override
@@ -164,31 +107,6 @@ public class ScheduleFragment extends Fragment implements SharedPreferences.OnSh
             }
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
-        LocalBroadcastManager.getInstance(getContext())
-                .registerReceiver(mSyncBroadcastReceiver,
-                        new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
-        mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_fetching_key), true));
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        LocalBroadcastManager.getInstance(getContext())
-                .unregisterReceiver(mSyncBroadcastReceiver);
-        PreferenceManager.getDefaultSharedPreferences(getContext()).unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_is_fetching_key))) {
-            mSwipeRefreshLayout.setRefreshing(sharedPreferences.getBoolean(getString(R.string.pref_is_fetching_key), true));
         }
     }
 }
