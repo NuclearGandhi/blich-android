@@ -20,8 +20,10 @@
     <string name="pref_notification_sound_key">notification_sound</string>
     <string name="pref_notification_sound_title">צליל</string>
 
+    <string name="pref_fetch_status_key">fetch_status</string>
     <string name="pref_is_fetching_key">is_fetching</string>
-    <string name="pref_latest_update">latest_update</string>
+    <string name="pref_latest_update_key">latest_update</string>
+
 
     <string name="dialog_choose_class_title">מהי כיתתך?</string>
     <string name="dialog_choose_class_content">כיתה:</string>
@@ -50,5 +52,9 @@
     <string name="notification_update_title">בליך</string>
     <string name="notification_update_today">היום:</string>
     <string name="notification_update_tomorrow">מחר:</string>
+
+
+    <string name="blank_page_message_empty">אין שעות ביום זה</string>
+    <string name="blank_page_message_failed">תקלה בהשגת המידע מן האתר</string>
 
 </resources>

@@ -72,6 +72,11 @@ public class Utilities {
                 .getBoolean(key, defaultValue);
     }
 
+    public static int getPreferenceInt(Context context, String key, int defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+        .getInt(key, defaultValue);
+    }
+
     public static long getPreferenceLong(Context context, String key, long defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getLong(key, defaultValue);
