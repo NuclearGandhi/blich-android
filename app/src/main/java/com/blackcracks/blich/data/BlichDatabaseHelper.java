@@ -62,7 +62,5 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
             db.execSQL(SQL_CREATE_EXAMS_TABLE);
         }
-
-        onCreate(db);
     }
 }
