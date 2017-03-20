@@ -9,13 +9,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
@@ -37,7 +35,7 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
     Context mContext;
 
     View mRootView;
-    RecyclerView mRecyclerView;
+    ListView mListView;
     ExamAdapter mAdapter;
 
     @Override
@@ -46,15 +44,10 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
         mContext = getContext();
 
-        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.exam_recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mListView = (ListView) mRootView.findViewById(R.id.list_view_exam);
         mAdapter = new ExamAdapter(mContext, null);
-        mRecyclerView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
-                layoutManager.getOrientation());
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
         return mRootView;
     }
 
