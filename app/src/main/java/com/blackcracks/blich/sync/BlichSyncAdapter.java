@@ -514,15 +514,33 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Elements exams = document.getElementById(EXAMS_TABLE_ID).getElementsByTag("tr");
 
         List<ContentValues> contentValues = new ArrayList<>();
+        int mPreviousMonth = 0;
 
         //Parse the table rows in the html from the second row
         //(first row is the header of each column)
         for (int i = 1; i < exams.size(); i++) {
+
             Element exam = exams.get(i);
             Elements innerData = exam.getElementsByTag("td");
             String date = innerData.get(0).text();
             String subject = innerData.get(1).text();
             String teachers = innerData.get(2).text();
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+
+            int currentMonth = calendar.get(Calendar.MONTH);
+
+            if (mPreviousMonth != currentMonth) {
+                ContentValues monthDivider = new ContentValues();
+                monthDivider.put(BlichContract.ExamsEntry.COL_TEACHER, "wut");
+                monthDivider.put(BlichContract.ExamsEntry.COL_DATE, date);
+                monthDivider.put(BlichContract.ExamsEntry.COL_SUBJECT, "" + currentMonth);
+
+                contentValues.add(monthDivider);
+            }
+
+            mPreviousMonth = currentMonth;
 
             ContentValues row = new ContentValues();
             row.put(BlichContract.ExamsEntry.COL_DATE, date);

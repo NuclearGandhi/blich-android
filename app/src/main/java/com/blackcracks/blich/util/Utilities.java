@@ -18,7 +18,11 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Utilities {
 
@@ -80,6 +84,20 @@ public class Utilities {
     public static long getPreferenceLong(Context context, String key, long defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getLong(key, defaultValue);
+    }
+
+    public static long getTimeInMillisFromDate(String date) {
+
+        Locale locale = Locale.getDefault();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", locale);
+        Date examDate = null;
+        try {
+            examDate = dateFormat.parse(date);
+        } catch (ParseException e) {
+            Log.d(LOG_TAG, e.getMessage(), e);
+        }
+
+        return examDate.getTime();
     }
 
     //Callback from BlichSyncAdapter's sync
