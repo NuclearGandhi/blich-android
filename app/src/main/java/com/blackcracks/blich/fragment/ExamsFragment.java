@@ -3,16 +3,24 @@ package com.blackcracks.blich.fragment;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.blackcracks.blich.R;
@@ -20,8 +28,20 @@ import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.util.Utilities;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
-public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor>{
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+
+public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
     private static final int EXAMS_LOADER_ID = 101;
 
@@ -34,9 +54,15 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
 
     Context mContext;
 
-    View mRootView;
-    ListView mListView;
-    ExamAdapter mAdapter;
+    private View mRootView;
+    private AppBarLayout mAppBarLayout;
+    private Toolbar mToolbar;
+    private ImageView mDropDown;
+    private MaterialCalendarView mCalendarView;
+    private ListView mListView;
+    private ExamAdapter mAdapter;
+
+    private boolean mIsExpanded = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,9 +70,38 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
         mContext = getContext();
 
+        mAppBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
+
+        mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+
+        mDropDown = (ImageView) mRootView.findViewById(R.id.drop_down_arrow);
+        mToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mIsExpanded) {
+                    ViewCompat.animate(mDropDown).rotation(0).start();
+                    mAppBarLayout.setExpanded(false, true);
+                    mIsExpanded = false;
+                } else {
+                    ViewCompat.animate(mDropDown).rotation(180).start();
+                    mAppBarLayout.setExpanded(true, true);
+                    mIsExpanded = true;
+                }
+            }
+        });
+
+        mCalendarView = (MaterialCalendarView) mRootView.findViewById(R.id.calendar_view);
+        mCalendarView.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                .commit();
+        mCalendarView.setCurrentDate(new Date());
+
         mListView = (ListView) mRootView.findViewById(R.id.list_view_exam);
         mAdapter = new ExamAdapter(mContext, null);
         mListView.setAdapter(mAdapter);
+
+        ViewCompat.setNestedScrollingEnabled(mListView, true);
 
         return mRootView;
     }
@@ -99,10 +154,73 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
         mAdapter.swapCursor(data);
+        new LoadDataToCalendar().execute(data);
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
         mAdapter.swapCursor(null);
+    }
+
+    private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
+
+        final HashSet<CalendarDay> mDates = new HashSet<>();
+
+        @Override
+        protected Date[] doInBackground(@NonNull Cursor... params) {
+            Cursor data = params[0];
+            data.moveToFirst();
+            Date minDate = new Date();
+            Date maxDate = minDate;
+            for (int i = 0; i < data.getCount(); i++) {
+                String teacher = data.getString(data.getColumnIndex(ExamsEntry.COL_TEACHER));
+                if (!teacher.equals("wut")) {
+                    String date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+                    long timeInMillis = Utilities.getTimeInMillisFromDate(date);
+                    Calendar exam = Calendar.getInstance();
+                    exam.setTimeInMillis(timeInMillis);
+                    mDates.add(CalendarDay.from(exam));
+                }
+                data.moveToNext();
+            }
+            if (data.moveToPosition(1)) {
+                Calendar calendar = Calendar.getInstance();
+
+                String date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+                calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                minDate = calendar.getTime();
+
+                data.moveToLast();
+                date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+                calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+                maxDate = calendar.getTime();
+            }
+            Log.d(LOG_TAG, "min date = " + minDate + " max date = " + maxDate);
+            return new Date[]{minDate, maxDate};
+        }
+
+        @Override
+        protected void onPostExecute(Date[] dates) {
+            Date minDate = dates[0];
+            Date maxDate = dates[1];
+            mCalendarView.state().edit()
+                    .setMinimumDate(minDate)
+                    .setMaximumDate(maxDate)
+                    .commit();
+
+            mCalendarView.addDecorator(new DayViewDecorator() {
+                @Override
+                public boolean shouldDecorate(CalendarDay day) {
+                    return mDates.contains(day);
+                }
+
+                @Override
+                public void decorate(DayViewFacade view) {
+                    view.addSpan(new DotSpan(4, Color.WHITE));
+                }
+            });
+        }
     }
 }

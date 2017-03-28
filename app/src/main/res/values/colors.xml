@@ -14,4 +14,6 @@
     <color name="lesson_changed">#1976D2</color>
     <color name="lesson_exam">#FF8F00</color>
     <color name="lesson_event">#388E3C</color>
+
+    <color name="calendar_selected_day">#42A5F5</color>
 </resources>

@@ -84,8 +84,9 @@ public class ExamAdapter extends CursorAdapter {
         String subject = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_SUBJECT));
         String date = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_DATE));
 
+        long timeInMillis = Utilities.getTimeInMillisFromDate(date);
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+        calendar.setTimeInMillis(timeInMillis);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT,
