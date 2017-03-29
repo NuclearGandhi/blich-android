@@ -27,19 +27,23 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
 
-public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        View.OnClickListener{
 
     private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
@@ -62,6 +66,8 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
     private ListView mListView;
     private ExamAdapter mAdapter;
 
+    protected final List<CalendarDay> mDates = new ArrayList<>();
+
     private boolean mIsExpanded = true;
 
     @Override
@@ -71,24 +77,23 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
         mContext = getContext();
 
         mAppBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
-
-        mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-
-        mDropDown = (ImageView) mRootView.findViewById(R.id.drop_down_arrow);
-        mToolbar.setOnClickListener(new View.OnClickListener() {
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (mIsExpanded) {
+            public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
+                if (state == AppBarStateChangeListener.COLLAPSED) {
                     ViewCompat.animate(mDropDown).rotation(0).start();
-                    mAppBarLayout.setExpanded(false, true);
                     mIsExpanded = false;
-                } else {
+                } else if (state == AppBarStateChangeListener.EXPANDED) {
                     ViewCompat.animate(mDropDown).rotation(180).start();
-                    mAppBarLayout.setExpanded(true, true);
                     mIsExpanded = true;
                 }
             }
         });
+
+        mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+
+        mDropDown = (ImageView) mRootView.findViewById(R.id.drop_down_arrow);
+        mToolbar.setOnClickListener(this);
 
         mCalendarView = (MaterialCalendarView) mRootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
@@ -96,6 +101,21 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
         mCalendarView.setCurrentDate(new Date());
+        mCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                if (selected) {
+                    for (int i = 0; i < mDates.size(); i++) {
+                        CalendarDay event = mDates.get(i);
+                        if (event.equals(date)) {
+                            onClick(null);
+                            mListView.smoothScrollToPosition(i);
+                            mListView.setSelection(i);
+                        }
+                    }
+                }
+            }
+        });
 
         mListView = (ListView) mRootView.findViewById(R.id.list_view_exam);
         mAdapter = new ExamAdapter(mContext, null);
@@ -162,12 +182,24 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
         mAdapter.swapCursor(null);
     }
 
-    private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
+    @Override
+    public void onClick(View v) {
+        if (mIsExpanded) {
+            ViewCompat.animate(mDropDown).rotation(0).start();
+            mAppBarLayout.setExpanded(false, true);
+            mIsExpanded = false;
+        } else {
+            ViewCompat.animate(mDropDown).rotation(180).start();
+            mAppBarLayout.setExpanded(true, true);
+            mIsExpanded = true;
+        }
+    }
 
-        final HashSet<CalendarDay> mDates = new HashSet<>();
+    private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
 
         @Override
         protected Date[] doInBackground(@NonNull Cursor... params) {
+            if (mDates.size() != 0) mDates.clear();
             Cursor data = params[0];
             data.moveToFirst();
             Date minDate = new Date();
