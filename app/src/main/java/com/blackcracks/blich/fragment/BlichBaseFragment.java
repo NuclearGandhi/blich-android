@@ -61,7 +61,7 @@ public abstract class BlichBaseFragment extends Fragment implements
                 @BlichSyncAdapter.FetchStatus int status =
                         intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
                                 BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                Utilities.onSyncFinished(context, mRootView, status);
+                Utilities.onSyncFinished(getContext(), mRootView, status);
             }
         };
 
