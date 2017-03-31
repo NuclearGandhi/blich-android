@@ -108,7 +108,9 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
                     for (int i = 0; i < mDates.size(); i++) {
                         CalendarDay event = mDates.get(i);
                         if (event.equals(date)) {
-                            onClick(null);
+                            ViewCompat.animate(mDropDown).rotation(0).start();
+                            mAppBarLayout.setExpanded(false, true);
+                            mIsExpanded = false;
                             mListView.smoothScrollToPosition(i);
                             mListView.setSelection(i);
                         }
