@@ -42,12 +42,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ExamsFragment extends BlichBaseFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener{
+public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener{
 
     private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
-    private static final int EXAMS_LOADER_ID = 101;
+    private static final int EXAMS_LOADER_ID = 0;
+    private static final int EVENTS_LOADER_ID = 1;
 
     private static final String[] EXAMS_COLUMNS = {
             ExamsEntry._ID,
@@ -131,7 +131,8 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, this);
+        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, new ExamsLoader());
+        getLoaderManager().initLoader(EVENTS_LOADER_ID, null, new EventsLoader());
     }
 
     @Override
@@ -163,28 +164,6 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
-
-        return new CursorLoader(
-                mContext,
-                uri,
-                EXAMS_COLUMNS,
-                null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader loader, Cursor data) {
-        mAdapter.swapCursor(data);
-        new LoadDataToCalendar().execute(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader loader) {
-        mAdapter.swapCursor(null);
-    }
-
-    @Override
     public void onClick(View v) {
         if (mIsExpanded) {
             ViewCompat.animate(mDropDown).rotation(0).start();
@@ -197,6 +176,53 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
         }
     }
 
+    private class ExamsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
+
+            return new CursorLoader(
+                    mContext,
+                    uri,
+                    EXAMS_COLUMNS,
+                    null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader loader, Cursor data) {
+            mAdapter.swapCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader loader) {
+            mAdapter.swapCursor(null);
+        }
+    }
+
+    private class EventsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
+
+            return new CursorLoader(
+                    mContext,
+                    uri,
+                    EXAMS_COLUMNS,
+                    null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader loader, Cursor data) {
+            new LoadDataToCalendar().execute(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader loader) {
+            mAdapter.swapCursor(null);
+        }
+    }
+
     private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
 
         @Override
@@ -204,8 +230,6 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
             if (mDates.size() != 0) mDates.clear();
             Cursor data = params[0];
             data.moveToFirst();
-            Date minDate = new Date();
-            Date maxDate = minDate;
             for (int i = 0; i < data.getCount(); i++) {
                 String teacher = data.getString(data.getColumnIndex(ExamsEntry.COL_TEACHER));
                 if (!teacher.equals("wut")) {
@@ -217,6 +241,8 @@ public class ExamsFragment extends BlichBaseFragment implements LoaderManager.Lo
                 }
                 data.moveToNext();
             }
+            Date minDate = new Date();
+            Date maxDate = minDate;
             if (data.moveToPosition(1)) {
                 Calendar calendar = Calendar.getInstance();
 
