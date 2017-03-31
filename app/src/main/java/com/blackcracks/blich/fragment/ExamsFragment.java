@@ -160,7 +160,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     protected int getMenuResource() {
-        return R.menu.fragment_schedule;
+        return R.menu.fragment_exams;
     }
 
     @Override
