@@ -4,24 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-
-    <LinearLayout
-        android:id="@+id/listview_info_linearlayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        tools:ignore="RtlHardcoded" />
-
     <TextView
         android:id="@+id/listview_hour_textview"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="start|top"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
         android:background="@drawable/circle_listview_item"
         android:gravity="center"
         android:textColor="@color/white_text"
         android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/listview_info_linearlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/listview_hour_textview"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        tools:ignore="RtlHardcoded" />
 </RelativeLayout>

@@ -99,13 +99,6 @@ public class ScheduleAdapter extends CursorAdapter {
                 infoHolder.subjectView.setTextColor(background);
             }
 
-            //Correct padding
-            if (i == subjects.length - 1) {
-                int padding_in_dp = 16;
-                final float scale = context.getResources().getDisplayMetrics().density;
-                int padding = (int) (padding_in_dp * scale + 0.5f);
-                info.setPaddingRelative(padding, padding, padding, padding);
-            }
             holder.infoLinearLayout.addView(info);
         }
     }
