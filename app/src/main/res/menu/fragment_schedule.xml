@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragment.ScheduleFragment">
+
+    <item
+        android:id="@+id/action_collapse_expand"
+        android:title="@string/action_collapse_expand"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
