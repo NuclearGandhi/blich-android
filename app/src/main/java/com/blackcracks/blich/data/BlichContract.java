@@ -31,6 +31,7 @@ public class BlichContract {
         public static final String COL_CLASS_SETTINGS = "class_settings";
         public static final String COL_DAY = "day";
         public static final String COL_HOUR = "hour";
+        public static final String COL_LESSON = "lesson";
 
         public static final String COL_SUBJECT = "subject";
         public static final String COL_CLASSROOM = "classroom";

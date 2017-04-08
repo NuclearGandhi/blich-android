@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.blackcracks.blich.data.BlichContract.*;
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     public static final String DATABASE_NAME = "blich.db";
 
@@ -22,11 +22,12 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 ScheduleEntry.COL_CLASS_SETTINGS + " INTEGER NOT NULL, " +
                 ScheduleEntry.COL_DAY + " INTEGER NOT NULL, " +
                 ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                ScheduleEntry.COL_LESSON + " INTEGER NOT NULL, " +
                 ScheduleEntry.COL_SUBJECT + " TEXT NOT NULL, " +
                 ScheduleEntry.COL_CLASSROOM + " TEXT, " +
                 ScheduleEntry.COL_TEACHER + " TEXT, " +
                 ScheduleEntry.COL_LESSON_TYPE + " TEXT NOT NULL, " +
-                "UNIQUE (" + ScheduleEntry.COL_DAY + ", " + ScheduleEntry.COL_HOUR +
+                "UNIQUE (" + ScheduleEntry.COL_DAY + ", " + ScheduleEntry.COL_HOUR + ", " + ScheduleEntry.COL_LESSON +
                 ") ON CONFLICT REPLACE);";
 
         final String SQL_CREATE_EXAMS_TABLE = "CREATE TABLE " + ExamsEntry.TABLE_NAME + " (" +
@@ -61,6 +62,23 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                     ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
 
             db.execSQL(SQL_CREATE_EXAMS_TABLE);
+        } if (oldVersion < 6) {
+            final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ")";
+            final String SQL_CREATE_SCHEDULE_TABLE = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " (" +
+                    ScheduleEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    ScheduleEntry.COL_CLASS_SETTINGS + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_DAY + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_LESSON + " INTEGER NOT NULL, " +
+                    ScheduleEntry.COL_SUBJECT + " TEXT NOT NULL, " +
+                    ScheduleEntry.COL_CLASSROOM + " TEXT, " +
+                    ScheduleEntry.COL_TEACHER + " TEXT, " +
+                    ScheduleEntry.COL_LESSON_TYPE + " TEXT NOT NULL, " +
+                    "UNIQUE (" + ScheduleEntry.COL_DAY + ", " + ScheduleEntry.COL_HOUR + ", " + ScheduleEntry.COL_LESSON +
+                    ") ON CONFLICT REPLACE);";
+
+            db.execSQL(SQL_DROP_SCHEDULE_TABLE);
+            db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
         }
     }
 }
