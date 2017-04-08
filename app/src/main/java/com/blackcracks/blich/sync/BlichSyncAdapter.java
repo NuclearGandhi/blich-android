@@ -373,85 +373,67 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             divs.addAll(tds);
 
             if (divs.size() != 0) {
-                String[] subjects = new String[divs.size()];
-                String[] classrooms = new String[divs.size()];
-                String[] teachers = new String[divs.size()];
-                String[] lessonTypes = new String[divs.size()];
                 for (int k = 0; k < divs.size(); k++) {
                     Element div = divs.get(k);
                     String html = div.html();
                     String[] text = html.split("</b>");
 
-                    subjects[k] = text[0].replace("<b>", "").replace("<br>", " ");
-                    subjects[k] = Parser.unescapeEntities(subjects[k], false);
+                    String subject, classroom, teacher, lessonType;
+
+                    subject = text[0].replace("<b>", "").replace("<br>", " ");
+                    subject = Parser.unescapeEntities(subject, false);
 
                     if (text.length == 2) {
                         text = text[1].split("<br>");
 
-                        classrooms[k] = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
 
-                        teachers[k] = text[1];
+                        teacher = text[1];
                     } else {
-                        classrooms[k] = " ";
-                        teachers[k] = " ";
+                        classroom = " ";
+                        teacher = " ";
                     }
 
                     switch (div.attr("class")) {
                         case CANCELED_LESSON_CLASS: {
-                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_CANCELED;
+                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_CANCELED;
                             break;
                         }
                         case CHANGED_LESSON_CLASS: {
-                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_CHANGED;
+                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_CHANGED;
                             break;
                         }
                         case EXAM_LESSON_CLASS: {
-                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_EXAM;
+                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_EXAM;
                             break;
                         }
                         case EVENT_LESSON_CLASS: {
-                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_EVENT;
+                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_EVENT;
                             break;
                         }
                         default: {
-                            lessonTypes[k] = BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL;
+                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL;
                         }
                     }
 
                     addLessonToNotificationList(classValue,
                             column,
                             row,
-                            subjects[k],
-                            lessonTypes[k]);
-                }
+                            subject,
+                            lessonType);
 
-                String subjectsValue = subjects[0];
-                for (int j = 1; j < subjects.length; j++) {
-                    subjectsValue = subjectsValue + ";" + subjects[j];
-                }
-                String classroomsValue = classrooms[0];
-                for (int j = 1; j < classrooms.length; j++) {
-                    classroomsValue = classroomsValue + ";" + classrooms[j];
-                }
-                String teachersValue = teachers[0];
-                for (int j = 1; j < teachers.length; j++) {
-                    teachersValue = teachersValue + ";" + teachers[j];
-                }
-                String lessonTypesValue = lessonTypes[0];
-                for (int j = 1; j < lessonTypes.length; j++) {
-                    lessonTypesValue = lessonTypesValue + ";" + lessonTypes[j];
-                }
+                    ContentValues value = new ContentValues();
+                    value.put(BlichContract.ScheduleEntry.COL_CLASS_SETTINGS, classValue);
+                    value.put(BlichContract.ScheduleEntry.COL_DAY, column);
+                    value.put(BlichContract.ScheduleEntry.COL_HOUR, row);
+                    value.put(BlichContract.ScheduleEntry.COL_LESSON, k);
+                    value.put(BlichContract.ScheduleEntry.COL_SUBJECT, subject);
+                    value.put(BlichContract.ScheduleEntry.COL_CLASSROOM, classroom);
+                    value.put(BlichContract.ScheduleEntry.COL_TEACHER, teacher);
+                    value.put(BlichContract.ScheduleEntry.COL_LESSON_TYPE, lessonType);
 
-                ContentValues value = new ContentValues();
-                value.put(BlichContract.ScheduleEntry.COL_CLASS_SETTINGS, classValue);
-                value.put(BlichContract.ScheduleEntry.COL_DAY, column);
-                value.put(BlichContract.ScheduleEntry.COL_HOUR, row);
-                value.put(BlichContract.ScheduleEntry.COL_SUBJECT, subjectsValue);
-                value.put(BlichContract.ScheduleEntry.COL_CLASSROOM, classroomsValue);
-                value.put(BlichContract.ScheduleEntry.COL_TEACHER, teachersValue);
-                value.put(BlichContract.ScheduleEntry.COL_LESSON_TYPE, lessonTypesValue);
-
-                values.add(value);
+                    values.add(value);
+                }
             }
 
         }
