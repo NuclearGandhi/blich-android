@@ -10,7 +10,13 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.blackcracks.blich.data.BlichContract.*;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
 public class BlichProvider extends ContentProvider {
@@ -52,8 +58,24 @@ public class BlichProvider extends ContentProvider {
             }
             case SCHEDULE_WITH_DAY: {
                 int day = ScheduleEntry.getDayFromUri(uri);
-                String daySelection = ScheduleEntry.COL_DAY + " = ?";
-                String[] daySelectionArgs = new String[]{Integer.toString(day)};
+
+                String daySelection;
+                if (selection != null) {
+                    daySelection = selection + " AND " + ScheduleEntry.COL_DAY + " = ?";
+                } else {
+                    daySelection = ScheduleEntry.COL_DAY + " = ?";
+                }
+
+                String[] daySelectionArgs;
+                if (selectionArgs != null) {
+                    List<String> selectionList = new ArrayList<>();
+                    Collections.addAll(selectionList, selectionArgs);
+                    selectionList.add(Integer.toString(day));
+                    daySelectionArgs = selectionList.toArray(new String[selectionList.size()]);
+                } else {
+                    daySelectionArgs = new String[]{Integer.toString(day)};
+                }
+
                 cursor = db.query(
                         ScheduleEntry.TABLE_NAME,
                         projection,
