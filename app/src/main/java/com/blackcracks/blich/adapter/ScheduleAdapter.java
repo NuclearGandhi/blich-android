@@ -1,127 +1,224 @@
 package com.blackcracks.blich.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.LinearLayout;
+import android.widget.CursorTreeAdapter;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
-import com.blackcracks.blich.fragment.ScheduleDayFragment;
 
-import java.util.Locale;
+public class ScheduleAdapter extends CursorTreeAdapter{
 
-public class ScheduleAdapter extends CursorAdapter {
+    private Context mContext;
+    private LoaderManager mLoaderManager;
+    private int mDay;
 
-    public ScheduleAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+    public ScheduleAdapter(Cursor cursor,
+                           @NonNull Context context,
+                           @NonNull LoaderManager loaderManager,
+                           int day) {
+        super(cursor, context);
+
+        mContext = context;
+        mLoaderManager = loaderManager;
+        mDay = day;
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view =
-                LayoutInflater.from(context).inflate(R.layout.listview_schedule_item, parent, false);
+    protected Cursor getChildrenCursor(Cursor groupCursor) {
 
-        ViewHolder holder = new ViewHolder(view);
+        if (getCursor() == null) {
+            return null; //Don't run the following code if the cursor is null
+        }
+
+        int hour = groupCursor.getInt(groupCursor.getColumnIndex(ScheduleEntry.COL_HOUR));
+
+        //Get the cursor containing the all lessons in the specific day and hour
+        Loader<Cursor> loader = mLoaderManager.getLoader(hour);
+        if (loader != null && !loader.isReset()) {
+            mLoaderManager.restartLoader(hour, null, new ChildLoaderCallback());
+        } else {
+            mLoaderManager.initLoader(hour, null, new ChildLoaderCallback());
+        }
+        return null;
+    }
+
+    @Override
+    protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
+        View view =
+                LayoutInflater.from(context).inflate(R.layout.schedule_group, parent, false);
+
+        GroupViewHolder holder = new GroupViewHolder(view);
         view.setTag(holder);
         return view;
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        ViewHolder holder = (ViewHolder) view.getTag();
+    protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+        GroupViewHolder holder = (GroupViewHolder) view.getTag();
+
+        //Set the hour
+        int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
+        holder.hourView.setText(Integer.toString(hour));
+
+        //Set the subject
+        String subject = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_SUBJECT));
+
+        //Set the lesson-type (color the subject-TextView)
+        String lessonType = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_TYPE));
+        int background;
+        switch (lessonType) {
+            case ScheduleEntry.LESSON_TYPE_CANCELED: {
+                background = ContextCompat.getColor(context, R.color.lesson_canceled);
+                break;
+            }
+            case ScheduleEntry.LESSON_TYPE_CHANGED: {
+                background = ContextCompat.getColor(context, R.color.lesson_changed);
+                break;
+            }
+            case ScheduleEntry.LESSON_TYPE_EXAM: {
+                background = ContextCompat.getColor(context, R.color.lesson_exam);
+                break;
+            }
+            case ScheduleEntry.LESSON_TYPE_EVENT: {
+                background = ContextCompat.getColor(context, R.color.lesson_event);
+                break;
+            }
+            default: {
+                background = ContextCompat.getColor(context, R.color.black_text);
+                break;
+            }
+        }
+
+        holder.subjectsView.setText(subject + "\n ...");
+        holder.subjectsView.setTextColor(background);
+    }
+
+    @Override
+    protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
+        View view =
+                LayoutInflater.from(context).inflate(R.layout.schedule_child, parent, false);
+
+        ChildViewHolder holder = new ChildViewHolder(view);
+        view.setTag(holder);
+        return view;
+    }
+
+    @Override
+    protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
+
+        ChildViewHolder holder = (ChildViewHolder) view.getTag();
 
         //Get the data from the cursor
-        int hour = cursor.getInt(ScheduleDayFragment.COL_HOUR);
-        String subjectsValue = cursor.getString(ScheduleDayFragment.COL_SUBJECT);
-        String classroomsValue = cursor.getString(ScheduleDayFragment.COL_CLASSROOM);
-        String teachersValue = cursor.getString(ScheduleDayFragment.COL_TEACHER);
-        String lessonTypesValue = cursor.getString(ScheduleDayFragment.COL_LESSON_TYPE);
+        String subject = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_SUBJECT));
+        String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
+        String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
+        String lessonType = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_TYPE));
 
-        holder.hourView.setText(String.format(Locale.getDefault(), "%d", hour));
+        holder.subjectView.setText(subject); //Set the subject
+        holder.teacherView.setText(teacher); //Set the teacher
+        holder.classroomView.setText(classroom); //Set the classroom
 
-        //Handle the the cases of more than one lesson, or missing teacher/classroom
-        String[] subjects = subjectsValue.split(";");
-        String[] classrooms;
-        if (classroomsValue != null) {
-            classrooms = classroomsValue.split(";");
-        } else {
-            classrooms = new String[subjects.length + 1];
-        }
-        String[] teachers;
-        if (teachersValue != null) {
-            teachers = teachersValue.split(";");
-        } else {
-            teachers = new String[subjects.length + 1];
-        }
-
-        String[] lessonTypes = lessonTypesValue.split(";");
-        holder.infoLinearLayout.removeAllViews();
-
-        for (int i = 0; i < subjects.length; i++) {
-            @SuppressLint("InflateParams")
-            View info = LayoutInflater.from(context).inflate(
-                    R.layout.listview_schedule_info,
-                    null);
-            InfoViewHolder infoHolder = new InfoViewHolder(info);
-            infoHolder.subjectView.setText(subjects[i]);
-            infoHolder.teacherView.setText(teachers[i]);
-            infoHolder.classroomView.setText(classrooms[i]);
-
-            //Color the background accordingly
-            int background = 0;
-            switch (lessonTypes[i]) {
-                case ScheduleEntry.LESSON_TYPE_CANCELED: {
-                    background = ContextCompat.getColor(context, R.color.lesson_canceled);
-                    break;
-                }
-                case ScheduleEntry.LESSON_TYPE_CHANGED: {
-                    background = ContextCompat.getColor(context, R.color.lesson_changed);
-                    break;
-                }
-                case ScheduleEntry.LESSON_TYPE_EXAM: {
-                    background = ContextCompat.getColor(context, R.color.lesson_exam);
-                    break;
-                }
-                case ScheduleEntry.LESSON_TYPE_EVENT: {
-                    background = ContextCompat.getColor(context, R.color.lesson_event);
-                    break;
-                }
+        //Set the lesson-type (color the subject-TextView)
+        int background;
+        switch (lessonType) {
+            case ScheduleEntry.LESSON_TYPE_CANCELED: {
+                background = ContextCompat.getColor(context, R.color.lesson_canceled);
+                break;
             }
-
-            if (background != 0) {
-                infoHolder.subjectView.setTextColor(background);
+            case ScheduleEntry.LESSON_TYPE_CHANGED: {
+                background = ContextCompat.getColor(context, R.color.lesson_changed);
+                break;
             }
-
-            holder.infoLinearLayout.addView(info);
+            case ScheduleEntry.LESSON_TYPE_EXAM: {
+                background = ContextCompat.getColor(context, R.color.lesson_exam);
+                break;
+            }
+            case ScheduleEntry.LESSON_TYPE_EVENT: {
+                background = ContextCompat.getColor(context, R.color.lesson_event);
+                break;
+            }
+            default: {
+                background = ContextCompat.getColor(context, R.color.black_text);
+                break;
+            }
         }
+
+        holder.subjectView.setTextColor(background);
     }
 
-    private static class ViewHolder {
+    private static class GroupViewHolder {
         private final TextView hourView;
-        private final LinearLayout infoLinearLayout;
+        private final TextView subjectsView;
 
-        ViewHolder(View view) {
-            hourView = (TextView) view.findViewById(R.id.listview_hour_textview);
-            infoLinearLayout = (LinearLayout) view.findViewById(R.id.listview_info_linearlayout);
+        GroupViewHolder(View view) {
+            hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
+            subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
         }
     }
 
-    private static class InfoViewHolder {
+    private static class ChildViewHolder {
         private final TextView subjectView;
         private final TextView classroomView;
         private final TextView teacherView;
 
-        private InfoViewHolder(View view) {
-            subjectView = (TextView) view.findViewById(R.id.listview_subject_textview);
-            classroomView = (TextView) view.findViewById(R.id.listview_classroom_textview);
-            teacherView = (TextView) view.findViewById(R.id.listview_teacher_textview);
+        private ChildViewHolder(View view) {
+            subjectView = (TextView) view.findViewById(R.id.schedule_child_subject);
+            classroomView = (TextView) view.findViewById(R.id.schedule_child_classroom);
+            teacherView = (TextView) view.findViewById(R.id.schedule_child_teacher);
+        }
+    }
+
+    private class ChildLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+            //Get the subject, classroom, teacher and lesson type of the specific day and hour from the database
+            String[] projection = {
+                    ScheduleEntry._ID,
+                    ScheduleEntry.COL_SUBJECT,
+                    ScheduleEntry.COL_CLASSROOM,
+                    ScheduleEntry.COL_TEACHER,
+                    ScheduleEntry.COL_LESSON_TYPE};
+
+            String selection = ScheduleEntry.COL_HOUR + " = " + id; //Get data with this hour (id = hour)
+
+            String sortOrder = ScheduleEntry.COL_LESSON + " ASC"; //Sort it in ascending order
+            Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay); //Get data with this day
+
+            return new CursorLoader(
+                    mContext,
+                    uri,
+                    projection,
+                    selection,
+                    null,
+                    sortOrder);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            if (getCursor() != null) {
+                setChildrenCursor(loader.getId() - 1, data); //Set the cursor of the given group number (id - 1) to the fetched data
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            if (getCursor() != null) {
+                setChildrenCursor(loader.getId() - 1, null); //Set the cursor of the given group number (id - 1) to null
+            }
         }
     }
 }

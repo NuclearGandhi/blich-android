@@ -9,7 +9,7 @@
 
 
     <TextView
-        android:id="@+id/listview_subject_textview"
+        android:id="@+id/schedule_child_subject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="24dp"
@@ -22,15 +22,15 @@
         />
 
     <TextView
-        android:id="@+id/listview_teacher_textview"
+        android:id="@+id/schedule_child_teacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="0dp"
         android:layout_marginTop="8dp"
         android:textColor="@color/black_text"
         android:textSize="16sp"
-        app:layout_constraintRight_toRightOf="@+id/listview_subject_textview"
-        app:layout_constraintTop_toBottomOf="@+id/listview_subject_textview"
+        app:layout_constraintRight_toRightOf="@+id/schedule_child_subject"
+        app:layout_constraintTop_toBottomOf="@+id/schedule_child_subject"
         tools:layout_conversion_absoluteHeight="19dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_conversion_absoluteX="272dp"
@@ -38,7 +38,7 @@
 
 
     <TextView
-        android:id="@+id/listview_classroom_textview"
+        android:id="@+id/schedule_child_classroom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
@@ -47,6 +47,6 @@
         android:textColor="@color/black_text"
         android:textSize="16sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/listview_subject_textview"/>
+        app:layout_constraintTop_toTopOf="@+id/schedule_child_subject"/>
 
 </android.support.constraint.ConstraintLayout>

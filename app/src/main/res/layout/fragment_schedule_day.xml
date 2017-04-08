@@ -13,8 +13,8 @@
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 
-    <ListView
-        android:id="@+id/listview_schedule_day"
+    <ExpandableListView
+        android:id="@+id/expandable_listview_schedule_day"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

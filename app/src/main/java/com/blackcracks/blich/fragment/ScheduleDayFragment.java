@@ -11,7 +11,7 @@ import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -27,31 +27,7 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
     private static final int SCHEDULE_LOADER_ID = 100;
 
-    private static final String[] SCHEDULE_COLUMNS = {
-            ScheduleEntry._ID,
-            ScheduleEntry.COL_CLASS_SETTINGS,
-            ScheduleEntry.COL_DAY,
-            ScheduleEntry.COL_HOUR,
-            ScheduleEntry.COL_SUBJECT,
-            ScheduleEntry.COL_CLASSROOM,
-            ScheduleEntry.COL_TEACHER,
-            ScheduleEntry.COL_LESSON_TYPE
-    };
-
-    @SuppressWarnings("unused")
-    public static final int COL_ID = 0;
-    @SuppressWarnings("unused")
-    public static final int COL_CLASS_SETTINGS = 1;
-    @SuppressWarnings("unused")
-    public static final int COL_DAY = 2;
-    public static final int COL_HOUR = 3;
-    public static final int COL_SUBJECT = 4;
-    public static final int COL_CLASSROOM = 5;
-    public static final int COL_TEACHER = 6;
-    public static final int COL_LESSON_TYPE = 7;
-
     public static final String DAY_KEY = "day";
-
 
     private ScheduleAdapter mAdapter;
     private int mDay;
@@ -68,8 +44,8 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_schedule_day);
-        mAdapter = new ScheduleAdapter(getContext(), null, 0);
+        ExpandableListView listView = (ExpandableListView) rootView.findViewById(R.id.expandable_listview_schedule_day);
+        mAdapter = new ScheduleAdapter(null, getContext(), getLoaderManager(), mDay);
         listView.setAdapter(mAdapter);
 
         ViewCompat.setNestedScrollingEnabled(listView, true);
@@ -87,19 +63,31 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        String[] projection = {
+                ScheduleEntry._ID,
+                ScheduleEntry.COL_HOUR,
+                ScheduleEntry.COL_LESSON,
+                ScheduleEntry.COL_SUBJECT,
+                ScheduleEntry.COL_LESSON_TYPE};
+
+        String selection = ScheduleEntry.COL_LESSON + " = 0";
+
         String sortOrder = ScheduleEntry.COL_HOUR + " ASC";
         Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay);
 
         return new CursorLoader(
                 getContext(),
                 uri,
-                SCHEDULE_COLUMNS,
-                null, null, sortOrder);
+                projection,
+                selection,
+                null,
+                sortOrder);
     }
 
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        mAdapter.changeCursor(data);
 
         if (data.getCount() == 0) {
             @BlichSyncAdapter.FetchStatus int status = Utilities.getPreferenceInt(getContext(),
@@ -117,6 +105,6 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader loader) {
-        mAdapter.swapCursor(null);
+        mAdapter.changeCursor(null);
     }
 }
