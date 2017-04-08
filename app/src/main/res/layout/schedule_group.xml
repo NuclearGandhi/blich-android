@@ -12,14 +12,15 @@
         android:background="@drawable/circle_listview_item"
         android:gravity="center"
         android:textColor="@color/white_text"
-        android:textSize="20sp" />
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/schedule_group_subject"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/schedule_group_hour"
-        android:layout_alignParentTop="true"/>
+        android:paddingTop="16dp"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
 </RelativeLayout>
