@@ -35,7 +35,7 @@ import android.util.Log;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract;
+import com.blackcracks.blich.data.BlichContract.*;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -396,23 +396,23 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                     switch (div.attr("class")) {
                         case CANCELED_LESSON_CLASS: {
-                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_CANCELED;
+                            lessonType = ScheduleEntry.LESSON_TYPE_CANCELED;
                             break;
                         }
                         case CHANGED_LESSON_CLASS: {
-                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_CHANGED;
+                            lessonType = ScheduleEntry.LESSON_TYPE_CHANGED;
                             break;
                         }
                         case EXAM_LESSON_CLASS: {
-                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_EXAM;
+                            lessonType = ScheduleEntry.LESSON_TYPE_EXAM;
                             break;
                         }
                         case EVENT_LESSON_CLASS: {
-                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_EVENT;
+                            lessonType = ScheduleEntry.LESSON_TYPE_EVENT;
                             break;
                         }
                         default: {
-                            lessonType = BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL;
+                            lessonType = ScheduleEntry.LESSON_TYPE_NORMAL;
                         }
                     }
 
@@ -423,14 +423,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                             lessonType);
 
                     ContentValues value = new ContentValues();
-                    value.put(BlichContract.ScheduleEntry.COL_CLASS_SETTINGS, classValue);
-                    value.put(BlichContract.ScheduleEntry.COL_DAY, column);
-                    value.put(BlichContract.ScheduleEntry.COL_HOUR, row);
-                    value.put(BlichContract.ScheduleEntry.COL_LESSON, k);
-                    value.put(BlichContract.ScheduleEntry.COL_SUBJECT, subject);
-                    value.put(BlichContract.ScheduleEntry.COL_CLASSROOM, classroom);
-                    value.put(BlichContract.ScheduleEntry.COL_TEACHER, teacher);
-                    value.put(BlichContract.ScheduleEntry.COL_LESSON_TYPE, lessonType);
+                    value.put(ScheduleEntry.COL_CLASS_SETTINGS, classValue);
+                    value.put(ScheduleEntry.COL_DAY, column);
+                    value.put(ScheduleEntry.COL_HOUR, row);
+                    value.put(ScheduleEntry.COL_LESSON, k);
+                    value.put(ScheduleEntry.COL_SUBJECT, subject);
+                    value.put(ScheduleEntry.COL_CLASSROOM, classroom);
+                    value.put(ScheduleEntry.COL_TEACHER, teacher);
+                    value.put(ScheduleEntry.COL_LESSON_TYPE, lessonType);
 
                     values.add(value);
                 }
@@ -438,7 +438,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         }
         mContext.getContentResolver().bulkInsert(
-                BlichContract.ScheduleEntry.CONTENT_URI,
+                ScheduleEntry.CONTENT_URI,
                 values.toArray(new ContentValues[values.size()]));
         return FETCH_STATUS_SUCCESSFUL;
     }
@@ -515,9 +515,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
             if (mPreviousMonth != currentMonth) {
                 ContentValues monthDivider = new ContentValues();
-                monthDivider.put(BlichContract.ExamsEntry.COL_TEACHER, "wut");
-                monthDivider.put(BlichContract.ExamsEntry.COL_DATE, date);
-                monthDivider.put(BlichContract.ExamsEntry.COL_SUBJECT, "" + currentMonth);
+                monthDivider.put(ExamsEntry.COL_TEACHER, "wut");
+                monthDivider.put(ExamsEntry.COL_DATE, date);
+                monthDivider.put(ExamsEntry.COL_SUBJECT, "" + currentMonth);
 
                 contentValues.add(monthDivider);
             }
@@ -525,15 +525,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             mPreviousMonth = currentMonth;
 
             ContentValues row = new ContentValues();
-            row.put(BlichContract.ExamsEntry.COL_DATE, date);
-            row.put(BlichContract.ExamsEntry.COL_SUBJECT, subject);
-            row.put(BlichContract.ExamsEntry.COL_TEACHER, teachers);
+            row.put(ExamsEntry.COL_DATE, date);
+            row.put(ExamsEntry.COL_SUBJECT, subject);
+            row.put(ExamsEntry.COL_TEACHER, teachers);
 
             contentValues.add(row);
         }
 
         mContext.getContentResolver().bulkInsert(
-                BlichContract.ExamsEntry.CONTENT_URI,
+                ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
         return FETCH_STATUS_SUCCESSFUL;
@@ -546,18 +546,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         if (currentClass.contains("'")) {
             selectionArgs = currentClass.split("'");
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
+            selection = ClassEntry.COL_GRADE + " = ? AND " +
+                    ClassEntry.COL_GRADE_INDEX + " = ?";
         } else {
             selectionArgs = new String[]{currentClass};
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
+            selection = ClassEntry.COL_GRADE + " = ?";
         }
 
 
 
         Cursor cursor = mContext.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
+                ClassEntry.CONTENT_URI,
+                new String[]{ClassEntry.COL_CLASS_INDEX},
                 selection,
                 selectionArgs,
                 null);
@@ -582,7 +582,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                                              int hour,
                                              String subject,
                                              String lessonType) {
-        if (!lessonType.equals(BlichContract.ScheduleEntry.LESSON_TYPE_NORMAL)) {
+        if (!lessonType.equals(ScheduleEntry.LESSON_TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int tommorow = today + 1;
             if (tommorow == 8) tommorow = 1;
