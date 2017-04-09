@@ -13,24 +13,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorTreeAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
+import java.util.HashMap;
+
 public class ScheduleAdapter extends CursorTreeAdapter{
 
     private Context mContext;
+    private ExpandableListView mListView;
     private LoaderManager mLoaderManager;
     private int mDay;
 
+    private HashMap<Integer, Boolean> mExpandedGroups = new HashMap<>();
+
     public ScheduleAdapter(Cursor cursor,
                            @NonNull Context context,
+                           @NonNull ExpandableListView listView,
                            @NonNull LoaderManager loaderManager,
                            int day) {
         super(cursor, context);
 
         mContext = context;
+        mListView = listView;
         mLoaderManager = loaderManager;
         mDay = day;
     }
@@ -66,10 +75,10 @@ public class ScheduleAdapter extends CursorTreeAdapter{
 
     @Override
     protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
-        GroupViewHolder holder = (GroupViewHolder) view.getTag();
+        final GroupViewHolder holder = (GroupViewHolder) view.getTag();
 
         //Set the hour
-        int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
+        final int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
         holder.hourView.setText(Integer.toString(hour));
 
         //Set the subject
@@ -103,6 +112,28 @@ public class ScheduleAdapter extends CursorTreeAdapter{
 
         holder.subjectsView.setText(subject + "\n ...");
         holder.subjectsView.setTextColor(background);
+
+        //Handle clicks on the group
+        view.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                boolean isExpanded = false;
+                if (mExpandedGroups.containsKey(hour)) {
+                    isExpanded = mExpandedGroups.get(hour);
+                }
+
+                if (isExpanded) {
+                    holder.indicatorView.animate().rotation(0);
+                    mListView.collapseGroup(hour - 1);
+                    mExpandedGroups.put(hour, false);
+                } else {
+                    holder.indicatorView.animate().rotation(180);
+                    mListView.expandGroup(hour - 1);
+                    mExpandedGroups.put(hour, true);
+                }
+            }
+        });
     }
 
     @Override
@@ -161,10 +192,12 @@ public class ScheduleAdapter extends CursorTreeAdapter{
     private static class GroupViewHolder {
         private final TextView hourView;
         private final TextView subjectsView;
+        private final ImageView indicatorView;
 
         GroupViewHolder(View view) {
             hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
             subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
+            indicatorView = (ImageView) view.findViewById(R.id.schedule_group_indicator);
         }
     }
 

@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
@@ -44,9 +45,10 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
-        ExpandableListView listView = (ExpandableListView) rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(null, getContext(), getLoaderManager(), mDay);
+        final ExpandableListView listView = (ExpandableListView) rootView.findViewById(R.id.expandable_listview_schedule_day);
+        mAdapter = new ScheduleAdapter(null, getContext(), listView, getLoaderManager(), mDay);
         listView.setAdapter(mAdapter);
+        listView.setChildDivider(ContextCompat.getDrawable(getContext(), android.R.color.transparent)); //Hide the child dividers
 
         ViewCompat.setNestedScrollingEnabled(listView, true);
 
