@@ -63,7 +63,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
             db.execSQL(SQL_CREATE_EXAMS_TABLE);
         } if (oldVersion < 6) {
-            final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ")";
+            final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ";";
             final String SQL_CREATE_SCHEDULE_TABLE = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " (" +
                     ScheduleEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     ScheduleEntry.COL_CLASS_SETTINGS + " INTEGER NOT NULL, " +
