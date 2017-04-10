@@ -16,6 +16,7 @@
     <ExpandableListView
         android:id="@+id/expandable_listview_schedule_day"
         android:layout_width="match_parent"
+        android:listSelector="@android:color/transparent"
         android:layout_height="match_parent"
         android:groupIndicator="@null"/>
 
