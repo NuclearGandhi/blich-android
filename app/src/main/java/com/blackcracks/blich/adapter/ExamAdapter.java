@@ -27,16 +27,6 @@ public class ExamAdapter extends CursorAdapter {
     }
 
     @Override
-    public int getCount() {
-        return super.getCount();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return super.getItem(position);
-    }
-
-    @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view =
                 LayoutInflater.from(mContext).inflate(R.layout.exam_item, parent, false);
