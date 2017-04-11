@@ -432,10 +432,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     value.put(ScheduleEntry.COL_TEACHER, teacher);
                     value.put(ScheduleEntry.COL_LESSON_TYPE, lessonType);
 
+                    if (k == 0) {
+                        value.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
+                    }
+
                     values.add(value);
                 }
             }
-
         }
         mContext.getContentResolver().bulkInsert(
                 ScheduleEntry.CONTENT_URI,
