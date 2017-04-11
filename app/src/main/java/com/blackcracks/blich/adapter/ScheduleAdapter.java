@@ -9,6 +9,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,6 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
-import java.util.HashMap;
-
 public class ScheduleAdapter extends CursorTreeAdapter{
 
     private Context mContext;
@@ -29,7 +28,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
     private LoaderManager mLoaderManager;
     private int mDay;
 
-    private HashMap<Integer, Boolean> mExpandedGroups = new HashMap<>();
+    private SparseBooleanArray mExpandedGroups = new SparseBooleanArray();
 
     public ScheduleAdapter(Cursor cursor,
                            @NonNull Context context,
@@ -145,10 +144,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean isExpanded = false;
-                    if (mExpandedGroups.containsKey(hour)) {
-                        isExpanded = mExpandedGroups.get(hour);
-                    }
+                    boolean isExpanded = mExpandedGroups.get(hour, false);
                     if (isExpanded) { //Needs to collapse
                         holder.indicatorView.animate().rotation(0);
                         mListView.collapseGroup(hour - 1);
