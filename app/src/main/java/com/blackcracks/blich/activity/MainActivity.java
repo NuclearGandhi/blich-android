@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
         Locale.setDefault(locale);
         Configuration config = getResources().getConfiguration();
         config.setLocale(locale);
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
+        getApplicationContext().createConfigurationContext(config);
 
         setContentView(R.layout.activity_main);
 

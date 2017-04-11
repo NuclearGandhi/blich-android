@@ -22,7 +22,7 @@ public class ExamAdapter extends CursorAdapter {
     private Context mContext;
 
     public ExamAdapter(Context context, Cursor cursor) {
-        super(context, cursor);
+        super(context, cursor, 0);
         mContext = context;
     }
 
