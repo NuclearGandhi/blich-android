@@ -13,11 +13,11 @@ public abstract class AppBarStateChangeListener implements AppBarLayout.OnOffset
     @IntDef({EXPANDED,
             COLLAPSED,
             IDLE})
-    public @interface State{}
+    protected @interface State{}
 
-    public static final int EXPANDED = 0;
-    public static final int COLLAPSED = 1;
-    public static final int IDLE = 2;
+    protected static final int EXPANDED = 0;
+    protected static final int COLLAPSED = 1;
+    private static final int IDLE = 2;
 
     private @State int mCurrentState = IDLE;
 

@@ -78,7 +78,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
 
 
-    public static final String ACTION_BLICH_NOTIFY = "blich_notify";
+    private static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
     public static final String FETCH_STATUS = "fetch_status";
 

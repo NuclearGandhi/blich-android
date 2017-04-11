@@ -33,7 +33,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class ExamsFetchTest {
 
-    public static final String LOG_TAG = ExamsFetchTest.class.getSimpleName();
+    private static final String LOG_TAG = ExamsFetchTest.class.getSimpleName();
 
     private static final String EXAMS_BASE_URL =
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";

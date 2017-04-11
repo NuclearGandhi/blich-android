@@ -56,7 +56,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             ExamsEntry.COL_TEACHER
     };
 
-    Context mContext;
+    private Context mContext;
 
     private View mRootView;
     private AppBarLayout mAppBarLayout;
@@ -65,7 +65,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private ListView mListView;
     private ExamAdapter mAdapter;
 
-    protected final List<CalendarDay> mDates = new ArrayList<>();
+    private final List<CalendarDay> mDates = new ArrayList<>();
 
     private boolean mIsExpanded = true;
 
