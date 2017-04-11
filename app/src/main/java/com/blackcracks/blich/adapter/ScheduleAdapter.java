@@ -234,10 +234,6 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         private final TextView classroomView;
         private final ImageView indicatorView;
 
-        private int mHour;
-        private String mTeacher;
-        private String mClassroom;
-
         GroupViewHolder(View view) {
             hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
             subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
@@ -245,19 +241,6 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             classroomView = (TextView) view.findViewById(R.id.schedule_group_classroom);
             indicatorView = (ImageView) view.findViewById(R.id.schedule_group_indicator);
         }
-
-        public int getHour() {
-            return mHour;
-        }
-
-        public String getTeacher() {
-            return mTeacher;
-        }
-
-        public String getClassroom() {
-            return mClassroom;
-        }
-
     }
 
     private static class ChildViewHolder {

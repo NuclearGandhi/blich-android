@@ -56,9 +56,8 @@ public class ChooseClassDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /**
-         * Create a {@link BroadcastReceiver} to listen when the data has finished downloading
-         */
+
+        //Create a {@link BroadcastReceiver} to listen when the data has finished downloading
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
