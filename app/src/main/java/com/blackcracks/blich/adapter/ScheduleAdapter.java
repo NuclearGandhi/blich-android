@@ -9,7 +9,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
 
     public ScheduleAdapter(Cursor cursor,
                            @NonNull Context context,
-                           @NonNull ExpandableListView listView,
+                           @NonNull final ExpandableListView listView,
                            @NonNull LoaderManager loaderManager,
                            int day) {
         super(cursor, context);
@@ -118,16 +117,27 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         final String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
         final String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
 
+        if (isExpanded) {
+            holder.indicatorView.animate().rotation(180);
+
+            holder.teacherView.setText(teacher);
+            holder.classroomView.setVisibility(View.VISIBLE);
+            holder.classroomView.setText(classroom);
+        } else {
+            holder.indicatorView.animate().rotation(0);
+
+            holder.teacherView.setText("...");
+            holder.classroomView.setVisibility(View.GONE);
+        }
+
         //Handle clicks on the group
         view.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 boolean isExpanded = false;
                 if (mExpandedGroups.containsKey(hour)) {
                     isExpanded = mExpandedGroups.get(hour);
                 }
-
                 if (isExpanded) { //Needs to collapse
                     holder.indicatorView.animate().rotation(0);
                     mListView.collapseGroup(hour - 1);
@@ -203,12 +213,22 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         holder.subjectView.setTextColor(background);
     }
 
+    @Override
+    public void changeCursor(Cursor cursor) {
+        super.changeCursor(cursor);
+        mExpandedGroups.clear();
+    }
+
     private static class GroupViewHolder {
         private final TextView hourView;
         private final TextView subjectsView;
         private final TextView teacherView;
         private final TextView classroomView;
         private final ImageView indicatorView;
+
+        private int mHour;
+        private String mTeacher;
+        private String mClassroom;
 
         GroupViewHolder(View view) {
             hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
@@ -217,6 +237,19 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             classroomView = (TextView) view.findViewById(R.id.schedule_group_classroom);
             indicatorView = (ImageView) view.findViewById(R.id.schedule_group_indicator);
         }
+
+        public int getHour() {
+            return mHour;
+        }
+
+        public String getTeacher() {
+            return mTeacher;
+        }
+
+        public String getClassroom() {
+            return mClassroom;
+        }
+
     }
 
     private static class ChildViewHolder {
