@@ -94,7 +94,7 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
     public void onLoadFinished(Loader loader, Cursor data) {
         mAdapter.changeCursor(data);
 
-        if (data.getCount() == 0) {
+        if (data.getCount() == 0 && !Utilities.isFirstLaunch(getContext())) {
             @BlichSyncAdapter.FetchStatus int status = Utilities.getPreferenceInt(getContext(),
                     getContext().getString(R.string.pref_fetch_status_key),
                     BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);

@@ -71,18 +71,18 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         switch (item.getItemId()) {
                             case R.id.schedule: {
-                                replaceFragment(new ScheduleFragment(), true);
+                                replaceFragment(new ScheduleFragment(), false);
+                                item.setChecked(true);
+                                return true;
+                            }
+                            case R.id.exams: {
+                                replaceFragment(new ExamsFragment(), false);
                                 item.setChecked(true);
                                 return true;
                             }
                             case R.id.settings: {
                                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                                 startActivity(intent);
-                                return true;
-                            }
-                            case R.id.exams: {
-                                replaceFragment(new ExamsFragment(), true);
-                                item.setChecked(true);
                                 return true;
                             }
                         }
