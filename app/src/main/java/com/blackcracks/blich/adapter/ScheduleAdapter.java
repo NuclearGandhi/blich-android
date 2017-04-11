@@ -9,6 +9,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,8 +111,12 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             }
         }
 
-        holder.subjectsView.setText(subject + "\n ...");
+        holder.subjectsView.setText(subject);
         holder.subjectsView.setTextColor(background);
+
+        //Get the teacher and classroom for the first lesson
+        final String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
+        final String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
 
         //Handle clicks on the group
         view.setOnClickListener(new View.OnClickListener() {
@@ -123,13 +128,22 @@ public class ScheduleAdapter extends CursorTreeAdapter{
                     isExpanded = mExpandedGroups.get(hour);
                 }
 
-                if (isExpanded) {
+                if (isExpanded) { //Needs to collapse
                     holder.indicatorView.animate().rotation(0);
                     mListView.collapseGroup(hour - 1);
+
+                    holder.teacherView.setText("...");
+                    holder.classroomView.setVisibility(View.GONE);
+
                     mExpandedGroups.put(hour, false);
-                } else {
+                } else { //Needs to expand
                     holder.indicatorView.animate().rotation(180);
                     mListView.expandGroup(hour - 1);
+
+                    holder.teacherView.setText(teacher);
+                    holder.classroomView.setVisibility(View.VISIBLE);
+                    holder.classroomView.setText(classroom);
+
                     mExpandedGroups.put(hour, true);
                 }
             }
@@ -192,11 +206,15 @@ public class ScheduleAdapter extends CursorTreeAdapter{
     private static class GroupViewHolder {
         private final TextView hourView;
         private final TextView subjectsView;
+        private final TextView teacherView;
+        private final TextView classroomView;
         private final ImageView indicatorView;
 
         GroupViewHolder(View view) {
             hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
             subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
+            teacherView = (TextView) view.findViewById(R.id.schedule_group_teacher);
+            classroomView = (TextView) view.findViewById(R.id.schedule_group_classroom);
             indicatorView = (ImageView) view.findViewById(R.id.schedule_group_indicator);
         }
     }
@@ -226,7 +244,9 @@ public class ScheduleAdapter extends CursorTreeAdapter{
                     ScheduleEntry.COL_TEACHER,
                     ScheduleEntry.COL_LESSON_TYPE};
 
-            String selection = ScheduleEntry.COL_HOUR + " = " + id; //Get data with this hour (id = hour)
+            String selection =
+                    ScheduleEntry.COL_HOUR + " = " + id + " AND " + //Get data with this hour (id = hour)
+                    ScheduleEntry.COL_LESSON + " >= 1"; //And where lesson >= 1, since the group view shows lesson = 0
 
             String sortOrder = ScheduleEntry.COL_LESSON + " ASC"; //Sort it in ascending order
             Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay); //Get data with this day

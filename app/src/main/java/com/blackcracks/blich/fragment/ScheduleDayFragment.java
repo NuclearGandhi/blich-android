@@ -71,6 +71,8 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
                 ScheduleEntry.COL_HOUR,
                 ScheduleEntry.COL_LESSON,
                 ScheduleEntry.COL_SUBJECT,
+                ScheduleEntry.COL_TEACHER,
+                ScheduleEntry.COL_CLASSROOM,
                 ScheduleEntry.COL_LESSON_TYPE};
 
         String selection = ScheduleEntry.COL_LESSON + " = 0";
