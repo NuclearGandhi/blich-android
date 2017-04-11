@@ -19,7 +19,7 @@ public class ExamAdapter extends CursorAdapter {
 
     private final static String LOG_TAG = ExamAdapter.class.getSimpleName();
 
-    private Context mContext;
+    private final Context mContext;
 
     public ExamAdapter(Context context, Cursor cursor) {
         super(context, cursor, 0);
@@ -99,9 +99,9 @@ public class ExamAdapter extends CursorAdapter {
 
     private static class ViewHolder {
 
-        TextView examDay;
-        TextView examDayOfWeek;
-        TextView examSubject;
+        final TextView examDay;
+        final TextView examDayOfWeek;
+        final TextView examSubject;
 
         ViewHolder(View itemView) {
             examDay = (TextView) itemView.findViewById(R.id.exam_day);

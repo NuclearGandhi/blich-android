@@ -23,10 +23,10 @@ import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 public class ScheduleAdapter extends CursorTreeAdapter{
 
-    private Context mContext;
-    private ExpandableListView mListView;
-    private LoaderManager mLoaderManager;
-    private int mDay;
+    private final Context mContext;
+    private final ExpandableListView mListView;
+    private final LoaderManager mLoaderManager;
+    private final int mDay;
 
     private SparseBooleanArray mExpandedGroups = new SparseBooleanArray();
 
