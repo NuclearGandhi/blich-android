@@ -60,7 +60,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private View mRootView;
     private AppBarLayout mAppBarLayout;
-    private Toolbar mToolbar;
     private ImageView mDropDown;
     private MaterialCalendarView mCalendarView;
     private ListView mListView;
@@ -90,10 +89,10 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
         });
 
-        mToolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
 
         mDropDown = (ImageView) mRootView.findViewById(R.id.drop_down_arrow);
-        mToolbar.setOnClickListener(this);
+        toolbar.setOnClickListener(this);
 
         mCalendarView = (MaterialCalendarView) mRootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
