@@ -3,9 +3,7 @@ package com.blackcracks.blich.fragment;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -104,7 +102,6 @@ public class ScheduleFragment extends BlichBaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        menu.findItem(R.id.action_collapse_expand).setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_expand));
     }
 
     @Override
@@ -114,18 +111,6 @@ public class ScheduleFragment extends BlichBaseFragment {
             case R.id.action_refresh: {
                 Utilities.updateBlichData(getContext(), mRootView);
                 return true;
-            }
-            case R.id.action_collapse_expand: {
-                boolean isCollapsed = Utilities.getPreferenceBoolean(getContext(),
-                        getString(R.string.pref_is_collapsed_key),
-                        getContext().getResources().getBoolean(R.bool.pref_is_collapsed_default_value));
-
-                if (isCollapsed) item.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_collapse));
-                else item.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_expand));
-
-                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putBoolean(getString(R.string.pref_is_collapsed_key), !isCollapsed)
-                        .apply();
             }
             default:
                 return super.onOptionsItemSelected(item);
