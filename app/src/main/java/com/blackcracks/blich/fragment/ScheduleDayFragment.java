@@ -70,6 +70,7 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
                 ScheduleEntry._ID,
                 ScheduleEntry.COL_HOUR,
                 ScheduleEntry.COL_LESSON,
+                ScheduleEntry.COL_LESSON_COUNT,
                 ScheduleEntry.COL_SUBJECT,
                 ScheduleEntry.COL_TEACHER,
                 ScheduleEntry.COL_CLASSROOM,

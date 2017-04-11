@@ -117,47 +117,59 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         final String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
         final String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
 
-        if (isExpanded) {
-            holder.indicatorView.animate().rotation(180);
+        //Get the number of lessons
+        int lessonCount = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_COUNT));
 
+        if (lessonCount == 1) {
             holder.teacherView.setText(teacher);
             holder.classroomView.setVisibility(View.VISIBLE);
             holder.classroomView.setText(classroom);
+
+            holder.indicatorView.setVisibility(View.GONE);
         } else {
-            holder.indicatorView.animate().rotation(0);
+            holder.indicatorView.setVisibility(View.VISIBLE);
 
-            holder.teacherView.setText("...");
-            holder.classroomView.setVisibility(View.GONE);
-        }
+            //Reset the holder if it is
+            if (isExpanded) {
+                holder.teacherView.setText(teacher);
+                holder.classroomView.setVisibility(View.VISIBLE);
+                holder.classroomView.setText(classroom);
+            } else {
+                holder.indicatorView.animate().rotation(0);
 
-        //Handle clicks on the group
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isExpanded = false;
-                if (mExpandedGroups.containsKey(hour)) {
-                    isExpanded = mExpandedGroups.get(hour);
-                }
-                if (isExpanded) { //Needs to collapse
-                    holder.indicatorView.animate().rotation(0);
-                    mListView.collapseGroup(hour - 1);
-
-                    holder.teacherView.setText("...");
-                    holder.classroomView.setVisibility(View.GONE);
-
-                    mExpandedGroups.put(hour, false);
-                } else { //Needs to expand
-                    holder.indicatorView.animate().rotation(180);
-                    mListView.expandGroup(hour - 1);
-
-                    holder.teacherView.setText(teacher);
-                    holder.classroomView.setVisibility(View.VISIBLE);
-                    holder.classroomView.setText(classroom);
-
-                    mExpandedGroups.put(hour, true);
-                }
+                holder.teacherView.setText("...");
+                holder.classroomView.setVisibility(View.GONE);
             }
-        });
+
+            //Handle clicks on the group
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean isExpanded = false;
+                    if (mExpandedGroups.containsKey(hour)) {
+                        isExpanded = mExpandedGroups.get(hour);
+                    }
+                    if (isExpanded) { //Needs to collapse
+                        holder.indicatorView.animate().rotation(0);
+                        mListView.collapseGroup(hour - 1);
+
+                        holder.teacherView.setText("...");
+                        holder.classroomView.setVisibility(View.GONE);
+
+                        mExpandedGroups.put(hour, false);
+                    } else { //Needs to expand
+                        holder.indicatorView.animate().rotation(180);
+                        mListView.expandGroup(hour - 1);
+
+                        holder.teacherView.setText(teacher);
+                        holder.classroomView.setVisibility(View.VISIBLE);
+                        holder.classroomView.setText(classroom);
+
+                        mExpandedGroups.put(hour, true);
+                    }
+                }
+            });
+        }
     }
 
     @Override
