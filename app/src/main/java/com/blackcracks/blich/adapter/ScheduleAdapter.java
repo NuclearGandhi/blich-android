@@ -119,16 +119,18 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         //Get the number of lessons
         int lessonCount = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_COUNT));
 
-        if (lessonCount == 1) {
+        if (lessonCount == 1) { //If there is only one lesson, there is no need for child view
             holder.teacherView.setText(teacher);
             holder.classroomView.setVisibility(View.VISIBLE);
             holder.classroomView.setText(classroom);
 
             holder.indicatorView.setVisibility(View.GONE);
+
+            view.setOnClickListener(null); //Remove the click listener it might have had, because ListView recycles its views
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
 
-            //Reset the holder if it is
+            //Reset the holder according to its state
             if (isExpanded) {
                 holder.teacherView.setText(teacher);
                 holder.classroomView.setVisibility(View.VISIBLE);
