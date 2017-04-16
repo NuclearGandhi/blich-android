@@ -27,9 +27,8 @@
 
     <TextView
         android:id="@+id/schedule_group_subject"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginRight="24dp"
         android:layout_marginTop="0dp"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -38,7 +37,10 @@
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1"/>
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginRight="24dp"
+        app:layout_constraintLeft_toRightOf="@+id/schedule_group_indicator"
+        android:layout_marginLeft="0dp"/>
 
     <TextView
         android:id="@+id/schedule_group_teacher"
