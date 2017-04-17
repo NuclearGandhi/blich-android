@@ -35,7 +35,9 @@ import android.util.Log;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract.*;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -60,6 +62,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -602,6 +605,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         boolean foreground = Utilities.isAppOnForeground(getContext());
 
         if (!mLessonNotificationList.isEmpty() && !foreground) {
+            Collections.sort(mLessonNotificationList);
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();

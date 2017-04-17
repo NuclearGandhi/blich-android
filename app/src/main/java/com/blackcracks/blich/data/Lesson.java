@@ -1,9 +1,11 @@
 package com.blackcracks.blich.data;
 
+import android.support.annotation.NonNull;
+
 /**
  * A base class for each lesson in the Schedule Table
  */
-public class Lesson {
+public class Lesson implements Comparable<Lesson> {
 
     private int mClassSettings;
     private int mDay;
@@ -77,5 +79,13 @@ public class Lesson {
         this.mLessonType = lessonType;
     }
 
-
+    @Override
+    public int compareTo(@NonNull Lesson o) {
+        if (mDay == o.getDay()) {
+            if (mHour == o.getHour()) return 0;
+            else if (mHour > o.getHour()) return 1;
+            else return -1;
+        } else if (mDay > o.getDay()) return 1;
+        else return -1;
+    }
 }
