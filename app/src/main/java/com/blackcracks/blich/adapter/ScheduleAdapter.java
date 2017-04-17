@@ -23,6 +23,8 @@ import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 public class ScheduleAdapter extends CursorTreeAdapter{
 
+    private static final String HOUR_KEY = "hour_key";
+
     private final Context mContext;
     private final ExpandableListView mListView;
     private final LoaderManager mLoaderManager;
@@ -50,14 +52,18 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             return null; //Don't run the following code if the cursor is null
         }
 
+        int hour = groupCursor.getInt(groupCursor.getColumnIndex(ScheduleEntry.COL_HOUR));
         int groupPosition = groupCursor.getPosition();
+
+        Bundle args = new Bundle();
+        args.putInt(HOUR_KEY, hour);
 
         //Get the cursor containing the all lessons in the specific day and hour
         Loader<Cursor> loader = mLoaderManager.getLoader(groupPosition);
         if (loader != null && !loader.isReset()) {
-            mLoaderManager.restartLoader(groupPosition, null, new ChildLoaderCallback());
+            mLoaderManager.restartLoader(groupPosition, args, new ChildLoaderCallback());
         } else {
-            mLoaderManager.initLoader(groupPosition, null, new ChildLoaderCallback());
+            mLoaderManager.initLoader(groupPosition, args, new ChildLoaderCallback());
         }
         return null;
     }
@@ -264,6 +270,8 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
+            int hour = args.getInt(HOUR_KEY);
+
             //Get the subject, classroom, teacher and lesson type of the specific day and hour from the database
             String[] projection = {
                     ScheduleEntry._ID,
@@ -273,7 +281,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
                     ScheduleEntry.COL_LESSON_TYPE};
 
             String selection =
-                    ScheduleEntry.COL_HOUR + " = " + id + " AND " + //Get data with this hour (id = hour)
+                    ScheduleEntry.COL_HOUR + " = " + hour + " AND " + //Get data with this hour (id = hour)
                     ScheduleEntry.COL_LESSON + " >= 1"; //And where lesson >= 1, since the group view shows lesson = 0
 
             String sortOrder = ScheduleEntry.COL_LESSON + " ASC"; //Sort it in ascending order
