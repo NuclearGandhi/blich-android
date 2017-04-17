@@ -9,6 +9,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,13 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
-public class ScheduleAdapter extends CursorTreeAdapter{
+public class ScheduleAdapter extends CursorTreeAdapter {
+
+    private static final String TAG = ScheduleAdapter.class.getSimpleName();
 
     private static final String HOUR_KEY = "hour_key";
 
@@ -282,7 +286,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
 
             String selection =
                     ScheduleEntry.COL_HOUR + " = " + hour + " AND " + //Get data with this hour (id = hour)
-                    ScheduleEntry.COL_LESSON + " >= 1"; //And where lesson >= 1, since the group view shows lesson = 0
+                            ScheduleEntry.COL_LESSON + " >= 1"; //And where lesson >= 1, since the group view shows lesson = 0
 
             String sortOrder = ScheduleEntry.COL_LESSON + " ASC"; //Sort it in ascending order
             Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay); //Get data with this day
@@ -298,15 +302,28 @@ public class ScheduleAdapter extends CursorTreeAdapter{
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            if (getCursor() != null) {
-                setChildrenCursor(loader.getId(), data); //Set the cursor of the given group number (id - 1) to the fetched data
+            boolean isCursorNull = getCursor() == null;
+            if (!isCursorNull) {
+                setChildrenCursor(loader.getId(), data); //Set the cursor of the given group number (id) to the fetched data
+            }
+
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onLoadFinished() called" +
+                        ", isCursorNull = " + isCursorNull +
+                        ", loader id = " + loader.getId());
             }
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-            if (getCursor() != null) {
-                setChildrenCursor(loader.getId(), null); //Set the cursor of the given group number (id - 1) to null
+            boolean isCursorNull = getCursor() == null;
+            if (!isCursorNull) {
+                setChildrenCursor(loader.getId(), null); //Set the cursor of the given group number (id) to null
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onLoadReset() called" +
+                        ", isCursorNull = " + isCursorNull +
+                        ", loader id = " + loader.getId());
             }
         }
     }
