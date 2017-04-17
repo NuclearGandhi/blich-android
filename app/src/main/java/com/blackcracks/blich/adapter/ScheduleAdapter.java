@@ -50,14 +50,14 @@ public class ScheduleAdapter extends CursorTreeAdapter{
             return null; //Don't run the following code if the cursor is null
         }
 
-        int hour = groupCursor.getInt(groupCursor.getColumnIndex(ScheduleEntry.COL_HOUR));
+        int groupPosition = groupCursor.getPosition();
 
         //Get the cursor containing the all lessons in the specific day and hour
-        Loader<Cursor> loader = mLoaderManager.getLoader(hour);
+        Loader<Cursor> loader = mLoaderManager.getLoader(groupPosition);
         if (loader != null && !loader.isReset()) {
-            mLoaderManager.restartLoader(hour, null, new ChildLoaderCallback());
+            mLoaderManager.restartLoader(groupPosition, null, new ChildLoaderCallback());
         } else {
-            mLoaderManager.initLoader(hour, null, new ChildLoaderCallback());
+            mLoaderManager.initLoader(groupPosition, null, new ChildLoaderCallback());
         }
         return null;
     }
@@ -77,7 +77,7 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
 
         //Set the hour
-        final int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
+        int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
         holder.hourView.setText(Integer.toString(hour));
 
         //Set the subject
@@ -142,28 +142,30 @@ public class ScheduleAdapter extends CursorTreeAdapter{
                 holder.classroomView.setVisibility(View.GONE);
             }
 
+            final int groupPosition = cursor.getPosition();
+
             //Handle clicks on the group
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean isExpanded = mExpandedGroups.get(hour, false);
+                    boolean isExpanded = mExpandedGroups.get(groupPosition, false);
                     if (isExpanded) { //Needs to collapse
                         holder.indicatorView.animate().rotation(0);
-                        mListView.collapseGroup(hour - 1);
+                        mListView.collapseGroup(groupPosition);
 
                         holder.teacherView.setText("...");
                         holder.classroomView.setVisibility(View.GONE);
 
-                        mExpandedGroups.put(hour, false);
+                        mExpandedGroups.put(groupPosition, false);
                     } else { //Needs to expand
                         holder.indicatorView.animate().rotation(180);
-                        mListView.expandGroup(hour - 1);
+                        mListView.expandGroup(groupPosition);
 
                         holder.teacherView.setText(teacher);
                         holder.classroomView.setVisibility(View.VISIBLE);
                         holder.classroomView.setText(classroom);
 
-                        mExpandedGroups.put(hour, true);
+                        mExpandedGroups.put(groupPosition, true);
                     }
                 }
             });
@@ -289,14 +291,14 @@ public class ScheduleAdapter extends CursorTreeAdapter{
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             if (getCursor() != null) {
-                setChildrenCursor(loader.getId() - 1, data); //Set the cursor of the given group number (id - 1) to the fetched data
+                setChildrenCursor(loader.getId(), data); //Set the cursor of the given group number (id - 1) to the fetched data
             }
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             if (getCursor() != null) {
-                setChildrenCursor(loader.getId() - 1, null); //Set the cursor of the given group number (id - 1) to null
+                setChildrenCursor(loader.getId(), null); //Set the cursor of the given group number (id - 1) to null
             }
         }
     }
