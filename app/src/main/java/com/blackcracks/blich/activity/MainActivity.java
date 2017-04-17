@@ -1,18 +1,20 @@
 package com.blackcracks.blich.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
@@ -33,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     //Key to store whether this is the first time MainActivity is created in the app process
     private static final String IS_FIRST_INSTANCE_KEY = "is_first";
 
-
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
 
@@ -48,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
         config.setLocale(locale);
         getApplicationContext().createConfigurationContext(config);
 
-        setContentView(R.layout.activity_main);
+        final View view = LayoutInflater.from(this).inflate(
+                R.layout.activity_main, null, false);
+        setContentView(view);
 
         if (savedInstanceState != null) {
             mFragment = getSupportFragmentManager().
@@ -92,11 +95,19 @@ public class MainActivity extends AppCompatActivity {
 
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
-            DialogFragment dialogFragment = new ChooseClassDialogFragment();
+            ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
+            dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
+                @Override
+                public void onDestroy(Context context) {
+                    //Start the periodic syncing of
+                    BlichSyncAdapter.initializeSyncAdapter(context);
+                    Utilities.intializeBlichDataUpdater(context, view);
+                }
+            });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                BlichSyncAdapter.syncImmediately(this);
+                Utilities.intializeBlichDataUpdater(this, view);
             }
         }
     }

@@ -38,8 +38,6 @@ import com.blackcracks.blich.util.Utilities;
 public abstract class BlichBaseFragment extends Fragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String LOG_TAG = BlichBaseFragment.class.getName();
-
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private BroadcastReceiver mSyncBroadcastReceiver;
@@ -108,7 +106,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
-        mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_fetching_key), true));
+        mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_fetching_key), false));
     }
 
     @Override

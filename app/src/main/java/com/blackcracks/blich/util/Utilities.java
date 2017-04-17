@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
@@ -26,7 +27,7 @@ import java.util.Locale;
 
 public class Utilities {
 
-    private static final String LOG_TAG = Utilities.class.getSimpleName();
+    private static final String TAG = Utilities.class.getSimpleName();
 
 
     public static boolean isThereNetworkConnection(Context context) {
@@ -94,10 +95,41 @@ public class Utilities {
         try {
             examDate = dateFormat.parse(date);
         } catch (ParseException e) {
-            Log.d(LOG_TAG, e.getMessage(), e);
+            Log.d(TAG, e.getMessage(), e);
         }
 
         return examDate.getTime();
+    }
+
+    public static void intializeBlichDataUpdater(Context context, View view) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
+                .apply();
+
+        updateBlichData(context, view);
+    }
+
+    //Call BlichSyncAdapter to begin a sync
+    public static void updateBlichData(Context context, View view) {
+
+        boolean isConnected = false;
+        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_fetching_key), false);
+        if (!isFetching) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
+                    .apply();
+            isConnected = Utilities.isThereNetworkConnection(context);
+            if (isConnected) {
+                BlichSyncAdapter.syncImmediately(context);
+            } else {
+                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "updateBlichData() called" +
+                    ", isFetching = " + isFetching +
+                    ", isConnected = " + isConnected);
+        }
     }
 
     //Callback from BlichSyncAdapter's sync
@@ -158,19 +190,4 @@ public class Utilities {
         }
     }
 
-    //Call BlichSyncAdapter to begin a sync
-    public static void updateBlichData(Context context, View view) {
-        if (!getPreferenceBoolean(context, context.getString(R.string.pref_is_fetching_key), true)) {
-            Log.d(LOG_TAG, "Refreshing");
-            PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
-                    .apply();
-            boolean isConnected = Utilities.isThereNetworkConnection(context);
-            if (isConnected) {
-                BlichSyncAdapter.syncImmediately(context);
-            } else {
-                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
-            }
-        }
-    }
 }

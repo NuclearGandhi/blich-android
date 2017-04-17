@@ -28,7 +28,6 @@ import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.data.FetchClassService;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
@@ -51,6 +50,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
     private MaterialNumberPicker mGradePicker;
     private FrameLayout mProgressBar;
     private BroadcastReceiver mFetchBroadcastReceiver;
+    private OnDestroyListener mOnDestroyListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -151,9 +151,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //Start the periodic syncing of
-        BlichSyncAdapter.initializeSyncAdapter(getContext());
-        BlichSyncAdapter.syncImmediately(getContext());
+        if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
     }
 
     //If the fetching failed, show a Dialog
@@ -184,6 +182,10 @@ public class ChooseClassDialogFragment extends DialogFragment {
         } else {
             onFetchFailed();
         }
+    }
+
+    public void setOnDestroyListener(OnDestroyListener listener) {
+        mOnDestroyListener = listener;
     }
 
     //Get the downloaded data from the Class table
@@ -270,5 +272,9 @@ public class ChooseClassDialogFragment extends DialogFragment {
             mGradePicker.setVisibility(View.VISIBLE);
             ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
         }
+    }
+
+    public interface OnDestroyListener {
+        void onDestroy(Context context);
     }
 }
