@@ -233,6 +233,14 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         }
 
         holder.subjectView.setTextColor(background);
+
+        //Set a bottom divider if this is the last child
+        View divider = view.findViewById(R.id.divider);
+        if (cursor.getPosition() == cursor.getCount() - 1) {
+            divider.setVisibility(View.VISIBLE);
+        } else {
+            divider.setVisibility(View.GONE);
+        }
     }
 
     @Override
