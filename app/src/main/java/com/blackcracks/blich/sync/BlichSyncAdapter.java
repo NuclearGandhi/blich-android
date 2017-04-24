@@ -388,10 +388,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                     if (text.length == 2) {
                         text = text[1].split("<br>");
-
-                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
-
-                        teacher = text[1];
+                        if (text.length == 2) {
+                            classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                            teacher = text[1];
+                        } else {
+                            classroom = "";
+                            teacher = "";
+                        }
                     } else {
                         classroom = " ";
                         teacher = " ";
