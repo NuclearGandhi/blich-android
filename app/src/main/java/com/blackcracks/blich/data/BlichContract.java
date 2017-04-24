@@ -13,6 +13,7 @@ public class BlichContract {
     static final String PATH_CLASS = "class";
     static final String PATH_SCHEDULE = "schedule";
     static final String PATH_EXAMS = "exams";
+    static final String PATH_NEWS = "news";
 
     public static final class ScheduleEntry implements BaseColumns {
 
@@ -72,6 +73,26 @@ public class BlichContract {
         public static final String COL_DATE = "date";
         public static final String COL_SUBJECT = "subject";
         public static final String COL_TEACHER = "teacher";
+    }
+
+    public static final class NewsEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(PATH_NEWS)
+                .build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_NEWS;
+        @SuppressWarnings("unused")
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_NEWS;
+
+        public static final String TABLE_NAME = "news";
+
+        public static final String COL_TITLE = "title";
+        public static final String COL_BODY = "text";
+        public static final String COL_AUTHOR = "author";
+        public static final String COL_DATE = "date";
     }
 
     public static final class ClassEntry implements BaseColumns {

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.blackcracks.blich.data.BlichContract.*;
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public static final String DATABASE_NAME = "blich.db";
 
@@ -39,6 +39,15 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 "UNIQUE (" + ExamsEntry.COL_SUBJECT + ", " + ExamsEntry.COL_DATE + ", " +
                 ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
 
+        final String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
+                NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                NewsEntry.COL_TITLE + " TEXT NOT NULL," +
+                NewsEntry.COL_BODY + " TEXT NOT NULL, " +
+                NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
+                NewsEntry.COL_DATE + "INT NOT NULL, " +
+                "UNIQUE (" + NewsEntry.COL_TITLE + ", " + ExamsEntry.COL_DATE + ", " +
+                ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
+
         final String SQL_CREATE_CLASS_TABLE = "CREATE TABLE " + ClassEntry.TABLE_NAME + " (" +
                 ClassEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ClassEntry.COL_CLASS_INDEX + " INTEGER NOT NULL UNIQUE ON CONFLICT REPLACE, " +
@@ -47,6 +56,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
         db.execSQL(SQL_CREATE_EXAMS_TABLE);
+        db.execSQL(SQL_CREATE_NEWS_TABLE);
         db.execSQL(SQL_CREATE_CLASS_TABLE);
     }
 
@@ -86,6 +96,18 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                     " ADD COLUMN " + ScheduleEntry.COL_LESSON_COUNT + " INTEGER;";
 
             db.execSQL(SQL_ALTER_SCHEDULE_TABLE);
+        }
+        if (oldVersion < 8) {
+            final String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
+                    NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    NewsEntry.COL_TITLE + " TEXT NOT NULL," +
+                    NewsEntry.COL_BODY + " TEXT NOT NULL, " +
+                    NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
+                    NewsEntry.COL_DATE + "INT NOT NULL, " +
+                    "UNIQUE (" + NewsEntry.COL_TITLE + ", " + ExamsEntry.COL_DATE + ", " +
+                    ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
+
+            db.execSQL(SQL_CREATE_NEWS_TABLE);
         }
     }
 }
