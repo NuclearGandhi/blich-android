@@ -93,4 +93,38 @@
         app:layout_constraintRight_toRightOf="@+id/developers"
         app:layout_constraintTop_toBottomOf="@+id/developers"/>
 
+    <TextView
+        android:id="@+id/support_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="56dp"
+        android:text="מייל לתמיכה"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.513"
+        app:layout_constraintLeft_toLeftOf="@+id/developers_name"
+        app:layout_constraintRight_toRightOf="@+id/developers_name"
+        app:layout_constraintTop_toBottomOf="@+id/developers_name"/>
+
+    <TextView
+        android:id="@+id/support_email_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:onClick="onEmailClick"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:text="לחץ כדי לשלוח מייל"
+        android:textColor="?android:attr/textColorLink"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="@+id/support_email"
+        app:layout_constraintRight_toRightOf="@+id/support_email"
+        app:layout_constraintTop_toBottomOf="@+id/support_email"/>
+
 </android.support.constraint.ConstraintLayout>
