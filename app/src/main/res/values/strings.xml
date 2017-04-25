@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">בליך</string>
+
     <string name="activity_settings">הגדרות</string>
+    <string name="activity_about">אודות</string>
 
     <string name="sync_account_type" translatable="false">com.blackcracks.blich</string>
     <string name="content_authority">com.blackcracks.blich</string>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.blackcracks.blich">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.blackcracks.blich">
 
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
@@ -21,7 +21,7 @@
             android:name=".data.BlichProvider"
             android:authorities="@string/content_authority"
             android:exported="false"
-            android:syncable="true" />
+            android:syncable="true"/>
 
         <activity
             android:name=".activity.MainActivity"
@@ -29,53 +29,61 @@
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.AboutActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:label="@string/activity_about"
+            android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/activity_settings"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".activity.MainActivity"/>
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
-        <service android:name=".sync.BlichAuthenticatorService"
+        <service
+            android:name=".sync.BlichAuthenticatorService"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
+                <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                android:resource="@xml/authenticator"/>
         </service>
-
-        <service android:name=".sync.BlichSyncService"
+        <service
+            android:name=".sync.BlichSyncService"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
+                <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
+                android:resource="@xml/syncadapter"/>
         </service>
-
-        <service android:name=".data.FetchClassService" />
+        <service android:name=".data.FetchClassService"/>
 
         <receiver
             android:name=".sync.BlichSyncAdapter$BlichUpdateReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="blich_notify" />
+                <action android:name="blich_notify"/>
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".sync.BlichSyncAdapter$StartPeriodicSyncBootReceiver"
+        <receiver
+            android:name=".sync.BlichSyncAdapter$StartPeriodicSyncBootReceiver"
             android:enabled="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>
