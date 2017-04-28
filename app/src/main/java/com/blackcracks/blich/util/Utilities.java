@@ -82,11 +82,6 @@ public class Utilities {
         .getInt(key, defaultValue);
     }
 
-    public static long getPreferenceLong(Context context, String key, long defaultValue) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getLong(key, defaultValue);
-    }
-
     public static long getTimeInMillisFromDate(String date) {
 
         Locale locale = Locale.getDefault();
