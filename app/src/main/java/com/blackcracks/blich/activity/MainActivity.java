@@ -27,9 +27,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    @SuppressWarnings("unused")
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
     private static final String FRAGMENT_TAG = "fragment";
 
     //Key to store whether this is the first time MainActivity is created in the app process

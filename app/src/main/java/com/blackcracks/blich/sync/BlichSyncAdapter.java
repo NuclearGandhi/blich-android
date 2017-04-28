@@ -146,7 +146,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
         if (isPeriodicSyncOn) {
-            Log.d(TAG, "Initializing sync: on");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -157,7 +156,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP);
         } else {
-            Log.d(TAG, "Initializing sync: off");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -195,24 +193,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         nightNotify.setTimeInMillis(System.currentTimeMillis());
         nightNotify.set(Calendar.HOUR_OF_DAY, 21);
         nightNotify.set(Calendar.MINUTE, 30);
-        Log.d(TAG, "Before Night notify: " + nightNotify.getTimeInMillis());
         if (nightNotify.getTimeInMillis() < System.currentTimeMillis()) {
             nightNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
-
-        Log.d(TAG, "After Night notify: " + nightNotify.getTimeInMillis());
 
         Calendar mornNotify = Calendar.getInstance();
         mornNotify.setTimeInMillis(System.currentTimeMillis());
         mornNotify.set(Calendar.HOUR_OF_DAY, 7);
         mornNotify.set(Calendar.MINUTE, 0);
-        Log.d(TAG, "Before Morn notify: " + mornNotify.getTimeInMillis());
 
         if (mornNotify.getTimeInMillis() < System.currentTimeMillis()) {
             mornNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
-
-        Log.d(TAG, "After Morn notify: " + mornNotify.getTimeInMillis());
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 nightNotify.getTimeInMillis(),
@@ -244,12 +236,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                               ContentProviderClient contentProviderClient,
                               SyncResult syncResult) {
         boolean periodic = bundle.containsKey(SYNC_IS_PERIODIC) && bundle.getBoolean(SYNC_IS_PERIODIC);
-
-        if (periodic) {
-            Log.d(TAG, "Syncing: Periodic");
-        } else {
-            Log.d(TAG, "Syncing: Manual");
-        }
 
         /*
         Start the fetch.
@@ -725,7 +711,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Receiving Update Broadcast");
             Bundle bundle = new Bundle();
             bundle.putBoolean(SYNC_IS_PERIODIC, true);
 

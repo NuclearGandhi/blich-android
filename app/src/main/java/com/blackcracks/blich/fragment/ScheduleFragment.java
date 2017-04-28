@@ -21,8 +21,6 @@ import java.util.Calendar;
  */
 public class ScheduleFragment extends BlichBaseFragment {
 
-    private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
-
     private View mRootView;
 
     @Override

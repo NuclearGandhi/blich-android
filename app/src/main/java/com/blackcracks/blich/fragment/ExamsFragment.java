@@ -15,7 +15,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,8 +42,6 @@ import java.util.Date;
 import java.util.List;
 
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener{
-
-    private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
     private static final int EXAMS_LOADER_ID = 0;
     private static final int EVENTS_LOADER_ID = 1;
@@ -256,7 +253,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                 maxDate = calendar.getTime();
             }
-            Log.d(LOG_TAG, "min date = " + minDate + " max date = " + maxDate);
             return new Date[]{minDate, maxDate};
         }
 
