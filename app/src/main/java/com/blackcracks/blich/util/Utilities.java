@@ -101,7 +101,7 @@ public class Utilities {
         return examDate.getTime();
     }
 
-    public static void intializeBlichDataUpdater(Context context, View view) {
+    public static void initializeBlichDataUpdater(Context context, View view) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
                 .apply();

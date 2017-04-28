@@ -104,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
                 public void onDestroy(Context context) {
                     //Start the periodic syncing of
                     BlichSyncAdapter.initializeSyncAdapter(context);
-                    Utilities.intializeBlichDataUpdater(context, view);
+                    Utilities.initializeBlichDataUpdater(context, view);
                 }
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                Utilities.intializeBlichDataUpdater(this, view);
+                Utilities.initializeBlichDataUpdater(this, view);
             }
         }
     }
