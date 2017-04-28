@@ -70,6 +70,8 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @SuppressWarnings("SpellCheckingInspection")
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
+    private static final String TAG = BlichSyncAdapter.class.getSimpleName();
+
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
             FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,})
@@ -85,7 +87,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
     public static final String FETCH_STATUS = "fetch_status";
 
-    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
     private static final String SOURCE_URL =
@@ -145,7 +146,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
         if (isPeriodicSyncOn) {
-            Log.d(LOG_TAG, "Initializing sync: on");
+            Log.d(TAG, "Initializing sync: on");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -156,7 +157,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP);
         } else {
-            Log.d(LOG_TAG, "Initializing sync: off");
+            Log.d(TAG, "Initializing sync: off");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -194,24 +195,24 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         nightNotify.setTimeInMillis(System.currentTimeMillis());
         nightNotify.set(Calendar.HOUR_OF_DAY, 21);
         nightNotify.set(Calendar.MINUTE, 30);
-        Log.d(LOG_TAG, "Before Night notify: " + nightNotify.getTimeInMillis());
+        Log.d(TAG, "Before Night notify: " + nightNotify.getTimeInMillis());
         if (nightNotify.getTimeInMillis() < System.currentTimeMillis()) {
             nightNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        Log.d(LOG_TAG, "After Night notify: " + nightNotify.getTimeInMillis());
+        Log.d(TAG, "After Night notify: " + nightNotify.getTimeInMillis());
 
         Calendar mornNotify = Calendar.getInstance();
         mornNotify.setTimeInMillis(System.currentTimeMillis());
         mornNotify.set(Calendar.HOUR_OF_DAY, 7);
         mornNotify.set(Calendar.MINUTE, 0);
-        Log.d(LOG_TAG, "Before Morn notify: " + mornNotify.getTimeInMillis());
+        Log.d(TAG, "Before Morn notify: " + mornNotify.getTimeInMillis());
 
         if (mornNotify.getTimeInMillis() < System.currentTimeMillis()) {
             mornNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        Log.d(LOG_TAG, "After Morn notify: " + mornNotify.getTimeInMillis());
+        Log.d(TAG, "After Morn notify: " + mornNotify.getTimeInMillis());
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 nightNotify.getTimeInMillis(),
@@ -245,9 +246,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         boolean periodic = bundle.containsKey(SYNC_IS_PERIODIC) && bundle.getBoolean(SYNC_IS_PERIODIC);
 
         if (periodic) {
-            Log.d(LOG_TAG, "Syncing: Periodic");
+            Log.d(TAG, "Syncing: Periodic");
         } else {
-            Log.d(LOG_TAG, "Syncing: Manual");
+            Log.d(TAG, "Syncing: Manual");
         }
 
         /*
@@ -315,6 +316,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
              */
             Document document = Jsoup.parse(html);
             Element viewState = document.getElementById(VIEW_STATE);
+            if (viewState == null) return FETCH_STATUS_UNSUCCESSFUL;
             String viewStateValue = viewState.attr("value");
 
             /*
@@ -343,13 +345,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             }
             classHtml = builder.toString();
         } catch (IOException | BlichFetchException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Log.e(TAG, e.getMessage(), e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
+                    Log.e(TAG, e.getMessage(), e);
                 }
             }
         }
@@ -358,7 +360,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             return FETCH_STATUS_EMPTY_HTML;
         }
         Document document = Jsoup.parse(classHtml);
-        Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
+        Element table = document.getElementById(SCHEDULE_TABLE_ID);
+        if (table == null) return FETCH_STATUS_UNSUCCESSFUL;
+        Elements lessons = table.getElementsByClass(CELL_CLASS);
 
         List<ContentValues> values = new ArrayList<>();
         for (int i = 6; i < lessons.size(); i++) {
@@ -483,15 +487,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             html = stringBuilder.toString();
 
         } catch (BlichSyncAdapter.BlichFetchException e) {
-            Log.e(LOG_TAG, "Error while trying to get user's class value", e);
+            Log.e(TAG, "Error while trying to get user's class value", e);
         } catch (IOException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Log.e(TAG, e.getMessage(), e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    Log.e(TAG, "Error closing stream", e);
                 }
             }
         }
@@ -721,7 +725,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "Receiving Update Broadcast");
+            Log.d(TAG, "Receiving Update Broadcast");
             Bundle bundle = new Bundle();
             bundle.putBoolean(SYNC_IS_PERIODIC, true);
 
