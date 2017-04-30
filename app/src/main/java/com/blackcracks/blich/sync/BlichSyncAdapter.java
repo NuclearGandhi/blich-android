@@ -79,15 +79,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
     public static final int FETCH_STATUS_NO_CONNECTION = 2;
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
-
+    public static final String FETCH_STATUS = "fetch_status";
 
     private static final String ACTION_BLICH_NOTIFY = "blich_notify";
     public static final String ACTION_SYNC_FINISHED = "sync_finished";
-    public static final String FETCH_STATUS = "fetch_status";
 
-    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
+    private static final int NOTIFICATION_UPDATE_ID = 100;
+
+    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
+
+    //Schedule
     private static final String SOURCE_URL =
             "http://blich.iscool.co.il/tabid/2117/language/he-IL/Default.aspx";
 
@@ -109,13 +112,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
 
-
+    //Exams
     private static final String EXAMS_BASE_URL =
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
 
     private static final String EXAMS_TABLE_ID = "ChangesList";
 
-    private static final int NOTIFICATION_UPDATE_ID = 100;
 
     private final Context mContext = getContext();
     private List<Lesson> mLessonNotificationList = new ArrayList<>();
