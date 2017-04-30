@@ -43,6 +43,7 @@
 
     <string name="drawer_schedule_title">מערכת שעות</string>
     <string name="drawer_exams_title">מבחנים</string>
+    <string name="drawer_news_title">חדשות בליך</string>
     <string name="drawer_settings_title">הגדרות</string>
 
     <string name="drawer_open_desc">פתוח</string>
@@ -56,8 +57,5 @@
 
     <string name="blank_page_message_empty">אין שעות ביום זה</string>
     <string name="blank_page_message_failed">תקלה בהשגת המידע מן האתר</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
