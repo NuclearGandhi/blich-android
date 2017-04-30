@@ -44,7 +44,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                 NewsEntry.COL_TITLE + " TEXT NOT NULL," +
                 NewsEntry.COL_BODY + " TEXT NOT NULL, " +
                 NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
-                NewsEntry.COL_DATE + "INT NOT NULL, " +
+                NewsEntry.COL_DATE + "TEXT NOT NULL, " +
                 "UNIQUE (" + NewsEntry.COL_TITLE + ", " + ExamsEntry.COL_DATE + ", " +
                 ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
 
@@ -103,7 +103,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
                     NewsEntry.COL_TITLE + " TEXT NOT NULL," +
                     NewsEntry.COL_BODY + " TEXT NOT NULL, " +
                     NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
-                    NewsEntry.COL_DATE + "INT NOT NULL, " +
+                    NewsEntry.COL_DATE + "TEXT NOT NULL, " +
                     "UNIQUE (" + NewsEntry.COL_TITLE + ", " + ExamsEntry.COL_DATE + ", " +
                     ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
 
