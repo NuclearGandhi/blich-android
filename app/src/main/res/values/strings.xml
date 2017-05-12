@@ -5,8 +5,10 @@
     <string name="sync_account_type" translatable="false">com.blackcracks.blich</string>
     <string name="content_authority">com.blackcracks.blich</string>
 
-    <string name="action_refresh">עדכן</string>
+    <string name="action_button_refresh">עדכן</string>
 
+    <string name="action_sync_callback">sync_callback</string>
+    <string name="action_fetch_news_callback">fetch_news_callback</string>
 
     <string name="pref_class_picker_key">class_picker</string>
     <string name="pref_class_picker_title">כיתה</string>

@@ -105,7 +105,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
-                        new IntentFilter(BlichSyncAdapter.ACTION_SYNC_FINISHED));
+                        new IntentFilter(getFetchCallback()));
         mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_fetching_key), false));
     }
 
@@ -129,4 +129,6 @@ public abstract class BlichBaseFragment extends Fragment implements
     protected abstract @StringRes int getFragmentTitle();
 
     protected abstract @MenuRes int getMenuResource();
+
+    protected abstract String getFetchCallback();
 }

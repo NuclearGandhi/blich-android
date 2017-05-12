@@ -41,6 +41,7 @@ import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.Constants.IntentConstants;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -81,12 +82,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final String FETCH_STATUS = "fetch_status";
 
-    private static final String ACTION_BLICH_NOTIFY = "blich_notify";
-    public static final String ACTION_SYNC_FINISHED = "sync_finished";
-
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
-    private static final int NOTIFICATION_UPDATE_ID = 100;
+    private static final int NOTIFICATION_UPDATE_ID = 1;
 
     private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
 
@@ -129,7 +127,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     public static void initializeSyncAdapter(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(ACTION_BLICH_NOTIFY);
+        Intent intent = new Intent(IntentConstants.ACTION_BLICH_NOTIFY);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
                 0,
                 intent,
@@ -276,7 +274,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     }
 
     private void sendBroadcast(@FetchStatus int status) {
-        Intent intent = new Intent(ACTION_SYNC_FINISHED);
+        Intent intent = new Intent(IntentConstants.ACTION_SYNC_CALLBACK);
         intent.putExtra(FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);

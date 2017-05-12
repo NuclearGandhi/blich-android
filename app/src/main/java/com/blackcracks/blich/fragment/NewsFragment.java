@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.util.Constants;
 
 public class NewsFragment extends BlichBaseFragment {
 
@@ -31,4 +32,8 @@ public class NewsFragment extends BlichBaseFragment {
         return R.menu.fragment_news;
     }
 
+    @Override
+    protected String getFetchCallback() {
+        return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK;
+    }
 }

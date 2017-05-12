@@ -28,6 +28,7 @@ import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -160,6 +161,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     protected int getMenuResource() {
         return R.menu.fragment_exams;
+    }
+
+    @Override
+    protected String getFetchCallback() {
+        return Constants.IntentConstants.ACTION_SYNC_CALLBACK;
     }
 
     @Override

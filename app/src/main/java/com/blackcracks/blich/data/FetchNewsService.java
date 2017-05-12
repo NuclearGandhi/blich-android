@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Constants.IntentConstants;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,9 +44,6 @@ public class FetchNewsService extends IntentService {
     public static final int CATEGORY_YA = 3;
     public static final int CATEGORY_YB = 4;
 
-    public static final String ACTION_FETCH_NEWS_FINISHED = "fetch_news_finished";
-    public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";
-
     private static final String NEWS_GENERAL_URL = "https://blich.co.il/xml_blich_news";
     private static final String NEWS_TET_URL = "https://blich.co.il/xml_tet_news";
     private static final String NEWS_YUD_URL = "https://blich.co.il/xml_yud_news";
@@ -66,8 +64,8 @@ public class FetchNewsService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         @NewsCategory int category = intent.getIntExtra(EXTRA_NEWS_CATEGORY, CATEGORY_GENERAL);
         int status = fetchNews(category);
-        Intent broadcast = new Intent(ACTION_FETCH_NEWS_FINISHED);
-        broadcast.putExtra(EXTRA_FETCH_STATUS, status);
+        Intent broadcast = new Intent(IntentConstants.ACTION_FETCH_NEWS_CALLBACK);
+        broadcast.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(broadcast);
     }

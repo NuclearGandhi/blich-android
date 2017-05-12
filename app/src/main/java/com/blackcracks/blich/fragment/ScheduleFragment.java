@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
@@ -95,6 +96,11 @@ public class ScheduleFragment extends BlichBaseFragment {
     @Override
     protected int getMenuResource() {
         return R.menu.fragment_schedule;
+    }
+
+    @Override
+    protected String getFetchCallback() {
+        return Constants.IntentConstants.ACTION_SYNC_CALLBACK;
     }
 
     @Override
