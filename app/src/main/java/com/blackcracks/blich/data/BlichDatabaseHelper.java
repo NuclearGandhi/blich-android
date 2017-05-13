@@ -41,7 +41,8 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
                 NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                NewsEntry.COL_TITLE + " TEXT NOT NULL," +
+                NewsEntry.COL_CATEGORY + " INTEGER NOT NULL, " +
+                NewsEntry.COL_TITLE + " TEXT NOT NULL, " +
                 NewsEntry.COL_BODY + " TEXT NOT NULL, " +
                 NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
                 NewsEntry.COL_DATE + "TEXT NOT NULL, " +
@@ -100,7 +101,8 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 8) {
             final String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
                     NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    NewsEntry.COL_TITLE + " TEXT NOT NULL," +
+                    NewsEntry.COL_CATEGORY + " INTEGER NOT NULL, " +
+                    NewsEntry.COL_TITLE + " TEXT NOT NULL, " +
                     NewsEntry.COL_BODY + " TEXT NOT NULL, " +
                     NewsEntry.COL_AUTHOR + " TEXT NOT NULL, " +
                     NewsEntry.COL_DATE + "TEXT NOT NULL, " +

@@ -89,6 +89,7 @@ public class BlichContract {
 
         public static final String TABLE_NAME = "news";
 
+        public static final String COL_CATEGORY = "category";
         public static final String COL_TITLE = "title";
         public static final String COL_BODY = "text";
         public static final String COL_AUTHOR = "author";
