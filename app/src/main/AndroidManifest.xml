@@ -62,7 +62,14 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter"/>
         </service>
-        <service android:name=".data.FetchClassService"/>
+        <service
+            android:name=".data.FetchClassService"
+            android:exported="false"/>
+
+        <service
+            android:name=".data.FetchNewsService"
+            android:exported="false">
+        </service>
 
         <receiver
             android:name=".sync.BlichSyncAdapter$BlichUpdateReceiver"
@@ -78,11 +85,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".data.FetchNewsService"
-            android:exported="false">
-        </service>
     </application>
 
 </manifest>

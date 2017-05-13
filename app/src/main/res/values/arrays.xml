@@ -8,4 +8,12 @@
         <item>חמישי</item>
         <item>שישי</item>
     </string-array>
+
+    <string-array name="tab_news_names">
+        <item>כללי</item>
+        <item>ט'</item>
+        <item>י'</item>
+        <item>יא'</item>
+        <item>יב'</item>
+    </string-array>
 </resources>

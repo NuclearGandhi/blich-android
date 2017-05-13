@@ -6,16 +6,16 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class ScheduleTabLayout extends TabLayout {
-    public ScheduleTabLayout(Context context) {
+public class RtlTabLayout extends TabLayout {
+    public RtlTabLayout(Context context) {
         super(context);
     }
 
-    public ScheduleTabLayout(Context context, AttributeSet attrs) {
+    public RtlTabLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ScheduleTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RtlTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
