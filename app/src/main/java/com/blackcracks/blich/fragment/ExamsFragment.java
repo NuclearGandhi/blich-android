@@ -47,9 +47,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
-    private static final int EXAMS_LOADER_ID = 0;
-    private static final int EVENTS_LOADER_ID = 1;
-
     private static final String[] EXAMS_COLUMNS = {
             ExamsEntry._ID,
             ExamsEntry.COL_DATE,
@@ -131,8 +128,8 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, new ExamsLoader());
-        getLoaderManager().initLoader(EVENTS_LOADER_ID, null, new EventsLoader());
+        getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID, null, new ExamsLoader());
+        getLoaderManager().initLoader(Constants.EVENTS_LOADER_ID, null, new EventsLoader());
     }
 
     @Override
