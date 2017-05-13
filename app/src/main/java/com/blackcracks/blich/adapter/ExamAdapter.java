@@ -17,8 +17,6 @@ import java.util.Locale;
 
 public class ExamAdapter extends CursorAdapter {
 
-    private final static String LOG_TAG = ExamAdapter.class.getSimpleName();
-
     private final Context mContext;
 
     public ExamAdapter(Context context, Cursor cursor) {
