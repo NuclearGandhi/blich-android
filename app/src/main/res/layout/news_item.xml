@@ -18,59 +18,59 @@
         tools:layout_editor_absoluteY="0dp">
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/news_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="24sp"
-            android:maxLines="1"
-            android:ellipsize="end"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/body"
+            android:id="@+id/news_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:ellipsize="end"
             android:maxLines="4"
             android:textSize="14sp"
-            android:ellipsize="end"
-            app:layout_constraintRight_toRightOf="@+id/title"
-            app:layout_constraintTop_toBottomOf="@+id/title"/>
+            app:layout_constraintRight_toRightOf="@+id/news_title"
+            app:layout_constraintTop_toBottomOf="@+id/news_title"/>
 
         <View
-            android:id="@+id/view"
+            android:id="@+id/divider"
             android:layout_width="wrap_content"
             android:layout_height="0.5dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:src="?android:attr/listDivider"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/body"
-            android:layout_marginLeft="8dp"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginRight="8dp"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/news_body"/>
 
         <TextView
-            android:id="@+id/date"
+            android:id="@+id/news_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="0dp"
             android:layout_marginTop="8dp"
             android:textSize="12sp"
-            app:layout_constraintRight_toRightOf="@+id/body"
-            app:layout_constraintTop_toBottomOf="@+id/view"
-            android:layout_marginRight="0dp"/>
+            app:layout_constraintRight_toRightOf="@+id/news_body"
+            app:layout_constraintTop_toBottomOf="@+id/view"/>
 
         <TextView
-            android:id="@+id/author"
+            android:id="@+id/news_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:textSize="12sp"
-            app:layout_constraintRight_toLeftOf="@+id/date"
-            app:layout_constraintTop_toTopOf="@+id/date"/>
+            app:layout_constraintRight_toLeftOf="@+id/news_date"
+            app:layout_constraintTop_toTopOf="@+id/news_date"/>
 
     </android.support.constraint.ConstraintLayout>
 
