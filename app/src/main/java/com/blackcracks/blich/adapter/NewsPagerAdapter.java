@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.blackcracks.blich.fragment.NewsPageFragment;
+import com.blackcracks.blich.fragment.NewsCategoryFragment;
 
 public class NewsPagerAdapter extends FragmentPagerAdapter {
 
@@ -19,9 +19,9 @@ public class NewsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Bundle args = new Bundle();
-        args.putInt(NewsPageFragment.KEY_CATEGORY, position);
+        args.putInt(NewsCategoryFragment.KEY_CATEGORY, position);
 
-        Fragment fragment = new NewsPageFragment();
+        Fragment fragment = new NewsCategoryFragment();
         fragment.setArguments(args);
 
         return fragment;

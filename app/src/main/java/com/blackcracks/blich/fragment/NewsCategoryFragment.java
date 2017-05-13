@@ -18,7 +18,7 @@ import com.blackcracks.blich.adapter.NewsAdapter;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.util.Constants;
 
-public class NewsPageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String KEY_CATEGORY = "category";
 
@@ -34,7 +34,7 @@ public class NewsPageFragment extends Fragment implements LoaderManager.LoaderCa
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_news_page, container);
+        View rootView = inflater.inflate(R.layout.fragment_news_category, container);
 
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
         mAdapter = new NewsAdapter(getContext(), null);
