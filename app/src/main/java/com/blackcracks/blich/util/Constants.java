@@ -8,6 +8,7 @@ public class Constants {
     public static final int EXAMS_LOADER_ID = 14;
     public static final int EVENTS_LOADER_ID = 15;
     public static final int SCHEDULE_LOADER_ID = 16;
+    public static final int NEWS_LOADER_ID = 17;
 
     public class IntentConstants {
 
