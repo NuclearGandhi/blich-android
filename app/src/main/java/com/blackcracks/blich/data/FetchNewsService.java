@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 
 import org.jsoup.Jsoup;
@@ -31,8 +32,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 public class FetchNewsService extends IntentService {
 
     private static final String TAG = FetchNewsService.class.getSimpleName();
-
-    public static final String EXTRA_NEWS_CATEGORY = "extra_category";
 
     @Retention(SOURCE)
     @IntDef({CATEGORY_GENERAL, CATEGORY_TET, CATEGORY_YUD, CATEGORY_YA, CATEGORY_YB})
@@ -62,7 +61,7 @@ public class FetchNewsService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        @NewsCategory int category = intent.getIntExtra(EXTRA_NEWS_CATEGORY, CATEGORY_GENERAL);
+        @NewsCategory int category = intent.getIntExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY, CATEGORY_GENERAL);
         int status = fetchNews(category);
         Intent broadcast = new Intent(IntentConstants.ACTION_FETCH_NEWS_CALLBACK);
         broadcast.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
