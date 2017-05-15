@@ -161,11 +161,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     }
 
     @Override
-    protected String getFetchCallback() {
-        return Constants.IntentConstants.ACTION_SYNC_CALLBACK;
-    }
-
-    @Override
     public void onClick(View v) {
         if (mIsExpanded) {
             ViewCompat.animate(mDropDown).rotation(0).start();

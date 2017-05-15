@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.NewsPagerAdapter;
@@ -32,6 +33,8 @@ public class NewsFragment extends Fragment {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
+
+        ImageButton button = (ImageButton) mRootView.findViewById(R.id.refresh_button);
 
         return mRootView;
     }
