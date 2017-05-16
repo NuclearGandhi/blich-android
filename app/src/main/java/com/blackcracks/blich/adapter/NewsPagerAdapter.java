@@ -19,6 +19,7 @@ public class NewsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Bundle args = new Bundle();
+        position = getRealPosition(position);
         args.putInt(NewsCategoryFragment.KEY_CATEGORY, position);
 
         Fragment fragment = new NewsCategoryFragment();
@@ -34,6 +35,10 @@ public class NewsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mTabNames[position];
+        return mTabNames[getRealPosition(position)];
+    }
+
+    private int getRealPosition(int position) {
+        return mTabNames.length - position - 1;
     }
 }
