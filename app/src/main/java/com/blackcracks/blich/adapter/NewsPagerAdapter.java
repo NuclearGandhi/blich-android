@@ -31,4 +31,9 @@ public class NewsPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return mTabNames.length;
     }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mTabNames[position];
+    }
 }

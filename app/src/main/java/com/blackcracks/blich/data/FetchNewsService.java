@@ -125,7 +125,10 @@ public class FetchNewsService extends IntentService {
             }
         }
 
+        if (html == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
+
         Document document = Jsoup.parse(html);
+        if (document == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
         Elements news = document.getElementsByTag(TAG_ARTICLE);
 
         List<ContentValues> contentValuesList = new ArrayList<>();

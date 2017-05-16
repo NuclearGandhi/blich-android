@@ -19,7 +19,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.blackcracks.blich.R;
@@ -48,7 +47,7 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_news_category, container);
+        final View rootView = inflater.inflate(R.layout.fragment_news_category, container, false);
 
         final RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
         mAdapter = new NewsAdapter(getContext(), null);
@@ -58,8 +57,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
         final ProgressBar refreshProgressBar = (ProgressBar) rootView.findViewById(R.id.refresh_progress_bar);
         refreshProgressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
 
-        Button button = (Button) rootView.findViewById(R.id.refresh_button);
-        button.setOnClickListener(new View.OnClickListener() {
+        View refreshButton = rootView.findViewById(R.id.refresh_button);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Start the refresh animation
@@ -112,6 +111,7 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = {
+                NewsEntry._ID,
                 NewsEntry.COL_TITLE,
                 NewsEntry.COL_BODY,
                 NewsEntry.COL_DATE,

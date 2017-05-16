@@ -14,24 +14,23 @@ import com.blackcracks.blich.adapter.NewsPagerAdapter;
 
 public class NewsFragment extends Fragment {
 
-    View mRootView;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = super.onCreateView(inflater, container, savedInstanceState);
+        View rootView = inflater.inflate(R.layout.fragment_news, container, false);
 
-        TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout);
-        ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager);
+        TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tablayout);
+        ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
         viewPager.setAdapter(
                 new NewsPagerAdapter(getFragmentManager(),
                         getContext().getResources().getStringArray(R.array.tab_news_names)));
 
+        viewPager.setCurrentItem(3, false);
 
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
-        return mRootView;
+        return rootView;
     }
 }

@@ -19,6 +19,7 @@ import android.view.View;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
+import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                                 return true;
                             }
                             case R.id.news: {
-                                replaceFragment(new ExamsFragment(), false);
+                                replaceFragment(new NewsFragment(), false);
                                 item.setChecked(true);
                                 return true;
                             }
