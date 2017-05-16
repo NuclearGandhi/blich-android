@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.NewsAdapter;
@@ -47,19 +50,30 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_news_category, container);
 
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
+        final RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
         mAdapter = new NewsAdapter(getContext(), null);
         recyclerView.setAdapter(mAdapter);
+
+        final View refreshImage = rootView.findViewById(R.id.refresh_image);
+        final ProgressBar refreshProgressBar = (ProgressBar) rootView.findViewById(R.id.refresh_progress_bar);
+        refreshProgressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
 
         Button button = (Button) rootView.findViewById(R.id.refresh_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Start the refresh animation
+                refreshImage.setVisibility(View.GONE);
+                refreshProgressBar.setVisibility(View.VISIBLE);
+
+                //Call the fetch news service
                 Intent intent = new Intent(getContext(), FetchNewsService.class);
                 intent.putExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY, mCategory);
                 getContext().startService(intent);
             }
         });
+
+        final View refreshView = rootView.findViewById(R.id.refresh_view);
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -67,6 +81,9 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                 @BlichSyncAdapter.FetchStatus int status = intent.getIntExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS,
                         BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
                 Utilities.onSyncFinished(getContext(), rootView, status);
+
+                recyclerView.setVisibility(View.VISIBLE);
+                refreshView.setVisibility(View.GONE);
             }
         };
 
@@ -120,4 +137,5 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
+
 }
