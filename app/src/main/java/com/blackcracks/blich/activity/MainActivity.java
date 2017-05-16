@@ -82,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
                                 item.setChecked(true);
                                 return true;
                             }
+                            case R.id.news: {
+                                replaceFragment(new ExamsFragment(), false);
+                                item.setChecked(true);
+                                return true;
+                            }
                             case R.id.settings: {
                                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                                 startActivity(intent);
