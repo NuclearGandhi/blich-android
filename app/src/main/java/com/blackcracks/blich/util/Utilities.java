@@ -103,7 +103,7 @@ public class Utilities {
 
     public static void intializeBlichDataUpdater(Context context, View view) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
+                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
 
         updateBlichData(context, view);
@@ -113,10 +113,10 @@ public class Utilities {
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
-        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_fetching_key), false);
+        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_syncing_key), false);
         if (!isFetching) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
+                    .putBoolean(context.getString(R.string.pref_is_syncing_key), true)
                     .apply();
             isConnected = Utilities.isThereNetworkConnection(context);
             if (isConnected) {
@@ -135,7 +135,7 @@ public class Utilities {
     //Callback from BlichSyncAdapter's sync
     public static void onSyncFinished(final Context context, final View view, @BlichSyncAdapter.FetchStatus int status) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
+                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
 
         if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
