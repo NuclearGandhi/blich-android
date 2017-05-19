@@ -1,53 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
+                android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/refresh_view"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <FrameLayout
-            android:id="@+id/refresh_button"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginBottom="16dp"
-            android:scaleType="center"
-            android:background="@drawable/refresh_button">
-
-            <ImageView
-                android:id="@+id/refresh_image"
-                android:layout_width="32dp"
-                android:layout_gravity="center"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_refresh_white_32dp"/>
-
-            <ProgressBar
-                android:id="@+id/refresh_progress_bar"
-                android:layout_gravity="center"
-                android:scrollbarStyle="insideInset"
-                android:visibility="gone"
-                android:layout_width="32dp"
-                android:layout_height="32dp"/>
-        </FrameLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:text="@string/message_refresh"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:visibility="gone"
-        android:id="@+id/recyclerview"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

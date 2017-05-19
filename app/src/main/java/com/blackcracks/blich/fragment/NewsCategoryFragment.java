@@ -6,9 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,11 +19,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -33,18 +32,20 @@ import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.data.FetchNewsService;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Utilities;
 
-public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_CATEGORY = "category";
 
     private int mCategory;
 
     private View mRootView;
-    private View mRefreshImage;
-    private ProgressBar mRefreshProgressBar;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private NewsAdapter mAdapter;
+
     private BroadcastReceiver mBroadcastReceiver;
 
     @Override
@@ -56,40 +57,22 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View mRootView = inflater.inflate(R.layout.fragment_news_category, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_news_category, container, false);
 
         final RecyclerView recyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
         mAdapter = new NewsAdapter(getContext(), null);
         recyclerView.setAdapter(mAdapter);
 
-        mRefreshImage = mRootView.findViewById(R.id.refresh_image);
-        mRefreshProgressBar = (ProgressBar) mRootView.findViewById(R.id.refresh_progress_bar);
-        mRefreshProgressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+        mBroadcastReceiver = new StatusBroadcastReceiver();
 
-        View refreshButton = mRootView.findViewById(R.id.refresh_button);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
+        mSwipeRefreshLayout =
+                (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onClick(View v) {
+            public void onRefresh() {
                 refresh();
             }
         });
-
-        final View refreshView = mRootView.findViewById(R.id.refresh_view);
-
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                //Callback
-                @BlichSyncAdapter.FetchStatus int status = intent.getIntExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS,
-                        BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                onFetchFinished(getContext(), status);
-
-                if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    refreshView.setVisibility(View.GONE);
-                }
-            }
-        };
 
         return mRootView;
     }
@@ -101,16 +84,19 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver,
-                new IntentFilter(Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK));
+                new IntentFilter(Utilities.News.getActionForCategory(mCategory)));
+        mSwipeRefreshLayout.setRefreshing(Utilities.News.getIsFetchingForCategory(getContext(), mCategory));
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onPause() {
+        super.onPause();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mBroadcastReceiver);
+        PreferenceManager.getDefaultSharedPreferences(getContext()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -144,10 +130,6 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     }
 
     private void refresh() {
-        //Start the refresh animation
-        mRefreshImage.setVisibility(View.GONE);
-        mRefreshProgressBar.setVisibility(View.VISIBLE);
-
         //Call the fetch news service
         Intent intent = new Intent(getContext(), FetchNewsService.class);
         intent.putExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY, mCategory);
@@ -156,9 +138,6 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
 
     //Callback from FetchNewsService
     private void onFetchFinished(final Context context, @BlichSyncAdapter.FetchStatus int status) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
-                .apply();
 
         if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
             Snackbar.make(mRootView,
@@ -205,11 +184,28 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                 }
                             })
                     .show();
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        String isFetchingKey = getString(R.string.pref_is_fetching_news_key) + mCategory;
+        if (key.equals(isFetchingKey)) {
+            mSwipeRefreshLayout.setRefreshing(Utilities.News.getIsFetchingForCategory(getContext(), mCategory));
+        }
+    }
+
+    private class StatusBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Callback
+            @BlichSyncAdapter.FetchStatus int status = intent.getIntExtra(Utilities.News.getActionForCategory(mCategory),
+                    BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
+            onFetchFinished(getContext(), status);
+        }
+    }
 }

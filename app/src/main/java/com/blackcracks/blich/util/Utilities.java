@@ -190,4 +190,25 @@ public class Utilities {
         }
     }
 
+    public static class News {
+
+        public static void setIsFetchingForCategory(Context context, int category, boolean isFetching) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(
+                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
+                    isFetching
+            ).apply();
+        }
+
+        public static boolean getIsFetchingForCategory(Context context, int category) {
+            return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
+                    false
+            );
+        }
+
+        public static String getActionForCategory(int category) {
+            return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK + category;
+        }
+    }
+
 }

@@ -11,6 +11,7 @@ import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.IntentConstants;
+import com.blackcracks.blich.util.Utilities;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -62,11 +63,20 @@ public class FetchNewsService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         @NewsCategory int category = intent.getIntExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY, CATEGORY_GENERAL);
+
+        if (Utilities.News.getIsFetchingForCategory(getBaseContext(), category)) return;
+
+        //Set isFetching to true;
+        Utilities.News.setIsFetchingForCategory(getBaseContext(), category, true);
+
         int status = fetchNews(category);
-        Intent broadcast = new Intent(IntentConstants.ACTION_FETCH_NEWS_CALLBACK);
+        Intent broadcast = new Intent(Utilities.News.getActionForCategory(category));
         broadcast.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(broadcast);
+
+        //Set isFetching to false
+        Utilities.News.setIsFetchingForCategory(getBaseContext(), category, false);
     }
 
     private @BlichSyncAdapter.FetchStatus int fetchNews(@NewsCategory int category) {
@@ -103,6 +113,7 @@ public class FetchNewsService extends IntentService {
              */
             URL url = new URL(SOURCE_URL);
             URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(5000);
             urlConnection.setDoOutput(true);
 
             reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
