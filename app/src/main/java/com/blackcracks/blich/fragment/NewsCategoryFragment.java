@@ -20,6 +20,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,13 +39,14 @@ import com.blackcracks.blich.util.Utilities;
 public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String KEY_CATEGORY = "category";
 
+    public static final String KEY_CATEGORY = "category";
     private int mCategory;
 
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private RecyclerView mRecyclerView;
     private NewsAdapter mAdapter;
 
     private BroadcastReceiver mBroadcastReceiver;
@@ -56,12 +59,20 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_news_category, container, false);
 
-        final RecyclerView recyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(
+                getContext(),
+                DividerItemDecoration.VERTICAL));
+
         mAdapter = new NewsAdapter(getContext(), null);
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
 
         mBroadcastReceiver = new StatusBroadcastReceiver();
 
@@ -86,10 +97,13 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onResume() {
         super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver,
                 new IntentFilter(Utilities.News.getActionForCategory(mCategory)));
-        mSwipeRefreshLayout.setRefreshing(Utilities.News.getIsFetchingForCategory(getContext(), mCategory));
+        mSwipeRefreshLayout.setRefreshing(
+                Utilities.News.getIsFetchingForCategory(getContext(),
+                        mCategory));
     }
 
     @Override
@@ -121,7 +135,7 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        mAdapter.changeCursor(data);
     }
 
     @Override
@@ -203,7 +217,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
         @Override
         public void onReceive(Context context, Intent intent) {
             //Callback
-            @BlichSyncAdapter.FetchStatus int status = intent.getIntExtra(Utilities.News.getActionForCategory(mCategory),
+            @BlichSyncAdapter.FetchStatus int status =
+                    intent.getIntExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY,
                     BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
             onFetchFinished(getContext(), status);
         }

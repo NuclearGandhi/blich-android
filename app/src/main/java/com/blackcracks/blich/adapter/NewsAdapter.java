@@ -3,13 +3,14 @@ package com.blackcracks.blich.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.BlichContract.NewsEntry;
 
 public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolder> {
 
@@ -22,17 +23,24 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.news_item, parent);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.news_item, null);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-        viewHolder.title.setText(cursor.getString(cursor.getColumnIndex(NewsEntry.COL_TITLE)));
-        viewHolder.body.setText(cursor.getString(cursor.getColumnIndex(NewsEntry.COL_BODY)));
-        viewHolder.date.setText(cursor.getString(cursor.getColumnIndex("נכתב ב - " + NewsEntry.COL_DATE + " ")));
-        viewHolder.author.setText(cursor.getString(cursor.getColumnIndex("על ידי " + NewsEntry.COL_AUTHOR)));
+        String title = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_TITLE));
+        viewHolder.title.setText(Html.fromHtml(title));
+
+        String body = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_BODY));
+        viewHolder.body.setText(Html.fromHtml(body));
+
+        String date = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_DATE));
+        viewHolder.date.setText("נכתב לפני - " + date + ", ");
+
+        String author = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_AUTHOR));
+        viewHolder.author.setText("על ידי " + author);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

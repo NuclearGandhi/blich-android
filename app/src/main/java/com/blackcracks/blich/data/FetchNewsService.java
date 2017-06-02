@@ -156,8 +156,6 @@ public class FetchNewsService extends IntentService {
             String author = article.getElementsByTag(TAG_AUTHOR).get(0).text();
             String postDate = article.getElementsByTag(TAG_POST_DATE).get(0).text();
 
-            Elements wut = article.getAllElements();
-
             ContentValues values = new ContentValues();
             values.put(NewsEntry.COL_CATEGORY, category);
             values.put(NewsEntry.COL_TITLE, title);

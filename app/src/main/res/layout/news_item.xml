@@ -1,77 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp">
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="0dp">
 
-    <android.support.constraint.ConstraintLayout
+    <TextView
+        android:id="@+id/news_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="8dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/black_text"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/news_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textSize="24sp"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    <TextView
+        android:id="@+id/news_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="4"
+        android:textAlignment="textStart"
+        app:layout_constraintLeft_toLeftOf="@+id/news_title"
+        app:layout_constraintRight_toRightOf="@id/news_title"
+        app:layout_constraintTop_toBottomOf="@id/news_title"
+        android:layout_marginRight="16dp"/>
 
-        <TextView
-            android:id="@+id/news_body"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="4"
-            android:textSize="14sp"
-            app:layout_constraintRight_toRightOf="@id/news_title"
-            app:layout_constraintTop_toBottomOf="@id/news_title"/>
+    <TextView
+        android:id="@+id/news_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="@id/news_body"
+        app:layout_constraintTop_toBottomOf="@id/news_body"/>
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="wrap_content"
-            android:layout_height="0.5dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:src="?android:attr/listDivider"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/news_body"/>
+    <TextView
+        android:id="@+id/news_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:paddingBottom="16dp"
+        android:textSize="12sp"
+        app:layout_constraintRight_toLeftOf="@id/news_date"
+        app:layout_constraintTop_toTopOf="@+id/news_date"
+        />
 
-        <TextView
-            android:id="@+id/news_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="0dp"
-            android:layout_marginTop="8dp"
-            android:textSize="12sp"
-            app:layout_constraintRight_toRightOf="@id/news_body"
-            app:layout_constraintTop_toBottomOf="@id/divider"/>
-
-        <TextView
-            android:id="@+id/news_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
-            android:textSize="12sp"
-            app:layout_constraintRight_toLeftOf="@id/news_date"
-            app:layout_constraintTop_toTopOf="@id/news_date"/>
-
-    </android.support.constraint.ConstraintLayout>
-
-</android.support.v7.widget.CardView>
+</android.support.constraint.ConstraintLayout>
