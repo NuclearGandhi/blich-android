@@ -208,7 +208,6 @@ public class BlichProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case SCHEDULE: {
-                db.delete(ScheduleEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(
@@ -222,7 +221,6 @@ public class BlichProvider extends ContentProvider {
                 break;
             }
             case CLASS: {
-                db.delete(ClassEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(
@@ -236,7 +234,6 @@ public class BlichProvider extends ContentProvider {
                 break;
             }
             case EXAMS: {
-                db.delete(ExamsEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(
@@ -250,7 +247,6 @@ public class BlichProvider extends ContentProvider {
                 break;
             }
             case NEWS: {
-                db.delete(NewsEntry.TABLE_NAME, null, null);
                 db.beginTransaction();
                 for (ContentValues value : values) {
                     long _id = db.insert(
