@@ -16,6 +16,7 @@ import com.blackcracks.blich.util.Utilities;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
@@ -140,7 +141,7 @@ public class FetchNewsService extends IntentService {
 
         if (html == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
 
-        Document document = Jsoup.parse(html);
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
         if (document == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
         Elements news = document.getElementsByTag(TAG_ARTICLE);
 
@@ -149,10 +150,13 @@ public class FetchNewsService extends IntentService {
         if (news == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
         for (Element article : news) {
             String title = article.getElementsByTag(TAG_TITLE).get(0).text();
-            Elements bodies = article.getElementsByTag(TAG_BODY);
-            String body = bodies.hasText() ? bodies.get(0).text() : "";
+
+            Elements bodyElement = article.getElementsByTag(TAG_BODY);
+            String body = bodyElement.size() != 0 ? bodyElement.get(0).text() :  "";
             String author = article.getElementsByTag(TAG_AUTHOR).get(0).text();
             String postDate = article.getElementsByTag(TAG_POST_DATE).get(0).text();
+
+            Elements wut = article.getAllElements();
 
             ContentValues values = new ContentValues();
             values.put(NewsEntry.COL_CATEGORY, category);
