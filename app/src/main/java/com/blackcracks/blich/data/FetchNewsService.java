@@ -22,8 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +71,7 @@ public class FetchNewsService extends IntentService {
 
         int status = fetchNews(category);
         Intent broadcast = new Intent(Utilities.News.getActionForCategory(category));
-        broadcast.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
+        broadcast.putExtra(IntentConstants.EXTRA_NEWS_CATEGORY, status);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(broadcast);
 
@@ -112,9 +112,11 @@ public class FetchNewsService extends IntentService {
             get the html
              */
             URL url = new URL(SOURCE_URL);
-            URLConnection urlConnection = url.openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setConnectTimeout(5000);
-            urlConnection.setDoOutput(true);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty( "User-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64");
+            urlConnection.connect();
 
             reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             StringBuilder builder = new StringBuilder();
@@ -147,7 +149,8 @@ public class FetchNewsService extends IntentService {
         if (news == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
         for (Element article : news) {
             String title = article.getElementsByTag(TAG_TITLE).get(0).text();
-            String body = article.getElementsByTag(TAG_BODY).get(0).text();
+            Elements bodies = article.getElementsByTag(TAG_BODY);
+            String body = bodies.hasText() ? bodies.get(0).text() : "";
             String author = article.getElementsByTag(TAG_AUTHOR).get(0).text();
             String postDate = article.getElementsByTag(TAG_POST_DATE).get(0).text();
 
