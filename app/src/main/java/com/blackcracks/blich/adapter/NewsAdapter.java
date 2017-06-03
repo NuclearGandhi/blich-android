@@ -37,25 +37,22 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
         viewHolder.body.setText(Html.fromHtml(body));
 
         String date = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_DATE));
-        viewHolder.date.setText("נכתב לפני - " + date + ", ");
 
         String author = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_AUTHOR));
-        viewHolder.author.setText("על ידי " + author);
+        viewHolder.citation.setText("נכתב לפני - " + date + ", " + "על ידי " + author);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView title;
         TextView body;
-        TextView date;
-        TextView author;
+        TextView citation;
 
         ViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.news_title);
             body = (TextView) view.findViewById(R.id.news_body);
-            date = (TextView) view.findViewById(R.id.news_date);
-            author = (TextView) view.findViewById(R.id.news_author);
+            citation = (TextView) view.findViewById(R.id.news_citation);
         }
     }
 }
