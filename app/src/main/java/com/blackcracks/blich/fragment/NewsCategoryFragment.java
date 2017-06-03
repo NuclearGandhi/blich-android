@@ -50,7 +50,6 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
 
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private TextView mLatestUpdate;
 
     private NewsAdapter mAdapter;
 
@@ -144,8 +143,6 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.changeCursor(data);
-
-        showLatestUpdate();
     }
 
     @Override
