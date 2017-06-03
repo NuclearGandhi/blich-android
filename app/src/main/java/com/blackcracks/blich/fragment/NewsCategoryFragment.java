@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -21,11 +22,13 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -36,6 +39,8 @@ import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
+import java.lang.reflect.Field;
+
 public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -45,8 +50,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
 
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private TextView mLatestUpdate;
 
-    private RecyclerView mRecyclerView;
     private NewsAdapter mAdapter;
 
     private BroadcastReceiver mBroadcastReceiver;
@@ -64,15 +69,13 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                              @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_news_category, container, false);
 
-        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(
+        RecyclerView recyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
+        recyclerView.addItemDecoration(new DividerItemDecoration(
                 getContext(),
                 DividerItemDecoration.VERTICAL));
 
         mAdapter = new NewsAdapter(getContext(), null);
-        mRecyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(mAdapter);
 
         mBroadcastReceiver = new StatusBroadcastReceiver();
 
@@ -84,6 +87,7 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                 refresh();
             }
         });
+
 
         return mRootView;
     }
@@ -104,6 +108,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
         mSwipeRefreshLayout.setRefreshing(
                 Utilities.News.getIsFetchingForCategory(getContext(),
                         mCategory));
+
+        showLatestUpdate();
     }
 
     @Override
@@ -136,6 +142,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.changeCursor(data);
+
+        showLatestUpdate();
     }
 
     @Override
@@ -222,5 +230,39 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                     BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
             onFetchFinished(getContext(), status);
         }
+    }
+
+    private void showLatestUpdate() {
+        long latestUpdateInMillis = Utilities.News.getLatestUpdateForCategory(
+                getContext(),
+                mCategory
+        );
+        String dateString = (String) DateUtils.getRelativeTimeSpanString(
+                getContext(),
+                latestUpdateInMillis
+        );
+
+        FrameLayout view = (FrameLayout) mRootView.findViewById(R.id.frame_layout);
+        Snackbar snackbar = Snackbar.make(
+                view,
+                "עודכן לאחרונה ב -  " + dateString,
+                Snackbar.LENGTH_INDEFINITE
+        );
+
+        try {
+            Field mAccessibilityManagerField = BaseTransientBottomBar.class.getDeclaredField("mAccessibilityManager");
+            mAccessibilityManagerField.setAccessible(true);
+            AccessibilityManager accessibilityManager = (AccessibilityManager) mAccessibilityManagerField.get(snackbar);
+            Field mIsEnabledField = AccessibilityManager.class.getDeclaredField("mIsEnabled");
+            mIsEnabledField.setAccessible(true);
+            mIsEnabledField.setBoolean(accessibilityManager, false);
+            mAccessibilityManagerField.set(snackbar, accessibilityManager);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        snackbar.show();
     }
 }

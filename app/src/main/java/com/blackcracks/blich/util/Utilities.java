@@ -206,6 +206,22 @@ public class Utilities {
             );
         }
 
+        public static void setPreferenceLatestUpdateForCategory(Context context,
+                                                                int category,
+                                                                long epoch) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(
+                    context.getResources().getString(R.string.pref_latest_update_key) + category,
+                    epoch
+            ).apply();
+        }
+
+        public static long getLatestUpdateForCategory(Context context, int category) {
+            return PreferenceManager.getDefaultSharedPreferences(context).getLong(
+                    context.getResources().getString(R.string.pref_latest_update_key) + category,
+                    0
+            );
+        }
+
         public static String getActionForCategory(int category) {
             return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK + category;
         }

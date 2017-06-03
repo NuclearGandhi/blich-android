@@ -170,6 +170,11 @@ public class FetchNewsService extends IntentService {
                 NewsEntry.CONTENT_URI,
                 contentValuesList.toArray(new ContentValues[contentValuesList.size()]));
 
+        //Update the latest update preference
+        Utilities.News.setPreferenceLatestUpdateForCategory(getBaseContext(),
+                category,
+                System.currentTimeMillis());
+
         return BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL;
     }
 }
