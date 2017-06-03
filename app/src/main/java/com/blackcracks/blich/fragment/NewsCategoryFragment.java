@@ -60,6 +60,8 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCategory = getArguments() != null ? getArguments().getInt(KEY_CATEGORY) : 0;
+
+        Utilities.News.resetIsFetchingPreferences(getContext());
     }
 
     @Nullable

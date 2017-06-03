@@ -206,6 +206,12 @@ public class Utilities {
             );
         }
 
+        public static void resetIsFetchingPreferences(Context context) {
+            for (int i = 0; i <= 4; i++) {
+                setIsFetchingForCategory(context, i, false);
+            }
+        }
+
         public static void setPreferenceLatestUpdateForCategory(Context context,
                                                                 int category,
                                                                 long epoch) {
