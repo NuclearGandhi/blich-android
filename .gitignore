@@ -5,6 +5,8 @@
 .idea/gradle.xml
 .idea/workspace.xml
 .idea/dictionaries
+.idea/inspectionProfiles
+.idea/copyright
 .DS_Store
 /build
 /captures
