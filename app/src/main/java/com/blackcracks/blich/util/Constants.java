@@ -17,7 +17,10 @@ public class Constants {
 
         public static final String ACTION_BLICH_NOTIFY = "blich_notify";
 
+
         public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";
         public static final String EXTRA_NEWS_CATEGORY = "extra_category";
+
+        public static final String EXTRA_ARTICLE_BODY = "article_body";
     }
 }

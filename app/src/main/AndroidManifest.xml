@@ -39,6 +39,11 @@
             android:label="@string/activity_settings"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".activity.ArticleActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme">
+        </activity>
 
         <service
             android:name=".sync.BlichAuthenticatorService"
@@ -65,7 +70,6 @@
         <service
             android:name=".data.FetchClassService"
             android:exported="false"/>
-
         <service
             android:name=".data.FetchNewsService"
             android:exported="false">
