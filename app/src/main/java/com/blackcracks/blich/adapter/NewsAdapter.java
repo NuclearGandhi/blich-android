@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
@@ -46,6 +47,10 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
+
+        viewHolder.progressBar.setVisibility(View.VISIBLE);
+        viewHolder.body.setVisibility(View.GONE);
+
         final String title = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_TITLE));
         viewHolder.title.setText(Html.fromHtml(title));
 
@@ -81,6 +86,7 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
         View article;
         TextView title;
+        ProgressBar progressBar;
         TextView body;
         ImageView image;
         TextView citation;
@@ -89,6 +95,7 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
             super(view);
             article = view;
             title = (TextView) view.findViewById(R.id.news_title);
+            progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             body = (TextView) view.findViewById(R.id.news_body);
             image = (ImageView) view.findViewById(R.id.news_image);
             citation = (TextView) view.findViewById(R.id.news_citation);
@@ -151,6 +158,8 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
                 mViewHolder.body.setVisibility(View.VISIBLE);
                 mViewHolder.body.setText(Html.fromHtml(mBody));
             }
+
+            mViewHolder.progressBar.setVisibility(View.GONE);
         }
     }
 }
