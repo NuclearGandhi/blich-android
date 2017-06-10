@@ -40,7 +40,7 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.news_item, null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.news_item, parent, false);
         return new ViewHolder(view);
     }
 
