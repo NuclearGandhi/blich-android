@@ -9,9 +9,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.blackcracks.blich.GlideApp;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.Constants;
-import com.bumptech.glide.Glide;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,7 +100,13 @@ public class ArticleActivity extends AppCompatActivity {
                 if (mImageUrl.contains("/sites/")) {
                     mImageUrl = BLICH_BASE_URL + mImageUrl;
                 }
-                Glide.with(getBaseContext()).load(mImageUrl).into(mImageView);
+
+                GlideApp.with(getBaseContext())
+                        .load(mImageUrl)
+                        .placeholder(R.color.almost_black)
+                        .fitCenter()
+                        .into(mImageView);
+
 
                 mBody = mBody.replaceAll(URL_IMAGE_REGEX, "");
             } else if (didFind[1]) {

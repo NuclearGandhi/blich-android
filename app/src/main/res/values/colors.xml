@@ -6,6 +6,7 @@
     <color name="preference_accent">@color/colorAccent</color>
 
     <color name="blue_400">#42a5f5</color>
+    <color name="almost_black">#8A000000</color>
 
     <color name="black_text">#212121</color>
     <color name="white_text">#FFFFFF</color>
