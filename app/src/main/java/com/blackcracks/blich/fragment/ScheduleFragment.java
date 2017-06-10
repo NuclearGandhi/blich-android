@@ -37,37 +37,9 @@ public class ScheduleFragment extends BlichBaseFragment {
 
             int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            if (hour > 18) day = day % 7 + 1;
-            switch (day) {
-                case 1: {
-                    day = 0;
-                    break;
-                }
-                case 2: {
-                    day = 1;
-                    break;
-                }
-                case 3: {
-                    day = 2;
-                    break;
-                }
-                case 4: {
-                    day = 3;
-                    break;
-                }
-                case 5: {
-                    day = 4;
-                    break;
-                }
-                case 6: {
-                    day = 5;
-                    break;
-                }
-                case 7: {
-                    day = 0;
-                    break;
-                }
-            }
+            day--;
+            if (hour > 18) day++;
+            day = day % 6; //If day = 6 (Saturday), then day = 0;
             viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day), false);
 
         }

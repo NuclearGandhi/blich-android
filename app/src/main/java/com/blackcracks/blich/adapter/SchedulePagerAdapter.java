@@ -41,6 +41,6 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
     //The adapter is set to left to right, but acts like a right to left, making the
     //positions inverted. This method is used to get the "real" position of a page.
     public static int getRealPosition(int position) {
-        return 5 - position;
+        return TABS_COUNT - 1 - position;
     }
 }

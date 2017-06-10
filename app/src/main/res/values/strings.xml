@@ -7,8 +7,10 @@
     <string name="sync_account_type" translatable="false">com.blackcracks.blich</string>
     <string name="content_authority">com.blackcracks.blich</string>
 
-    <string name="action_refresh">עדכן</string>
+    <string name="action_button_refresh">עדכן</string>
 
+    <string name="action_sync_callback">sync_callback</string>
+    <string name="action_fetch_news_callback">fetch_news_callback</string>
 
     <string name="pref_class_picker_key">class_picker</string>
     <string name="pref_class_picker_title">כיתה</string>
@@ -23,9 +25,11 @@
     <string name="pref_notification_sound_title">צליל</string>
 
     <string name="pref_fetch_status_key">fetch_status</string>
-    <string name="pref_is_fetching_key">is_fetching</string>
+    <string name="pref_is_syncing_key">is_syncing</string>
     <string name="pref_latest_update_key">latest_update</string>
 
+    <string name="pref_is_fetching_news_key">is_fetching_news</string>
+    <string name="pref_news_latest_update">latest_update</string>
 
     <string name="dialog_choose_class_title">מהי כיתתך?</string>
     <string name="dialog_choose_class_content">כיתה:</string>
@@ -45,6 +49,7 @@
 
     <string name="drawer_schedule_title">מערכת שעות</string>
     <string name="drawer_exams_title">מבחנים</string>
+    <string name="drawer_news_title">חדשות בליך</string>
     <string name="drawer_settings_title">הגדרות</string>
 
     <string name="drawer_open_desc">פתוח</string>
@@ -58,5 +63,6 @@
 
     <string name="blank_page_message_empty">אין שעות ביום זה</string>
     <string name="blank_page_message_failed">תקלה בהשגת המידע מן האתר</string>
+    <string name="message_refresh">לחצו כדי להוריד את המידע</string>
 
 </resources>

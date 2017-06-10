@@ -16,6 +16,7 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.support.v7.widget.Toolbar;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
@@ -173,6 +174,11 @@ public class SettingsActivity extends AppCompatActivity {
                             getString(R.string.pref_class_picker_default_value));
 
                     preference.setSummary(grade);
+                    getContext().getContentResolver().delete(
+                            BlichContract.ScheduleEntry.CONTENT_URI,
+                            null,
+                            null
+                    );
                     Utilities.updateBlichData(getContext(), getView());
                 }
                 case PREF_NOTIFICATION_TOGGLE_KEY: {

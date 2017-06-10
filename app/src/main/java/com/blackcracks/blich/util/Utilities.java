@@ -98,7 +98,7 @@ public class Utilities {
 
     public static void initializeBlichDataUpdater(Context context, View view) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
+                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
 
         updateBlichData(context, view);
@@ -108,10 +108,10 @@ public class Utilities {
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
-        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_fetching_key), false);
+        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_syncing_key), false);
         if (!isFetching) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(context.getString(R.string.pref_is_fetching_key), true)
+                    .putBoolean(context.getString(R.string.pref_is_syncing_key), true)
                     .apply();
             isConnected = Utilities.isThereNetworkConnection(context);
             if (isConnected) {
@@ -130,7 +130,7 @@ public class Utilities {
     //Callback from BlichSyncAdapter's sync
     public static void onSyncFinished(final Context context, final View view, @BlichSyncAdapter.FetchStatus int status) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_fetching_key), false)
+                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
 
         if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
@@ -182,6 +182,49 @@ public class Utilities {
                                 }
                             })
                     .show();
+        }
+    }
+
+    public static class News {
+
+        public static void setIsFetchingForCategory(Context context, int category, boolean isFetching) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(
+                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
+                    isFetching
+            ).apply();
+        }
+
+        public static boolean getIsFetchingForCategory(Context context, int category) {
+            return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
+                    false
+            );
+        }
+
+        public static void resetIsFetchingPreferences(Context context) {
+            for (int i = 0; i <= 4; i++) {
+                setIsFetchingForCategory(context, i, false);
+            }
+        }
+
+        public static void setPreferenceLatestUpdateForCategory(Context context,
+                                                                int category,
+                                                                long epoch) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(
+                    context.getResources().getString(R.string.pref_latest_update_key) + category,
+                    epoch
+            ).apply();
+        }
+
+        public static long getLatestUpdateForCategory(Context context, int category) {
+            return PreferenceManager.getDefaultSharedPreferences(context).getLong(
+                    context.getResources().getString(R.string.pref_latest_update_key) + category,
+                    0
+            );
+        }
+
+        public static String getActionForCategory(int category) {
+            return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK + category;
         }
     }
 

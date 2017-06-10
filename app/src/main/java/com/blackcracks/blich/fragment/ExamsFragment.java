@@ -27,6 +27,7 @@ import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -42,6 +43,8 @@ import java.util.Date;
 import java.util.List;
 
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener{
+
+    private static final String LOG_TAG = ExamsFragment.class.getSimpleName();
 
     private static final int EXAMS_LOADER_ID = 0;
     private static final int EVENTS_LOADER_ID = 1;
@@ -127,8 +130,8 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(EXAMS_LOADER_ID, null, new ExamsLoader());
-        getLoaderManager().initLoader(EVENTS_LOADER_ID, null, new EventsLoader());
+        getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID, null, new ExamsLoader());
+        getLoaderManager().initLoader(Constants.EVENTS_LOADER_ID, null, new EventsLoader());
     }
 
     @Override
@@ -253,6 +256,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                 maxDate = calendar.getTime();
             }
+            Log.d(LOG_TAG, "min date = " + minDate + " max date = " + maxDate);
             return new Date[]{minDate, maxDate};
         }
 

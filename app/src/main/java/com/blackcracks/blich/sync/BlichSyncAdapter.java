@@ -41,6 +41,7 @@ import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.Constants.IntentConstants;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -70,8 +71,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @SuppressWarnings("SpellCheckingInspection")
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
-    private static final String TAG = BlichSyncAdapter.class.getSimpleName();
-
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
             FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,})
@@ -81,14 +80,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
     public static final int FETCH_STATUS_NO_CONNECTION = 2;
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
-
-
-    private static final String ACTION_BLICH_NOTIFY = "blich_notify";
-    public static final String ACTION_SYNC_FINISHED = "sync_finished";
     public static final String FETCH_STATUS = "fetch_status";
 
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
+    private static final int NOTIFICATION_UPDATE_ID = 1;
+
+    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
+
+    //Schedule
     private static final String SOURCE_URL =
             "http://blich.iscool.co.il/tabid/2117/language/he-IL/Default.aspx";
 
@@ -110,13 +110,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     private static final String EXAM_LESSON_CLASS = "TableExamChange";
     private static final String EVENT_LESSON_CLASS = "TableEventChange";
 
-
+    //Exams
     private static final String EXAMS_BASE_URL =
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
 
     private static final String EXAMS_TABLE_ID = "ChangesList";
 
-    private static final int NOTIFICATION_UPDATE_ID = 100;
 
     private final Context mContext = getContext();
     private List<Lesson> mLessonNotificationList = new ArrayList<>();
@@ -128,7 +127,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
     public static void initializeSyncAdapter(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(ACTION_BLICH_NOTIFY);
+        Intent intent = new Intent(IntentConstants.ACTION_BLICH_NOTIFY);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
                 0,
                 intent,
@@ -146,6 +145,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
                 SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
         if (isPeriodicSyncOn) {
+            Log.d(LOG_TAG, "Initializing sync: on");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -156,6 +156,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP);
         } else {
+            Log.d(LOG_TAG, "Initializing sync: off");
             ContentResolver.setSyncAutomatically(
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
@@ -193,18 +194,24 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         nightNotify.setTimeInMillis(System.currentTimeMillis());
         nightNotify.set(Calendar.HOUR_OF_DAY, 21);
         nightNotify.set(Calendar.MINUTE, 30);
+        Log.d(LOG_TAG, "Before Night notify: " + nightNotify.getTimeInMillis());
         if (nightNotify.getTimeInMillis() < System.currentTimeMillis()) {
             nightNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
+
+        Log.d(LOG_TAG, "After Night notify: " + nightNotify.getTimeInMillis());
 
         Calendar mornNotify = Calendar.getInstance();
         mornNotify.setTimeInMillis(System.currentTimeMillis());
         mornNotify.set(Calendar.HOUR_OF_DAY, 7);
         mornNotify.set(Calendar.MINUTE, 0);
+        Log.d(LOG_TAG, "Before Morn notify: " + mornNotify.getTimeInMillis());
 
         if (mornNotify.getTimeInMillis() < System.currentTimeMillis()) {
             mornNotify.add(Calendar.DAY_OF_MONTH, 1);
         }
+
+        Log.d(LOG_TAG, "After Morn notify: " + mornNotify.getTimeInMillis());
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 nightNotify.getTimeInMillis(),
@@ -237,6 +244,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                               SyncResult syncResult) {
         boolean periodic = bundle.containsKey(SYNC_IS_PERIODIC) && bundle.getBoolean(SYNC_IS_PERIODIC);
 
+        if (periodic) {
+            Log.d(LOG_TAG, "Syncing: Periodic");
+        } else {
+            Log.d(LOG_TAG, "Syncing: Manual");
+        }
+
         /*
         Start the fetch.
         If there is a problem while fetching, send the status in the broadcast.
@@ -261,7 +274,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
     }
 
     private void sendBroadcast(@FetchStatus int status) {
-        Intent intent = new Intent(ACTION_SYNC_FINISHED);
+        Intent intent = new Intent(IntentConstants.ACTION_SYNC_CALLBACK);
         intent.putExtra(FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
@@ -302,7 +315,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
              */
             Document document = Jsoup.parse(html);
             Element viewState = document.getElementById(VIEW_STATE);
-            if (viewState == null) return FETCH_STATUS_UNSUCCESSFUL;
             String viewStateValue = viewState.attr("value");
 
             /*
@@ -331,13 +343,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             }
             classHtml = builder.toString();
         } catch (IOException | BlichFetchException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.e(LOG_TAG, e.getMessage(), e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
+                    Log.e(LOG_TAG, e.getMessage(), e);
                 }
             }
         }
@@ -346,9 +358,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             return FETCH_STATUS_EMPTY_HTML;
         }
         Document document = Jsoup.parse(classHtml);
-        Element table = document.getElementById(SCHEDULE_TABLE_ID);
-        if (table == null) return FETCH_STATUS_UNSUCCESSFUL;
-        Elements lessons = table.getElementsByClass(CELL_CLASS);
+        Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
 
         List<ContentValues> values = new ArrayList<>();
         for (int i = 6; i < lessons.size(); i++) {
@@ -378,13 +388,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                     if (text.length == 2) {
                         text = text[1].split("<br>");
-                        if (text.length == 2) {
-                            classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
-                            teacher = text[1];
-                        } else {
-                            classroom = "";
-                            teacher = "";
-                        }
+
+                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+
+                        teacher = text[1];
                     } else {
                         classroom = " ";
                         teacher = " ";
@@ -473,15 +480,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             html = stringBuilder.toString();
 
         } catch (BlichSyncAdapter.BlichFetchException e) {
-            Log.e(TAG, "Error while trying to get user's class value", e);
+            Log.e(LOG_TAG, "Error while trying to get user's class value", e);
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.e(LOG_TAG, e.getMessage(), e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "Error closing stream", e);
+                    Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
         }
@@ -711,6 +718,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Receiving Update Broadcast");
             Bundle bundle = new Bundle();
             bundle.putBoolean(SYNC_IS_PERIODIC, true);
 

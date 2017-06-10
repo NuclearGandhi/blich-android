@@ -19,14 +19,13 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
 public class ScheduleDayFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final int SCHEDULE_LOADER_ID = 100;
 
     public static final String DAY_KEY = "day";
 
@@ -60,7 +59,7 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(SCHEDULE_LOADER_ID, null, this);
+        getLoaderManager().initLoader(Constants.SCHEDULE_LOADER_ID, null, this);
     }
 
     @Override
