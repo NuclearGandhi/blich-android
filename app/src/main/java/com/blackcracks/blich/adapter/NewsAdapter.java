@@ -1,6 +1,7 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
@@ -13,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.ArticleActivity;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
+import com.blackcracks.blich.util.Constants;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,10 +46,10 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-        String title = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_TITLE));
+        final String title = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_TITLE));
         viewHolder.title.setText(Html.fromHtml(title));
 
-        String body = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_BODY));
+        final String body = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_BODY));
 
         if (viewHolder.image.getVisibility() != View.GONE)
             viewHolder.image.setVisibility(View.GONE);
@@ -57,10 +60,26 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
         String author = cursor.getString(cursor.getColumnIndex(NewsEntry.COL_AUTHOR));
         viewHolder.citation.setText("נכתב לפני - " + date + ", " + "על ידי " + author);
+
+        viewHolder.article.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ArticleActivity.class);
+                intent.putExtra(
+                        Constants.IntentConstants.EXTRA_ARTICLE_BODY,
+                        body);
+                intent.putExtra(
+                        Constants.IntentConstants.EXTRA_ARTICLE_TITLE,
+                        title);
+
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
+        View article;
         TextView title;
         TextView body;
         ImageView image;
@@ -68,6 +87,7 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
 
         ViewHolder(View view) {
             super(view);
+            article = view;
             title = (TextView) view.findViewById(R.id.news_title);
             body = (TextView) view.findViewById(R.id.news_body);
             image = (ImageView) view.findViewById(R.id.news_image);
@@ -80,7 +100,7 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
         String mBody = "";
         ViewHolder mViewHolder;
 
-        public FindUrlTask(String body, ViewHolder viewHolder) {
+        FindUrlTask(String body, ViewHolder viewHolder) {
 
             mBody = body;
 
