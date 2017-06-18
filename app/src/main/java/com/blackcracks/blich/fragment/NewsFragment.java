@@ -29,7 +29,7 @@ public class NewsFragment extends Fragment {
         TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout);
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager);
         viewPager.setAdapter(
-                new NewsPagerAdapter(getFragmentManager(),
+                new NewsPagerAdapter(getChildFragmentManager(),
                         getContext().getResources().getStringArray(R.array.tab_news_names)));
 
         viewPager.setCurrentItem(4, false);

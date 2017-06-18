@@ -32,7 +32,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);
         if (viewPager != null) {
             viewPager.setAdapter(
-                    new SchedulePagerAdapter(getActivity().getSupportFragmentManager(),
+                    new SchedulePagerAdapter(getChildFragmentManager(),
                             getResources().getStringArray(R.array.tab_schedule_names)));
 
             int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
