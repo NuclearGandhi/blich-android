@@ -220,7 +220,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
 
         @Override
-        protected Date[] doInBackground(@NonNull Cursor... params) {
+        protected Date[] doInBackground(Cursor... params) {
             if (mDates.size() != 0) mDates.clear();
             Cursor data = params[0];
             data.moveToFirst();
@@ -237,9 +237,10 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
             Date minDate = new Date();
             Date maxDate = minDate;
-            if (data.moveToPosition(1)) {
-                Calendar calendar = Calendar.getInstance();
 
+            Calendar calendar = Calendar.getInstance();
+
+            if (data.moveToPosition(1)) {
                 String date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
                 calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -248,6 +249,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 data.moveToLast();
                 date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
                 calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+                maxDate = calendar.getTime();
+            } else {
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                minDate = calendar.getTime();
+
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                 maxDate = calendar.getTime();
             }
