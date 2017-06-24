@@ -386,12 +386,17 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     subject = text[0].replace("<b>", "").replace("<br>", " ");
                     subject = Parser.unescapeEntities(subject, false);
 
+                    //TODO Improve this shitty code
                     if (text.length == 2) {
                         text = text[1].split("<br>");
 
-                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
-
-                        teacher = text[1];
+                        if (text.length == 2) {
+                            classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                            teacher = text[1];
+                        } else {
+                            classroom = "";
+                            teacher = "";
+                        }
                     } else {
                         classroom = " ";
                         teacher = " ";
