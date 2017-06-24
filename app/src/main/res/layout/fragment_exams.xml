@@ -63,6 +63,14 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <TextView
+        android:id="@+id/schedule_no_data"
+        android:text="@string/schedule_no_data"
+        android:layout_width="wrap_content"
+        android:padding="16dp"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh_schedule"
         android:layout_width="match_parent"

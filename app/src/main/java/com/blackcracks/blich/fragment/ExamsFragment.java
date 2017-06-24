@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
@@ -186,6 +187,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         @Override
         public void onLoadFinished(Loader loader, Cursor data) {
             mAdapter.swapCursor(data);
+
+            if (data.getCount() != 0) {
+                TextView noData = (TextView) mRootView.findViewById(R.id.schedule_no_data);
+                noData.setVisibility(View.GONE);
+            }
         }
 
         @Override

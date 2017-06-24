@@ -65,5 +65,6 @@
     <string name="blank_page_message_failed">תקלה בהשגת המידע מן האתר</string>
     <string name="message_refresh">לחצו כדי להוריד את המידע</string>
     <string name="news_no_data">משוך למטה כדי לעדכן</string>
+    <string name="schedule_no_data">אין מידע לגבי מבחנים קרובים</string>
 
 </resources>
