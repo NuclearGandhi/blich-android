@@ -64,5 +64,6 @@
     <string name="blank_page_message_empty">אין שעות ביום זה</string>
     <string name="blank_page_message_failed">תקלה בהשגת המידע מן האתר</string>
     <string name="message_refresh">לחצו כדי להוריד את המידע</string>
+    <string name="news_no_data">משוך למטה כדי לעדכן</string>
 
 </resources>

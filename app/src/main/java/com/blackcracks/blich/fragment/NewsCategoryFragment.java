@@ -24,6 +24,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,9 +42,11 @@ import com.blackcracks.blich.util.Utilities;
 
 import java.lang.reflect.Field;
 
-public class NewsCategoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+public class NewsCategoryFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG = NewsCategoryFragment.class.getSimpleName();
 
     public static final String KEY_CATEGORY = "category";
     private int mCategory;
@@ -143,11 +146,19 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.changeCursor(data);
+
+        if (data != null && data.getCount() != 0) {
+            TextView noData = (TextView) mRootView.findViewById(R.id.news_no_data);
+            noData.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
+
+        TextView noData = (TextView) mRootView.findViewById(R.id.news_no_data);
+        noData.setVisibility(View.VISIBLE);
     }
 
     private void refresh() {
@@ -236,6 +247,11 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
                 getContext(),
                 mCategory
         );
+
+        if (latestUpdateInMillis == 0) {
+            return;
+        }
+
         String dateString = (String) DateUtils.getRelativeTimeSpanString(
                 getContext(),
                 latestUpdateInMillis
@@ -257,9 +273,9 @@ public class NewsCategoryFragment extends Fragment implements LoaderManager.Load
             mIsEnabledField.setBoolean(accessibilityManager, false);
             mAccessibilityManagerField.set(snackbar, accessibilityManager);
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
 
         snackbar.show();
