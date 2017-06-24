@@ -15,6 +15,15 @@ public class BlichContract {
     static final String PATH_EXAMS = "exams";
     static final String PATH_NEWS = "news";
 
+    /**
+     * Table that contains the schedule:
+     * -day
+     * -hour
+     *
+     * -lesson_count
+     * -events
+     * -general_subject
+     */
     public static final class ScheduleEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
@@ -58,6 +67,27 @@ public class BlichContract {
         }
     }
 
+    /**
+     * Table the contains the lessons:
+     * -day
+     * -hour
+     * -lesson_num
+     *
+     * -subject
+     * -classroom
+     * -teacher
+     * -lesson_type
+     */
+    public static final class LessonsEntry implements BaseColumns {
+
+    }
+
+    /**
+     * Table that contains the exams:
+     * -date
+     * -subject
+     * -teacher
+     */
     public static final class ExamsEntry implements  BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_EXAMS)
@@ -75,6 +105,15 @@ public class BlichContract {
         public static final String COL_TEACHER = "teacher";
     }
 
+    /**
+     * Table that contains the news:
+     * -category
+     *
+     * -title
+     * -body
+     * -author
+     * -date
+     */
     public static final class NewsEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
@@ -96,6 +135,13 @@ public class BlichContract {
         public static final String COL_DATE = "date";
     }
 
+    /**
+     * Table that contains the classes:
+     * -class_id
+     *
+     * -grade
+     * -grade_index
+     */
     public static final class ClassEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
