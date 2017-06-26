@@ -24,6 +24,7 @@ public class BlichProvider extends ContentProvider {
 
     private static final int SCHEDULE = 100;
     private static final int SCHEDULE_WITH_DAY = 101;
+    private static final int LESSON = 105;
     private static final int CLASS = 102;
     private static final int EXAMS = 103;
     private static final int NEWS = 104;
@@ -86,6 +87,17 @@ public class BlichProvider extends ContentProvider {
                 );
                 break;
             }
+            case LESSON: {
+                cursor = db.query(
+                        LessonEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        sortOrder
+                );
+                break;
+            }
             case CLASS: {
                 cursor = db.query(
                         ClassEntry.TABLE_NAME,
@@ -139,6 +151,9 @@ public class BlichProvider extends ContentProvider {
             case SCHEDULE_WITH_DAY: {
                 return ScheduleEntry.CONTENT_TYPE;
             }
+            case LESSON: {
+                return LessonEntry.CONTENT_TYPE;
+            }
             case CLASS: {
                 return ClassEntry.CONTENT_TYPE;
             }
@@ -163,6 +178,14 @@ public class BlichProvider extends ContentProvider {
             case SCHEDULE: {
                 long _id = db.insert(
                         ScheduleEntry.TABLE_NAME,
+                        null,
+                        values);
+                validateId(_id, uri);
+                break;
+            }
+            case LESSON: {
+                long _id = db.insert(
+                        LessonEntry.TABLE_NAME,
                         null,
                         values);
                 validateId(_id, uri);
@@ -212,6 +235,19 @@ public class BlichProvider extends ContentProvider {
                 for (ContentValues value : values) {
                     long _id = db.insert(
                             ScheduleEntry.TABLE_NAME,
+                            null,
+                            value);
+                    if (_id != -1) {
+                        returnCount++;
+                    }
+                }
+                break;
+            }
+            case LESSON: {
+                db.beginTransaction();
+                for (ContentValues value : values) {
+                    long _id = db.insert(
+                            LessonEntry.TABLE_NAME,
                             null,
                             value);
                     if (_id != -1) {
@@ -281,6 +317,13 @@ public class BlichProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
+            case LESSON: {
+                rowsDeleted = db.delete(
+                        LessonEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
+            }
             case CLASS: {
                 rowsDeleted = db.delete(
                         ClassEntry.TABLE_NAME,
@@ -326,6 +369,14 @@ public class BlichProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
+            case LESSON: {
+                rowsUpdated = db.update(
+                        ClassEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            }
             case CLASS: {
                 rowsUpdated = db.update(
                         ClassEntry.TABLE_NAME,
@@ -365,6 +416,7 @@ public class BlichProvider extends ContentProvider {
 
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE, SCHEDULE);
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_DAY);
+        uriMatcher.addURI(authority, BlichContract.PATH_LESSON, LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_CLASS, CLASS);
         uriMatcher.addURI(authority, BlichContract.PATH_EXAMS, EXAMS);
         uriMatcher.addURI(authority, BlichContract.PATH_NEWS, NEWS);

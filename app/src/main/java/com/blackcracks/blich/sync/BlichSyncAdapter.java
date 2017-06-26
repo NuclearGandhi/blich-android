@@ -35,9 +35,7 @@ import android.util.Log;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract.ClassEntry;
-import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.data.BlichContract.*;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -360,7 +358,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Document document = Jsoup.parse(classHtml);
         Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
 
-        List<ContentValues> values = new ArrayList<>();
+        List<ContentValues> scheduleValues = new ArrayList<>();
+        List<ContentValues> lessonValues = new ArrayList<>();
         for (int i = 6; i < lessons.size(); i++) {
             int row = i / 6;
             int column = i % 6 + 1;
@@ -374,6 +373,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             }
 
             divs.addAll(tds);
+
+            char[] events = {'f', 'f', 'f', 'f'};
 
             if (divs.size() != 0) {
                 for (int k = 0; k < divs.size(); k++) {
@@ -404,23 +405,27 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
                     switch (div.attr("class")) {
                         case CANCELED_LESSON_CLASS: {
-                            lessonType = ScheduleEntry.LESSON_TYPE_CANCELED;
+                            lessonType = LessonEntry.LESSON_TYPE_CANCELED;
+                            if (events[0] == 'f') events[0] = 't';
                             break;
                         }
                         case CHANGED_LESSON_CLASS: {
-                            lessonType = ScheduleEntry.LESSON_TYPE_CHANGED;
+                            lessonType = LessonEntry.LESSON_TYPE_CHANGED;
+                            if (events[1] == 'f') events[1] = 't';
                             break;
                         }
                         case EXAM_LESSON_CLASS: {
-                            lessonType = ScheduleEntry.LESSON_TYPE_EXAM;
+                            lessonType = LessonEntry.LESSON_TYPE_EXAM;
+                            if (events[2] == 'f') events[2] = 't';
                             break;
                         }
                         case EVENT_LESSON_CLASS: {
-                            lessonType = ScheduleEntry.LESSON_TYPE_EVENT;
+                            lessonType = LessonEntry.LESSON_TYPE_EVENT;
+                            if (events[3] == 'f') events[3] = 't';
                             break;
                         }
                         default: {
-                            lessonType = ScheduleEntry.LESSON_TYPE_NORMAL;
+                            lessonType = LessonEntry.LESSON_TYPE_NORMAL;
                         }
                     }
 
@@ -430,27 +435,34 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                             subject,
                             lessonType);
 
-                    ContentValues value = new ContentValues();
-                    value.put(ScheduleEntry.COL_CLASS_SETTINGS, classValue);
-                    value.put(ScheduleEntry.COL_DAY, column);
-                    value.put(ScheduleEntry.COL_HOUR, row);
-                    value.put(ScheduleEntry.COL_LESSON, k);
-                    value.put(ScheduleEntry.COL_SUBJECT, subject);
-                    value.put(ScheduleEntry.COL_CLASSROOM, classroom);
-                    value.put(ScheduleEntry.COL_TEACHER, teacher);
-                    value.put(ScheduleEntry.COL_LESSON_TYPE, lessonType);
+                    ContentValues lessonValue = new ContentValues();
+                    lessonValue.put(LessonEntry.COL_DAY, column);
+                    lessonValue.put(LessonEntry.COL_HOUR, row);
+                    lessonValue.put(LessonEntry.COL_LESSON_NUM, k);
+                    lessonValue.put(LessonEntry.COL_SUBJECT, subject);
+                    lessonValue.put(LessonEntry.COL_CLASSROOM, classroom);
+                    lessonValue.put(LessonEntry.COL_TEACHER, teacher);
+                    lessonValue.put(LessonEntry.COL_LESSON_TYPE, lessonType);
 
-                    if (k == 0) {
-                        value.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
-                    }
-
-                    values.add(value);
+                    lessonValues.add(lessonValue);
                 }
+
+                ContentValues scheduleValue = new ContentValues();
+                scheduleValue.put(ScheduleEntry.COL_DAY, column);
+                scheduleValue.put(ScheduleEntry.COL_HOUR, row);
+                scheduleValue.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
+                scheduleValue.put(ScheduleEntry.COL_EVENTS, new String(events));
+
             }
         }
         mContext.getContentResolver().bulkInsert(
                 ScheduleEntry.CONTENT_URI,
-                values.toArray(new ContentValues[values.size()]));
+                scheduleValues.toArray(new ContentValues[scheduleValues.size()]));
+
+        mContext.getContentResolver().bulkInsert(
+                LessonEntry.CONTENT_URI,
+                lessonValues.toArray(new ContentValues[lessonValues.size()])
+        );
         return FETCH_STATUS_SUCCESSFUL;
     }
 
@@ -593,7 +605,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                                              int hour,
                                              String subject,
                                              String lessonType) {
-        if (!lessonType.equals(ScheduleEntry.LESSON_TYPE_NORMAL)) {
+        if (!lessonType.equals(LessonEntry.LESSON_TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int tommorow = today + 1;
             if (tommorow == 8) tommorow = 1;
