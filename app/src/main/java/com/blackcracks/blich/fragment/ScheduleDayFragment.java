@@ -67,16 +67,17 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         String[] projection = {
-                ScheduleEntry._ID,
+                LessonEntry._ID,
                 ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR,
                 ScheduleEntry.COL_LESSON_COUNT,
                 ScheduleEntry.COL_EVENTS,
                 LessonEntry.COL_SUBJECT,
                 LessonEntry.COL_CLASSROOM,
-                LessonEntry.COL_TEACHER
+                LessonEntry.COL_TEACHER,
+                LessonEntry.COL_LESSON_TYPE
         };
 
-        String selection = LessonEntry.COL_LESSON_NUM + " = 0";
+        String selection = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_DAY + " = " + mDay;
 
         String sortOrder = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " ASC";
         Uri uri = ScheduleEntry.buildScheduleWithLessonUri(0);

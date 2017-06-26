@@ -67,12 +67,13 @@ import java.util.List;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 @SuppressWarnings("SpellCheckingInspection")
-public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
+public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
             FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,})
-    public @interface FetchStatus {}
+    public @interface FetchStatus {
+    }
 
     public static final int FETCH_STATUS_SUCCESSFUL = 0;
     public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
@@ -176,7 +177,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         Account newAccount = new Account(
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
-        if ( null == accountManager.getPassword(newAccount) ) {
+        if (null == accountManager.getPassword(newAccount)) {
 
             if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
                 return null;
@@ -253,7 +254,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         If there is a problem while fetching, send the status in the broadcast.
          */
         int status;
-        if (    (status = fetchSchedule()) != FETCH_STATUS_SUCCESSFUL ||
+        if ((status = fetchSchedule()) != FETCH_STATUS_SUCCESSFUL ||
                 (status = fetchExams()) != FETCH_STATUS_SUCCESSFUL)
             sendBroadcast(status);
         else {
@@ -282,7 +283,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 .apply();
     }
 
-    private @FetchStatus int fetchSchedule() {
+    private
+    @FetchStatus
+    int fetchSchedule() {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -376,84 +379,83 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
 
             char[] events = {'f', 'f', 'f', 'f'};
 
-            if (divs.size() != 0) {
-                for (int k = 0; k < divs.size(); k++) {
-                    Element div = divs.get(k);
-                    String html = div.html();
-                    String[] text = html.split("</b>");
+            for (int k = 0; k < divs.size(); k++) {
+                Element div = divs.get(k);
+                String html = div.html();
+                String[] text = html.split("</b>");
 
-                    String subject, classroom, teacher, lessonType;
+                String subject, classroom, teacher, lessonType;
 
-                    subject = text[0].replace("<b>", "").replace("<br>", " ");
-                    subject = Parser.unescapeEntities(subject, false);
+                subject = text[0].replace("<b>", "").replace("<br>", " ");
+                subject = Parser.unescapeEntities(subject, false);
 
-                    //TODO Improve this shitty code
+                //TODO Improve this shitty code
+                if (text.length == 2) {
+                    text = text[1].split("<br>");
+
                     if (text.length == 2) {
-                        text = text[1].split("<br>");
-
-                        if (text.length == 2) {
-                            classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
-                            teacher = text[1];
-                        } else {
-                            classroom = "";
-                            teacher = "";
-                        }
+                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                        teacher = text[1];
                     } else {
-                        classroom = " ";
-                        teacher = " ";
+                        classroom = "";
+                        teacher = "";
                     }
-
-                    switch (div.attr("class")) {
-                        case CANCELED_LESSON_CLASS: {
-                            lessonType = LessonEntry.LESSON_TYPE_CANCELED;
-                            if (events[0] == 'f') events[0] = 't';
-                            break;
-                        }
-                        case CHANGED_LESSON_CLASS: {
-                            lessonType = LessonEntry.LESSON_TYPE_CHANGED;
-                            if (events[1] == 'f') events[1] = 't';
-                            break;
-                        }
-                        case EXAM_LESSON_CLASS: {
-                            lessonType = LessonEntry.LESSON_TYPE_EXAM;
-                            if (events[2] == 'f') events[2] = 't';
-                            break;
-                        }
-                        case EVENT_LESSON_CLASS: {
-                            lessonType = LessonEntry.LESSON_TYPE_EVENT;
-                            if (events[3] == 'f') events[3] = 't';
-                            break;
-                        }
-                        default: {
-                            lessonType = LessonEntry.LESSON_TYPE_NORMAL;
-                        }
-                    }
-
-                    addLessonToNotificationList(classValue,
-                            column,
-                            row,
-                            subject,
-                            lessonType);
-
-                    ContentValues lessonValue = new ContentValues();
-                    lessonValue.put(LessonEntry.COL_DAY, column);
-                    lessonValue.put(LessonEntry.COL_HOUR, row);
-                    lessonValue.put(LessonEntry.COL_LESSON_NUM, k);
-                    lessonValue.put(LessonEntry.COL_SUBJECT, subject);
-                    lessonValue.put(LessonEntry.COL_CLASSROOM, classroom);
-                    lessonValue.put(LessonEntry.COL_TEACHER, teacher);
-                    lessonValue.put(LessonEntry.COL_LESSON_TYPE, lessonType);
-
-                    lessonValues.add(lessonValue);
+                } else {
+                    classroom = " ";
+                    teacher = " ";
                 }
 
-                ContentValues scheduleValue = new ContentValues();
-                scheduleValue.put(ScheduleEntry.COL_DAY, column);
-                scheduleValue.put(ScheduleEntry.COL_HOUR, row);
-                scheduleValue.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
-                scheduleValue.put(ScheduleEntry.COL_EVENTS, new String(events));
+                switch (div.attr("class")) {
+                    case CANCELED_LESSON_CLASS: {
+                        lessonType = LessonEntry.LESSON_TYPE_CANCELED;
+                        if (events[0] == 'f') events[0] = 't';
+                        break;
+                    }
+                    case CHANGED_LESSON_CLASS: {
+                        lessonType = LessonEntry.LESSON_TYPE_CHANGED;
+                        if (events[1] == 'f') events[1] = 't';
+                        break;
+                    }
+                    case EXAM_LESSON_CLASS: {
+                        lessonType = LessonEntry.LESSON_TYPE_EXAM;
+                        if (events[2] == 'f') events[2] = 't';
+                        break;
+                    }
+                    case EVENT_LESSON_CLASS: {
+                        lessonType = LessonEntry.LESSON_TYPE_EVENT;
+                        if (events[3] == 'f') events[3] = 't';
+                        break;
+                    }
+                    default: {
+                        lessonType = LessonEntry.LESSON_TYPE_NORMAL;
+                    }
+                }
 
+                addLessonToNotificationList(classValue,
+                        column,
+                        row,
+                        subject,
+                        lessonType);
+
+                ContentValues lessonValue = new ContentValues();
+                lessonValue.put(LessonEntry.COL_DAY, column);
+                lessonValue.put(LessonEntry.COL_HOUR, row);
+                lessonValue.put(LessonEntry.COL_LESSON_NUM, k);
+                lessonValue.put(LessonEntry.COL_SUBJECT, subject);
+                lessonValue.put(LessonEntry.COL_CLASSROOM, classroom);
+                lessonValue.put(LessonEntry.COL_TEACHER, teacher);
+                lessonValue.put(LessonEntry.COL_LESSON_TYPE, lessonType);
+
+                lessonValues.add(lessonValue);
             }
+
+            ContentValues scheduleValue = new ContentValues();
+            scheduleValue.put(ScheduleEntry.COL_DAY, column);
+            scheduleValue.put(ScheduleEntry.COL_HOUR, row);
+            scheduleValue.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
+            scheduleValue.put(ScheduleEntry.COL_EVENTS, new String(events));
+
+            scheduleValues.add(scheduleValue);
         }
         mContext.getContentResolver().bulkInsert(
                 ScheduleEntry.CONTENT_URI,
@@ -466,7 +468,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private @FetchStatus int fetchExams() {
+    private
+    @FetchStatus
+    int fetchExams() {
 
         int classValue;
         BufferedReader reader = null;
@@ -490,7 +494,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
             StringBuilder stringBuilder = new StringBuilder();
             String line;
 
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
             }
 
@@ -577,7 +581,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
 
-
         Cursor cursor = mContext.getContentResolver().query(
                 ClassEntry.CONTENT_URI,
                 new String[]{ClassEntry.COL_CLASS_INDEX},
@@ -637,7 +640,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                 for (Lesson lesson : mLessonNotificationList) {
                     if (lesson.getDay() == today) {
                         buildTimetableLine(inboxStyle, lesson);
-                        changesNum ++;
+                        changesNum++;
                     } else {
                         if (!tomorrow) {
                             inboxStyle.addLine(buildTimetableBoldString(getContext().getResources()
@@ -645,7 +648,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                         }
                         tomorrow = true;
                         buildTimetableLine(inboxStyle, lesson);
-                        changesNum ++;
+                        changesNum++;
                     }
                 }
             } else {
@@ -653,7 +656,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                         R.string.notification_update_tomorrow)));
                 for (Lesson lesson : mLessonNotificationList) {
                     buildTimetableLine(inboxStyle, lesson);
-                    changesNum ++;
+                    changesNum++;
                 }
             }
 
@@ -676,16 +679,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter{
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(getContext())
-                            .setSmallIcon(R.drawable.ic_timetable_white_24dp)
-                            .setContentTitle(getContext().getResources().getString(
+                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
+                    .setContentTitle(getContext().getResources().getString(
                             R.string.notification_update_title))
-                            .setContentText(summery)
-                            .setSound(ringtone)
-                            .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
-                            .setStyle(inboxStyle)
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true)
-                            .build();
+                    .setContentText(summery)
+                    .setSound(ringtone)
+                    .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                    .setStyle(inboxStyle)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
             notification.defaults |= Notification.DEFAULT_VIBRATE;
 
             NotificationManagerCompat.from(getContext())

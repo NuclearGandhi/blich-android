@@ -28,8 +28,8 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
             LessonEntry.COL_LESSON_NUM + " INTEGER NOT NULL, " +
 
             LessonEntry.COL_SUBJECT + " TEXT NOT NULL, " +
-            LessonEntry.COL_CLASSROOM + "TEXT, " +
-            LessonEntry.COL_TEACHER + "TEACHER, " +
+            LessonEntry.COL_CLASSROOM + " TEXT, " +
+            LessonEntry.COL_TEACHER + " TEXT, " +
             LessonEntry.COL_LESSON_TYPE + " TEXT NOT NULL, " +
             "UNIQUE (" + LessonEntry.COL_DAY + ", " + LessonEntry.COL_HOUR +
             ", " + LessonEntry.COL_LESSON_NUM + ") ON CONFLICT REPLACE);";
@@ -68,6 +68,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
+        db.execSQL(SQL_CREATE_LESSON_TABLE);
         db.execSQL(SQL_CREATE_EXAMS_TABLE);
         db.execSQL(SQL_CREATE_NEWS_TABLE);
         db.execSQL(SQL_CREATE_CLASS_TABLE);

@@ -24,8 +24,10 @@ public class BlichContract {
      * -lesson_count
      * -events
      * -general_subject
+     * This class does not implement {@link BaseColumns} because an autoincrement key with a different
+     * name than '_id' is needed.
      */
-    public static final class ScheduleEntry implements BaseColumns {
+    public static final class ScheduleEntry {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_SCHEDULE)
@@ -38,6 +40,8 @@ public class BlichContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SCHEDULE;
 
         public static final String TABLE_NAME = "schedule";
+
+        public static final String _ID = "id"; //not '_id'
 
         public static final String COL_DAY = "day";
         public static final String COL_HOUR = "hour";

@@ -4,12 +4,14 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
@@ -91,6 +93,8 @@ public class BlichProvider extends ContentProvider {
                         null, null,
                         sortOrder
                 );
+
+                Log.d("WUT", DatabaseUtils.dumpCursorToString(cursor));
                 break;
             }
             case LESSON: {
