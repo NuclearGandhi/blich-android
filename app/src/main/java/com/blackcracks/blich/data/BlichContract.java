@@ -33,7 +33,7 @@ public class BlichContract {
 
         static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SCHEDULE;
-        @SuppressWarnings("unused")
+
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SCHEDULE;
 
@@ -45,13 +45,13 @@ public class BlichContract {
         public static final String COL_LESSON_COUNT = "lesson_count";
         public static final String COL_EVENTS = "events";
 
-        public static int getDayFromUri(Uri uri) {
+        public static int getLessonNumFromUri(Uri uri) {
             return Integer.parseInt(uri.getLastPathSegment());
         }
 
-        public static Uri buildScheduleWithDayUri(int day) {
+        public static Uri buildScheduleWithLessonUri(int lessonNum) {
             return CONTENT_URI.buildUpon()
-                    .appendPath(Integer.toString(day))
+                    .appendPath(Integer.toString(lessonNum))
                     .build();
         }
     }

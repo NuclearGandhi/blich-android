@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants;
@@ -67,18 +68,18 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
         String[] projection = {
                 ScheduleEntry._ID,
-                ScheduleEntry.COL_HOUR,
-                ScheduleEntry.COL_LESSON,
+                ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR,
                 ScheduleEntry.COL_LESSON_COUNT,
-                ScheduleEntry.COL_SUBJECT,
-                ScheduleEntry.COL_TEACHER,
-                ScheduleEntry.COL_CLASSROOM,
-                ScheduleEntry.COL_LESSON_TYPE};
+                ScheduleEntry.COL_EVENTS,
+                LessonEntry.COL_SUBJECT,
+                LessonEntry.COL_CLASSROOM,
+                LessonEntry.COL_TEACHER
+        };
 
-        String selection = ScheduleEntry.COL_LESSON + " = 0";
+        String selection = LessonEntry.COL_LESSON_NUM + " = 0";
 
-        String sortOrder = ScheduleEntry.COL_HOUR + " ASC";
-        Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay);
+        String sortOrder = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " ASC";
+        Uri uri = ScheduleEntry.buildScheduleWithLessonUri(0);
 
         return new CursorLoader(
                 getContext(),

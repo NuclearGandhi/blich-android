@@ -6,15 +6,16 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.blackcracks.blich.data.BlichContract.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
+import com.blackcracks.blich.data.BlichContract.NewsEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 @SuppressWarnings("ConstantConditions")
 public class BlichProvider extends ContentProvider {
@@ -23,11 +24,30 @@ public class BlichProvider extends ContentProvider {
     private BlichDatabaseHelper mDatabaseHelper;
 
     private static final int SCHEDULE = 100;
-    private static final int SCHEDULE_WITH_DAY = 101;
-    private static final int LESSON = 105;
-    private static final int CLASS = 102;
-    private static final int EXAMS = 103;
-    private static final int NEWS = 104;
+    private static final int SCHEDULE_WITH_LESSON = 101;
+
+    private static final int LESSON = 200;
+    private static final int CLASS = 300;
+    private static final int EXAMS = 400;
+    private static final int NEWS = 500;
+
+    private static final SQLiteQueryBuilder sScheduleWithLessonBuilder;
+
+    static {
+        sScheduleWithLessonBuilder = new SQLiteQueryBuilder();
+
+        //schedule INNER JOIN lesson ON schedule.day = lesson.day AND schedule.hour = lesson.hour
+        sScheduleWithLessonBuilder.setTables(
+                ScheduleEntry.TABLE_NAME + " INNER JOIN " + LessonEntry.TABLE_NAME + " ON " +
+
+                        ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_DAY + " = " +
+                        LessonEntry.TABLE_NAME + "." + LessonEntry.COL_DAY + " AND " +
+
+                        ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " = " +
+                        LessonEntry.TABLE_NAME + "." + LessonEntry.COL_HOUR
+
+        );
+    }
 
     @Override
     public boolean onCreate() {
@@ -57,31 +77,17 @@ public class BlichProvider extends ContentProvider {
                 );
                 break;
             }
-            case SCHEDULE_WITH_DAY: {
-                int day = ScheduleEntry.getDayFromUri(uri);
+            case SCHEDULE_WITH_LESSON: {
+                int lessonNum = ScheduleEntry.getLessonNumFromUri(uri);
 
-                String daySelection;
-                if (selection != null) {
-                    daySelection = selection + " AND " + ScheduleEntry.COL_DAY + " = ?";
-                } else {
-                    daySelection = ScheduleEntry.COL_DAY + " = ?";
-                }
+                String newSelection = selection + " AND " +
+                        LessonEntry.COL_LESSON_NUM + " = " + lessonNum;
 
-                String[] daySelectionArgs;
-                if (selectionArgs != null) {
-                    List<String> selectionList = new ArrayList<>();
-                    Collections.addAll(selectionList, selectionArgs);
-                    selectionList.add(Integer.toString(day));
-                    daySelectionArgs = selectionList.toArray(new String[selectionList.size()]);
-                } else {
-                    daySelectionArgs = new String[]{Integer.toString(day)};
-                }
-
-                cursor = db.query(
-                        ScheduleEntry.TABLE_NAME,
+                cursor = sScheduleWithLessonBuilder.query(
+                        db,
                         projection,
-                        daySelection,
-                        daySelectionArgs,
+                        newSelection,
+                        selectionArgs,
                         null, null,
                         sortOrder
                 );
@@ -148,7 +154,7 @@ public class BlichProvider extends ContentProvider {
             case SCHEDULE: {
                 return ScheduleEntry.CONTENT_TYPE;
             }
-            case SCHEDULE_WITH_DAY: {
+            case SCHEDULE_WITH_LESSON: {
                 return ScheduleEntry.CONTENT_TYPE;
             }
             case LESSON: {
@@ -415,7 +421,7 @@ public class BlichProvider extends ContentProvider {
         final String authority = BlichContract.CONTENT_AUTHORITY;
 
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE, SCHEDULE);
-        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_DAY);
+        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_LESSON, LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_CLASS, CLASS);
         uriMatcher.addURI(authority, BlichContract.PATH_EXAMS, EXAMS);

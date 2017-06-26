@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.data.BlichContract.*;
 
 public class ScheduleAdapter extends CursorTreeAdapter {
 
@@ -91,25 +91,25 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         holder.hourView.setText(Integer.toString(hour));
 
         //Set the subject
-        String subject = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_SUBJECT));
+        String subject = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_SUBJECT));
 
         //Set the lesson-type (color the subject-TextView)
-        String lessonType = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_TYPE));
+        String lessonType = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_LESSON_TYPE));
         int background;
         switch (lessonType) {
-            case ScheduleEntry.LESSON_TYPE_CANCELED: {
+            case LessonEntry.LESSON_TYPE_CANCELED: {
                 background = ContextCompat.getColor(context, R.color.lesson_canceled);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_CHANGED: {
+            case LessonEntry.LESSON_TYPE_CHANGED: {
                 background = ContextCompat.getColor(context, R.color.lesson_changed);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_EXAM: {
+            case LessonEntry.LESSON_TYPE_EXAM: {
                 background = ContextCompat.getColor(context, R.color.lesson_exam);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_EVENT: {
+            case LessonEntry.LESSON_TYPE_EVENT: {
                 background = ContextCompat.getColor(context, R.color.lesson_event);
                 break;
             }
@@ -123,8 +123,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         holder.subjectsView.setTextColor(background);
 
         //Get the teacher and classroom for the first lesson
-        final String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
-        final String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
+        final String teacher = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_TEACHER));
+        final String classroom = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_CLASSROOM));
 
         //Get the number of lessons
         int lessonCount = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_COUNT));
@@ -198,10 +198,10 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
 
         //Get the data from the cursor
-        String subject = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_SUBJECT));
-        String classroom = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_CLASSROOM));
-        String teacher = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_TEACHER));
-        String lessonType = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_TYPE));
+        String subject = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_SUBJECT));
+        String classroom = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_CLASSROOM));
+        String teacher = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_TEACHER));
+        String lessonType = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_LESSON_TYPE));
 
         holder.subjectView.setText(subject); //Set the subject
         holder.teacherView.setText(teacher); //Set the teacher
@@ -210,19 +210,19 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         //Set the lesson-type (color the subject-TextView)
         int background;
         switch (lessonType) {
-            case ScheduleEntry.LESSON_TYPE_CANCELED: {
+            case LessonEntry.LESSON_TYPE_CANCELED: {
                 background = ContextCompat.getColor(context, R.color.lesson_canceled);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_CHANGED: {
+            case LessonEntry.LESSON_TYPE_CHANGED: {
                 background = ContextCompat.getColor(context, R.color.lesson_changed);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_EXAM: {
+            case LessonEntry.LESSON_TYPE_EXAM: {
                 background = ContextCompat.getColor(context, R.color.lesson_exam);
                 break;
             }
-            case ScheduleEntry.LESSON_TYPE_EVENT: {
+            case LessonEntry.LESSON_TYPE_EVENT: {
                 background = ContextCompat.getColor(context, R.color.lesson_event);
                 break;
             }
@@ -286,18 +286,19 @@ public class ScheduleAdapter extends CursorTreeAdapter {
 
             //Get the subject, classroom, teacher and lesson type of the specific day and hour from the database
             String[] projection = {
-                    ScheduleEntry._ID,
-                    ScheduleEntry.COL_SUBJECT,
-                    ScheduleEntry.COL_CLASSROOM,
-                    ScheduleEntry.COL_TEACHER,
-                    ScheduleEntry.COL_LESSON_TYPE};
+                    LessonEntry._ID,
+                    LessonEntry.COL_SUBJECT,
+                    LessonEntry.COL_CLASSROOM,
+                    LessonEntry.COL_TEACHER,
+                    LessonEntry.COL_LESSON_TYPE};
 
             String selection =
-                    ScheduleEntry.COL_HOUR + " = " + hour + " AND " + //Get data with this hour (id = hour)
-                            ScheduleEntry.COL_LESSON + " >= 1"; //And where lesson >= 1, since the group view shows lesson = 0
+                    LessonEntry.COL_DAY + " = " + mDay + " AND " + //Get data with this day
+                    LessonEntry.COL_HOUR + " = " + hour + " AND " + //and data with this hour
+                    LessonEntry.COL_LESSON_NUM + " >= 1"; //and where lesson >= 1, since the group view shows lesson = 0
 
-            String sortOrder = ScheduleEntry.COL_LESSON + " ASC"; //Sort it in ascending order
-            Uri uri = ScheduleEntry.buildScheduleWithDayUri(mDay); //Get data with this day
+            String sortOrder = LessonEntry.COL_LESSON_NUM + " ASC"; //Sort it in ascending order
+            Uri uri = LessonEntry.CONTENT_URI;
 
             return new CursorLoader(
                     mContext,
