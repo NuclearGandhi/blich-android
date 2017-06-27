@@ -2,8 +2,10 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -17,11 +19,13 @@ import android.view.ViewGroup;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract.*;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 public class ScheduleAdapter extends CursorTreeAdapter {
 
@@ -125,9 +129,12 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         //Get the teacher and classroom for the first lesson
         final String teacher = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_TEACHER));
         final String classroom = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_CLASSROOM));
+        final String eventsString = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_EVENTS));
 
         //Get the number of lessons
         int lessonCount = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_COUNT));
+
+        holder.eventsView.removeAllViews();
 
         if (lessonCount == 1) { //If there is only one lesson, there is no need for child view
             holder.teacherView.setText(teacher);
@@ -145,11 +152,27 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                 holder.teacherView.setText(teacher);
                 holder.classroomView.setVisibility(View.VISIBLE);
                 holder.classroomView.setText(classroom);
+
             } else {
                 holder.indicatorView.animate().rotation(0);
 
                 holder.teacherView.setText("...");
                 holder.classroomView.setVisibility(View.GONE);
+
+                holder.eventsView.setVisibility(View.VISIBLE);
+                char[] events = eventsString.toCharArray();
+                if (events[0] == 't') holder.eventsView.addView(makeEventDot(
+                        holder.eventsView,
+                        R.color.lesson_canceled));
+                if (events[1] == 't') holder.eventsView.addView(makeEventDot(
+                        holder.eventsView,
+                        R.color.lesson_changed));
+                if (events[2] == 't') holder.eventsView.addView(makeEventDot(
+                        holder.eventsView,
+                        R.color.lesson_exam));
+                if (events[3] == 't') holder.eventsView.addView(makeEventDot(
+                        holder.eventsView,
+                        R.color.lesson_event));
             }
 
             final int groupPosition = cursor.getPosition();
@@ -166,6 +189,22 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                         holder.teacherView.setText("...");
                         holder.classroomView.setVisibility(View.GONE);
 
+                        holder.eventsView.setVisibility(View.VISIBLE);
+                        char[] events = eventsString.toCharArray();
+                        if (events[0] == 't') holder.eventsView.addView(makeEventDot(
+                                holder.eventsView,
+                                R.color.lesson_canceled));
+                        if (events[1] == 't') holder.eventsView.addView(makeEventDot(
+                                holder.eventsView,
+                                R.color.lesson_changed));
+                        if (events[2] == 't') holder.eventsView.addView(makeEventDot(
+                                holder.eventsView,
+                                R.color.lesson_exam));
+                        if (events[3] == 't') holder.eventsView.addView(makeEventDot(
+                                holder.eventsView,
+                                R.color.lesson_event));
+
+
                         mExpandedGroups.put(groupPosition, false);
                     } else { //Needs to expand
                         holder.indicatorView.animate().rotation(180);
@@ -174,6 +213,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                         holder.teacherView.setText(teacher);
                         holder.classroomView.setVisibility(View.VISIBLE);
                         holder.classroomView.setText(classroom);
+
+                        holder.eventsView.removeAllViews();
 
                         mExpandedGroups.put(groupPosition, true);
                     }
@@ -249,7 +290,19 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         mExpandedGroups.clear();
     }
 
+    private View makeEventDot(ViewGroup parent, @ColorRes int color) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
+
+        GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.events_dot);
+        drawable.setColor(ContextCompat.getColor(mContext, color));
+        view.setBackground(drawable);
+
+        return view;
+    }
+
     private static class GroupViewHolder {
+
+        private final LinearLayout eventsView;
         private final TextView hourView;
         private final TextView subjectsView;
         private final TextView teacherView;
@@ -257,6 +310,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         private final ImageView indicatorView;
 
         GroupViewHolder(View view) {
+            eventsView = (LinearLayout) view.findViewById(R.id.schedule_group_events);
             hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
             subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
             teacherView = (TextView) view.findViewById(R.id.schedule_group_teacher);
