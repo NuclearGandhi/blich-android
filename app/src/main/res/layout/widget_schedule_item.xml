@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:layoutDirection="rtl"
               android:orientation="horizontal">
 
     <TextView
@@ -12,18 +13,15 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/circle_listview_item"
         android:gravity="center"
-        android:visibility="gone"
-        android:textColor="@color/black_text"
+        android:textColor="@color/white_text"
         android:textSize="20sp"/>
 
-    <TextView
-        android:id="@+id/widget_schedule_subject"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/widget_schedule_group"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginTop="0dp"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:orientation="vertical" />
 
 </LinearLayout>

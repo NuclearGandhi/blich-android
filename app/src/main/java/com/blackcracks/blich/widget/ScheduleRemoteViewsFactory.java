@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.util.Constants;
 
 import java.util.Calendar;
@@ -21,7 +21,10 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     private Context mContext;
     private int mAppWidgetId;
 
-    private Cursor mCursor;
+    private Cursor mLessonCursor;
+    private Cursor mScheduleCursor;
+
+    private int mDayOfTheWeek;
 
     public ScheduleRemoteViewsFactory(Context context, Intent intent) {
         mContext = context;
@@ -32,37 +35,20 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     @Override
     public void onCreate() {
 
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        mDayOfTheWeek = calendar.get(Calendar.DAY_OF_WEEK);
     }
 
     @Override
     public void onDataSetChanged() {
 
-        if (mCursor != null) {
-            mCursor.close();
+        if (mScheduleCursor != null) {
+            mScheduleCursor.close();
         }
 
-        String[] projection = {
-                LessonEntry._ID,
-                LessonEntry.COL_HOUR,
-                LessonEntry.COL_LESSON_NUM,
-                LessonEntry.COL_SUBJECT,
-                LessonEntry.COL_LESSON_TYPE
-        };
-
-        Calendar calendar = Calendar.getInstance();
-        String selection = LessonEntry.COL_DAY + " = " + calendar.get(Calendar.DAY_OF_WEEK);
-
-        String sortOrder = LessonEntry.COL_HOUR + " ASC, " + LessonEntry.COL_LESSON_NUM + " ASC";
-
-        Uri uri= LessonEntry.CONTENT_URI;
-
-        mCursor = mContext.getContentResolver().query(
-                uri,
-                projection,
-                selection,
-                null,
-                sortOrder
-        );
+        callScheduleCursor();
     }
 
     @Override
@@ -72,56 +58,60 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public int getCount() {
-        if (mCursor == null) {
+        if (mScheduleCursor == null) {
             return 0;
         } else {
-            return mCursor.getCount();
+            return mScheduleCursor.getCount();
         }
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
 
-        if (!mCursor.moveToPosition(position)) {
-            return null;
-        }
-
-        int hour = mCursor.getInt(mCursor.getColumnIndex(LessonEntry.COL_HOUR));
-        int lessonNum = mCursor.getInt(mCursor.getColumnIndex(LessonEntry.COL_LESSON_NUM));
-        String subject = mCursor.getString(mCursor.getColumnIndex(LessonEntry.COL_SUBJECT));
-        String lessonType = mContext.getString(mCursor.getColumnIndex(LessonEntry.COL_LESSON_TYPE));
-
-        int textColor;
-        switch (lessonType) {
-            case LessonEntry.LESSON_TYPE_CANCELED: {
-                textColor = ContextCompat.getColor(mContext, R.color.lesson_canceled);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_CHANGED: {
-                textColor = ContextCompat.getColor(mContext, R.color.lesson_changed);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EXAM: {
-                textColor = ContextCompat.getColor(mContext, R.color.lesson_exam);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EVENT: {
-                textColor = ContextCompat.getColor(mContext, R.color.lesson_event);
-                break;
-            }
-            default: {
-                textColor = ContextCompat.getColor(mContext, R.color.black_text);
-                break;
-            }
-        }
+        callLessonCursor(position + 1); //position = hour - 1
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_item);
+        views.setTextViewText(
+                R.id.widget_schedule_hour,
+                Integer.toString(position + 1)); //position = hour - 1
 
-        views.setTextViewText(R.id.widget_schedule_hour, Integer.toString(hour));
-        if (lessonNum == 0) views.setViewVisibility(R.id.widget_schedule_hour, View.VISIBLE);
+        views.removeAllViews(R.id.widget_schedule_group);
 
-        views.setTextViewText(R.id.widget_schedule_subject, subject);
-        views.setTextColor(R.id.widget_schedule_subject, textColor);
+        for (int i = 0; i < mLessonCursor.getCount(); i++) {
+            mLessonCursor.moveToPosition(i);
+            String subject = mLessonCursor.getString(mLessonCursor.getColumnIndex(LessonEntry.COL_SUBJECT));
+            String lessonType = mLessonCursor.getString(mLessonCursor.getColumnIndex(LessonEntry.COL_LESSON_TYPE));
+
+            int textColor;
+            switch (lessonType) {
+                case LessonEntry.LESSON_TYPE_CANCELED: {
+                    textColor = ContextCompat.getColor(mContext, R.color.lesson_canceled);
+                    break;
+                }
+                case LessonEntry.LESSON_TYPE_CHANGED: {
+                    textColor = ContextCompat.getColor(mContext, R.color.lesson_changed);
+                    break;
+                }
+                case LessonEntry.LESSON_TYPE_EXAM: {
+                    textColor = ContextCompat.getColor(mContext, R.color.lesson_exam);
+                    break;
+                }
+                case LessonEntry.LESSON_TYPE_EVENT: {
+                    textColor = ContextCompat.getColor(mContext, R.color.lesson_event);
+                    break;
+                }
+                default: {
+                    textColor = ContextCompat.getColor(mContext, R.color.white_text);
+                    break;
+                }
+            }
+
+            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
+            info.setTextViewText(R.id.widget_schedule_subject, subject);
+            info.setTextColor(R.id.widget_schedule_subject, textColor);
+
+            views.addView(R.id.widget_schedule_group, info);
+        }
 
         return views;
     }
@@ -133,17 +123,65 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override
     public long getItemId(int position) {
-        if (mCursor == null) return 0;
-        return (long) mCursor.getInt(mCursor.getColumnIndex(LessonEntry._ID));
+        if (mScheduleCursor == null) return 0;
+        mScheduleCursor.moveToPosition(position);
+        return (long) mScheduleCursor.getInt(mScheduleCursor.getColumnIndex(ScheduleEntry._ID));
     }
 
     @Override
     public boolean hasStableIds() {
         return false;
+    }
+
+    private void callLessonCursor(int hour) {
+
+        if (mLessonCursor != null) {
+            mLessonCursor.close();
+        }
+
+        String[] projection = {
+                LessonEntry.COL_HOUR,
+                LessonEntry.COL_SUBJECT,
+                LessonEntry.COL_LESSON_TYPE
+        };
+
+        String selection =
+                LessonEntry.COL_DAY + " = " + mDayOfTheWeek + " AND " +
+                LessonEntry.COL_HOUR + " = " + hour;
+
+        String sortOrder = LessonEntry.COL_HOUR + " ASC, " + LessonEntry.COL_LESSON_NUM + " ASC";
+
+        Uri uri = LessonEntry.CONTENT_URI;
+
+        mLessonCursor = mContext.getContentResolver().query(
+                uri,
+                projection,
+                selection,
+                null,
+                sortOrder
+        );
+    }
+
+    private void callScheduleCursor() {
+        String projection[] = {
+                ScheduleEntry._ID
+        };
+
+
+        String selection = ScheduleEntry.COL_DAY + " = " + mDayOfTheWeek;
+
+        Uri uri = ScheduleEntry.CONTENT_URI;
+
+        mScheduleCursor = mContext.getContentResolver().query(
+                uri,
+                projection,
+                selection,
+                null, null
+        );
     }
 }
