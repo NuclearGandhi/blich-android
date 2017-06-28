@@ -66,5 +66,6 @@
     <string name="message_refresh">לחצו כדי להוריד את המידע</string>
     <string name="news_no_data">משוך למטה כדי לעדכן</string>
     <string name="schedule_no_data">אין מידע לגבי מבחנים קרובים</string>
+    <string name="widget_title">מערכת שעות</string>
 
 </resources>

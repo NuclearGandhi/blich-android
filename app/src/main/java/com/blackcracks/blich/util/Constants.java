@@ -24,4 +24,8 @@ public class Constants {
         public static final String EXTRA_ARTICLE_TITLE = "article_title";
         public static final String EXTRA_ARTICLE_BODY = "article_body";
     }
+
+    public class Widget {
+        public static final String EXTRA_WIDGET_ID = "widget_id";
+    }
 }

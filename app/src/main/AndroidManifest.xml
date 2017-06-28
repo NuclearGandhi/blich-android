@@ -80,6 +80,9 @@
             android:name=".data.FetchNewsService"
             android:exported="false">
         </service>
+        <service android:name=".widget.ScheduleRemoteViewsService"
+            android:permission="android.permission.BIND_REMOTEVIEWS">
+        </service>
 
         <receiver
             android:name=".sync.BlichSyncAdapter$BlichUpdateReceiver"
