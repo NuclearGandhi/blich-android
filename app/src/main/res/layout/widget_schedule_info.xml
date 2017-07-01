@@ -6,5 +6,5 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="24dp"
-    android:textSize="16sp"
-    android:textStyle="bold"/>
+    android:textSize="14sp"
+    android:textAppearance="@style/TextAppearance.AppCompat.Small"/>

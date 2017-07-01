@@ -20,5 +20,5 @@
 
     <color name="button_selected">#005662</color>
 
-    <color name="widget_background">#77000000</color>
+    <color name="widget_background">#FFFFFF</color>
 </resources>

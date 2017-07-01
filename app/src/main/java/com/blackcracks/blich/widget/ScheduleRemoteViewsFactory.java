@@ -101,7 +101,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
                     break;
                 }
                 default: {
-                    textColor = ContextCompat.getColor(mContext, R.color.white_text);
+                    textColor = ContextCompat.getColor(mContext, R.color.black_text);
                     break;
                 }
             }
