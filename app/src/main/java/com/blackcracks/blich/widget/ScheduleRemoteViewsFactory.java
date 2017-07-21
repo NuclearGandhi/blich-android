@@ -170,11 +170,12 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     private void callScheduleCursor() {
         String projection[] = {
-                ScheduleEntry._ID
+                ScheduleEntry._ID,
         };
 
 
-        String selection = ScheduleEntry.COL_DAY + " = " + mDayOfTheWeek;
+        String selection = ScheduleEntry.COL_DAY + " = " + mDayOfTheWeek + " AND " +
+                ScheduleEntry.COL_LESSON_COUNT + " != 0";
 
         Uri uri = ScheduleEntry.CONTENT_URI;
 
