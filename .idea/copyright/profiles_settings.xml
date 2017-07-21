@@ -1,3 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="" />
+  <settings default="blich">
+    <module2copyright>
+      <element module="Project Files" copyright="blich" />
+    </module2copyright>
+  </settings>
 </component>
