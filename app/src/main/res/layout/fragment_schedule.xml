@@ -20,7 +20,7 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <com.blackcracks.blich.widget.RtlTabLayout
+        <com.blackcracks.blich.view.RtlTabLayout
             android:id="@+id/tablayout_schedule_days"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
