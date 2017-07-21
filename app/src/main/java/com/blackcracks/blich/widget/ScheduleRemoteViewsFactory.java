@@ -13,6 +13,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 
@@ -38,7 +39,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
 
-        mDayOfTheWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        mDayOfTheWeek = Utilities.Schedule.getWantedDayOfTheWeek();
     }
 
     @Override

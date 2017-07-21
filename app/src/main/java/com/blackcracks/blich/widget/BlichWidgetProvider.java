@@ -5,10 +5,15 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
+import com.blackcracks.blich.util.Utilities;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 public class BlichWidgetProvider extends AppWidgetProvider {
 
@@ -27,8 +32,25 @@ public class BlichWidgetProvider extends AppWidgetProvider {
 
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-
         views.setOnClickPendingIntent(R.id.widget_schedule_title, pendingIntent);
+
+        int day = Utilities.Schedule.getWantedDayOfTheWeek();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, day);
+
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = context.getResources().getConfiguration().getLocales().get(0);
+        } else {
+            locale = context.getResources().getConfiguration().locale;
+        }
+
+        views.setTextViewText(
+                R.id.widget_schedule_title,
+                "מערכת שעות - " + calendar.getDisplayName(
+                        Calendar.DAY_OF_WEEK,
+                        Calendar.LONG,
+                        locale));
 
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);

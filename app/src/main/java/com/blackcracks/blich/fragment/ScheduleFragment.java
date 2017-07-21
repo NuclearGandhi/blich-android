@@ -13,8 +13,6 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.Calendar;
-
 /**
  * The ScheduleFragment class is responsible for getting and displaying the schedule
  * of the user
@@ -35,12 +33,8 @@ public class ScheduleFragment extends BlichBaseFragment {
                     new SchedulePagerAdapter(getChildFragmentManager(),
                             getResources().getStringArray(R.array.tab_schedule_names)));
 
-            int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            day--;
-            if (hour > 18) day++;
-            day = day % 6; //If day = 6 (Saturday), then day = 0;
-            viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day), false);
+            int day = Utilities.Schedule.getWantedDayOfTheWeek();
+            viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);
 
         }
         if (tabLayout != null) {
