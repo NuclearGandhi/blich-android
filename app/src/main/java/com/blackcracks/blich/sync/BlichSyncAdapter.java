@@ -37,7 +37,6 @@ import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract.*;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.util.BlichDataUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 
@@ -567,7 +566,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private int getClassValue() throws BlichSyncAdapter.BlichFetchException {
-        String currentClass = BlichDataUtils.ClassUtils.getCurrentClass(mContext);
+        String currentClass = Utilities.Class.getCurrentClass(mContext);
         String selection;
         String[] selectionArgs;
 

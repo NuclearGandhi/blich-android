@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 
@@ -242,4 +243,13 @@ public class Utilities {
         }
     }
 
+    public static class Class {
+
+        public static String getCurrentClass(Context context) {
+            return PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
+                            context.getResources().getString(R.string.pref_class_picker_default_value)
+                                    .replace("/", ""));
+        }
+    }
 }
