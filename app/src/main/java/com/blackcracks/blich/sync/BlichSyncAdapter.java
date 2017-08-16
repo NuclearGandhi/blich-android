@@ -35,10 +35,13 @@ import android.util.Log;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract.*;
+import com.blackcracks.blich.data.BlichContract.ClassEntry;
+import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
+import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.util.Utilities;
 import com.blackcracks.blich.util.Constants.IntentConstants;
+import com.blackcracks.blich.util.Utilities;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -70,7 +73,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
-            FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,})
+            FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,
+            FETCH_STATUS_CLASS_NOT_CONFIGURED})
     public @interface FetchStatus {
     }
 
@@ -78,6 +82,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
     public static final int FETCH_STATUS_NO_CONNECTION = 2;
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
+    public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
     public static final String FETCH_STATUS = "fetch_status";
 
     private static final String SYNC_IS_PERIODIC = "is_periodic";
@@ -342,8 +347,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 builder.append(line);
             }
             classHtml = builder.toString();
-        } catch (IOException | BlichFetchException e) {
+
+        } catch (IOException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
+
+        } catch (BlichFetchException e) { //The user's class isn't configured properly
+            //Let the user choose his class again
+            return FETCH_STATUS_CLASS_NOT_CONFIGURED;
+
         } finally {
             if (reader != null) {
                 try {
@@ -570,13 +581,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         String selection;
         String[] selectionArgs;
 
-        if (currentClass.contains("'")) {
-            selectionArgs = currentClass.split("'");
+        if (currentClass.contains("'")) { //Normal class syntax
             selection = ClassEntry.COL_GRADE + " = ? AND " +
                     ClassEntry.COL_GRADE_INDEX + " = ?";
-        } else {
-            selectionArgs = new String[]{currentClass};
+            selectionArgs = currentClass.split("'");
+        } else { //Abnormal class syntax
             selection = ClassEntry.COL_GRADE + " = ?";
+            selectionArgs = new String[]{currentClass};
         }
 
 
@@ -592,7 +603,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             if (cursor.moveToFirst()) {
                 classValue = cursor.getInt(0);
             } else {
-                throw new BlichSyncAdapter.BlichFetchException("Can't get the user's class. Did the user configure his class?");
+                throw new BlichSyncAdapter.BlichFetchException("Can't get the user's class. " +
+                        "Did the user configure his class?");
             }
         } else {
             throw new NullPointerException("Queried cursor is null");

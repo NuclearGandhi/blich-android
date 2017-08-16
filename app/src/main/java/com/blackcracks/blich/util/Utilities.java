@@ -7,8 +7,10 @@ import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +121,7 @@ public class Utilities {
             if (isConnected) {
                 BlichSyncAdapter.syncImmediately(context);
             } else {
-                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION);
+                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION, null);
             }
         }
         if (BuildConfig.DEBUG) {
@@ -130,7 +132,11 @@ public class Utilities {
     }
 
     //Callback from BlichSyncAdapter's sync
-    public static void onSyncFinished(final Context context, final View view, @BlichSyncAdapter.FetchStatus int status) {
+    public static void onSyncFinished(final Context context,
+                                      final View view,
+                                      @BlichSyncAdapter.FetchStatus int status,
+                                      @Nullable FragmentManager fragmentManager) {
+
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
@@ -140,6 +146,25 @@ public class Utilities {
                     R.string.snackbar_fetch_successful,
                     Snackbar.LENGTH_LONG)
                     .show();
+
+        } else if (status == BlichSyncAdapter.FETCH_STATUS_CLASS_NOT_CONFIGURED) {
+
+            if (fragmentManager != null) {
+                ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
+                dialogFragment.show(fragmentManager, "choose_class");
+                dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
+                    @Override
+                    public void onDestroy(Context context) {
+                        //Start the periodic syncing of
+                        BlichSyncAdapter.initializeSyncAdapter(context);
+                        Utilities.initializeBlichDataUpdater(context, view);
+                    }
+                });
+            } else {
+                throw new NullPointerException("A non-null fragment manager is required "  +
+                        "in case the user's class isn't configured");
+            }
+
         } else {
             View dialogView = LayoutInflater.from(context).inflate(
                     R.layout.dialog_fetch_failed,
@@ -160,7 +185,7 @@ public class Utilities {
                 }
                 default:
                     titleString = R.string.dialog_fetch_unsuccessful_title;
-                    messageString = R.string.dialog_fetch_unsuccessful_message;
+                    messageString =  R.string.dialog_fetch_unsuccessful_message;
             }
             TextView title = (TextView) dialogView.findViewById(R.id.dialog_title);
             title.setText(titleString);

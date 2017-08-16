@@ -13,6 +13,7 @@ import android.support.annotation.MenuRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -41,7 +42,9 @@ public abstract class BlichBaseFragment extends Fragment implements
 
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
     private BroadcastReceiver mSyncBroadcastReceiver;
+    private FragmentManager mFragmentManager;
 
     public BlichBaseFragment() {
         setHasOptionsMenu(true);
@@ -60,7 +63,7 @@ public abstract class BlichBaseFragment extends Fragment implements
                 @BlichSyncAdapter.FetchStatus int status =
                         intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
                                 BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
-                Utilities.onSyncFinished(getContext(), mRootView, status);
+                Utilities.onSyncFinished(getContext(), mRootView, status, mFragmentManager);
             }
         };
 
@@ -92,6 +95,8 @@ public abstract class BlichBaseFragment extends Fragment implements
         };
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+
+        mFragmentManager = activity.getSupportFragmentManager();
     }
 
 
