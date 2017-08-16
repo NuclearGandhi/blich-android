@@ -320,7 +320,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
              */
             Document document = Jsoup.parse(html);
             Element viewState = document.getElementById(VIEW_STATE);
-            String viewStateValue = viewState.attr("value");
+
+            String viewStateValue;
+            if (viewState != null) {
+                viewStateValue = viewState.attr("value");
+            } else {
+                return FETCH_STATUS_EMPTY_HTML;
+            }
 
             /*
             create a POST request
