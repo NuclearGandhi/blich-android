@@ -375,7 +375,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             return FETCH_STATUS_EMPTY_HTML;
         }
         Document document = Jsoup.parse(classHtml);
-        Elements lessons = document.getElementById(SCHEDULE_TABLE_ID).getElementsByClass(CELL_CLASS);
+        Element table = document.getElementById(SCHEDULE_TABLE_ID);
+        if (table == null) {
+            return FETCH_STATUS_EMPTY_HTML;
+        }
+        Elements lessons = table.getElementsByClass(CELL_CLASS);
 
         List<ContentValues> scheduleValues = new ArrayList<>();
         List<ContentValues> lessonValues = new ArrayList<>();
