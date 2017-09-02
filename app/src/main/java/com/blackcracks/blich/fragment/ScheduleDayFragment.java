@@ -107,6 +107,8 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
             else
                 mStatusTextView.setText(R.string.blank_page_message_failed);
         }
+
+        mStatusTextView.setVisibility(View.GONE);
     }
 
     @Override
