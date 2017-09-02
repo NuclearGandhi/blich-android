@@ -179,6 +179,11 @@ public class SettingsActivity extends AppCompatActivity {
                             null,
                             null
                     );
+                    getContext().getContentResolver().delete(
+                            BlichContract.LessonEntry.CONTENT_URI,
+                            null,
+                            null
+                    );
                     Utilities.updateBlichData(getContext(), getView());
                 }
                 case PREF_NOTIFICATION_TOGGLE_KEY: {
