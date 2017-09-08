@@ -73,7 +73,7 @@ public class NewsCategoryFragment extends Fragment implements
                              @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_news_category, container, false);
 
-        RecyclerView recyclerView = (RecyclerView) mRootView.findViewById(R.id.recyclerview);
+        RecyclerView recyclerView = mRootView.findViewById(R.id.recyclerview);
         recyclerView.addItemDecoration(new DividerItemDecoration(
                 getContext(),
                 DividerItemDecoration.VERTICAL));
@@ -84,7 +84,7 @@ public class NewsCategoryFragment extends Fragment implements
         mBroadcastReceiver = new StatusBroadcastReceiver();
 
         mSwipeRefreshLayout =
-                (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh);
+                mRootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -148,7 +148,7 @@ public class NewsCategoryFragment extends Fragment implements
         mAdapter.changeCursor(data);
 
         if (data != null && data.getCount() != 0) {
-            TextView noData = (TextView) mRootView.findViewById(R.id.news_no_data);
+            TextView noData = mRootView.findViewById(R.id.news_no_data);
             noData.setVisibility(View.GONE);
         }
     }
@@ -157,7 +157,7 @@ public class NewsCategoryFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
 
-        TextView noData = (TextView) mRootView.findViewById(R.id.news_no_data);
+        TextView noData = mRootView.findViewById(R.id.news_no_data);
         noData.setVisibility(View.VISIBLE);
     }
 
@@ -198,9 +198,9 @@ public class NewsCategoryFragment extends Fragment implements
                     titleString = R.string.dialog_fetch_unsuccessful_title;
                     messageString = R.string.dialog_fetch_unsuccessful_message;
             }
-            TextView title = (TextView) dialogView.findViewById(R.id.dialog_title);
+            TextView title = dialogView.findViewById(R.id.dialog_title);
             title.setText(titleString);
-            TextView message = (TextView) dialogView.findViewById(R.id.dialog_message);
+            TextView message = dialogView.findViewById(R.id.dialog_message);
             message.setText(messageString);
 
             new AlertDialog.Builder(context)
@@ -257,7 +257,7 @@ public class NewsCategoryFragment extends Fragment implements
                 latestUpdateInMillis
         );
 
-        FrameLayout view = (FrameLayout) mRootView.findViewById(R.id.frame_layout);
+        FrameLayout view = mRootView.findViewById(R.id.frame_layout);
         Snackbar snackbar = Snackbar.make(
                 view,
                 "עודכן לאחרונה ב -  " + dateString,

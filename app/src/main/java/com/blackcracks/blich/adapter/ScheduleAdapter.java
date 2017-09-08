@@ -310,12 +310,12 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         private final ImageView indicatorView;
 
         GroupViewHolder(View view) {
-            eventsView = (LinearLayout) view.findViewById(R.id.schedule_group_events);
-            hourView = (TextView) view.findViewById(R.id.schedule_group_hour);
-            subjectsView = (TextView) view.findViewById(R.id.schedule_group_subject);
-            teacherView = (TextView) view.findViewById(R.id.schedule_group_teacher);
-            classroomView = (TextView) view.findViewById(R.id.schedule_group_classroom);
-            indicatorView = (ImageView) view.findViewById(R.id.schedule_group_indicator);
+            eventsView = view.findViewById(R.id.schedule_group_events);
+            hourView = view.findViewById(R.id.schedule_group_hour);
+            subjectsView = view.findViewById(R.id.schedule_group_subject);
+            teacherView = view.findViewById(R.id.schedule_group_teacher);
+            classroomView = view.findViewById(R.id.schedule_group_classroom);
+            indicatorView = view.findViewById(R.id.schedule_group_indicator);
         }
     }
 
@@ -325,9 +325,9 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         private final TextView teacherView;
 
         private ChildViewHolder(View view) {
-            subjectView = (TextView) view.findViewById(R.id.schedule_child_subject);
-            classroomView = (TextView) view.findViewById(R.id.schedule_child_classroom);
-            teacherView = (TextView) view.findViewById(R.id.schedule_child_teacher);
+            subjectView = view.findViewById(R.id.schedule_child_subject);
+            classroomView = view.findViewById(R.id.schedule_child_classroom);
+            teacherView = view.findViewById(R.id.schedule_child_teacher);
         }
     }
 

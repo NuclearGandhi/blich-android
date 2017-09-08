@@ -40,14 +40,14 @@ public class ArticleActivity extends AppCompatActivity {
         }
 
         String bodyText = intent.getStringExtra(Constants.IntentConstants.EXTRA_ARTICLE_BODY);
-        TextView body = (TextView) findViewById(R.id.article_body);
+        TextView body = findViewById(R.id.article_body);
         body.setText(bodyText);
 
         String titleText = intent.getStringExtra(Constants.IntentConstants.EXTRA_ARTICLE_TITLE);
-        TextView title = (TextView) findViewById((R.id.article_title));
+        TextView title = findViewById((R.id.article_title));
         title.setText(Html.fromHtml(titleText));
 
-        ImageView imageView = (ImageView) findViewById(R.id.article_image);
+        ImageView imageView = findViewById(R.id.article_image);
 
         new FindUrlTask(bodyText, body, imageView).execute();
     }

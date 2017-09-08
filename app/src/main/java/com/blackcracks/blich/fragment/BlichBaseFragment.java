@@ -68,7 +68,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         };
 
         mSwipeRefreshLayout =
-                (SwipeRefreshLayout) mRootView.findViewById(R.id.swiperefresh_schedule);
+                mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setEnabled(false);
 
         return mRootView;
@@ -79,7 +79,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
 
         MainActivity activity = (MainActivity) getActivity();
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setTitle(getFragmentTitle());
 

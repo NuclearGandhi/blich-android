@@ -26,8 +26,8 @@ public class ScheduleFragment extends BlichBaseFragment {
                              Bundle savedInstanceState) {
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout_schedule_days);
-        ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager_schedule);
+        TabLayout tabLayout = mRootView.findViewById(R.id.tablayout_schedule_days);
+        ViewPager viewPager = mRootView.findViewById(R.id.viewpager_schedule);
         if (viewPager != null) {
             viewPager.setAdapter(
                     new SchedulePagerAdapter(getChildFragmentManager(),

@@ -187,9 +187,9 @@ public class Utilities {
                     titleString = R.string.dialog_fetch_unsuccessful_title;
                     messageString =  R.string.dialog_fetch_unsuccessful_message;
             }
-            TextView title = (TextView) dialogView.findViewById(R.id.dialog_title);
+            TextView title = dialogView.findViewById(R.id.dialog_title);
             title.setText(titleString);
-            TextView message = (TextView) dialogView.findViewById(R.id.dialog_message);
+            TextView message = dialogView.findViewById(R.id.dialog_message);
             message.setText(messageString);
 
             new AlertDialog.Builder(context)

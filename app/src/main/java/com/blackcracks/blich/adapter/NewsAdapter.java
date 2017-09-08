@@ -94,11 +94,11 @@ public class NewsAdapter extends CursorRecyclerViewAdapter<NewsAdapter.ViewHolde
         ViewHolder(View view) {
             super(view);
             article = view;
-            title = (TextView) view.findViewById(R.id.news_title);
-            progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-            body = (TextView) view.findViewById(R.id.news_body);
-            image = (ImageView) view.findViewById(R.id.news_image);
-            citation = (TextView) view.findViewById(R.id.news_citation);
+            title = view.findViewById(R.id.news_title);
+            progressBar = view.findViewById(R.id.progressBar);
+            body = view.findViewById(R.id.news_body);
+            image = view.findViewById(R.id.news_image);
+            citation = view.findViewById(R.id.news_citation);
         }
     }
 

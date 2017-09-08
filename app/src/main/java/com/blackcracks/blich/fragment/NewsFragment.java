@@ -26,8 +26,8 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_news, container, false);
 
-        TabLayout tabLayout = (TabLayout) mRootView.findViewById(R.id.tablayout);
-        ViewPager viewPager = (ViewPager) mRootView.findViewById(R.id.viewpager);
+        TabLayout tabLayout = mRootView.findViewById(R.id.tablayout);
+        ViewPager viewPager = mRootView.findViewById(R.id.viewpager);
         viewPager.setAdapter(
                 new NewsPagerAdapter(getChildFragmentManager(),
                         getContext().getResources().getStringArray(R.array.tab_news_names)));
@@ -46,7 +46,7 @@ public class NewsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         MainActivity activity = (MainActivity) getActivity();
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setTitle(
                 getString(R.string.drawer_news_title)

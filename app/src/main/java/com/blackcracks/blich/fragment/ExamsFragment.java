@@ -71,7 +71,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
         mContext = getContext();
 
-        mAppBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
+        mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
         mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
             @Override
             public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
@@ -85,12 +85,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
         });
 
-        Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
 
-        mDropDown = (ImageView) mRootView.findViewById(R.id.drop_down_arrow);
+        mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
         toolbar.setOnClickListener(this);
 
-        mCalendarView = (MaterialCalendarView) mRootView.findViewById(R.id.calendar_view);
+        mCalendarView = mRootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
@@ -114,7 +114,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
         });
 
-        mListView = (ListView) mRootView.findViewById(R.id.list_view_exam);
+        mListView = mRootView.findViewById(R.id.list_view_exam);
         mAdapter = new ExamAdapter(mContext, null);
         mListView.setAdapter(mAdapter);
 
@@ -189,7 +189,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             mAdapter.swapCursor(data);
 
             if (data.getCount() != 0) {
-                TextView noData = (TextView) mRootView.findViewById(R.id.schedule_no_data);
+                TextView noData = mRootView.findViewById(R.id.schedule_no_data);
                 noData.setVisibility(View.GONE);
             }
         }

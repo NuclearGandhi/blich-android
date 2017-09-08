@@ -89,9 +89,9 @@ public class ChooseClassDialogFragment extends DialogFragment {
         builder.setView(rootView);
 
         mGradeNumberPicker =
-                (MaterialNumberPicker) rootView.findViewById(R.id.dialog_choose_class_number_picker);
+                rootView.findViewById(R.id.dialog_choose_class_number_picker);
         mGradePicker =
-                (MaterialNumberPicker) rootView.findViewById(R.id.dialog_choose_class_name_picker);
+                rootView.findViewById(R.id.dialog_choose_class_name_picker);
 
         builder.setPositiveButton(R.string.dialog_okay,
                 new DialogInterface.OnClickListener() {
@@ -118,7 +118,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                     }
                 });
 
-        mProgressBar = (FrameLayout) rootView.findViewById(R.id.picker_progressbar);
+        mProgressBar = rootView.findViewById(R.id.picker_progressbar);
         mDialog = builder.create();
         return mDialog;
     }
@@ -158,7 +158,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
     private void onFetchFailed() {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
                 null);
-        TextView message = (TextView) view.findViewById(R.id.dialog_message);
+        TextView message = view.findViewById(R.id.dialog_message);
         message.setText(R.string.dialog_fetch_class_no_connection_message);
         new AlertDialog.Builder(getContext())
                 .setCancelable(false)

@@ -92,9 +92,9 @@ public class ExamAdapter extends CursorAdapter {
         final TextView examSubject;
 
         ViewHolder(View itemView) {
-            examDay = (TextView) itemView.findViewById(R.id.exam_day);
-            examDayOfWeek = (TextView) itemView.findViewById(R.id.exam_month);
-            examSubject = (TextView) itemView.findViewById(R.id.exam_subject);
+            examDay = itemView.findViewById(R.id.exam_day);
+            examDayOfWeek = itemView.findViewById(R.id.exam_month);
+            examSubject = itemView.findViewById(R.id.exam_subject);
         }
     }
 }
