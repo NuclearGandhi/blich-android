@@ -1,15 +1,21 @@
 package com.blackcracks.blich.activity;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -59,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
         }
         replaceFragment(mFragment, false);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -113,6 +119,10 @@ public class MainActivity extends AppCompatActivity {
                     Utilities.initializeBlichDataUpdater(context, view);
                 }
             });
+
+            if (Build.VERSION.SDK_INT >= 26) {
+                createNotificationChannels();
+            }
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 Utilities.initializeBlichDataUpdater(this, view);
@@ -141,6 +151,26 @@ public class MainActivity extends AppCompatActivity {
         }
         transaction.commit();
         mFragment = fragment;
+    }
+
+    @RequiresApi(api = 26)
+    private void createNotificationChannels() {
+
+        NotificationChannel scheduleChannel = new NotificationChannel(
+                getString(R.string.notification_channel_schedule_id),
+                getString(R.string.notification_channel_schedule_name),
+                NotificationManagerCompat.IMPORTANCE_HIGH
+        );
+
+        scheduleChannel.setDescription(
+                getString(R.string.notification_channel_schedule_description)
+        );
+        scheduleChannel.enableLights(true);
+        scheduleChannel.setLightColor(Color.CYAN);
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(scheduleChannel);
     }
 
     public DrawerLayout getDrawerLayout() {

@@ -56,6 +56,10 @@
     <string name="drawer_close_desc">סגור</string>
 
 
+    <string name="notification_channel_schedule_id">schedule_chanel</string>
+    <string name="notification_channel_schedule_name">Schedule</string>
+    <string name="notification_channel_schedule_description">Notify about upcoming changes in schedule</string>
+
     <string name="notification_update_title">בליך</string>
     <string name="notification_update_today">היום:</string>
     <string name="notification_update_tomorrow">מחר:</string>

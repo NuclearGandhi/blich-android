@@ -709,11 +709,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     .setStyle(inboxStyle)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
+                    .setChannelId(mContext.getString(R.string.notification_channel_schedule_id))
                     .build();
             notification.defaults |= Notification.DEFAULT_VIBRATE;
 
             NotificationManagerCompat.from(getContext())
                     .notify(NOTIFICATION_UPDATE_ID, notification);
+
         }
         mLessonNotificationList = new ArrayList<>();
     }
