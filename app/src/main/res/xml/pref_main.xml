@@ -24,4 +24,15 @@
             android:title="@string/pref_notification_sound_title"/>
 
     </PreferenceCategoryFix>
+
+    <PreferenceCategoryFix android:title="@string/pref_filter_toggle_title">
+
+        <SwitchPreferneceCompat
+            android:defaultValue="false"
+            android:disableDependantsState="true"
+            android:key="@string/pref_filter_toggle_key"
+            android:title="@string/pref_filter_toggle_title">
+        </SwitchPreferneceCompat>
+
+    </PreferenceCategoryFix>
 </android.support.v7.preference.PreferenceScreen>

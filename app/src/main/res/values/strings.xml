@@ -31,6 +31,9 @@
     <string name="pref_is_fetching_news_key">is_fetching_news</string>
     <string name="pref_news_latest_update">latest_update</string>
 
+    <string name="pref_filter_toggle_title">סינון</string>
+    <string name="pref_filter_toggle_key">filter_key</string>
+
     <string name="dialog_choose_class_title">מהי כיתתך?</string>
     <string name="dialog_choose_class_content">כיתה:</string>
     <string name="dialog_okay">אישור</string>
