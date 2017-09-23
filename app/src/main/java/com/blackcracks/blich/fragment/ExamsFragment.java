@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
-import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.Constants;
@@ -127,7 +126,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID, null, new ExamsLoader());
-        getLoaderManager().initLoader(Constants.EVENTS_LOADER_ID, null, new EventsLoader());
     }
 
     @Override
@@ -175,7 +173,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
+            Uri uri = ExamsEntry.CONTENT_URI;
 
             return new CursorLoader(
                     mContext,
@@ -186,7 +184,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
         @Override
         public void onLoadFinished(Loader loader, Cursor data) {
-            mAdapter.swapCursor(data);
+            new LoadDataToCalendar().execute(data);
 
             if (data.getCount() != 0) {
                 TextView noData = mRootView.findViewById(R.id.schedule_no_data);
@@ -200,60 +198,40 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         }
     }
 
-    private class EventsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            Uri uri = BlichContract.ExamsEntry.CONTENT_URI;
-
-            return new CursorLoader(
-                    mContext,
-                    uri,
-                    EXAMS_COLUMNS,
-                    null, null, null);
-        }
-
-        @Override
-        public void onLoadFinished(Loader loader, Cursor data) {
-            new LoadDataToCalendar().execute(data);
-        }
-
-        @Override
-        public void onLoaderReset(Loader loader) {
-            mAdapter.swapCursor(null);
-        }
-    }
-
     private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
+        
+        private Cursor mCursor;
 
         @Override
         protected Date[] doInBackground(Cursor... params) {
             if (mDates.size() != 0) mDates.clear();
-            Cursor data = params[0];
-            data.moveToFirst();
-            for (int i = 0; i < data.getCount(); i++) {
-                String teacher = data.getString(data.getColumnIndex(ExamsEntry.COL_TEACHER));
+            mCursor = params[0];
+            
+            mCursor.moveToFirst();
+            for (int i = 0; i < mCursor.getCount(); i++) {
+                String teacher = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_TEACHER));
                 if (!teacher.equals("wut")) {
-                    String date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+                    String date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
                     long timeInMillis = Utilities.getTimeInMillisFromDate(date);
                     Calendar exam = Calendar.getInstance();
                     exam.setTimeInMillis(timeInMillis);
                     mDates.add(CalendarDay.from(exam));
                 }
-                data.moveToNext();
+                mCursor.moveToNext();
             }
-            Date minDate = new Date();
-            Date maxDate = minDate;
+            Date minDate;
+            Date maxDate;
 
             Calendar calendar = Calendar.getInstance();
 
-            if (data.moveToPosition(1)) {
-                String date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+            if (mCursor.moveToPosition(1)) {
+                String date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
                 calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
                 minDate = calendar.getTime();
 
-                data.moveToLast();
-                date = data.getString(data.getColumnIndex(ExamsEntry.COL_DATE));
+                mCursor.moveToLast();
+                date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
                 calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                 maxDate = calendar.getTime();
@@ -287,6 +265,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                     view.addSpan(new DotSpan(4, Color.WHITE));
                 }
             });
+
+            mCursor.moveToFirst();
+            mAdapter.swapCursor(mCursor);
         }
     }
 }

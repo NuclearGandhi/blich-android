@@ -71,6 +71,7 @@ public class ExamAdapter extends CursorAdapter {
 
         String subject = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_SUBJECT));
         String date = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_DATE));
+        String teacher = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_TEACHER));
 
         long timeInMillis = Utilities.getTimeInMillisFromDate(date);
         Calendar calendar = Calendar.getInstance();
@@ -83,6 +84,7 @@ public class ExamAdapter extends CursorAdapter {
         viewHolder.examDay.setText(String.valueOf(day));
         viewHolder.examDayOfWeek.setText(dayOfWeek);
         viewHolder.examSubject.setText(subject);
+        viewHolder.examTeacher.setText(teacher);
     }
 
     private static class ViewHolder {
@@ -90,11 +92,13 @@ public class ExamAdapter extends CursorAdapter {
         final TextView examDay;
         final TextView examDayOfWeek;
         final TextView examSubject;
+        final TextView examTeacher;
 
         ViewHolder(View itemView) {
             examDay = itemView.findViewById(R.id.exam_day);
-            examDayOfWeek = itemView.findViewById(R.id.exam_month);
+            examDayOfWeek = itemView.findViewById(R.id.exam_day_of_week);
             examSubject = itemView.findViewById(R.id.exam_subject);
+            examTeacher = itemView.findViewById(R.id.exam_teacher);
         }
     }
 }
