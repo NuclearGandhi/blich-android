@@ -175,11 +175,14 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             Uri uri = ExamsEntry.CONTENT_URI;
 
+            String sortOrder = ExamsEntry.COL_DATE + " ASC";
+
             return new CursorLoader(
                     mContext,
                     uri,
                     EXAMS_COLUMNS,
-                    null, null, null);
+                    null, null,
+                    sortOrder);
         }
 
         @Override
@@ -199,40 +202,39 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     }
 
     private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
-        
+
         private Cursor mCursor;
 
         @Override
         protected Date[] doInBackground(Cursor... params) {
             if (mDates.size() != 0) mDates.clear();
             mCursor = params[0];
-            
+
             mCursor.moveToFirst();
             for (int i = 0; i < mCursor.getCount(); i++) {
                 String teacher = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_TEACHER));
                 if (!teacher.equals("wut")) {
-                    String date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                    long timeInMillis = Utilities.getTimeInMillisFromDate(date);
+                    long dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
                     Calendar exam = Calendar.getInstance();
-                    exam.setTimeInMillis(timeInMillis);
+                    exam.setTimeInMillis(dateInMillis);
                     mDates.add(CalendarDay.from(exam));
                 }
                 mCursor.moveToNext();
             }
-            Date minDate;
-            Date maxDate;
+
+            Date minDate, maxDate;
 
             Calendar calendar = Calendar.getInstance();
 
             if (mCursor.moveToPosition(1)) {
-                String date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+                long dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
+                calendar.setTimeInMillis(dateInMillis);
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
                 minDate = calendar.getTime();
 
                 mCursor.moveToLast();
-                date = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+                dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
+                calendar.setTimeInMillis(dateInMillis);
                 calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                 maxDate = calendar.getTime();
             } else {

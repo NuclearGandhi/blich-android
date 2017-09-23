@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.blackcracks.blich.data.BlichContract.*;
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     public static final String DATABASE_NAME = "blich.db";
 
@@ -39,10 +39,12 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
     private final String SQL_CREATE_EXAMS_TABLE = "CREATE TABLE " + ExamsEntry.TABLE_NAME + " (" +
             ExamsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             ExamsEntry.COL_SUBJECT + " TEXT NOT NULL," +
-            ExamsEntry.COL_DATE + " TEXT NOT NULL, " +
+            ExamsEntry.COL_DATE + " INTEGER NOT NULL, " +
             ExamsEntry.COL_TEACHER + " TEXT NOT NULL, " +
             "UNIQUE (" + ExamsEntry.COL_SUBJECT + ", " + ExamsEntry.COL_DATE + ", " +
             ExamsEntry.COL_TEACHER + ") ON CONFLICT REPLACE);";
+
+    private final String SQL_DROP_EXAMS_TABLE = "DROP TABLE " + ExamsEntry.TABLE_NAME + ";";
 
     private final String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
             NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -76,9 +78,6 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 5) {
-            db.execSQL(SQL_CREATE_EXAMS_TABLE);
-        }
         if (oldVersion < 8) {
             db.execSQL(SQL_CREATE_NEWS_TABLE);
         }
@@ -87,6 +86,10 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
 
             db.execSQL(SQL_CREATE_LESSON_TABLE);
+        }
+        if (oldVersion < 10) {
+            db.execSQL(SQL_DROP_EXAMS_TABLE);
+            db.execSQL(SQL_CREATE_EXAMS_TABLE);
         }
     }
 }

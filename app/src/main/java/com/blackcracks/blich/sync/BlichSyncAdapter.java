@@ -556,14 +556,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             String teachers = innerData.get(2).text();
 
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+            long dateInMillis = Utilities.getTimeInMillisFromDate(date);
+            calendar.setTimeInMillis(dateInMillis);
 
             int currentMonth = calendar.get(Calendar.MONTH);
 
             if (mPreviousMonth != currentMonth) {
                 ContentValues monthDivider = new ContentValues();
                 monthDivider.put(ExamsEntry.COL_TEACHER, "wut");
-                monthDivider.put(ExamsEntry.COL_DATE, date);
+                monthDivider.put(ExamsEntry.COL_DATE, dateInMillis);
                 monthDivider.put(ExamsEntry.COL_SUBJECT, "" + currentMonth);
 
                 contentValues.add(monthDivider);
@@ -572,13 +573,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             mPreviousMonth = currentMonth;
 
             ContentValues row = new ContentValues();
-            row.put(ExamsEntry.COL_DATE, date);
+            row.put(ExamsEntry.COL_DATE, dateInMillis);
             row.put(ExamsEntry.COL_SUBJECT, subject);
             row.put(ExamsEntry.COL_TEACHER, teachers);
 
             contentValues.add(row);
         }
 
+        //Delete the whole exams table
+        mContext.getContentResolver().delete(ExamsEntry.CONTENT_URI, null, null);
+        //Repopulate the table with updated data
         mContext.getContentResolver().bulkInsert(
                 ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));

@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -41,15 +40,15 @@ public class ExamAdapter extends CursorAdapter {
         Cursor cursor = getCursor();
         cursor.moveToPosition(position);
         String teachers = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_TEACHER));
-        String date = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_DATE));
+        long dateInMillis = cursor.getLong(cursor.getColumnIndex(ExamsEntry.COL_DATE));
 
         if (teachers.equals("wut")) {
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+            Calendar date = Calendar.getInstance();
+            date.setTimeInMillis(dateInMillis);
 
-            String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            int year = calendar.get(Calendar.YEAR);
+            String month = date.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            int year = date.get(Calendar.YEAR);
 
             TextView monthDivider = (TextView) LayoutInflater.from(mContext)
                     .inflate(R.layout.exam_month_divider, null);
@@ -70,12 +69,11 @@ public class ExamAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String subject = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_SUBJECT));
-        String date = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_DATE));
+        long dateInMillis = cursor.getLong(cursor.getColumnIndex(ExamsEntry.COL_DATE));
         String teacher = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_TEACHER));
 
-        long timeInMillis = Utilities.getTimeInMillisFromDate(date);
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeInMillis);
+        calendar.setTimeInMillis(dateInMillis);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT,
