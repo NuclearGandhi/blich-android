@@ -88,7 +88,7 @@ public class Utilities {
 
     public static long getTimeInMillisFromDate(String date) {
 
-        Locale locale = Locale.getDefault();
+        Locale locale = new Locale("iw");
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", locale);
         Date examDate = null;
         try {

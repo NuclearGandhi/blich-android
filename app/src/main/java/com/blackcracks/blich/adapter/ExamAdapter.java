@@ -47,7 +47,10 @@ public class ExamAdapter extends CursorAdapter {
             Calendar date = Calendar.getInstance();
             date.setTimeInMillis(dateInMillis);
 
-            String month = date.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            String month = date.getDisplayName(
+                    Calendar.MONTH,
+                    Calendar.LONG,
+                    new Locale("iw"));
             int year = date.get(Calendar.YEAR);
 
             TextView monthDivider = (TextView) LayoutInflater.from(mContext)
@@ -75,9 +78,10 @@ public class ExamAdapter extends CursorAdapter {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(dateInMillis);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK,
+        String dayOfWeek = calendar.getDisplayName(
+                Calendar.DAY_OF_WEEK,
                 Calendar.SHORT,
-                Locale.getDefault());
+                new Locale("iw"));
 
         viewHolder.examDay.setText(String.valueOf(day));
         viewHolder.examDayOfWeek.setText(dayOfWeek);
