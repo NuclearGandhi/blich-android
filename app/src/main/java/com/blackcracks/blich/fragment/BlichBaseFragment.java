@@ -61,7 +61,7 @@ public abstract class BlichBaseFragment extends Fragment implements
             @Override
             public void onReceive(Context context, Intent intent) {
                 @BlichSyncAdapter.FetchStatus int status =
-                        intent.getIntExtra(BlichSyncAdapter.FETCH_STATUS,
+                        intent.getIntExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS,
                                 BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
                 Utilities.onSyncFinished(getContext(), mRootView, status, mFragmentManager);
             }
