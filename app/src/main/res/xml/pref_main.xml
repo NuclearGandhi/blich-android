@@ -9,7 +9,7 @@
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_class_picker_title" />
 
-    <PreferenceCategoryFix android:title="@string/pref_notification_category_title">
+    <PreferenceCategory android:title="@string/pref_notification_category_title">
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -23,16 +23,5 @@
             android:key="@string/pref_notification_sound_key"
             android:title="@string/pref_notification_sound_title"/>
 
-    </PreferenceCategoryFix>
-
-    <PreferenceCategoryFix android:title="@string/pref_filter_toggle_title">
-
-        <SwitchPreferneceCompat
-            android:defaultValue="false"
-            android:disableDependantsState="true"
-            android:key="@string/pref_filter_toggle_key"
-            android:title="@string/pref_filter_toggle_title">
-        </SwitchPreferneceCompat>
-
-    </PreferenceCategoryFix>
+    </PreferenceCategory>
 </android.support.v7.preference.PreferenceScreen>

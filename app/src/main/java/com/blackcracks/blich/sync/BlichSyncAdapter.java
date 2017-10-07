@@ -18,15 +18,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
-import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.NotificationCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -68,7 +66,7 @@ import java.util.List;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-@SuppressWarnings("SpellCheckingInspection")
+
 public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Retention(SOURCE)
@@ -83,7 +81,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int FETCH_STATUS_NO_CONNECTION = 2;
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
-    public static final String FETCH_STATUS = "fetch_status";
 
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
@@ -99,9 +96,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String LAST_FOCUS = "__LAS" +
             "TFOCUS";
     private static final String EVENT_ARGUMENT = "__EVENTARGUMENT";
-    private static final String EVENT_TAGERT = "__EVENTTARGET";
+    private static final String EVENT_TARGET = "__EVENTTARGET";
 
-    private static final String SELECOR_NAME = "dnn$ctr7919$TimeTableView$ClassesList";
+    private static final String SELECTOR_NAME = "dnn$ctr7919$TimeTableView$ClassesList";
 
     private static final String SCHEDULE_BUTTON_NAME = "dnn$ctr7919$TimeTableView$btnChangesTable";
 
@@ -129,14 +126,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
     public static void initializeSyncAdapter(Context context) {
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(IntentConstants.ACTION_BLICH_NOTIFY);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
+        Intent intent = new Intent(context, BlichUpdateReceiver.class);
+        PendingIntent mornIntent = PendingIntent.getBroadcast(context,
                 0,
                 intent,
                 0);
 
-        PendingIntent alarmIntent1 = PendingIntent.getBroadcast(context,
+        PendingIntent nightIntent = PendingIntent.getBroadcast(context,
                 100,
                 intent,
                 0);
@@ -153,7 +151,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
                     true);
-            configurePeriodicSync(alarmManager, alarmIntent, alarmIntent1);
+            configurePeriodicSync(alarmManager, mornIntent, nightIntent);
 
             pm.setComponentEnabledSetting(receiver,
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
@@ -164,8 +162,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     getSyncAccount(context),
                     context.getString(R.string.content_authority),
                     false);
-            alarmManager.cancel(alarmIntent);
-            alarmManager.cancel(alarmIntent1);
+            alarmManager.cancel(mornIntent);
+            alarmManager.cancel(nightIntent);
 
             pm.setComponentEnabledSetting(receiver,
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
@@ -191,8 +189,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private static void configurePeriodicSync(AlarmManager alarmManager,
-                                              PendingIntent alarmIntent,
-                                              PendingIntent alarmIntent1) {
+                                              PendingIntent mornIntent,
+                                              PendingIntent nightIntent) {
         Calendar nightNotify = Calendar.getInstance();
         nightNotify.setTimeInMillis(System.currentTimeMillis());
         nightNotify.set(Calendar.HOUR_OF_DAY, 21);
@@ -219,12 +217,12 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 nightNotify.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
-                alarmIntent);
+                mornIntent);
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 mornNotify.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
-                alarmIntent1);
+                nightIntent);
 
     }
 
@@ -278,7 +276,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void sendBroadcast(@FetchStatus int status) {
         Intent intent = new Intent(IntentConstants.ACTION_SYNC_CALLBACK);
-        intent.putExtra(FETCH_STATUS, status);
+        intent.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(getContext())
                 .sendBroadcast(intent);
 
@@ -337,9 +335,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             scheduleCon.setDoOutput(true);
 
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            nameValuePairs.add(new BasicNameValuePair(EVENT_TAGERT, SCHEDULE_BUTTON_NAME));
+            nameValuePairs.add(new BasicNameValuePair(EVENT_TARGET, SCHEDULE_BUTTON_NAME));
             nameValuePairs.add(new BasicNameValuePair(EVENT_ARGUMENT, ""));
-            nameValuePairs.add(new BasicNameValuePair(SELECOR_NAME, Integer.toString(classValue)));
+            nameValuePairs.add(new BasicNameValuePair(SELECTOR_NAME, Integer.toString(classValue)));
             nameValuePairs.add(new BasicNameValuePair(VIEW_STATE, viewStateValue));
             nameValuePairs.add(new BasicNameValuePair(LAST_FOCUS, ""));
 
@@ -556,14 +554,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             String teachers = innerData.get(2).text();
 
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(Utilities.getTimeInMillisFromDate(date));
+            long dateInMillis = Utilities.getTimeInMillisFromDate(date);
+            calendar.setTimeInMillis(dateInMillis);
 
             int currentMonth = calendar.get(Calendar.MONTH);
 
             if (mPreviousMonth != currentMonth) {
                 ContentValues monthDivider = new ContentValues();
                 monthDivider.put(ExamsEntry.COL_TEACHER, "wut");
-                monthDivider.put(ExamsEntry.COL_DATE, date);
+                monthDivider.put(ExamsEntry.COL_DATE, dateInMillis);
                 monthDivider.put(ExamsEntry.COL_SUBJECT, "" + currentMonth);
 
                 contentValues.add(monthDivider);
@@ -572,13 +571,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             mPreviousMonth = currentMonth;
 
             ContentValues row = new ContentValues();
-            row.put(ExamsEntry.COL_DATE, date);
+            row.put(ExamsEntry.COL_DATE, dateInMillis);
             row.put(ExamsEntry.COL_SUBJECT, subject);
             row.put(ExamsEntry.COL_TEACHER, teachers);
 
             contentValues.add(row);
         }
 
+        //Delete the whole exams table
+        mContext.getContentResolver().delete(ExamsEntry.CONTENT_URI, null, null);
+        //Repopulate the table with updated data
         mContext.getContentResolver().bulkInsert(
                 ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
@@ -698,20 +700,20 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     0,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Notification notification = new NotificationCompat.Builder(getContext())
+            Notification notification = new NotificationCompat.Builder(
+                    getContext(),
+                    getContext().getString(R.string.notification_channel_schedule_id))
                     .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                     .setContentTitle(getContext().getResources().getString(
                             R.string.notification_update_title))
                     .setContentText(summery)
                     .setSound(ringtone)
+                    .setDefaults(Notification.DEFAULT_VIBRATE)
                     .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
                     .setStyle(inboxStyle)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
-                    .setChannelId(mContext.getString(R.string.notification_channel_schedule_id))
                     .build();
-            notification.defaults |= Notification.DEFAULT_VIBRATE;
 
             NotificationManagerCompat.from(getContext())
                     .notify(NOTIFICATION_UPDATE_ID, notification);
@@ -783,25 +785,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     public static class BlichFetchException extends Exception {
-        @RequiresApi(api = Build.VERSION_CODES.N)
-        protected BlichFetchException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-            super(message, cause, enableSuppression, writableStackTrace);
-        }
-
-        public BlichFetchException() {
-            super();
-        }
-
         public BlichFetchException(String message) {
             super(message);
-        }
-
-        public BlichFetchException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public BlichFetchException(Throwable cause) {
-            super(cause);
         }
     }
 }

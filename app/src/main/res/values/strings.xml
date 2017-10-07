@@ -59,7 +59,7 @@
     <string name="drawer_close_desc">סגור</string>
 
 
-    <string name="notification_channel_schedule_id">schedule_chanel</string>
+    <string name="notification_channel_schedule_id">schedule_channel</string>
     <string name="notification_channel_schedule_name">Schedule</string>
     <string name="notification_channel_schedule_description">Notify about upcoming changes in schedule</string>
 

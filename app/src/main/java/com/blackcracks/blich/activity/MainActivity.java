@@ -119,13 +119,21 @@ public class MainActivity extends AppCompatActivity {
                     Utilities.initializeBlichDataUpdater(context, view);
                 }
             });
-
-            if (Build.VERSION.SDK_INT >= 26) {
-                createNotificationChannels();
-            }
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 Utilities.initializeBlichDataUpdater(this, view);
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationManager notificationManager = (NotificationManager)
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = notificationManager.getNotificationChannel(
+                    getString(R.string.notification_channel_schedule_id)
+            );
+
+            if (channel != null) {
+                createNotificationChannels();
             }
         }
     }
