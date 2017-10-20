@@ -26,6 +26,7 @@ import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.util.Utilities;
 
 public class ScheduleAdapter extends CursorTreeAdapter {
 
@@ -350,6 +351,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                     LessonEntry.COL_DAY + " = " + mDay + " AND " + //Get data with this day
                     LessonEntry.COL_HOUR + " = " + hour + " AND " + //and data with this hour
                     LessonEntry.COL_LESSON_NUM + " >= 1"; //and where lesson >= 1, since the group view shows lesson = 0
+
+            selection += Utilities.Sqlite.generateFilterCondition(mContext);
 
             String sortOrder = LessonEntry.COL_LESSON_NUM + " ASC"; //Sort it in ascending order
             Uri uri = LessonEntry.CONTENT_URI;

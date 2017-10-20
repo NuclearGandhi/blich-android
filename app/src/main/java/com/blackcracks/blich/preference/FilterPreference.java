@@ -32,6 +32,11 @@ public class FilterPreference extends DialogPreference {
         mValue = value;
     }
 
+    public void setValue(String value) {
+        mValue = value;
+        persistString(value);
+    }
+
     public String getValue() {
         return mValue;
     }

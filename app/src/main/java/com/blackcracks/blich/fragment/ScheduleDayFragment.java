@@ -79,6 +79,8 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
         String selection = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_DAY + " = " + mDay;
 
+        selection += Utilities.Sqlite.generateFilterCondition(getContext());
+
         String sortOrder = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " ASC";
         Uri uri = ScheduleEntry.buildScheduleWithLessonUri(0);
 

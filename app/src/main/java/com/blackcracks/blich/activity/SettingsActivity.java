@@ -53,6 +53,8 @@ public class SettingsActivity extends AppCompatActivity {
         public static final String PREF_CLASS_PICKER_KEY = "class_picker";
         public static final String PREF_NOTIFICATION_TOGGLE_KEY = "notification_toggle";
         public static final String PREF_NOTIFICATION_SOUND_KEY = "notification_sound";
+        public static final String PREF_FILTER_TOGGLE_KEY = "filter_key";
+        public static final String PREF_FILTER_SELECT_KEY = "filter_select";
 
         //Default preference values
         public static final String PREF_CLASS_PICKER_DEFAULT = "ט'3";
@@ -173,11 +175,7 @@ public class SettingsActivity extends AppCompatActivity {
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             switch (key) {
                 case PREF_CLASS_PICKER_KEY: {
-                    ClassPickerPreference preference = (ClassPickerPreference) findPreference(key);
-                    String grade = sharedPreferences.getString(key,
-                            getString(R.string.pref_class_picker_default_value));
-
-                    preference.setSummary(grade);
+                    setClassPickerSummery();
                     getContext().getContentResolver().delete(
                             BlichContract.ScheduleEntry.CONTENT_URI,
                             null,
@@ -193,17 +191,16 @@ public class SettingsActivity extends AppCompatActivity {
                 case PREF_NOTIFICATION_TOGGLE_KEY: {
                     BlichSyncAdapter.initializeSyncAdapter(getContext());
                 }
+                case PREF_FILTER_SELECT_KEY: {
+                    setFilterSelectSummery();
+                }
             }
         }
 
         private void initPrefSummery() {
 
-            //Class Picker Preference
-            ClassPickerPreference classPickerPreference =
-                    (ClassPickerPreference) findPreference(PREF_CLASS_PICKER_KEY);
-            String grade = classPickerPreference.getValue();
-            classPickerPreference.setSummary(grade);
-
+            setClassPickerSummery();
+            setFilterSelectSummery();
 
             //Notification Sound Preference
             String uri = Utilities.getPreferenceString(getContext(),
@@ -226,14 +223,29 @@ public class SettingsActivity extends AppCompatActivity {
                 Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
                 preference.setSummary("שקט");
             }
+        }
 
-            //Filter Preference
+        //Class Picker Preference
+        private void setClassPickerSummery() {
+            ClassPickerPreference classPickerPreference =
+                    (ClassPickerPreference) findPreference(PREF_CLASS_PICKER_KEY);
+            String grade = classPickerPreference.getValue();
+            classPickerPreference.setSummary(grade);
+        }
+
+        //Filter Preference
+        private void setFilterSelectSummery() {
             FilterPreference filterPreference =
                     (FilterPreference) findPreference(getString(R.string.pref_filter_select_key));
-            String teachers = filterPreference.getValue();
-            if (teachers != null) {
-                teachers = teachers.replace(";", ", ");
-                filterPreference.setSummary(teachers);
+            if (filterPreference.getValue() != null) {
+                String[] teachersAndSubjects = filterPreference.getValue().split(";");
+                String summary = "";
+                for (int i = 0; i < teachersAndSubjects.length; i++) {
+                    String[] arr = teachersAndSubjects[i].split(",");
+                    summary += arr[0];
+                    if (i != teachersAndSubjects.length - 1) summary += ", ";
+                }
+                filterPreference.setSummary(summary);
             }
         }
     }

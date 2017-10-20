@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.SettingsActivity;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 
@@ -275,6 +276,66 @@ public class Utilities {
                     .getString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
                             context.getResources().getString(R.string.pref_class_picker_default_value)
                                     .replace("/", ""));
+        }
+    }
+
+    public static class Sqlite {
+
+        public static String generateFilterCondition(Context context) {
+
+            String selection = "";
+
+            boolean isFilterOn = Utilities.getPreferenceBoolean(
+                    context,
+                    SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
+                    false);
+
+            if (isFilterOn) {
+                String[] teachersAndSubjects = Utilities.getPreferenceString(
+                        context,
+                        SettingsActivity.SettingsFragment.PREF_FILTER_SELECT_KEY,
+                        "",
+                        false)
+                        .split(";");
+
+                for (String teacherAndSubject : teachersAndSubjects) {
+                    String[] arr = teacherAndSubject.split(",");
+                    String teacher = arr[0];
+                    String subject = arr[1];
+
+                    selection += " OR(" +
+                            LessonEntry.TABLE_NAME +
+                            "." +
+                            LessonEntry.COL_TEACHER +
+                            " LIKE '" +
+                            teacher.trim() +
+                            "'";
+
+                    selection += " AND " +
+                            LessonEntry.TABLE_NAME +
+                            "." +
+                            LessonEntry.COL_SUBJECT +
+                            " LIKE '" +
+                            subject.trim() +
+                            "')";
+                }
+                selection += " OR " +
+                        LessonEntry.TABLE_NAME +
+                        "." +
+                        LessonEntry.COL_TEACHER +
+                        " LIKE '" +
+                        " " +
+                        "'";
+
+                int firstOrIndex = selection.indexOf("OR(");
+                selection = selection.substring(firstOrIndex + 2);
+                selection = " AND(".concat(selection);
+                selection += ")";
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, selection);
+            }
+            return selection;
         }
     }
 }
