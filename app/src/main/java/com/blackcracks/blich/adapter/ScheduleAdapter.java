@@ -2,6 +2,7 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,8 @@ import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.util.Utilities;
 
+import java.util.ArrayList;
+
 public class ScheduleAdapter extends CursorTreeAdapter {
 
     private static final String TAG = ScheduleAdapter.class.getSimpleName();
@@ -38,6 +41,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
     private final ExpandableListView mListView;
     private final LoaderManager mLoaderManager;
     private final int mDay;
+
+    private ArrayList<Integer> mHours;
 
     private SparseBooleanArray mExpandedGroups = new SparseBooleanArray();
 
@@ -52,6 +57,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         mListView = listView;
         mLoaderManager = loaderManager;
         mDay = day;
+
+        mHours = new ArrayList<>();
     }
 
     @Override
@@ -90,6 +97,9 @@ public class ScheduleAdapter extends CursorTreeAdapter {
     @Override
     protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
+
+        //TODO remove this shitty line
+        Log.d(TAG, DatabaseUtils.dumpCursorToString(cursor));
 
         //Set the hour
         int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
