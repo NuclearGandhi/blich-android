@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.BroadcastReceiver;
@@ -22,7 +23,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
@@ -722,8 +722,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     .setAutoCancel(true)
                     .build();
 
-            NotificationManagerCompat.from(getContext())
-                    .notify(NOTIFICATION_UPDATE_ID, notification);
+            NotificationManager notificationManager =
+                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
 
         }
         mLessonNotificationList = new ArrayList<>();

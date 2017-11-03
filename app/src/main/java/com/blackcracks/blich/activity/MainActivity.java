@@ -15,7 +15,6 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         NotificationChannel scheduleChannel = new NotificationChannel(
                 getString(R.string.notification_channel_schedule_id),
                 getString(R.string.notification_channel_schedule_name),
-                NotificationManagerCompat.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
         );
 
         scheduleChannel.setDescription(
