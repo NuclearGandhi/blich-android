@@ -20,9 +20,6 @@ allprojects {
             url 'https://jitpack.io/'
         }
         google()
-        maven {
-            url "http://files.couchbase.com/maven2/"
-        }
     }
 }
 
