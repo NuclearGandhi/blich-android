@@ -32,13 +32,13 @@ import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.IntentConstants;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
 import org.apache.http.NameValuePair;
@@ -142,9 +142,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         ComponentName receiver = new ComponentName(context, StartPeriodicSyncBootReceiver.class);
         PackageManager pm = context.getPackageManager();
 
-        boolean isPeriodicSyncOn = Utilities.getPreferenceBoolean(context,
-                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_KEY,
-                SettingsActivity.SettingsFragment.PREF_NOTIFICATION_TOGGLE_DEFAULT);
+
+        int intKey = Preferences.PREF_NOTIFICATION_TOGGLE_KEY;
+        String prefKey = Preferences.getKey(context, intKey);
+        boolean prefDefault = (boolean) Preferences.getDefault(context, intKey);
+        boolean isPeriodicSyncOn = Utilities.getPrefBoolean(context,
+                prefKey,
+                prefDefault);
         if (isPeriodicSyncOn) {
             Log.d(LOG_TAG, "Initializing sync: on");
             ContentResolver.setSyncAutomatically(
@@ -688,10 +692,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             else summery = "ישנם " + changesNum + " שינויים חדשים";
             inboxStyle.setSummaryText(summery);
 
+            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
+            String prefKey = Preferences.getKey(getContext(), intKey);
+            String prefDefault = (String) Preferences.getDefault(getContext(), intKey);
             Uri ringtone = Uri.parse(Utilities
-                    .getPreferenceString(getContext(),
-                            SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_KEY,
-                            SettingsActivity.SettingsFragment.PREF_NOTIFICATION_SOUND_DEFAULT,
+                    .getPrefString(getContext(),
+                            prefKey,
+                            prefDefault,
                             true));
 
             Intent intent = new Intent(getContext(), MainActivity.class);
