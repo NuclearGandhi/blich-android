@@ -17,7 +17,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.widget.Toolbar;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract;
+import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.preference.FilterPreference;
@@ -25,6 +25,7 @@ import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
+import com.couchbase.lite.CouchbaseLiteException;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -169,16 +170,12 @@ public class SettingsActivity extends AppCompatActivity {
                         (String) Preferences.getDefault(getContext(), Preferences.PREF_CLASS_PICKER_KEY));
 
                 preference.setSummary(grade);
-                getContext().getContentResolver().delete(
-                        BlichContract.ScheduleEntry.CONTENT_URI,
-                        null,
-                        null
-                );
-                getContext().getContentResolver().delete(
-                        BlichContract.LessonEntry.CONTENT_URI,
-                        null,
-                        null
-                );
+
+                try {
+                    BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID).delete();
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
                 Utilities.updateBlichData(getContext(), getView());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
@@ -188,22 +185,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void initPrefSummery() {
 
-            String classPickerKey =
-                    Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY);
+            setClassPickerSummery();
+            setFilterSelectSummery();
+
             String notificationSoundKey =
                     Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
 
             String notificationSoundDefault =
                     (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
-
-            //Class Picker Preference
-            ClassPickerPreference classPickerPreference =
-                    (ClassPickerPreference) findPreference(classPickerKey);
-            String grade = classPickerPreference.getValue();
-            classPickerPreference.setSummary(grade);
-
-            setClassPickerSummery();
-            setFilterSelectSummery();
 
             //Notification Sound Preference
             String uri = Utilities.getPrefString(getContext(),
@@ -230,8 +219,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         //Class Picker Preference
         private void setClassPickerSummery() {
+            String classPickerKey =
+                    Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY);
             ClassPickerPreference classPickerPreference =
-                    (ClassPickerPreference) findPreference(PREF_CLASS_PICKER_KEY);
+                    (ClassPickerPreference) findPreference(classPickerKey);
             String grade = classPickerPreference.getValue();
             classPickerPreference.setSummary(grade);
         }

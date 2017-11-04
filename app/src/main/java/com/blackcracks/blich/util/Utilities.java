@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
@@ -87,7 +85,7 @@ public class Utilities {
 
     public static int getPrefInt(Context context, String key, int defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-        .getInt(key, defaultValue);
+                .getInt(key, defaultValue);
     }
 
 
@@ -166,7 +164,7 @@ public class Utilities {
                     }
                 });
             } else {
-                throw new NullPointerException("A non-null fragment manager is required "  +
+                throw new NullPointerException("A non-null fragment manager is required " +
                         "in case the user's class isn't configured");
             }
 
@@ -190,7 +188,7 @@ public class Utilities {
                 }
                 default:
                     titleString = R.string.dialog_fetch_unsuccessful_title;
-                    messageString =  R.string.dialog_fetch_unsuccessful_message;
+                    messageString = R.string.dialog_fetch_unsuccessful_message;
             }
             TextView title = dialogView.findViewById(R.id.dialog_title);
             title.setText(titleString);
@@ -267,7 +265,8 @@ public class Utilities {
             int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-            if (hour >= 18 && day != 7) day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
+            if (hour >= 18 && day != 7)
+                day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
             if (day == 7) day = 1; //If it is Saturday, set day to 1 (Sunday).
             return day;
         }
@@ -289,63 +288,10 @@ public class Utilities {
         }
     }
 
-    public static class Sqlite {
+    public static class Nosql {
 
         public static String generateFilterCondition(Context context) {
-
-            String selection = "";
-
-            boolean isFilterOn = Utilities.getPreferenceBoolean(
-                    context,
-                    SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
-                    false);
-
-            if (isFilterOn) {
-                String[] teachersAndSubjects = Utilities.getPreferenceString(
-                        context,
-                        SettingsActivity.SettingsFragment.PREF_FILTER_SELECT_KEY,
-                        "",
-                        false)
-                        .split(";");
-
-                for (String teacherAndSubject : teachersAndSubjects) {
-                    String[] arr = teacherAndSubject.split(",");
-                    String teacher = arr[0];
-                    String subject = arr[1];
-
-                    selection += " OR(" +
-                            LessonEntry.TABLE_NAME +
-                            "." +
-                            LessonEntry.COL_TEACHER +
-                            " LIKE '" +
-                            teacher.trim() +
-                            "'";
-
-                    selection += " AND " +
-                            LessonEntry.TABLE_NAME +
-                            "." +
-                            LessonEntry.COL_SUBJECT +
-                            " LIKE '" +
-                            subject.trim() +
-                            "')";
-                }
-                selection += " OR " +
-                        LessonEntry.TABLE_NAME +
-                        "." +
-                        LessonEntry.COL_TEACHER +
-                        " LIKE '" +
-                        " " +
-                        "'";
-
-                int firstOrIndex = selection.indexOf("OR(");
-                selection = selection.substring(firstOrIndex + 2);
-                selection = " AND(".concat(selection);
-                selection += ")";
-            }
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, selection);
-            }
-            return selection;
+            return null;
         }
     }
 }
