@@ -34,12 +34,12 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
+import com.couchbase.lite.CouchbaseLiteException;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -62,7 +62,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -289,9 +291,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 .apply();
     }
 
-    private
-    @FetchStatus
-    int fetchSchedule() {
+    private @FetchStatus int fetchSchedule() {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -383,15 +383,31 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         }
         Elements lessons = table.getElementsByClass(CELL_CLASS);
 
-        List<ContentValues> scheduleValues = new ArrayList<>();
-        List<ContentValues> lessonValues = new ArrayList<>();
+        //Initialize "json" structure
+        Map<String, Object> data = new HashMap<>();
+        ArrayList<Map<String, Object>> schedule = new ArrayList<>();
+        data.put(BlichDatabase.SCHEDULE_KEY, schedule);
+        for(int i = 0; i < 7; i++) {
+            Map<String, Object> day = new HashMap<>();
+            day.put(BlichDatabase.DAY_KEY, i);
+
+            List<Map<String, Object>> hours = new ArrayList<>();
+            day.put(BlichDatabase.HOURS_KEY, hours);
+            schedule.add(day);
+        }
+
+        //Iterate through each cell in the table
         for (int i = 6; i < lessons.size(); i++) {
             int row = i / 6;
             int column = i % 6 + 1;
-            Element lesson = lessons.get(i);
-            Elements divs = lesson.getElementsByTag("div");
 
-            Elements trs = lesson.getElementsByTag("tr");
+            Map<String, Object> day = schedule.get(row);
+            List<Map<String, Object>> hours = (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
+
+            Element lessonElement = lessons.get(i);
+            Elements divs = lessonElement.getElementsByTag("div");
+
+            Elements trs = lessonElement.getElementsByTag("tr");
             Elements tds = new Elements();
             for (Element tr : trs) {
                 tds.add(tr.getElementsByTag("td").get(0));
@@ -401,6 +417,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             char[] events = {'f', 'f', 'f', 'f'};
 
+            ArrayList<Map<String, Object>> lessonList = new ArrayList<>();
             for (int k = 0; k < divs.size(); k++) {
                 Element div = divs.get(k);
                 String html = div.html();
@@ -429,27 +446,27 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 switch (div.attr("class")) {
                     case CANCELED_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_CANCELED;
+                        lessonType = BlichDatabase.TYPE_CANCELED;
                         if (events[0] == 'f') events[0] = 't';
                         break;
                     }
                     case CHANGED_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_CHANGED;
+                        lessonType = BlichDatabase.TYPE_CHANGE;
                         if (events[1] == 'f') events[1] = 't';
                         break;
                     }
                     case EXAM_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_EXAM;
+                        lessonType = BlichDatabase.TYPE_EXAM;
                         if (events[2] == 'f') events[2] = 't';
                         break;
                     }
                     case EVENT_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_EVENT;
+                        lessonType = BlichDatabase.TYPE_EVENT;
                         if (events[3] == 'f') events[3] = 't';
                         break;
                     }
                     default: {
-                        lessonType = LessonEntry.LESSON_TYPE_NORMAL;
+                        lessonType = BlichDatabase.TYPE_NORMAL;
                     }
                 }
 
@@ -459,40 +476,32 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                         subject,
                         lessonType);
 
-                ContentValues lessonValue = new ContentValues();
-                lessonValue.put(LessonEntry.COL_DAY, column);
-                lessonValue.put(LessonEntry.COL_HOUR, row);
-                lessonValue.put(LessonEntry.COL_LESSON_NUM, k);
-                lessonValue.put(LessonEntry.COL_SUBJECT, subject);
-                lessonValue.put(LessonEntry.COL_CLASSROOM, classroom);
-                lessonValue.put(LessonEntry.COL_TEACHER, teacher);
-                lessonValue.put(LessonEntry.COL_LESSON_TYPE, lessonType);
+                Map<String, Object> jsonLesson = new HashMap<>();
+                jsonLesson.put(BlichDatabase.SUBJECT_KEY, subject);
+                jsonLesson.put(BlichDatabase.CLASSROOM_KEY, classroom);
+                jsonLesson.put(BlichDatabase.TEACHER_KEY, teacher);
+                jsonLesson.put(BlichDatabase.LESSON_TYPE_KEY, lessonType);
 
-                lessonValues.add(lessonValue);
+                lessonList.add(jsonLesson);
             }
+            Map<String, Object> hour = new HashMap<>();
+            hour.put(BlichDatabase.HOUR_KEY, column);
+            hour.put(BlichDatabase.LESSONS_KEY, lessonList);
 
-            ContentValues scheduleValue = new ContentValues();
-            scheduleValue.put(ScheduleEntry.COL_DAY, column);
-            scheduleValue.put(ScheduleEntry.COL_HOUR, row);
-            scheduleValue.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
-            scheduleValue.put(ScheduleEntry.COL_EVENTS, new String(events));
-
-            scheduleValues.add(scheduleValue);
+            hours.add(hour);
         }
-        mContext.getContentResolver().bulkInsert(
-                ScheduleEntry.CONTENT_URI,
-                scheduleValues.toArray(new ContentValues[scheduleValues.size()]));
 
-        mContext.getContentResolver().bulkInsert(
-                LessonEntry.CONTENT_URI,
-                lessonValues.toArray(new ContentValues[lessonValues.size()])
-        );
+        com.couchbase.lite.Document doc = BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID);
+        try {
+            doc.putProperties(data);
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private
-    @FetchStatus
-    int fetchExams() {
+    private @FetchStatus int fetchExams() {
 
         int classValue;
         BufferedReader reader = null;
@@ -635,13 +644,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                                              int hour,
                                              String subject,
                                              String lessonType) {
-        if (!lessonType.equals(LessonEntry.LESSON_TYPE_NORMAL)) {
+        if (!lessonType.equals(BlichDatabase.TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int tommorow = today + 1;
-            if (tommorow == 8) tommorow = 1;
+            int tomorrow = today + 1;
+            if (tomorrow == 8) tomorrow = 1;
 
             int dayHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            if ((today == day && dayHour < 17) || tommorow == day) {
+            if ((today == day && dayHour < 17) || tomorrow == day) {
                 Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
                 mLessonNotificationList.add(lesson);
             }
