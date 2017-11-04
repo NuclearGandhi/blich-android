@@ -24,10 +24,10 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.data.FetchClassService;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         SharedPreferences sharedPreferences = PreferenceManager
                                 .getDefaultSharedPreferences(getContext());
                         sharedPreferences.edit()
-                                .putString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
+                                .putString(Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY),
                                         grade)
                                 .apply();
                         sharedPreferences.edit()

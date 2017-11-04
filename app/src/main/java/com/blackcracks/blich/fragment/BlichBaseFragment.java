@@ -112,7 +112,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(Constants.IntentConstants.ACTION_SYNC_CALLBACK));
-        mSwipeRefreshLayout.setRefreshing(Utilities.getPreferenceBoolean(getContext(), getString(R.string.pref_is_syncing_key), false));
+        mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(getContext(), getString(R.string.pref_is_syncing_key), false));
     }
 
     @Override

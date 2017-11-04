@@ -22,6 +22,7 @@ import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Constants.Preferences;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,25 +68,28 @@ public class Utilities {
         return false;
     }
 
-    public static String getPreferenceString(Context context,
-                                             String key,
-                                             String defaultValue,
-                                             boolean isUri) {
+
+    //Preferences
+    public static String getPrefString(Context context,
+                                       String key,
+                                       String defaultValue,
+                                       boolean isUri) {
         String returnString = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(key, defaultValue);
         if (isUri) return returnString;
         else return returnString.replace("/", "");
     }
 
-    public static boolean getPreferenceBoolean(Context context, String key, boolean defaultValue) {
+    public static boolean getPrefBoolean(Context context, String key, boolean defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(key, defaultValue);
     }
 
-    public static int getPreferenceInt(Context context, String key, int defaultValue) {
+    public static int getPrefInt(Context context, String key, int defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
         .getInt(key, defaultValue);
     }
+
 
     public static long getTimeInMillisFromDate(String date) {
 
@@ -113,7 +117,7 @@ public class Utilities {
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
-        boolean isFetching = getPreferenceBoolean(context, context.getString(R.string.pref_is_syncing_key), false);
+        boolean isFetching = getPrefBoolean(context, context.getString(R.string.pref_is_syncing_key), false);
         if (!isFetching) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putBoolean(context.getString(R.string.pref_is_syncing_key), true)
@@ -272,10 +276,16 @@ public class Utilities {
     public static class Class {
 
         public static String getCurrentClass(Context context) {
+
+            @Preferences.PrefIntKeys int intKey = Preferences.PREF_CLASS_PICKER_KEY;
+            String key = Preferences.getKey(context, intKey);
+
+            String defaultValue = (String) Preferences.getDefault(context, intKey);
+
             return PreferenceManager.getDefaultSharedPreferences(context)
-                    .getString(SettingsActivity.SettingsFragment.PREF_CLASS_PICKER_KEY,
-                            context.getResources().getString(R.string.pref_class_picker_default_value)
-                                    .replace("/", ""));
+                    .getString(
+                            key,
+                            defaultValue.replace("/", ""));
         }
     }
 

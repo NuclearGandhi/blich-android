@@ -23,6 +23,7 @@ import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -48,19 +49,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-        //Preference keys
-        public static final String PREF_CLASS_PICKER_KEY = "class_picker";
-        public static final String PREF_NOTIFICATION_TOGGLE_KEY = "notification_toggle";
-        public static final String PREF_NOTIFICATION_SOUND_KEY = "notification_sound";
-        public static final String PREF_FILTER_TOGGLE_KEY = "filter_key";
-        public static final String PREF_FILTER_SELECT_KEY = "filter_select";
-
-        //Default preference values
-        public static final String PREF_CLASS_PICKER_DEFAULT = "ט'3";
-        public static final boolean PREF_NOTIFICATION_TOGGLE_DEFAULT = true;
-        public static final String PREF_NOTIFICATION_SOUND_DEFAULT =
-                Settings.System.DEFAULT_NOTIFICATION_URI.toString();
 
         private static final int RINGTONE_PICKER_REQUEST = 100;
 
@@ -113,18 +101,17 @@ public class SettingsActivity extends AppCompatActivity {
         public boolean onPreferenceTreeClick(Preference preference) {
 
             String key = preference.getKey();
-
             //Handle the notification sound preference
-            if (key.equals(PREF_NOTIFICATION_SOUND_KEY)) {
+            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY))) {
                 Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
 
-                String existingValue = Utilities.getPreferenceString(getContext(),
+                String existingValue = Utilities.getPrefString(getContext(),
                         key,
-                        PREF_NOTIFICATION_SOUND_DEFAULT,
+                        (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY),
                         true);
                 if (existingValue != null) {
                     if (existingValue.length() == 0) {
@@ -150,20 +137,23 @@ public class SettingsActivity extends AppCompatActivity {
 
             //Handle the notification sound preference
             if (requestCode == RINGTONE_PICKER_REQUEST && data != null) {
+
+                String key = Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
                 Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                 if (uri != null) {
+
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                            .putString(PREF_NOTIFICATION_SOUND_KEY, uri.toString())
+                            .putString(key, uri.toString())
                             .apply();
 
                     Ringtone ringtone = RingtoneManager.getRingtone(getContext(), uri);
-                    Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
+                    Preference preference = findPreference(key);
                     preference.setSummary(ringtone.getTitle(getContext()));
                 } else {
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                            .putString(PREF_NOTIFICATION_SOUND_KEY, "")
+                            .putString(key, "")
                             .apply();
-                    Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
+                    Preference preference = findPreference(key);
                     preference.setSummary("שקט");
                 }
             } else {
@@ -173,54 +163,67 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            switch (key) {
-                case PREF_CLASS_PICKER_KEY: {
-                    setClassPickerSummery();
-                    getContext().getContentResolver().delete(
-                            BlichContract.ScheduleEntry.CONTENT_URI,
-                            null,
-                            null
-                    );
-                    getContext().getContentResolver().delete(
-                            BlichContract.LessonEntry.CONTENT_URI,
-                            null,
-                            null
-                    );
-                    Utilities.updateBlichData(getContext(), getView());
-                }
-                case PREF_NOTIFICATION_TOGGLE_KEY: {
-                    BlichSyncAdapter.initializeSyncAdapter(getContext());
-                }
-                case PREF_FILTER_SELECT_KEY: {
-                    setFilterSelectSummery();
-                }
+            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY))) {
+                ClassPickerPreference preference = (ClassPickerPreference) findPreference(key);
+                String grade = sharedPreferences.getString(key,
+                        (String) Preferences.getDefault(getContext(), Preferences.PREF_CLASS_PICKER_KEY));
+
+                preference.setSummary(grade);
+                getContext().getContentResolver().delete(
+                        BlichContract.ScheduleEntry.CONTENT_URI,
+                        null,
+                        null
+                );
+                getContext().getContentResolver().delete(
+                        BlichContract.LessonEntry.CONTENT_URI,
+                        null,
+                        null
+                );
+                Utilities.updateBlichData(getContext(), getView());
+            }
+            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
+                BlichSyncAdapter.initializeSyncAdapter(getContext());
             }
         }
 
         private void initPrefSummery() {
 
+            String classPickerKey =
+                    Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY);
+            String notificationSoundKey =
+                    Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
+
+            String notificationSoundDefault =
+                    (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
+
+            //Class Picker Preference
+            ClassPickerPreference classPickerPreference =
+                    (ClassPickerPreference) findPreference(classPickerKey);
+            String grade = classPickerPreference.getValue();
+            classPickerPreference.setSummary(grade);
+
             setClassPickerSummery();
             setFilterSelectSummery();
 
             //Notification Sound Preference
-            String uri = Utilities.getPreferenceString(getContext(),
-                    PREF_NOTIFICATION_SOUND_KEY,
-                    PREF_NOTIFICATION_SOUND_DEFAULT,
+            String uri = Utilities.getPrefString(getContext(),
+                    notificationSoundKey,
+                    notificationSoundDefault,
                     true);
             if (!uri.equals("")) {
                 PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putString(PREF_NOTIFICATION_SOUND_KEY, uri)
+                        .putString(notificationSoundKey, uri)
                         .apply();
 
                 Ringtone ringtone = RingtoneManager.getRingtone(getContext(), Uri.parse(uri));
-                Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
+                Preference preference = findPreference(notificationSoundKey);
                 preference.setSummary(ringtone.getTitle(getContext()));
             } else {
                 PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putString(PREF_NOTIFICATION_SOUND_KEY, "")
+                        .putString(notificationSoundKey, "")
                         .apply();
 
-                Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
+                Preference preference = findPreference(notificationSoundKey);
                 preference.setSummary("שקט");
             }
         }
