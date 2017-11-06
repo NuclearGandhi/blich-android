@@ -16,6 +16,7 @@ public class BlichDatabase {
     public static final String DATABASE_NAME = "blich";
 
     public static final String SCHEDULE_DOC_ID = "schedule";
+    public static final String SCHEDULE_VIEW_ID = "schedule";
 
     public static final String SCHEDULE_KEY = "schedule";
     public static final String HOURS_KEY = "hours";

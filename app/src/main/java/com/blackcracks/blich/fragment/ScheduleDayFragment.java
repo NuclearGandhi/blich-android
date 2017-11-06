@@ -36,7 +36,7 @@ public class ScheduleDayFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
         ExpandableListView listView = rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(null, getContext(), listView, getLoaderManager(), mDay);
+        mAdapter = new ScheduleAdapter(getContext(), mDay);
         listView.setAdapter(mAdapter);
         listView.setChildDivider(ContextCompat.getDrawable(getContext(), android.R.color.transparent)); //Hide the child dividers
 
