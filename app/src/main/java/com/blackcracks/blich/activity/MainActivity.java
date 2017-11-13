@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        if(item.isChecked()) return false;
+                        if (item.isChecked()) return false;
                         mDrawerLayout.closeDrawers();
                         switch (item.getItemId()) {
                             case R.id.schedule: {
@@ -201,14 +201,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDatabase() {
-        try{
+        try {
             Manager manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
             BlichDatabase.sDatabase = manager.getDatabase(BlichDatabase.DATABASE_NAME);
         } catch (IOException e) {
+            //TODO change to proper log
             e.printStackTrace();
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
+
+
     }
 
     private void onUpdate() {
