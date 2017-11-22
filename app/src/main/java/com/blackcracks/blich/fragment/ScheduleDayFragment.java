@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichDatabase;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Emitter;
@@ -79,20 +80,41 @@ public class ScheduleDayFragment extends Fragment {
                             List<Map<String, Object>> data =
                                     (List<Map<String, Object>>) document.get(BlichDatabase.SCHEDULE_KEY);
                             Map<String, Object> day = data.get(mDay);
+
+                            //Move to the 'hours' key
                             List<Map<String, Object>> hours =
                                     (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
+
                             for (Map<String, Object> hour :
                                     hours) {
                                 List<Map<String, Object>> lessons = (List<Map<String, Object>>) hour.get(BlichDatabase.LESSONS_KEY);
 
+
+                                //Add filter
                                 List<Map<String, Object>> filtered = new ArrayList<>();
-                                for(Map<String, Object> lesson:
-                                        lessons) {
-                                    String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
-                                    String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
-                                    if (Utilities.Nosql.filterString(getContext(), teacher, subject)) {
-                                        filtered.add(lesson);
+
+                                boolean isFilter = Utilities.getPrefBoolean(
+                                        getContext(),
+                                        Constants.Preferences.getKey(
+                                                getContext(),
+                                                Constants.Preferences.PREF_FILTER_TOGGLE_KEY),
+                                        (Boolean) Constants.Preferences.getDefault(
+                                                getContext(),
+                                                Constants.Preferences.PREF_FILTER_TOGGLE_KEY
+                                        )
+                                );
+
+                                if (isFilter) {
+                                    for(Map<String, Object> lesson:
+                                            lessons) {
+                                        String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
+                                        String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
+                                        if (Utilities.Nosql.filterString(getContext(), teacher, subject)) {
+                                            filtered.add(lesson);
+                                        }
                                     }
+                                } else {
+                                    filtered = lessons;
                                 }
                                 emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
                             }
