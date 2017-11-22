@@ -28,10 +28,12 @@ public class ScheduleFragment extends BlichBaseFragment {
 
         TabLayout tabLayout = mRootView.findViewById(R.id.tablayout_schedule_days);
         ViewPager viewPager = mRootView.findViewById(R.id.viewpager_schedule);
+        SchedulePagerAdapter pagerAdapter = new SchedulePagerAdapter(
+                getChildFragmentManager(),
+                getResources().getStringArray(R.array.tab_schedule_names));
+
         if (viewPager != null) {
-            viewPager.setAdapter(
-                    new SchedulePagerAdapter(getChildFragmentManager(),
-                            getResources().getStringArray(R.array.tab_schedule_names)));
+            viewPager.setAdapter(pagerAdapter);
 
             int day = Utilities.Schedule.getWantedDayOfTheWeek();
             viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);

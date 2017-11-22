@@ -14,12 +14,14 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichDatabase;
+import com.blackcracks.blich.util.Utilities;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +58,8 @@ public class ScheduleDayFragment extends Fragment {
 
         mStatusTextView = rootView.findViewById(R.id.text_status);
 
+        setUpCouchbaseView();
+
         return rootView;
     }
 
@@ -79,8 +83,18 @@ public class ScheduleDayFragment extends Fragment {
                                     (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
                             for (Map<String, Object> hour :
                                     hours) {
-                                emitter.emit(
-                                        BlichDatabase.HOUR_KEY + mDay, hour.get(BlichDatabase.LESSONS_KEY));
+                                List<Map<String, Object>> lessons = (List<Map<String, Object>>) hour.get(BlichDatabase.LESSONS_KEY);
+
+                                List<Map<String, Object>> filtered = new ArrayList<>();
+                                for(Map<String, Object> lesson:
+                                        lessons) {
+                                    String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
+                                    String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
+                                    if (Utilities.Nosql.filterString(getContext(), teacher, subject)) {
+                                        filtered.add(lesson);
+                                    }
+                                }
+                                emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
                             }
                         }
                     },

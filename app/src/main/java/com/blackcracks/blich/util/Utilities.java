@@ -290,8 +290,29 @@ public class Utilities {
 
     public static class Nosql {
 
-        public static String generateFilterCondition(Context context) {
-            return null;
+        private static String getFilter(Context context) {
+            return getPrefString(context,
+                    Preferences.getKey(context, Preferences.PREF_FILTER_SELECT_KEY),
+                    (String) Preferences.getDefault(context, Preferences.PREF_FILTER_SELECT_KEY),
+                    false);
+        }
+
+        public static boolean filterString(Context context, String teacher, String subject) {
+            String filter = getFilter(context);
+
+            String[] subAndTeach = filter.split(";");
+            boolean passFilter = false;
+            int i = 0;
+            while (i < subAndTeach.length && !passFilter) {
+                String[] arr = subAndTeach[i].split(",");
+                String teach = arr[0];
+                String sub = arr[1];
+
+                if (teach.equals(teacher) && sub.equals(subject)) passFilter = true;
+                i++;
+            }
+            if (teacher.equals(" ")) passFilter = true;
+            return passFilter;
         }
     }
 }

@@ -24,11 +24,14 @@ public class Constants {
 
         //Preference keys
         @Retention(SOURCE)
-        @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY})
+        @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
+            PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY})
         public @interface PrefIntKeys {}
         public static final int PREF_CLASS_PICKER_KEY = 0;
         public static final int PREF_NOTIFICATION_TOGGLE_KEY = 1;
         public static final int PREF_NOTIFICATION_SOUND_KEY = 2;
+        public static final int PREF_FILTER_TOGGLE_KEY = 3;
+        public static final int PREF_FILTER_SELECT_KEY = 4;
 
         public static String getKey(Context context, @PrefIntKeys int key) {
 
@@ -44,6 +47,14 @@ public class Constants {
                 }
                 case PREF_NOTIFICATION_SOUND_KEY:{
                     resKey = R.string.pref_notification_sound_key;
+                    break;
+                }
+                case PREF_FILTER_TOGGLE_KEY: {
+                    resKey = R.string.pref_filter_toggle_key;
+                    break;
+                }
+                case PREF_FILTER_SELECT_KEY: {
+                    resKey = R.string.pref_filter_select_title;
                     break;
                 }
             }
@@ -63,6 +74,10 @@ public class Constants {
 
                 case PREF_NOTIFICATION_SOUND_KEY:
                     return PREF_NOTIFICATION_SOUND_DEFAULT;
+                case PREF_FILTER_TOGGLE_KEY:
+                    return context.getResources().getBoolean(R.bool.pref_filter_toggle_default);
+                case PREF_FILTER_SELECT_KEY:
+                    return "";
             }
             return null;
         }

@@ -13,11 +13,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.couchbase.lite.QueryEnumerator;
+import com.couchbase.lite.QueryRow;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter {
 
-    private final Context mContext;
-    private final int mDay;
+    private int mDay;
+
+    private QueryEnumerator mData;
+    private Context mContext;
 
     public ScheduleAdapter(Context context,
                            int day) {
@@ -75,6 +79,11 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
+    public void setData(QueryEnumerator enumerator) {
+        mData = enumerator;
+        notifyDataSetChanged();
+    }
+
     private View makeEventDot(ViewGroup parent, @ColorRes int color) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
 
@@ -113,6 +122,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subjectView = view.findViewById(R.id.schedule_child_subject);
             classroomView = view.findViewById(R.id.schedule_child_classroom);
             teacherView = view.findViewById(R.id.schedule_child_teacher);
+        }
+    }
+
+    private class QueryEnumeratorHelper {
+        private QueryEnumerator mData;
+        private boolean mIsDataValid;
+
+        public QueryEnumeratorHelper(QueryEnumerator data) {
+            mData = data;
+            mIsDataValid = data != null;
+        }
+
+        QueryRow getHour(int position) {
+            return null;
         }
     }
 }
