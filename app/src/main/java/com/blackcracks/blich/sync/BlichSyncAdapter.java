@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,9 +24,6 @@ import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.util.Log;
 
 import com.blackcracks.blich.R;
@@ -61,7 +57,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -291,7 +286,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 .apply();
     }
 
-    private @FetchStatus int fetchSchedule() {
+    private @FetchStatus
+    int fetchSchedule() {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -387,7 +383,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         Map<String, Object> data = new HashMap<>();
         ArrayList<Map<String, Object>> schedule = new ArrayList<>();
         data.put(BlichDatabase.SCHEDULE_KEY, schedule);
-        for(int i = 0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
             Map<String, Object> day = new HashMap<>();
             day.put(BlichDatabase.DAY_KEY, i);
 
@@ -471,11 +467,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
 
-                addLessonToNotificationList(classValue,
-                        column,
-                        row,
-                        subject,
-                        lessonType);
+
+                Lesson lesson = new Lesson(subject, teacher, classroom, lessonType);
+                addLessonToNotificationList(lesson, column, row);
 
                 Map<String, Object> jsonLesson = new HashMap<>();
                 jsonLesson.put(BlichDatabase.SUBJECT_KEY, subject);
@@ -502,7 +496,8 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private @FetchStatus int fetchExams() {
+    private @FetchStatus
+    int fetchExams() {
 
         int classValue;
         BufferedReader reader = null;
@@ -640,19 +635,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return classValue;
     }
 
-    private void addLessonToNotificationList(int classSettings,
-                                             int day,
-                                             int hour,
-                                             String subject,
-                                             String lessonType) {
-        if (!lessonType.equals(BlichDatabase.TYPE_NORMAL)) {
+    private void addLessonToNotificationList(Lesson lesson, int day, int hour) {
+        if (!lesson.getLessonType().equals(BlichDatabase.TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int tomorrow = today + 1;
             if (tomorrow == 8) tomorrow = 1;
 
             int dayHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
             if ((today == day && dayHour < 17) || tomorrow == day) {
-                Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
                 mLessonNotificationList.add(lesson);
             }
         }
@@ -662,39 +652,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         boolean foreground = Utilities.isAppOnForeground(getContext());
 
         if (!mLessonNotificationList.isEmpty() && !foreground) {
-            Collections.sort(mLessonNotificationList);
-            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();
 
             int changesNum = 0;
-            if (mLessonNotificationList.get(0).getDay() == today) {
-
-                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
-                        R.string.notification_update_today)));
-
-                boolean tomorrow = false;
-                for (Lesson lesson : mLessonNotificationList) {
-                    if (lesson.getDay() == today) {
-                        buildTimetableLine(inboxStyle, lesson);
-                        changesNum++;
-                    } else {
-                        if (!tomorrow) {
-                            inboxStyle.addLine(buildTimetableBoldString(getContext().getResources()
-                                    .getString(R.string.notification_update_tomorrow)));
-                        }
-                        tomorrow = true;
-                        buildTimetableLine(inboxStyle, lesson);
-                        changesNum++;
-                    }
-                }
-            } else {
-                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
-                        R.string.notification_update_tomorrow)));
-                for (Lesson lesson : mLessonNotificationList) {
-                    buildTimetableLine(inboxStyle, lesson);
-                    changesNum++;
-                }
+            for (Lesson lesson : mLessonNotificationList) {
+                inboxStyle.addLine(lesson.getSubject());
+                changesNum++;
             }
 
             String summery;
@@ -738,23 +702,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         }
         mLessonNotificationList = new ArrayList<>();
-    }
-
-    private Spannable buildTimetableBoldString(String str) {
-        Spannable sp = new SpannableString(str);
-        sp.setSpan(new StyleSpan(Typeface.BOLD), 0, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return sp;
-    }
-
-    private void buildTimetableLine(NotificationCompat.InboxStyle inboxStyle, Lesson lesson) {
-        String str = "שעה " +
-                lesson.getHour() +
-                ": " +
-                lesson.getSubject() +
-                "\n";
-        Spannable sp = new SpannableString(str);
-        sp.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, str.indexOf(":"), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        inboxStyle.addLine(sp);
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
