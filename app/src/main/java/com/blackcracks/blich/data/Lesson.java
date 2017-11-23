@@ -1,13 +1,10 @@
 package com.blackcracks.blich.data;
 
-import android.support.annotation.NonNull;
-
 /**
  * A base class for each lesson in the Schedule Table
  */
-public class Lesson implements Comparable<Lesson> {
+public class Lesson {
 
-    private int mClassSettings;
     private int mDay;
     private int mHour;
     private String mSubject;
@@ -15,36 +12,11 @@ public class Lesson implements Comparable<Lesson> {
     private String mTeacher;
     private String mLessonType;
 
-    public Lesson(int classSettings, int day, int hour, String subject, String lessonType) {
-        mClassSettings = classSettings;
-        mDay = day;
-        mHour = hour;
+    public Lesson(String subject, String teacher, String classroom, String lessonType) {
         mSubject = subject;
+        mTeacher = teacher;
+        mClassroom = classroom;
         mLessonType = lessonType;
-    }
-
-    public int getDay() {
-        return mDay;
-    }
-
-    public void setDay(int day) {
-        this.mDay = day;
-    }
-
-    public int getClassSettings() {
-        return mClassSettings;
-    }
-
-    public void setClassSettings(int classSettings) {
-        this.mClassSettings = classSettings;
-    }
-
-    public int getHour() {
-        return mHour;
-    }
-
-    public void setHour(int hour) {
-        this.mHour = hour;
     }
 
     public String getSubject() {
@@ -77,15 +49,5 @@ public class Lesson implements Comparable<Lesson> {
 
     public void setLessonType(String lessonType) {
         this.mLessonType = lessonType;
-    }
-
-    @Override
-    public int compareTo(@NonNull Lesson o) {
-        if (mDay == o.getDay()) {
-            if (mHour == o.getHour()) return 0;
-            else if (mHour > o.getHour()) return 1;
-            else return -1;
-        } else if (mDay > o.getDay()) return 1;
-        else return -1;
     }
 }

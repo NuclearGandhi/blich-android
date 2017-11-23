@@ -13,40 +13,57 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.BlichDatabase;
+import com.blackcracks.blich.data.Hour;
+import com.blackcracks.blich.data.Lesson;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private int mDay;
 
-    private QueryEnumerator mData;
+    private QueryEnumeratorHelper mQueryHelper;
     private Context mContext;
+    private TextView mStatusTextView;
 
     public ScheduleAdapter(Context context,
-                           int day) {
+                           int day,
+                           TextView statusTextView) {
         mContext = context;
         mDay = day;
+
+        mQueryHelper = new QueryEnumeratorHelper(null);
     }
 
     @Override
     public int getGroupCount() {
-        return 0;
+        int count = mQueryHelper.getHourCount();
+        if (count == 0) {
+            mStatusTextView.setVisibility(View.VISIBLE);
+        } else {
+            mStatusTextView.setVisibility(View.GONE);
+        }
+        return count;
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 0;
+        return mQueryHelper.getChildCount(groupPosition);
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return null;
+        return mQueryHelper.getHour(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return null;
+        return mQueryHelper.getLesson(groupPosition, childPosition);
     }
 
     @Override
@@ -80,7 +97,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     }
 
     public void setData(QueryEnumerator enumerator) {
-        mData = enumerator;
+        mQueryHelper.setData(enumerator);
         notifyDataSetChanged();
     }
 
@@ -127,15 +144,75 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private class QueryEnumeratorHelper {
         private QueryEnumerator mData;
+        private List<Hour> mHours = new ArrayList<>();
         private boolean mIsDataValid;
 
-        public QueryEnumeratorHelper(QueryEnumerator data) {
+        QueryEnumeratorHelper(QueryEnumerator data) {
             mData = data;
             mIsDataValid = data != null;
         }
 
-        QueryRow getHour(int position) {
-            return null;
+        void setData(QueryEnumerator data) {
+            mData = data;
+
+            if (data != null) mIsDataValid = true;
+        }
+
+        boolean isDataValid() {
+            return mIsDataValid;
+        }
+
+        Hour getHour(int position) {
+
+            if (!mIsDataValid) return null;
+            if (mHours.get(position) == null) {
+                QueryRow row = mData.getRow(position);
+
+                List<Lesson> lessons = new ArrayList<>();
+                List<Map<String, Object>> filtered = (List<Map<String, Object>>) row.getValue();
+
+                for (Map<String, Object> queriedLesson:
+                        filtered) {
+
+                    String subject = (String) queriedLesson.get(BlichDatabase.SUBJECT_KEY);
+                    String teacher = (String) queriedLesson.get(BlichDatabase.TEACHER_KEY);
+                    String classroom = (String) queriedLesson.get(BlichDatabase.CLASSROOM_KEY);
+                    String lessonType = (String) queriedLesson.get(BlichDatabase.LESSON_TYPE_KEY);
+                    Lesson lesson = new Lesson(subject, teacher, classroom, lessonType);
+
+                    lessons.add(lesson);
+                }
+
+                String queriedHour = (String) row.getKey();
+                int hourNum = Integer.parseInt(queriedHour.replace(BlichDatabase.HOUR_KEY, ""));
+
+                Hour hour = new Hour(hourNum, lessons);
+                mHours.add(position, hour);
+                return hour;
+            }
+            return mHours.get(position);
+        }
+
+        Lesson getLesson(int position, int childPos) {
+            if (mIsDataValid) return null;
+            Hour hour = getHour(position);
+            return hour.getLessons().get(childPos);
+        }
+
+        int getHourCount() {
+            if (mIsDataValid) {
+                return mData.getCount();
+            } else {
+                return 0;
+            }
+        }
+
+        int getChildCount(int position) {
+            if (mIsDataValid) {
+                return getHour(position).getLessons().size();
+            } else {
+                return 0;
+            }
         }
     }
 }

@@ -35,7 +35,6 @@ public class ScheduleDayFragment extends Fragment {
 
     private ScheduleAdapter mAdapter;
     private int mDay;
-    private TextView mStatusTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,16 +47,16 @@ public class ScheduleDayFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
+        TextView statusTextView = rootView.findViewById(R.id.text_status);
+
         ExpandableListView listView = rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(getContext(), mDay);
+        mAdapter = new ScheduleAdapter(getContext(), mDay, statusTextView);
         listView.setAdapter(mAdapter);
         listView.setChildDivider(
                 ContextCompat.getDrawable(getContext(),
                         android.R.color.transparent)); //Hide the child dividers
 
         ViewCompat.setNestedScrollingEnabled(listView, true);
-
-        mStatusTextView = rootView.findViewById(R.id.text_status);
 
         setUpCouchbaseView();
 
@@ -116,6 +115,7 @@ public class ScheduleDayFragment extends Fragment {
                                 } else {
                                     filtered = lessons;
                                 }
+
                                 emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
                             }
                         }
