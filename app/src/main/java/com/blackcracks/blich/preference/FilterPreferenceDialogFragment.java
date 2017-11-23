@@ -7,8 +7,6 @@
 
 package com.blackcracks.blich.preference;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.preference.Preference;
@@ -21,17 +19,17 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
-import com.blackcracks.blich.data.BlichDatabaseHelper;
+import com.blackcracks.blich.data.BlichDatabase;
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryEnumerator;
+import com.couchbase.lite.QueryRow;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
-    private static final String[] PROJECTION = {
-            LessonEntry.COL_TEACHER,
-            LessonEntry.COL_SUBJECT
-    };
     private FilterPreference mPreference;
     private ViewGroup mTeacherScrollView;
     private ArrayList<String> mTeacherList;
@@ -92,37 +90,28 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
         @Override
         protected Void doInBackground(Void... params) {
 
-            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-            String selection = LessonEntry.COL_TEACHER + " != ?";
-            String[] selectionArs = {" "};
-            String sortOrder = LessonEntry.COL_SUBJECT + " ASC";
-
-            Cursor cursor = db.query(
-                    true,
-                    LessonEntry.TABLE_NAME,
-                    PROJECTION,
-                    selection,
-                    selectionArs,
-                    null, null,
-                    sortOrder,
-                    null
-            );
-
             mTeachers = new ArrayList<>();
             mSubjects = new ArrayList<>();
 
-            for (int i = 0; i < cursor.getCount(); i++) {
-                if (cursor.moveToPosition(i)) {
-                    String teacher = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_TEACHER));
-                    String subject = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_SUBJECT));
-                    mTeachers.add(teacher);
-                    mSubjects.add(subject);
-                }
+            Query query = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID)
+                    .createQuery();
+
+            QueryEnumerator result = null;
+            try {
+                result = query.run();
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
             }
 
-            cursor.close();
+            Iterator<QueryRow> it = result.iterator();
+            while(it.hasNext()) {
+                QueryRow row = it.next();
+                String teacher = (String) row.getKey();
+                String subject= (String) row.getValue();
+
+                mTeachers.add(teacher);
+                mSubjects.add(subject);
+            }
             return null;
         }
 
