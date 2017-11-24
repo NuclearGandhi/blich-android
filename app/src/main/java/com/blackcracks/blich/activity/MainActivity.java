@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setLocaleToHebrew();
         setupDatabase();
+        Timber.plant(new Timber.DebugTree());
 
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_main, null, false);
