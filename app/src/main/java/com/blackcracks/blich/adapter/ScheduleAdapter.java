@@ -36,6 +36,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                            TextView statusTextView) {
         mContext = context;
         mDay = day;
+        mStatusTextView = statusTextView;
 
         mQueryHelper = new QueryEnumeratorHelper(null);
     }

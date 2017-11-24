@@ -25,6 +25,13 @@ public class BlichContract {
      * This class does not implement {@link BaseColumns} because an autoincrement key with a different
      * name than '_id' is needed.
      */
+    public static class ScheduleEntry {
+        public static final String TABLE_NAME = "schedule";
+    }
+
+    public static class LessonEntry {
+        public static final String TABLE_NAME = "lesson";
+    }
 
 
     /**
