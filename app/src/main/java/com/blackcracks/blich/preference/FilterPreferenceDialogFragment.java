@@ -21,14 +21,18 @@ import android.widget.CompoundButton;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichDatabase;
 import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Document;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import timber.log.Timber;
 
@@ -88,32 +92,26 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
 
     private class LoadTeacherList extends AsyncTask<Void, Void, Void> {
 
-        private ArrayList<String> mTeachers;
-        private ArrayList<String> mSubjects;
+        private TreeMap<String, String> mTeachAndSub;
 
         @Override
         protected Void doInBackground(Void... params) {
 
-            mTeachers = new ArrayList<>();
-            mSubjects = new ArrayList<>();
+            mTeachAndSub = new TreeMap<>();
 
             Query query = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID)
                     .createQuery();
-
-            Document doc = BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID);
-            Map<String, Object> map = doc.getProperties();
 
             QueryEnumerator result;
             try {
                 result = query.run();
                 Iterator<QueryRow> it = result;
-                while(it.hasNext()) {
+                while (it.hasNext()) {
                     QueryRow row = it.next();
                     String teacher = (String) row.getKey();
-                    String subject= (String) row.getValue();
+                    String subject = (String) row.getValue();
 
-                    mTeachers.add(teacher);
-                    mSubjects.add(subject);
+                    mTeachAndSub.put(teacher, subject);
                 }
             } catch (CouchbaseLiteException e) {
                 Timber.e(e);
@@ -124,10 +122,23 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
         @Override
         protected void onPostExecute(Void params) {
             super.onPostExecute(params);
+            Set<Entry<String, String>> entries = mTeachAndSub.entrySet();
+            List<Entry<String, String>> listOfEntries = new ArrayList<>(entries);
 
-            for (int i = 0; i < mTeachers.size(); i++) {
-                final String teacher = mTeachers.get(i);
-                final String subject = mSubjects.get(i);
+            Comparator<Entry<String, String>> valueComparator = new Comparator<Entry<String, String>>() {
+                @Override
+                public int compare(Entry<String, String> e1, Entry<String, String> e2) {
+                    String v1 = e1.getValue();
+                    String v2 = e2.getValue();
+                    return v1.compareTo(v2);
+                }
+            };
+
+            Collections.sort(listOfEntries, valueComparator);
+
+            for (Entry<String, String> entry : listOfEntries) {
+                final String teacher = entry.getKey();
+                final String subject = entry.getValue();
 
                 CheckBox view = (CheckBox) LayoutInflater.from(getContext())
                         .inflate(R.layout.teacher_filter_item, null);
