@@ -36,6 +36,7 @@ import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.UnsavedRevision;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -380,9 +381,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         Elements lessons = table.getElementsByClass(CELL_CLASS);
 
         //Initialize "json" structure
-        Map<String, Object> data = new HashMap<>();
-        ArrayList<Map<String, Object>> schedule = new ArrayList<>();
-        data.put(BlichDatabase.SCHEDULE_KEY, schedule);
+        final ArrayList<Map<String, Object>> schedule = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
             Map<String, Object> day = new HashMap<>();
             day.put(BlichDatabase.DAY_KEY, i);
@@ -397,7 +396,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             int row = i / 6;
             int column = i % 6 + 1;
 
-            Map<String, Object> day = schedule.get(row);
+            Map<String, Object> day = schedule.get(column);
             List<Map<String, Object>> hours = (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
 
             Element lessonElement = lessons.get(i);
@@ -488,7 +487,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         com.couchbase.lite.Document doc = BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID);
         try {
-            doc.putProperties(data);
+            doc.update(new com.couchbase.lite.Document.DocumentUpdater() {
+                @Override
+                public boolean update(UnsavedRevision newRevision) {
+                    Map<String, Object> properties = newRevision.getProperties();
+                    properties.put(BlichDatabase.SCHEDULE_KEY, schedule);
+                    return true;
+                }
+            });
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
