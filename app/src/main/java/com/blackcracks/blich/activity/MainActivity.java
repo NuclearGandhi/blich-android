@@ -245,10 +245,10 @@ public class MainActivity extends AppCompatActivity {
                                 String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
                                 String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
 
-                                String existingSubject= (String) teachAndSub.get(teacher);
+                                String existingSubject = (String) teachAndSub.get(teacher);
 
                                 //Emit only teacher-subject pairs that weren't emitted
-                                if(existingSubject == null || !existingSubject.equals(subject)) {
+                                if((existingSubject == null || !existingSubject.equals(subject)) && teacher.equals("")) {
                                     emitter.emit(teacher, subject);
                                     teachAndSub.put(teacher, subject);
                                 }
