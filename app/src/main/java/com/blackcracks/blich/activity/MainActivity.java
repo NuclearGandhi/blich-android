@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         com.couchbase.lite.View teacherView = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID);
-        if (teacherView.getMap() != null) {
+        if (teacherView.getMap() == null) {
             teacherView.setMap(new Mapper() {
                 @Override
                 public void map(Map<String, Object> document, Emitter emitter) {
@@ -245,8 +245,10 @@ public class MainActivity extends AppCompatActivity {
                                 String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
                                 String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
 
+                                String existingSubject= (String) teachAndSub.get(teacher);
+
                                 //Emit only teacher-subject pairs that weren't emitted
-                                if(!teachAndSub.get(teacher).equals(subject)) {
+                                if(existingSubject == null || !existingSubject.equals(subject)) {
                                     emitter.emit(teacher, subject);
                                     teachAndSub.put(teacher, subject);
                                 }

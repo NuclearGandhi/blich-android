@@ -21,12 +21,16 @@ import android.widget.CompoundButton;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichDatabase;
 import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+
+import timber.log.Timber;
 
 public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
@@ -52,7 +56,7 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
 
         mTeacherList = new ArrayList<>();
         mSubjectList = new ArrayList<>();
-        if (mPreference.getValue() != null) {
+        if (mPreference.getValue() != null && !mPreference.getValue().equals("")) {
             String[] teachersAndSubjects = mPreference.getValue().split(";");
             for (String teacherAndSubject :
                     teachersAndSubjects) {
@@ -96,21 +100,23 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
             Query query = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID)
                     .createQuery();
 
-            QueryEnumerator result = null;
+            Document doc = BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID);
+            Map<String, Object> map = doc.getProperties();
+
+            QueryEnumerator result;
             try {
                 result = query.run();
+                Iterator<QueryRow> it = result;
+                while(it.hasNext()) {
+                    QueryRow row = it.next();
+                    String teacher = (String) row.getKey();
+                    String subject= (String) row.getValue();
+
+                    mTeachers.add(teacher);
+                    mSubjects.add(subject);
+                }
             } catch (CouchbaseLiteException e) {
-                e.printStackTrace();
-            }
-
-            Iterator<QueryRow> it = result.iterator();
-            while(it.hasNext()) {
-                QueryRow row = it.next();
-                String teacher = (String) row.getKey();
-                String subject= (String) row.getValue();
-
-                mTeachers.add(teacher);
-                mSubjects.add(subject);
+                Timber.e(e);
             }
             return null;
         }
