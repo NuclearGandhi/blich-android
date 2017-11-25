@@ -1,7 +1,9 @@
 package com.blackcracks.blich.fragment;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -29,7 +31,7 @@ import java.util.Map;
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
-public class ScheduleDayFragment extends Fragment {
+public class ScheduleDayFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String DAY_KEY = "day";
 
@@ -66,6 +68,30 @@ public class ScheduleDayFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_is_syncing_key))) {
+            if (!sharedPreferences.getBoolean(key, true)) {
+                new LoadDataTask().execute();
+            }
+        }
     }
 
     public void setUpCouchbaseView() {
