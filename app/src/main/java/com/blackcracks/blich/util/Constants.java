@@ -54,7 +54,7 @@ public class Constants {
                     break;
                 }
                 case PREF_FILTER_SELECT_KEY: {
-                    resKey = R.string.pref_filter_select_title;
+                    resKey = R.string.pref_filter_select_key;
                     break;
                 }
             }

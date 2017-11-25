@@ -17,7 +17,6 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.widget.Toolbar;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.preference.FilterPreference;
@@ -25,7 +24,6 @@ import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
-import com.couchbase.lite.CouchbaseLiteException;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -165,21 +163,14 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY))) {
-                ClassPickerPreference preference = (ClassPickerPreference) findPreference(key);
-                String grade = sharedPreferences.getString(key,
-                        (String) Preferences.getDefault(getContext(), Preferences.PREF_CLASS_PICKER_KEY));
-
-                preference.setSummary(grade);
-
-                try {
-                    BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID).delete();
-                } catch (CouchbaseLiteException e) {
-                    e.printStackTrace();
-                }
+                setClassPickerSummery();
                 Utilities.updateBlichData(getContext(), getView());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
                 BlichSyncAdapter.initializeSyncAdapter(getContext());
+        }
+            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
+                setFilterSelectSummery();
             }
         }
 

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.text.Html;
+import android.text.SpannedString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,6 +136,7 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
             };
 
             Collections.sort(listOfEntries, valueComparator);
+            List<CheckBox> viewList = new ArrayList<>();
 
             for (Entry<String, String> entry : listOfEntries) {
                 final String teacher = entry.getKey();
@@ -146,11 +148,11 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
                 String formattedText = "<b>" + subject + "</b> - " + teacher;
                 view.setText(Html.fromHtml(formattedText));
 
-                for (int j = 0; j < mTeacherList.size(); j++) {
-                    if (mTeacherList.get(j).equals(teacher) && mSubjectList.get(j).equals(subject)) {
-                        view.setChecked(true);
-                    }
+                //Populate the list
+                if (mTeacherList.contains(teacher) && mSubjectList.contains(subject)) {
+                    view.setChecked(true);
                 }
+
                 view.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -163,7 +165,24 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
                         }
                     }
                 });
+
+                viewList.add(view);
                 mTeacherScrollView.addView(view);
+            }
+
+            mTeacherList.clear();
+            mSubjectList.clear();
+            for (CheckBox view :
+                    viewList) {
+                if (view.isChecked()) {
+                    SpannedString str = (SpannedString) view.getText();
+                    String[] text = str.toString().split(" - ");
+                    String teacher = text[1];
+                    String subject = text[0];
+
+                    mTeacherList.add(teacher);
+                    mSubjectList.add(subject);
+                }
             }
         }
     }
