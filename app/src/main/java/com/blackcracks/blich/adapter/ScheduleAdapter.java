@@ -84,7 +84,18 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        return null;
+        if (!mQueryHelper.isDataValid()) return null;
+
+        View view = LayoutInflater.from(mContext)
+                .inflate(R.layout.schedule_group, parent, false);
+        GroupViewHolder holder = new GroupViewHolder(view);
+
+        Hour hour = (Hour) getGroup(groupPosition);
+        holder.hourView.setText(hour.getHour() + "");
+
+        Lesson lesson = hour.getLessons().get(0);
+        holder.subjectsView.setText(lesson.getSubject());
+        return view;
     }
 
     @Override
@@ -166,7 +177,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         Hour getHour(int position) {
 
             if (!mIsDataValid) return null;
-            if (mHours.get(position) == null) {
+            if (mHours.size() != mData.getCount()) {
                 QueryRow row = mData.getRow(position);
 
                 List<Lesson> lessons = new ArrayList<>();

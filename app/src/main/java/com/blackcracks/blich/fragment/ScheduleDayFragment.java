@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import timber.log.Timber;
+
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
@@ -142,7 +144,9 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
                                     filtered = lessons;
                                 }
 
-                                emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
+                                if (filtered.size() != 0) {
+                                    emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
+                                }
                             }
                         }
                     },
@@ -156,18 +160,14 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
 
         @Override
         protected Void doInBackground(Void... voids) {
-            QueryEnumerator data = null;
+            QueryEnumerator data;
             try {
                 Query query = BlichDatabase.sDatabase.getView(
                         BlichDatabase.SCHEDULE_VIEW_ID + mDay).createQuery();
                 data = query.run();
-            } catch (CouchbaseLiteException e) {
-                //TODO change to proper log
-                e.printStackTrace();
-            }
-
-            if (data != null) {
                 mData = data;
+            } catch (CouchbaseLiteException e) {
+                Timber.e(e);
             }
             return null;
         }

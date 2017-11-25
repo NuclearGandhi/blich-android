@@ -28,7 +28,7 @@
     <PreferenceCategory android:title="@string/pref_filter_category_title">
 
         <SwitchPreferenceCompat
-            android:defaultValue="true"
+            android:defaultValue="@bool/pref_filter_toggle_default"
             android:disableDependentsState="false"
             android:key="@string/pref_filter_toggle_key"
             android:title="@string/pref_filter_toggle_title"/>
