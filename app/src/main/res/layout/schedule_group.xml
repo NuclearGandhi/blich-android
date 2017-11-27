@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="24dp"
-        android:layout_marginTop="0dp"
+        android:textColor="@color/black_text"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintHorizontal_bias="0.0"

@@ -1,9 +1,8 @@
 package com.blackcracks.blich.fragment;
 
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -15,11 +14,13 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
+import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Emitter;
+import com.couchbase.lite.LiveQuery;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
@@ -33,12 +34,14 @@ import timber.log.Timber;
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
-public class ScheduleDayFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ScheduleDayFragment extends Fragment implements SchedulePagerAdapter.FragmentLifecycle {
 
     public static final String DAY_KEY = "day";
 
     private ScheduleAdapter mAdapter;
     private int mDay;
+
+    LiveQuery mLiveQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,8 +66,13 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
         ViewCompat.setNestedScrollingEnabled(listView, true);
 
         setUpCouchbaseView();
-
+        addLiveQuery();
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
     }
 
     @Override
@@ -73,27 +81,34 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-                .registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_is_syncing_key))) {
-            if (!sharedPreferences.getBoolean(key, true)) {
-                new LoadDataTask().execute();
-            }
+    public void onResumeFragment() {
+        if (isAdded()) {
+            refreshData();
         }
+    }
+
+    @Override
+    public void onPauseFragment() {
+
+    }
+
+    private void refreshData() {
+        new LoadDataTask().execute();
+    }
+
+    private void addLiveQuery() {
+        Query query = BlichDatabase.sDatabase.getView(
+                BlichDatabase.SCHEDULE_VIEW_ID + mDay).createQuery();
+        mLiveQuery = query.toLiveQuery();
+        mLiveQuery.addChangeListener(new LiveQuery.ChangeListener() {
+            @Override
+            public void changed(LiveQuery.ChangeEvent event) {
+                if (event.getSource().equals(mLiveQuery)) {
+                    refreshData();
+                }
+            }
+        });
+        mLiveQuery.start();
     }
 
     public void setUpCouchbaseView() {
@@ -132,7 +147,7 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
                                 );
 
                                 if (isFilter) {
-                                    for(Map<String, Object> lesson:
+                                    for (Map<String, Object> lesson :
                                             lessons) {
                                         String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
                                         String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
@@ -156,16 +171,12 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
 
     class LoadDataTask extends AsyncTask<Void, Void, Void> {
 
-        private QueryEnumerator mData;
+        QueryEnumerator mData;
 
         @Override
         protected Void doInBackground(Void... voids) {
-            QueryEnumerator data;
             try {
-                Query query = BlichDatabase.sDatabase.getView(
-                        BlichDatabase.SCHEDULE_VIEW_ID + mDay).createQuery();
-                data = query.run();
-                mData = data;
+                mData = mLiveQuery.run();
             } catch (CouchbaseLiteException e) {
                 Timber.e(e);
             }
@@ -174,8 +185,7 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            mAdapter.setData(mData);
+            mAdapter.switchData(mData);
         }
     }
 }

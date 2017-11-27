@@ -109,7 +109,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-    public void setData(QueryEnumerator enumerator) {
+    public void switchData(QueryEnumerator enumerator) {
         mQueryHelper.switchData(enumerator);
         notifyDataSetChanged();
     }
