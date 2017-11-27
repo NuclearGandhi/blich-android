@@ -108,10 +108,10 @@ public class ScheduleDayFragment extends Fragment implements SharedPreferences.O
                                     (List<Map<String, Object>>) document.get(BlichDatabase.SCHEDULE_KEY);
                             Map<String, Object> day = data.get(mDay);
 
-                            //Move to the 'hours' key
                             List<Map<String, Object>> hours =
                                     (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
 
+                            //Iterate through each hour
                             for (Map<String, Object> hour :
                                     hours) {
                                 List<Map<String, Object>> lessons = (List<Map<String, Object>>) hour.get(BlichDatabase.LESSONS_KEY);

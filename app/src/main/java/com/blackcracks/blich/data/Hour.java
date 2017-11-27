@@ -7,13 +7,15 @@
 
 package com.blackcracks.blich.data;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 /**
  * Created by Administrator on 11/23/2017.
  */
 
-public class Hour {
+public class Hour implements Comparable<Hour> {
 
     private int mHour;
     private List<Lesson> mLessons;
@@ -37,5 +39,18 @@ public class Hour {
 
     public void setLessons(List<Lesson> lessons) {
         mLessons = lessons;
+    }
+
+    @Override
+    public int compareTo(@NonNull Hour o) {
+        if (mHour == o.getHour()) {
+            return 0;
+        }
+        else if (mHour < o.getHour()){
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
 }

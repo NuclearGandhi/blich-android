@@ -20,6 +20,7 @@ import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -109,7 +110,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     }
 
     public void setData(QueryEnumerator enumerator) {
-        mQueryHelper.setData(enumerator);
+        mQueryHelper.switchData(enumerator);
         notifyDataSetChanged();
     }
 
@@ -160,14 +161,22 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         private boolean mIsDataValid;
 
         QueryEnumeratorHelper(QueryEnumerator data) {
-            mData = data;
-            mIsDataValid = data != null;
+            switchData(data);
         }
 
-        void setData(QueryEnumerator data) {
-            mData = data;
+        private void sortData() {
+            if (mIsDataValid) {
+                for(int i = 0; i < mData.getCount(); i++) {
+                    getHour(i);
+                }
+                Collections.sort(mHours);
+            }
+        }
 
-            if (data != null) mIsDataValid = true;
+        void switchData(QueryEnumerator data) {
+            mData = data;
+            mIsDataValid = data != null;
+            sortData();
         }
 
         boolean isDataValid() {

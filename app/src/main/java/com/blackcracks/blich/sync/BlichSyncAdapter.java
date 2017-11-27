@@ -479,7 +479,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 lessonList.add(jsonLesson);
             }
             Map<String, Object> hour = new HashMap<>();
-            hour.put(BlichDatabase.HOUR_KEY, column);
+            hour.put(BlichDatabase.HOUR_KEY, row);
             hour.put(BlichDatabase.LESSONS_KEY, lessonList);
 
             hours.add(hour);
