@@ -55,7 +55,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mQueryHelper.getChildCount(groupPosition);
+        return mQueryHelper.getChildCount(groupPosition) - 1;
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
-        Lesson lesson = mQueryHelper.getLesson(groupPosition, childPosition);
+        Lesson lesson = mQueryHelper.getLesson(groupPosition, childPosition + 1);
 
         holder.subjectView.setText(lesson.getSubject());
         holder.teacherView.setText(lesson.getTeacher());
