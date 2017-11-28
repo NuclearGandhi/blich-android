@@ -87,21 +87,69 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         if (!mQueryHelper.isDataValid()) return null;
 
+        View view;
+        if (convertView == null) {
+            view = newGroupView(parent);
+        } else {
+            view = convertView;
+        }
+        bindGroupView(groupPosition, view);
+        return view;
+    }
+
+    private View newGroupView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.schedule_group, parent, false);
         GroupViewHolder holder = new GroupViewHolder(view);
+        view.setTag(holder);
+        return view;
+    }
 
+    private void bindGroupView(int groupPosition, View view) {
+        GroupViewHolder holder = (GroupViewHolder) view.getTag();
         Hour hour = (Hour) getGroup(groupPosition);
         holder.hourView.setText(hour.getHour() + "");
 
         Lesson lesson = hour.getLessons().get(0);
-        holder.subjectsView.setText(lesson.getSubject());
-        return view;
+        holder.subjectView.setText(lesson.getSubject());
+
+        int color = getColorFromType(lesson.getLessonType());
+        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        return null;
+        if (!mQueryHelper.isDataValid()) return null;
+
+        View view;
+        if (convertView == null) {
+            view = newChildView(parent);
+        } else {
+            view = convertView;
+        }
+        bindChildView(groupPosition, childPosition, view);
+        return view;
+    }
+
+    private View newChildView(ViewGroup parent) {
+        View view = LayoutInflater.from(mContext)
+                .inflate(R.layout.schedule_child, parent, false);
+        ChildViewHolder holder = new ChildViewHolder(view);
+        view.setTag(holder);
+        return view;
+    }
+
+    private void bindChildView(int groupPosition, int childPosition, View view) {
+        ChildViewHolder holder = (ChildViewHolder) view.getTag();
+        Lesson lesson = mQueryHelper.getLesson(groupPosition, childPosition);
+
+        holder.subjectView.setText(lesson.getSubject());
+        holder.teacherView.setText(lesson.getTeacher());
+        holder.classroomView.setText(lesson.getClassroom());
+
+        int color = getColorFromType(lesson.getLessonType());
+        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
+
     }
 
     @Override
@@ -124,11 +172,21 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         return view;
     }
 
+    private int getColorFromType(String lessonType) {
+        switch (lessonType) {
+            case BlichDatabase.TYPE_CANCELED: return R.color.lesson_canceled;
+            case BlichDatabase.TYPE_CHANGE: return R.color.lesson_changed;
+            case BlichDatabase.TYPE_EVENT: return R.color.lesson_event;
+            case BlichDatabase.TYPE_EXAM: return R.color.lesson_exam;
+            default: return R.color.black_text;
+        }
+    }
+
     private static class GroupViewHolder {
 
         private final LinearLayout eventsView;
         private final TextView hourView;
-        private final TextView subjectsView;
+        private final TextView subjectView;
         private final TextView teacherView;
         private final TextView classroomView;
         private final ImageView indicatorView;
@@ -136,7 +194,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         GroupViewHolder(View view) {
             eventsView = view.findViewById(R.id.schedule_group_events);
             hourView = view.findViewById(R.id.schedule_group_hour);
-            subjectsView = view.findViewById(R.id.schedule_group_subject);
+            subjectView = view.findViewById(R.id.schedule_group_subject);
             teacherView = view.findViewById(R.id.schedule_group_teacher);
             classroomView = view.findViewById(R.id.schedule_group_classroom);
             indicatorView = view.findViewById(R.id.schedule_group_indicator);
@@ -166,7 +224,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         private void sortData() {
             if (mIsDataValid) {
-                for(int i = 0; i < mData.getCount(); i++) {
+                for (int i = 0; i < mData.getCount(); i++) {
                     getHour(i);
                 }
                 Collections.sort(mHours);
@@ -192,7 +250,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 List<Lesson> lessons = new ArrayList<>();
                 List<Map<String, Object>> filtered = (List<Map<String, Object>>) row.getValue();
 
-                for (Map<String, Object> queriedLesson:
+                for (Map<String, Object> queriedLesson :
                         filtered) {
 
                     String subject = (String) queriedLesson.get(BlichDatabase.SUBJECT_KEY);
@@ -215,7 +273,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
 
         Lesson getLesson(int position, int childPos) {
-            if (mIsDataValid) return null;
+            if (!mIsDataValid) return null;
             Hour hour = getHour(position);
             return hour.getLessons().get(childPos);
         }
