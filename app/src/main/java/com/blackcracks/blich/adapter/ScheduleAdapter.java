@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,20 +26,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ScheduleAdapter extends BaseExpandableListAdapter {
+public class ScheduleAdapter extends BaseExpandableListAdapter implements
+        ExpandableListView.OnGroupClickListener{
 
     private int mDay;
 
+    private ExpandableListView mExpandableListView;
     private QueryEnumeratorHelper mQueryHelper;
     private Context mContext;
     private TextView mStatusTextView;
+    private SparseBooleanArray mExpandedArray;
 
-    public ScheduleAdapter(Context context,
+    public ScheduleAdapter(ExpandableListView expandableListView,
+                           Context context,
                            int day,
                            TextView statusTextView) {
         mContext = context;
         mDay = day;
         mStatusTextView = statusTextView;
+        mExpandedArray = new SparseBooleanArray();
+        mExpandableListView = expandableListView;
 
         mQueryHelper = new QueryEnumeratorHelper(null);
     }
@@ -105,16 +113,53 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         return view;
     }
 
-    private void bindGroupView(int groupPosition, View view) {
-        GroupViewHolder holder = (GroupViewHolder) view.getTag();
+    private void bindGroupView(final int groupPosition, View view) {
+        final GroupViewHolder holder = (GroupViewHolder) view.getTag();
         Hour hour = (Hour) getGroup(groupPosition);
         holder.hourView.setText(hour.getHour() + "");
 
         Lesson lesson = hour.getLessons().get(0);
-        holder.subjectView.setText(lesson.getSubject());
+        String subject = lesson.getSubject();
+        final String teacher = lesson.getTeacher();
+        final String classroom = lesson.getClassroom();
+
+        holder.subjectView.setText(subject);
+        holder.teacherView.setText("...");
+        holder.classroomView.setText("");
 
         int color = getColorFromType(lesson.getLessonType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
+
+        if (getChildrenCount(groupPosition) == 0) {
+            holder.indicatorView.setVisibility(View.GONE);
+            holder.teacherView.setText(teacher);
+            holder.classroomView.setText(classroom);
+            view.setOnClickListener(null);
+        } else {
+            holder.indicatorView.setVisibility(View.VISIBLE);
+            view.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    boolean isExpanded = mExpandedArray.get(groupPosition, false);
+                    if (!isExpanded) {
+                        //Expand
+                        mExpandableListView.expandGroup(groupPosition, true);
+                        holder.indicatorView.animate().rotation(180);
+                        holder.teacherView.setText(teacher);
+                        holder.classroomView.setText(classroom);
+                        mExpandedArray.put(groupPosition, true);
+                    } else {
+                        //Collapse
+                        mExpandableListView.collapseGroup(groupPosition);
+                        holder.indicatorView.animate().rotation(0);
+                        holder.teacherView.setText("...");
+                        holder.classroomView.setText("");
+                        mExpandedArray.put(groupPosition, false);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -141,7 +186,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
-        Lesson lesson = mQueryHelper.getLesson(groupPosition, childPosition + 1);
+        Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
 
         holder.subjectView.setText(lesson.getSubject());
         holder.teacherView.setText(lesson.getTeacher());
@@ -157,8 +202,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
+    @Override
+    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+        return true;
+    }
+
     public void switchData(QueryEnumerator enumerator) {
         mQueryHelper.switchData(enumerator);
+        mExpandedArray.clear();
         notifyDataSetChanged();
     }
 
@@ -174,22 +225,27 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private int getColorFromType(String lessonType) {
         switch (lessonType) {
-            case BlichDatabase.TYPE_CANCELED: return R.color.lesson_canceled;
-            case BlichDatabase.TYPE_CHANGE: return R.color.lesson_changed;
-            case BlichDatabase.TYPE_EVENT: return R.color.lesson_event;
-            case BlichDatabase.TYPE_EXAM: return R.color.lesson_exam;
-            default: return R.color.black_text;
+            case BlichDatabase.TYPE_CANCELED:
+                return R.color.lesson_canceled;
+            case BlichDatabase.TYPE_CHANGE:
+                return R.color.lesson_changed;
+            case BlichDatabase.TYPE_EVENT:
+                return R.color.lesson_event;
+            case BlichDatabase.TYPE_EXAM:
+                return R.color.lesson_exam;
+            default:
+                return R.color.black_text;
         }
     }
 
     private static class GroupViewHolder {
 
-        private final LinearLayout eventsView;
-        private final TextView hourView;
-        private final TextView subjectView;
-        private final TextView teacherView;
-        private final TextView classroomView;
-        private final ImageView indicatorView;
+        final LinearLayout eventsView;
+        final TextView hourView;
+        final TextView subjectView;
+        final TextView teacherView;
+        final TextView classroomView;
+        final ImageView indicatorView;
 
         GroupViewHolder(View view) {
             eventsView = view.findViewById(R.id.schedule_group_events);
