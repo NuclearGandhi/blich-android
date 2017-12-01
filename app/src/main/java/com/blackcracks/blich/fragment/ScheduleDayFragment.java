@@ -61,7 +61,7 @@ public class ScheduleDayFragment extends Fragment implements
         TextView statusTextView = rootView.findViewById(R.id.text_status);
 
         ExpandableListView listView = rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(listView, getContext(), mDay, statusTextView);
+        mAdapter = new ScheduleAdapter(listView, getContext(), statusTextView);
         listView.setAdapter(mAdapter);
         listView.setChildDivider(
                 ContextCompat.getDrawable(getContext(),

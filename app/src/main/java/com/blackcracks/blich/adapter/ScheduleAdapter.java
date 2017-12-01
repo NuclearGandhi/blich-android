@@ -29,8 +29,6 @@ import java.util.Map;
 public class ScheduleAdapter extends BaseExpandableListAdapter implements
         ExpandableListView.OnGroupClickListener{
 
-    private int mDay;
-
     private ExpandableListView mExpandableListView;
     private QueryEnumeratorHelper mQueryHelper;
     private Context mContext;
@@ -39,10 +37,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     public ScheduleAdapter(ExpandableListView expandableListView,
                            Context context,
-                           int day,
                            TextView statusTextView) {
         mContext = context;
-        mDay = day;
         mStatusTextView = statusTextView;
         mExpandedArray = new SparseBooleanArray();
         mExpandableListView = expandableListView;
