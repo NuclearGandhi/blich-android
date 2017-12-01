@@ -12,7 +12,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "blich.db";
 
     final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ";";
-    final String SQL_DROP_LESSON_TABLE = "DRO{ TABLE " + LessonEntry.TABLE_NAME + ";";
+    final String SQL_DROP_LESSON_TABLE = "DROP TABLE " + LessonEntry.TABLE_NAME + ";";
 
     private final String SQL_CREATE_EXAMS_TABLE = "CREATE TABLE " + ExamsEntry.TABLE_NAME + " (" +
             ExamsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +

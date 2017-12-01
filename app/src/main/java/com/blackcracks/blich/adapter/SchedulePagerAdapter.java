@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 
 import com.blackcracks.blich.fragment.ScheduleDayFragment;
 
@@ -43,43 +42,5 @@ public class SchedulePagerAdapter extends FragmentStatePagerAdapter {
     //positions inverted. This method is used to get the "real" position of a page.
     public static int getRealPosition(int position) {
         return TABS_COUNT - 1 - position;
-    }
-
-    public static class OnDayChangeListener implements ViewPager.OnPageChangeListener {
-
-        int currentPosition = 0;
-        SchedulePagerAdapter mAdapter;
-
-        public OnDayChangeListener(SchedulePagerAdapter pagerAdapter) {
-            mAdapter = pagerAdapter;
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-        }
-
-        @Override
-        public void onPageSelected(int newPosition) {
-            FragmentLifecycle fragmentToShow = (FragmentLifecycle) mAdapter.getItem(newPosition);
-            fragmentToShow.onResumeFragment();
-
-            FragmentLifecycle fragmentToHide = (FragmentLifecycle) mAdapter.getItem(currentPosition);
-            fragmentToHide.onPauseFragment();
-
-            currentPosition = newPosition;
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    }
-
-    public interface FragmentLifecycle {
-
-        public void onPauseFragment();
-        public void onResumeFragment();
-
     }
 }

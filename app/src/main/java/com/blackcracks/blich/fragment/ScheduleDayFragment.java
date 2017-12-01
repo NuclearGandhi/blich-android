@@ -1,10 +1,12 @@
 package com.blackcracks.blich.fragment;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
-import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
@@ -34,14 +35,17 @@ import timber.log.Timber;
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
-public class ScheduleDayFragment extends Fragment implements SchedulePagerAdapter.FragmentLifecycle {
+public class ScheduleDayFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<QueryEnumerator> {
 
     public static final String DAY_KEY = "day";
+
+    private static final int SCHEDULE_LOADER_ID = 1;
 
     private ScheduleAdapter mAdapter;
     private int mDay;
 
-    LiveQuery mLiveQuery;
+    private LiveQuery mLiveQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,7 @@ public class ScheduleDayFragment extends Fragment implements SchedulePagerAdapte
         TextView statusTextView = rootView.findViewById(R.id.text_status);
 
         ExpandableListView listView = rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(getContext(), mDay, statusTextView);
+        mAdapter = new ScheduleAdapter(listView, getContext(), mDay, statusTextView);
         listView.setAdapter(mAdapter);
         listView.setChildDivider(
                 ContextCompat.getDrawable(getContext(),
@@ -66,52 +70,17 @@ public class ScheduleDayFragment extends Fragment implements SchedulePagerAdapte
         ViewCompat.setNestedScrollingEnabled(listView, true);
 
         setUpCouchbaseView();
-        addLiveQuery();
+        setUpLiveQuery();
         return rootView;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(SCHEDULE_LOADER_ID, null, this);
     }
 
-    @Override
-    public void onResumeFragment() {
-        if (isAdded()) {
-            refreshData();
-        }
-    }
-
-    @Override
-    public void onPauseFragment() {
-
-    }
-
-    private void refreshData() {
-        new LoadDataTask().execute();
-    }
-
-    private void addLiveQuery() {
-        Query query = BlichDatabase.sDatabase.getView(
-                BlichDatabase.SCHEDULE_VIEW_ID + mDay).createQuery();
-        mLiveQuery = query.toLiveQuery();
-        mLiveQuery.addChangeListener(new LiveQuery.ChangeListener() {
-            @Override
-            public void changed(LiveQuery.ChangeEvent event) {
-                if (event.getSource().equals(mLiveQuery)) {
-                    refreshData();
-                }
-            }
-        });
-        mLiveQuery.start();
-    }
-
-    public void setUpCouchbaseView() {
+    private void setUpCouchbaseView() {
         com.couchbase.lite.View scheduleView = BlichDatabase.sDatabase.getView(
                 BlichDatabase.SCHEDULE_VIEW_ID + mDay);
         if (scheduleView.getMap() == null) {
@@ -169,23 +138,71 @@ public class ScheduleDayFragment extends Fragment implements SchedulePagerAdapte
         }
     }
 
-    class LoadDataTask extends AsyncTask<Void, Void, Void> {
+    private void setUpLiveQuery() {
+        mLiveQuery = BlichDatabase.sDatabase.getView(BlichDatabase.SCHEDULE_VIEW_ID + mDay)
+                .createQuery()
+                .toLiveQuery();
+        mLiveQuery.addChangeListener(
+                new LiveQuery.ChangeListener() {
+                    @Override
+                    public void changed(LiveQuery.ChangeEvent event) {
+                        getLoaderManager().getLoader(SCHEDULE_LOADER_ID)
+                                .onContentChanged();
+                    }
+                }
+        );
+        mLiveQuery.start();
+    }
 
-        QueryEnumerator mData;
+    @Override
+    public Loader<QueryEnumerator> onCreateLoader(int id, Bundle args) {
+        return new ScheduleLoader(getContext(), mDay);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<QueryEnumerator> loader, QueryEnumerator data) {
+        mAdapter.switchData(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<QueryEnumerator> loader) {
+        mAdapter.switchData(null);
+    }
+
+    static class ScheduleLoader extends AsyncTaskLoader<QueryEnumerator> {
+
+        int mDay;
+
+        public ScheduleLoader(Context context, int day) {
+            super(context);
+            mDay = day;
+        }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected void onStartLoading() {
+            super.onStartLoading();
+            if (takeContentChanged()) {
+                forceLoad();
+            }
+        }
+
+        @Override
+        protected void onStopLoading() {
+            super.onStopLoading();
+            cancelLoad();
+        }
+
+        @Override
+        public QueryEnumerator loadInBackground() {
             try {
-                mData = mLiveQuery.run();
+                Query query = BlichDatabase.sDatabase
+                        .getView(BlichDatabase.SCHEDULE_VIEW_ID + mDay)
+                        .createQuery();
+                return query.run();
             } catch (CouchbaseLiteException e) {
                 Timber.e(e);
             }
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mAdapter.switchData(mData);
         }
     }
 }

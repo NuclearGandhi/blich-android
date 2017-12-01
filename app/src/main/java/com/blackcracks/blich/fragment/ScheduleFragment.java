@@ -31,7 +31,6 @@ public class ScheduleFragment extends BlichBaseFragment {
         SchedulePagerAdapter pagerAdapter = new SchedulePagerAdapter(
                 getChildFragmentManager(),
                 getResources().getStringArray(R.array.tab_schedule_names));
-        viewPager.addOnPageChangeListener(new SchedulePagerAdapter.OnDayChangeListener(pagerAdapter));
         if (viewPager != null) {
             viewPager.setAdapter(pagerAdapter);
 
