@@ -74,17 +74,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     @Override
     public long getGroupId(int groupPosition) {
-        return 0;
+        return groupPosition;
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return 0;
+        //Szudzik's pairing function
+        short x = (short) groupPosition;
+        short y = (short) childPosition;
+        return (x >= y) ? (x * x + x + y) : (y * y + x);
     }
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
     @Override
@@ -96,6 +99,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
             view = newGroupView(parent);
         } else {
             view = convertView;
+            GroupViewHolder holder = new GroupViewHolder(view);
+            view.setTag(holder);
         }
         bindGroupView(groupPosition, view);
         return view;
@@ -109,7 +114,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         return view;
     }
 
-    private void bindGroupView(final int groupPosition, View view) {
+    private void bindGroupView(int groupPosition, View view) {
+
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
         Hour hour = (Hour) getGroup(groupPosition);
         holder.hourView.setText(hour.getHour() + "");
@@ -133,25 +139,26 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
             view.setOnClickListener(null);
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
+            final int finalGroupPos = groupPosition;
             view.setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
-                    boolean isExpanded = mExpandedArray.get(groupPosition, false);
+                    boolean isExpanded = mExpandedArray.get(finalGroupPos, false);
                     if (!isExpanded) {
                         //Expand
-                        mExpandableListView.expandGroup(groupPosition, true);
+                        mExpandableListView.expandGroup(finalGroupPos, true);
                         holder.indicatorView.animate().rotation(180);
                         holder.teacherView.setText(teacher);
                         holder.classroomView.setText(classroom);
-                        mExpandedArray.put(groupPosition, true);
+                        mExpandedArray.put(finalGroupPos, true);
                     } else {
                         //Collapse
-                        mExpandableListView.collapseGroup(groupPosition);
+                        mExpandableListView.collapseGroup(finalGroupPos);
                         holder.indicatorView.animate().rotation(0);
                         holder.teacherView.setText("...");
                         holder.classroomView.setText("");
-                        mExpandedArray.put(groupPosition, false);
+                        mExpandedArray.put(finalGroupPos, false);
                     }
                 }
             });
@@ -195,7 +202,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
+        return true;
     }
 
     @Override

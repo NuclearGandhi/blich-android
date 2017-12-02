@@ -155,6 +155,12 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        mLiveQuery.stop();
+    }
+
+    @Override
     public Loader<QueryEnumerator> onCreateLoader(int id, Bundle args) {
         return new ScheduleLoader(getContext(), mDay);
     }
