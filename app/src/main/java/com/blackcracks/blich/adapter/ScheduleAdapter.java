@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,23 +28,29 @@ import java.util.List;
 import java.util.Map;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter implements
-        ExpandableListView.OnGroupClickListener{
+        ExpandableListView.OnGroupExpandListener,
+        ExpandableListView.OnGroupCollapseListener{
 
     private ExpandableListView mExpandableListView;
     private QueryEnumeratorHelper mQueryHelper;
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
+    private SparseArray<GroupViewHolder> mViewHolderSparseArray;
 
     public ScheduleAdapter(ExpandableListView expandableListView,
                            Context context,
                            TextView statusTextView) {
         mContext = context;
         mStatusTextView = statusTextView;
-        mExpandedArray = new SparseBooleanArray();
         mExpandableListView = expandableListView;
 
+        mExpandableListView.setOnGroupExpandListener(this);
+        mExpandableListView.setOnGroupCollapseListener(this);
+
         mQueryHelper = new QueryEnumeratorHelper(null);
+        mExpandedArray = new SparseBooleanArray();
+        mViewHolderSparseArray = new SparseArray<>();
     }
 
     @Override
@@ -79,14 +86,16 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        //Szudzik's pairing function
-        short x = (short) groupPosition;
-        short y = (short) childPosition;
-        return (x >= y) ? (x * x + x + y) : (y * y + x);
+        return childPosition;
     }
 
     @Override
     public boolean hasStableIds() {
+        return true;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
 
@@ -126,7 +135,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         final String classroom = lesson.getClassroom();
 
         holder.subjectView.setText(subject);
-        holder.teacherView.setText("...");
+        holder.teacherView.setText("..." + hour.getHour());
         holder.classroomView.setText("");
 
         int color = getColorFromType(lesson.getLessonType());
@@ -148,21 +157,16 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
                     if (!isExpanded) {
                         //Expand
                         mExpandableListView.expandGroup(finalGroupPos, true);
-                        holder.indicatorView.animate().rotation(180);
-                        holder.teacherView.setText(teacher);
-                        holder.classroomView.setText(classroom);
                         mExpandedArray.put(finalGroupPos, true);
                     } else {
                         //Collapse
                         mExpandableListView.collapseGroup(finalGroupPos);
-                        holder.indicatorView.animate().rotation(0);
-                        holder.teacherView.setText("...");
-                        holder.classroomView.setText("");
                         mExpandedArray.put(finalGroupPos, false);
                     }
                 }
             });
         }
+        mViewHolderSparseArray.put(groupPosition, holder);
     }
 
     @Override
@@ -201,13 +205,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
     }
 
     @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+    public void onGroupExpand(int groupPosition) {
+        GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
+        Lesson lesson = (Lesson) getChild(groupPosition, 0);
+        holder.indicatorView.animate().rotation(180);
+        holder.teacherView.setText(lesson.getTeacher());
+        holder.classroomView.setText(lesson.getClassroom());
     }
 
     @Override
-    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-        return true;
+    public void onGroupCollapse(int groupPosition) {
+        GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
+        holder.indicatorView.animate().rotation(0);
+        holder.teacherView.setText("...");
+        holder.classroomView.setText("");
     }
 
     public void switchData(QueryEnumerator enumerator) {
