@@ -479,10 +479,19 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             scheduleValues.add(scheduleValue);
         }
+        mContext.getContentResolver().delete(
+                ScheduleEntry.CONTENT_URI,
+                null, null
+        );
         mContext.getContentResolver().bulkInsert(
                 ScheduleEntry.CONTENT_URI,
                 scheduleValues.toArray(new ContentValues[scheduleValues.size()]));
 
+
+        mContext.getContentResolver().delete(
+                LessonEntry.CONTENT_URI,
+                null, null
+        );
         mContext.getContentResolver().bulkInsert(
                 LessonEntry.CONTENT_URI,
                 lessonValues.toArray(new ContentValues[lessonValues.size()])
