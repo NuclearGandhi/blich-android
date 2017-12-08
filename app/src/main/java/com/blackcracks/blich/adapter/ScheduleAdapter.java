@@ -135,8 +135,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         final String classroom = lesson.getClassroom();
 
         holder.subjectView.setText(subject);
-        holder.teacherView.setText("..." + hour.getHour());
+        holder.teacherView.setText("...");
         holder.classroomView.setText("");
+        holder.indicatorView.setRotationX(0);
 
         int color = getColorFromType(lesson.getLessonType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
@@ -206,11 +207,16 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     @Override
     public void onGroupExpand(int groupPosition) {
-        GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
-        Lesson lesson = (Lesson) getChild(groupPosition, 0);
+        final GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
+        final Lesson lesson = (Lesson) getChild(groupPosition, 0);
         holder.indicatorView.animate().rotation(180);
-        holder.teacherView.setText(lesson.getTeacher());
-        holder.classroomView.setText(lesson.getClassroom());
+        holder.teacherView.post(new Runnable() {
+            @Override
+            public void run() {
+                holder.teacherView.setText(lesson.getTeacher());
+                holder.classroomView.setText(lesson.getClassroom());
+            }
+        });
     }
 
     @Override
