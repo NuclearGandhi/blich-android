@@ -129,18 +129,35 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         Hour hour = (Hour) getGroup(groupPosition);
         holder.hourView.setText(hour.getHour() + "");
 
-        Lesson lesson = hour.getLessons().get(0);
-        String subject = lesson.getSubject();
-        final String teacher = lesson.getTeacher();
-        final String classroom = lesson.getClassroom();
+        List<Lesson> lessons = hour.getLessons();
+        Lesson first_lesson = lessons.get(0);
+        String subject = first_lesson.getSubject();
+        final String teacher = first_lesson.getTeacher();
+        final String classroom = first_lesson.getClassroom();
 
         holder.subjectView.setText(subject);
         holder.teacherView.setText("...");
         holder.classroomView.setText("");
         holder.indicatorView.setRotationX(0);
 
-        int color = getColorFromType(lesson.getLessonType());
+        //Set the color according to the lesson type
+        int color = getColorFromType(first_lesson.getLessonType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
+
+        holder.eventsView.removeAllViews();
+        holder.eventsView.setVisibility(View.VISIBLE);
+        //Add dots to signify that there are changes
+        List<String> existingTypes = new ArrayList<>();
+        for(int i = 1 ; i < lessons.size(); i++) {
+            //Begin from 1, no need to signify about an event already shown to the user
+            Lesson lesson = lessons.get(i);
+            existingTypes.add(lesson.getLessonType());
+        }
+
+        if (existingTypes.contains(BlichDatabase.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
+        if (existingTypes.contains(BlichDatabase.TYPE_CHANGE)) makeEventDot(holder.eventsView, R.color.lesson_changed);
+        if (existingTypes.contains(BlichDatabase.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
+        if (existingTypes.contains(BlichDatabase.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
@@ -215,6 +232,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
             public void run() {
                 holder.teacherView.setText(lesson.getTeacher());
                 holder.classroomView.setText(lesson.getClassroom());
+                holder.eventsView.setVisibility(View.GONE);
             }
         });
     }
@@ -225,6 +243,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.indicatorView.animate().rotation(0);
         holder.teacherView.setText("...");
         holder.classroomView.setText("");
+
+        holder.eventsView.setVisibility(View.VISIBLE);
     }
 
     public void switchData(QueryEnumerator enumerator) {
@@ -233,14 +253,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         notifyDataSetChanged();
     }
 
-    private View makeEventDot(ViewGroup parent, @ColorRes int color) {
+    private void makeEventDot(ViewGroup parent, @ColorRes int color) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
 
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.events_dot);
         drawable.setColor(ContextCompat.getColor(mContext, color));
         view.setBackground(drawable);
 
-        return view;
+        parent.addView(view);
     }
 
     private int getColorFromType(String lessonType) {
