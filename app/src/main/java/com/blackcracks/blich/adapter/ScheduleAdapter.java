@@ -220,6 +220,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         int color = getColorFromType(lesson.getLessonType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
+        //Set a bottom divider if this is the last child
+        View divider = view.findViewById(R.id.divider);
+        if (getChildrenCount(groupPosition) - 1 == childPosition) {
+            divider.setVisibility(View.VISIBLE);
+        } else {
+            divider.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
