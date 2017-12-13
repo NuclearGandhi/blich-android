@@ -58,6 +58,12 @@ public class BlichContract {
                     .appendPath(Integer.toString(lessonNum))
                     .build();
         }
+
+        public static Uri buildScheduleWithAnyLessonUri() {
+            return CONTENT_URI.buildUpon()
+                    .appendPath("any")
+                    .build();
+        }
     }
 
     /**

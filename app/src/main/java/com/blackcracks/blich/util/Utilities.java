@@ -66,12 +66,10 @@ public class Utilities {
         return false;
     }
 
-
-    //Preferences
-    public static String getPrefString(Context context,
-                                       String key,
-                                       String defaultValue,
-                                       boolean isUri) {
+    public static String getPreferenceString(Context context,
+                                             String key,
+                                             String defaultValue,
+                                             boolean isUri) {
         String returnString = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(key, defaultValue);
         if (isUri) return returnString;
@@ -284,6 +282,66 @@ public class Utilities {
                     .getString(
                             key,
                             defaultValue.replace("/", ""));
+        }
+    }
+
+    public static class Sqlite {
+
+        public static String generateFilterCondition(Context context) {
+
+            String selection = "";
+
+            boolean isFilterOn = Utilities.getPreferenceBoolean(
+                    context,
+                    SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
+                    false);
+
+            if (isFilterOn) {
+                String[] teachersAndSubjects = Utilities.getPreferenceString(
+                        context,
+                        SettingsActivity.SettingsFragment.PREF_FILTER_SELECT_KEY,
+                        "",
+                        false)
+                        .split(";");
+
+                for (String teacherAndSubject : teachersAndSubjects) {
+                    String[] arr = teacherAndSubject.split(",");
+                    String teacher = arr[0];
+                    String subject = arr[1];
+
+                    selection += " OR(" +
+                            LessonEntry.TABLE_NAME +
+                            "." +
+                            LessonEntry.COL_TEACHER +
+                            " LIKE '" +
+                            teacher.trim() +
+                            "'";
+
+                    selection += " AND " +
+                            LessonEntry.TABLE_NAME +
+                            "." +
+                            LessonEntry.COL_SUBJECT +
+                            " LIKE '" +
+                            subject.trim() +
+                            "')";
+                }
+                selection += " OR " +
+                        LessonEntry.TABLE_NAME +
+                        "." +
+                        LessonEntry.COL_TEACHER +
+                        " LIKE '" +
+                        " " +
+                        "'";
+
+                int firstOrIndex = selection.indexOf("OR(");
+                selection = selection.substring(firstOrIndex + 2);
+                selection = " AND(".concat(selection);
+                selection += ")";
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, selection);
+            }
+            return selection;
         }
     }
 }

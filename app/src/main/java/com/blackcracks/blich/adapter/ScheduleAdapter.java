@@ -2,6 +2,7 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.util.Utilities;
 
 public class ScheduleAdapter extends CursorTreeAdapter {
 
@@ -90,6 +92,9 @@ public class ScheduleAdapter extends CursorTreeAdapter {
     protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
 
+        //TODO remove this shitty line
+        Log.d(TAG, DatabaseUtils.dumpCursorToString(cursor));
+
         //Set the hour
         int hour = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_HOUR));
         holder.hourView.setText(Integer.toString(hour));
@@ -99,30 +104,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
 
         //Set the lesson-type (color the subject-TextView)
         String lessonType = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_LESSON_TYPE));
-        int background;
-        switch (lessonType) {
-            case LessonEntry.LESSON_TYPE_CANCELED: {
-                background = ContextCompat.getColor(context, R.color.lesson_canceled);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_CHANGED: {
-                background = ContextCompat.getColor(context, R.color.lesson_changed);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EXAM: {
-                background = ContextCompat.getColor(context, R.color.lesson_exam);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EVENT: {
-                background = ContextCompat.getColor(context, R.color.lesson_event);
-                break;
-            }
-            default: {
-                background = ContextCompat.getColor(context, R.color.black_text);
-                break;
-            }
-        }
-
+        int background = getColorFromLessonType(lessonType);
         holder.subjectsView.setText(subject);
         holder.subjectsView.setTextColor(background);
 
@@ -161,18 +143,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
 
                 holder.eventsView.setVisibility(View.VISIBLE);
                 char[] events = eventsString.toCharArray();
-                if (events[0] == 't') holder.eventsView.addView(makeEventDot(
-                        holder.eventsView,
-                        R.color.lesson_canceled));
-                if (events[1] == 't') holder.eventsView.addView(makeEventDot(
-                        holder.eventsView,
-                        R.color.lesson_changed));
-                if (events[2] == 't') holder.eventsView.addView(makeEventDot(
-                        holder.eventsView,
-                        R.color.lesson_exam));
-                if (events[3] == 't') holder.eventsView.addView(makeEventDot(
-                        holder.eventsView,
-                        R.color.lesson_event));
+                addEventDots(events, holder.eventsView);
             }
 
             final int groupPosition = cursor.getPosition();
@@ -183,6 +154,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                 public void onClick(View v) {
                     boolean isExpanded = mExpandedGroups.get(groupPosition, false);
                     if (isExpanded) { //Needs to collapse
+                        
                         holder.indicatorView.animate().rotation(0);
                         mListView.collapseGroup(groupPosition);
 
@@ -191,22 +163,10 @@ public class ScheduleAdapter extends CursorTreeAdapter {
 
                         holder.eventsView.setVisibility(View.VISIBLE);
                         char[] events = eventsString.toCharArray();
-                        if (events[0] == 't') holder.eventsView.addView(makeEventDot(
-                                holder.eventsView,
-                                R.color.lesson_canceled));
-                        if (events[1] == 't') holder.eventsView.addView(makeEventDot(
-                                holder.eventsView,
-                                R.color.lesson_changed));
-                        if (events[2] == 't') holder.eventsView.addView(makeEventDot(
-                                holder.eventsView,
-                                R.color.lesson_exam));
-                        if (events[3] == 't') holder.eventsView.addView(makeEventDot(
-                                holder.eventsView,
-                                R.color.lesson_event));
-
-
+                        addEventDots(events, holder.eventsView);
                         mExpandedGroups.put(groupPosition, false);
                     } else { //Needs to expand
+                        
                         holder.indicatorView.animate().rotation(180);
                         mListView.expandGroup(groupPosition);
 
@@ -249,30 +209,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         holder.classroomView.setText(classroom); //Set the classroom
 
         //Set the lesson-type (color the subject-TextView)
-        int background;
-        switch (lessonType) {
-            case LessonEntry.LESSON_TYPE_CANCELED: {
-                background = ContextCompat.getColor(context, R.color.lesson_canceled);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_CHANGED: {
-                background = ContextCompat.getColor(context, R.color.lesson_changed);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EXAM: {
-                background = ContextCompat.getColor(context, R.color.lesson_exam);
-                break;
-            }
-            case LessonEntry.LESSON_TYPE_EVENT: {
-                background = ContextCompat.getColor(context, R.color.lesson_event);
-                break;
-            }
-            default: {
-                background = ContextCompat.getColor(context, R.color.black_text);
-                break;
-            }
-        }
-
+        int background = getColorFromLessonType(lessonType);
         holder.subjectView.setTextColor(background);
 
         //Set a bottom divider if this is the last child
@@ -288,6 +225,48 @@ public class ScheduleAdapter extends CursorTreeAdapter {
     public void changeCursor(Cursor cursor) {
         super.changeCursor(cursor);
         mExpandedGroups.clear();
+    }
+    
+    private int getColorFromLessonType(String lessonType) {
+        int background;
+        switch (lessonType) {
+            case LessonEntry.LESSON_TYPE_CANCELED: {
+                background = ContextCompat.getColor(mContext, R.color.lesson_canceled);
+                break;
+            }
+            case LessonEntry.LESSON_TYPE_CHANGED: {
+                background = ContextCompat.getColor(mContext, R.color.lesson_changed);
+                break;
+            }
+            case LessonEntry.LESSON_TYPE_EXAM: {
+                background = ContextCompat.getColor(mContext, R.color.lesson_exam);
+                break;
+            }
+            case LessonEntry.LESSON_TYPE_EVENT: {
+                background = ContextCompat.getColor(mContext, R.color.lesson_event);
+                break;
+            }
+            default: {
+                background = ContextCompat.getColor(mContext, R.color.black_text);
+                break;
+            }
+        }
+        return background;
+    }
+    
+    private void addEventDots(char[] events, ViewGroup eventsView) {
+        if (events[0] == 't') eventsView.addView(makeEventDot(
+                eventsView,
+                R.color.lesson_canceled));
+        if (events[1] == 't') eventsView.addView(makeEventDot(
+                eventsView,
+                R.color.lesson_changed));
+        if (events[2] == 't') eventsView.addView(makeEventDot(
+                eventsView,
+                R.color.lesson_exam));
+        if (events[3] == 't') eventsView.addView(makeEventDot(
+                eventsView,
+                R.color.lesson_event));
     }
 
     private View makeEventDot(ViewGroup parent, @ColorRes int color) {
@@ -350,6 +329,8 @@ public class ScheduleAdapter extends CursorTreeAdapter {
                     LessonEntry.COL_DAY + " = " + mDay + " AND " + //Get data with this day
                     LessonEntry.COL_HOUR + " = " + hour + " AND " + //and data with this hour
                     LessonEntry.COL_LESSON_NUM + " >= 1"; //and where lesson >= 1, since the group view shows lesson = 0
+
+            selection += Utilities.Sqlite.generateFilterCondition(mContext);
 
             String sortOrder = LessonEntry.COL_LESSON_NUM + " ASC"; //Sort it in ascending order
             Uri uri = LessonEntry.CONTENT_URI;

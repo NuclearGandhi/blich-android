@@ -25,6 +25,7 @@ public class BlichProvider extends ContentProvider {
 
     private static final int SCHEDULE = 100;
     private static final int SCHEDULE_WITH_LESSON = 101;
+    private static final int SCHEDULE_WITH_ANY_LESSON = 102;
 
     private static final int LESSON = 200;
     private static final int CLASS = 300;
@@ -87,6 +88,17 @@ public class BlichProvider extends ContentProvider {
                         db,
                         projection,
                         newSelection,
+                        selectionArgs,
+                        null, null,
+                        sortOrder
+                );
+                break;
+            }
+            case SCHEDULE_WITH_ANY_LESSON: {
+                cursor = sScheduleWithLessonBuilder.query(
+                        db,
+                        projection,
+                        selection,
                         selectionArgs,
                         null, null,
                         sortOrder
@@ -422,6 +434,7 @@ public class BlichProvider extends ContentProvider {
 
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE, SCHEDULE);
         uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_LESSON);
+        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/any", SCHEDULE_WITH_ANY_LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_LESSON, LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_CLASS, CLASS);
         uriMatcher.addURI(authority, BlichContract.PATH_EXAMS, EXAMS);

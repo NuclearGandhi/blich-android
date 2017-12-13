@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     getString(R.string.notification_channel_schedule_id)
             );
 
-            if (channel != null) {
+            if (channel == null) {
                 createNotificationChannels();
             }
         }

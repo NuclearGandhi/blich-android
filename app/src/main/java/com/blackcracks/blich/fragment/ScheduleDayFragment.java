@@ -16,6 +16,7 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.SettingsActivity;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
@@ -79,8 +80,20 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
 
         String selection = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_DAY + " = " + mDay;
 
+        selection += Utilities.Sqlite.generateFilterCondition(getContext());
+
         String sortOrder = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " ASC";
-        Uri uri = ScheduleEntry.buildScheduleWithLessonUri(0);
+
+        Uri uri;
+        if (Utilities.getPreferenceBoolean(
+                getContext(),
+                SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
+                false
+        )) {
+            uri = ScheduleEntry.buildScheduleWithAnyLessonUri();
+        } else {
+            uri = ScheduleEntry.buildScheduleWithLessonUri(0);
+        }
 
         return new CursorLoader(
                 getContext(),

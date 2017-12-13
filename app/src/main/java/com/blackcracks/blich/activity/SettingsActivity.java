@@ -20,6 +20,8 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
+import com.blackcracks.blich.preference.FilterPreference;
+import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
@@ -47,6 +49,19 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+        //Preference keys
+        public static final String PREF_CLASS_PICKER_KEY = "class_picker";
+        public static final String PREF_NOTIFICATION_TOGGLE_KEY = "notification_toggle";
+        public static final String PREF_NOTIFICATION_SOUND_KEY = "notification_sound";
+        public static final String PREF_FILTER_TOGGLE_KEY = "filter_key";
+        public static final String PREF_FILTER_SELECT_KEY = "filter_select";
+
+        //Default preference values
+        public static final String PREF_CLASS_PICKER_DEFAULT = "ט'3";
+        public static final boolean PREF_NOTIFICATION_TOGGLE_DEFAULT = true;
+        public static final String PREF_NOTIFICATION_SOUND_DEFAULT =
+                Settings.System.DEFAULT_NOTIFICATION_URI.toString();
 
         private static final int RINGTONE_PICKER_REQUEST = 100;
 
@@ -86,6 +101,8 @@ public class SettingsActivity extends AppCompatActivity {
             PreferenceDialogFragmentCompat fragment = null;
             if (preference instanceof ClassPickerPreference) {
                 fragment = ClassPickerPreferenceDialogFragment.newInstance(preference);
+            } else if(preference instanceof FilterPreference) {
+                fragment = FilterPreferenceDialogFragment.newInstance(preference);
             }
             if (fragment != null) {
                 fragment.setTargetFragment(this, 0);
@@ -210,7 +227,7 @@ public class SettingsActivity extends AppCompatActivity {
                         .apply();
 
                 Ringtone ringtone = RingtoneManager.getRingtone(getContext(), Uri.parse(uri));
-                Preference preference = findPreference(notificationSoundKey);
+                Preference preference = findPreference(PREF_NOTIFICATION_SOUND_KEY);
                 preference.setSummary(ringtone.getTitle(getContext()));
             } else {
                 PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
