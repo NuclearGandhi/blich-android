@@ -114,7 +114,7 @@ public class ScheduleAdapter extends CursorTreeAdapter {
         final String eventsString = cursor.getString(cursor.getColumnIndex(ScheduleEntry.COL_EVENTS));
 
         //Get the number of lessons
-        int lessonCount = cursor.getInt(cursor.getColumnIndex(ScheduleEntry.COL_LESSON_COUNT));
+        int lessonCount = getChildrenCount(cursor.getPosition()) + 1;
 
         holder.eventsView.removeAllViews();
 
