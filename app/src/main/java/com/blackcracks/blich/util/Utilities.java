@@ -346,7 +346,7 @@ public class Utilities {
                         " " +
                         "'");
 
-                int firstOrIndex = selection.indexOf("OR(");
+                int firstOrIndex = selection.indexOf("OR");
                 selection = selection.replace(0, firstOrIndex + 2, "");
                 selection.insert(0, " AND(");
                 selection.append(")");
