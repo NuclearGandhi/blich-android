@@ -291,7 +291,7 @@ public class Utilities {
 
         public static String generateFilterCondition(Context context) {
 
-            String selection = "";
+            StringBuilder selection = new StringBuilder();
 
             boolean isFilterOn = Utilities.getPrefBoolean(
                     context,
@@ -308,42 +308,53 @@ public class Utilities {
 
                 for (String teacherAndSubject : teachersAndSubjects) {
                     String[] arr = teacherAndSubject.split(",");
-                    String teacher = arr[0];
-                    String subject = arr[1];
+                    String teacher;
+                    String subject;
+                    if (arr.length == 2) {
+                        teacher = arr[0];
+                        subject = arr[1];
+                    } else {
+                        break;
+                    }
 
-                    selection += " OR(" +
-                            LessonEntry.TABLE_NAME +
-                            "." +
-                            LessonEntry.COL_TEACHER +
-                            " LIKE '" +
-                            teacher.trim() +
-                            "'";
+                    selection.append(" OR(")
+                            .append(LessonEntry.TABLE_NAME)
+                            .append(".")
+                            .append(LessonEntry.COL_TEACHER)
+                            .append(" LIKE '")
+                            .append(teacher.trim())
+                            .append("'");
 
-                    selection += " AND " +
-                            LessonEntry.TABLE_NAME +
-                            "." +
-                            LessonEntry.COL_SUBJECT +
-                            " LIKE '" +
-                            subject.trim() +
-                            "')";
+                    selection.append(" AND ")
+                            .append(LessonEntry.TABLE_NAME)
+                            .append(".")
+                            .append(LessonEntry.COL_SUBJECT)
+                            .append(" LIKE '")
+                            .append(subject.trim())
+                            .append("')");
+                } //End of iteration
+
+                if (selection.toString().equals(" ")) {
+                    return "";
                 }
-                selection += " OR " +
+
+                selection.append(" OR " +
                         LessonEntry.TABLE_NAME +
                         "." +
                         LessonEntry.COL_TEACHER +
                         " LIKE '" +
                         " " +
-                        "'";
+                        "'");
 
                 int firstOrIndex = selection.indexOf("OR(");
-                selection = selection.substring(firstOrIndex + 2);
-                selection = " AND(".concat(selection);
-                selection += ")";
+                selection = selection.replace(0, firstOrIndex + 2, "");
+                selection.insert(0, " AND(");
+                selection.append(")");
             }
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, selection);
+                Log.d(TAG, selection.toString());
             }
-            return selection;
+            return selection.toString();
         }
     }
 }
