@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.SettingsActivity;
+import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
@@ -66,7 +68,7 @@ public class Utilities {
         return false;
     }
 
-    public static String getPreferenceString(Context context,
+    public static String getPrefString(Context context,
                                              String key,
                                              String defaultValue,
                                              boolean isUri) {
@@ -291,13 +293,13 @@ public class Utilities {
 
             String selection = "";
 
-            boolean isFilterOn = Utilities.getPreferenceBoolean(
+            boolean isFilterOn = Utilities.getPrefBoolean(
                     context,
                     SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
                     false);
 
             if (isFilterOn) {
-                String[] teachersAndSubjects = Utilities.getPreferenceString(
+                String[] teachersAndSubjects = Utilities.getPrefString(
                         context,
                         SettingsActivity.SettingsFragment.PREF_FILTER_SELECT_KEY,
                         "",

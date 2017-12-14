@@ -100,7 +100,6 @@ public class ArticleActivity extends AppCompatActivity {
                 if (mImageUrl.contains("/sites/")) {
                     mImageUrl = BLICH_BASE_URL + mImageUrl;
                 }
-
                 GlideApp.with(getBaseContext())
                         .load(mImageUrl)
                         .placeholder(R.color.almost_black)

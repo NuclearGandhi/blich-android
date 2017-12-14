@@ -85,7 +85,7 @@ public class ScheduleDayFragment extends Fragment implements LoaderManager.Loade
         String sortOrder = ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " ASC";
 
         Uri uri;
-        if (Utilities.getPreferenceBoolean(
+        if (Utilities.getPrefBoolean(
                 getContext(),
                 SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
                 false
