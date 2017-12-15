@@ -11,42 +11,46 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-/**
- * Created by Administrator on 11/23/2017.
- */
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.Required;
 
-public class Hour implements Comparable<Hour> {
+public class Hour extends RealmObject implements Comparable<Hour> {
 
-    private int mHour;
-    private List<Lesson> mLessons;
-
-    public Hour(int hour, List<Lesson> lessons) {
-        mHour = hour;
-        mLessons = lessons;
-    }
+    @Required private int day;
+    @Required private int hour;
+    @Required private RealmList<Lesson> lessons;
 
     public int getHour() {
-        return mHour;
+        return hour;
     }
 
     public void setHour(int hour) {
-        mHour = hour;
+        this.hour = hour;
     }
 
     public List<Lesson> getLessons() {
-        return mLessons;
+        return lessons;
     }
 
-    public void setLessons(List<Lesson> lessons) {
-        mLessons = lessons;
+    public void setLessons(RealmList<Lesson> lessons) {
+        this.lessons = lessons;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
     }
 
     @Override
     public int compareTo(@NonNull Hour o) {
-        if (mHour == o.getHour()) {
+        if (hour == o.getHour()) {
             return 0;
         }
-        else if (mHour < o.getHour()){
+        else if (hour < o.getHour()){
             return -1;
         }
         else {

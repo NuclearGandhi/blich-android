@@ -1,53 +1,44 @@
 package com.blackcracks.blich.data;
 
-/**
- * A base class for each lesson in the Schedule Table
- */
-public class Lesson {
+import io.realm.RealmObject;
+import io.realm.annotations.Required;
 
-    private int mDay;
-    private int mHour;
-    private String mSubject;
-    private String mClassroom;
-    private String mTeacher;
-    private String mLessonType;
+public class Lesson extends RealmObject {
 
-    public Lesson(String subject, String teacher, String classroom, String lessonType) {
-        mSubject = subject;
-        mTeacher = teacher;
-        mClassroom = classroom;
-        mLessonType = lessonType;
-    }
+    @Required private String subject;
+    private String room;
+    private String teacher;
+    private String changeType;
 
     public String getSubject() {
-        return mSubject;
+        return subject;
     }
 
     public void setSubject(String subject) {
-        this.mSubject = subject;
+        this.subject = subject;
     }
 
-    public String getClassroom() {
-        return mClassroom;
+    public String getRoom() {
+        return room;
     }
 
-    public void setClassroom(String classroom) {
-        this.mClassroom = classroom;
+    public void setRoom(String room) {
+        this.room = room;
     }
 
     public String getTeacher() {
-        return mTeacher;
+        return teacher;
     }
 
     public void setTeacher(String teacher) {
-        this.mTeacher = teacher;
+        this.teacher = teacher;
     }
 
-    public String getLessonType() {
-        return mLessonType;
+    public String getChangeType() {
+        return changeType;
     }
 
-    public void setLessonType(String lessonType) {
-        this.mLessonType = lessonType;
+    public void setChangeType(String changeType) {
+        this.changeType = changeType;
     }
 }
