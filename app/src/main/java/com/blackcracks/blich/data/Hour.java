@@ -11,13 +11,12 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Required;
 
 public class Hour extends RealmObject {
 
-    @Required private int day;
-    @Required private int hour;
-    @Required private RealmList<Lesson> lessons;
+    private int day;
+    private int hour;
+    private RealmList<Lesson> lessons;
 
     public Hour() {
 
