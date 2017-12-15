@@ -20,6 +20,17 @@ public class Constants {
     public static final int SCHEDULE_LOADER_ID = 15;
     public static final int NEWS_LOADER_ID = 16;
 
+    public static class Database {
+        public static final String TYPE_NEW_TEACHER = "NewTeacher";
+        public static final String TYPE_NEW_HOUR  = "NewHour";
+        public static final String TYPE_NEW_ROOM = "NewRoom";
+        public static final String TYPE_EXAM = "Exam";
+        public static final String TYPE_CANCELED = "FreeLesson";
+        public static final String TYPE_EVENT = "Event";
+        public static final String TYPE_NORMAL = "Normal";
+
+    }
+
     public static class Preferences {
 
         //Preference keys
