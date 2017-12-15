@@ -21,27 +21,18 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Utilities;
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Emitter;
-import com.couchbase.lite.Manager;
-import com.couchbase.lite.Mapper;
-import com.couchbase.lite.android.AndroidContext;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,14 +50,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Initialization stuff
         setLocaleToHebrew();
-        setupDatabase();
+        setUpRealm();
         Timber.plant(new Timber.DebugTree());
 
+
+        //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_main, null, false);
         setContentView(mRootView);
 
+        //Restore state if it exists
         if (savedInstanceState != null) {
             mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_TAG);
         } else {
@@ -74,9 +70,12 @@ public class MainActivity extends AppCompatActivity {
         }
         replaceFragment(mFragment, false);
 
+
+        //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         setupDrawer();
 
+        //Open a class picker dialog in case this is the first time the user opened the app
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
             ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        //Create notification channels
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
@@ -106,9 +106,13 @@ public class MainActivity extends AppCompatActivity {
                 createNotificationChannels();
             }
         }
-        onUpdate();
     }
 
+
+    /**
+     * Save the fragment when the activity is destroyed
+     * @param outState
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -166,6 +170,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setUpRealm() {
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        Realm.setDefaultConfiguration(config);
+    }
+
     private void setupDrawer() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
@@ -206,64 +216,5 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-    }
-
-    private void setupDatabase() {
-        try {
-            Manager manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
-            BlichDatabase.sDatabase = manager.getDatabase(BlichDatabase.DATABASE_NAME);
-        } catch (IOException e) {
-            //TODO change to proper log
-            e.printStackTrace();
-        } catch (CouchbaseLiteException e) {
-            e.printStackTrace();
-        }
-
-        com.couchbase.lite.View teacherView = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID);
-        if (teacherView.getMap() == null) {
-            teacherView.setMap(new Mapper() {
-                @Override
-                public void map(Map<String, Object> document, Emitter emitter) {
-                    //Enter data
-                    List<Map<String, Object>> data =
-                            (List<Map<String, Object>>) document.get(BlichDatabase.SCHEDULE_KEY);
-
-                    Map<String, Object> teachAndSub = new HashMap<>();
-                    //iterate each day
-                    for (Map<String, Object> day :
-                            data) {
-                        List<Map<String, Object>> hours =
-                                (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
-                        //iterate each hour
-                        for (Map<String, Object> hour :
-                                hours) {
-                            List<Map<String, Object>> lessons = (List<Map<String, Object>>) hour.get(BlichDatabase.LESSONS_KEY);
-                            //iterate each lesson
-                            for(Map<String, Object> lesson:
-                                    lessons) {
-
-                                String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
-                                String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
-
-                                String existingSubject = (String) teachAndSub.get(teacher);
-
-                                //Emit only teacher-subject pairs that weren't emitted
-                                if((existingSubject == null || !existingSubject.equals(subject)) && !teacher.equals(" ")) {
-                                    emitter.emit(teacher, subject);
-                                    teachAndSub.put(teacher, subject);
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "1.0");
-        }
-    }
-
-    private void onUpdate() {
-        if (BuildConfig.VERSION_CODE > 21) {
-
-        }
     }
 }
