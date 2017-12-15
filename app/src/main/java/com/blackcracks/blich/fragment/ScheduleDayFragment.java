@@ -16,27 +16,17 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
-import com.blackcracks.blich.data.BlichDatabase;
-import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.Utilities;
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Emitter;
-import com.couchbase.lite.LiveQuery;
-import com.couchbase.lite.Mapper;
-import com.couchbase.lite.Query;
-import com.couchbase.lite.QueryEnumerator;
+import com.blackcracks.blich.data.Hour;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import timber.log.Timber;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
-public class ScheduleDayFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<QueryEnumerator> {
+public class ScheduleDayFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<RealmResults<Hour>>{
 
     public static final String DAY_KEY = "day";
 
@@ -44,8 +34,6 @@ public class ScheduleDayFragment extends Fragment implements
 
     private ScheduleAdapter mAdapter;
     private int mDay;
-
-    private LiveQuery mLiveQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,9 +56,6 @@ public class ScheduleDayFragment extends Fragment implements
                         android.R.color.transparent)); //Hide the child dividers
 
         ViewCompat.setNestedScrollingEnabled(listView, true);
-
-        setUpCouchbaseView();
-        setUpLiveQuery();
         return rootView;
     }
 
@@ -80,102 +65,22 @@ public class ScheduleDayFragment extends Fragment implements
         getLoaderManager().initLoader(SCHEDULE_LOADER_ID, null, this);
     }
 
-    private void setUpCouchbaseView() {
-        com.couchbase.lite.View scheduleView = BlichDatabase.sDatabase.getView(
-                BlichDatabase.SCHEDULE_VIEW_ID + mDay);
-        if (scheduleView.getMap() == null) {
-            scheduleView.setMap(
-                    new Mapper() {
-                        @Override
-                        public void map(Map<String, Object> document, Emitter emitter) {
-                            List<Map<String, Object>> data =
-                                    (List<Map<String, Object>>) document.get(BlichDatabase.SCHEDULE_KEY);
-                            Map<String, Object> day = data.get(mDay);
-
-                            List<Map<String, Object>> hours =
-                                    (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
-
-                            //Iterate through each hour
-                            for (Map<String, Object> hour :
-                                    hours) {
-                                List<Map<String, Object>> lessons = (List<Map<String, Object>>) hour.get(BlichDatabase.LESSONS_KEY);
-
-
-                                //Add filter
-                                List<Map<String, Object>> filtered = new ArrayList<>();
-
-                                boolean isFilter = Utilities.getPrefBoolean(
-                                        getContext(),
-                                        Constants.Preferences.getKey(
-                                                getContext(),
-                                                Constants.Preferences.PREF_FILTER_TOGGLE_KEY),
-                                        (Boolean) Constants.Preferences.getDefault(
-                                                getContext(),
-                                                Constants.Preferences.PREF_FILTER_TOGGLE_KEY
-                                        )
-                                );
-
-                                if (isFilter) {
-                                    for (Map<String, Object> lesson :
-                                            lessons) {
-                                        String teacher = (String) lesson.get(BlichDatabase.TEACHER_KEY);
-                                        String subject = (String) lesson.get(BlichDatabase.SUBJECT_KEY);
-                                        if (Utilities.Nosql.filterString(getContext(), teacher, subject)) {
-                                            filtered.add(lesson);
-                                        }
-                                    }
-                                } else {
-                                    filtered = lessons;
-                                }
-
-                                if (filtered.size() != 0) {
-                                    emitter.emit(BlichDatabase.HOUR_KEY + hour.get(BlichDatabase.HOUR_KEY), filtered);
-                                }
-                            }
-                        }
-                    },
-                    "1.0");
-        }
-    }
-
-    private void setUpLiveQuery() {
-        mLiveQuery = BlichDatabase.sDatabase.getView(BlichDatabase.SCHEDULE_VIEW_ID + mDay)
-                .createQuery()
-                .toLiveQuery();
-        mLiveQuery.addChangeListener(
-                new LiveQuery.ChangeListener() {
-                    @Override
-                    public void changed(LiveQuery.ChangeEvent event) {
-                        getLoaderManager().getLoader(SCHEDULE_LOADER_ID)
-                                .onContentChanged();
-                    }
-                }
-        );
-        mLiveQuery.start();
-    }
-
     @Override
-    public void onPause() {
-        super.onPause();
-        mLiveQuery.stop();
-    }
-
-    @Override
-    public Loader<QueryEnumerator> onCreateLoader(int id, Bundle args) {
+    public Loader<RealmResults<Hour>> onCreateLoader(int id, Bundle args) {
         return new ScheduleLoader(getContext(), mDay);
     }
 
     @Override
-    public void onLoadFinished(Loader<QueryEnumerator> loader, QueryEnumerator data) {
+    public void onLoadFinished(Loader<RealmResults<Hour>> loader, RealmResults<Hour> data) {
         mAdapter.switchData(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<QueryEnumerator> loader) {
+    public void onLoaderReset(Loader<RealmResults<Hour>> loader) {
         mAdapter.switchData(null);
     }
 
-    static class ScheduleLoader extends AsyncTaskLoader<QueryEnumerator> {
+    static class ScheduleLoader extends AsyncTaskLoader<RealmResults<Hour>> {
 
         int mDay;
 
@@ -199,16 +104,14 @@ public class ScheduleDayFragment extends Fragment implements
         }
 
         @Override
-        public QueryEnumerator loadInBackground() {
-            try {
-                Query query = BlichDatabase.sDatabase
-                        .getView(BlichDatabase.SCHEDULE_VIEW_ID + mDay)
-                        .createQuery();
-                return query.run();
-            } catch (CouchbaseLiteException e) {
-                Timber.e(e);
-            }
-            return null;
+        public RealmResults<Hour> loadInBackground() {
+            Realm realm = Realm.getDefaultInstance();
+            RealmResults<Hour> hours = realm.where(Hour.class)
+                    .equalTo("day", mDay)
+                    .findAll();
+
+            hours.sort("hour", Sort.ASCENDING);
+            return hours;
         }
     }
 }

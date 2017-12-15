@@ -7,15 +7,13 @@
 
 package com.blackcracks.blich.data;
 
-import android.support.annotation.NonNull;
-
 import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Required;
 
-public class Hour extends RealmObject implements Comparable<Hour> {
+public class Hour extends RealmObject {
 
     @Required private int day;
     @Required private int hour;
@@ -43,18 +41,5 @@ public class Hour extends RealmObject implements Comparable<Hour> {
 
     public void setDay(int day) {
         this.day = day;
-    }
-
-    @Override
-    public int compareTo(@NonNull Hour o) {
-        if (hour == o.getHour()) {
-            return 0;
-        }
-        else if (hour < o.getHour()){
-            return -1;
-        }
-        else {
-            return 1;
-        }
     }
 }
