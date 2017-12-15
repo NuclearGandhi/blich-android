@@ -16,16 +16,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichDatabase;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.couchbase.lite.QueryEnumerator;
-import com.couchbase.lite.QueryRow;
+import com.blackcracks.blich.util.Constants.Database;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import io.realm.RealmResults;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter implements
         ExpandableListView.OnGroupExpandListener,
@@ -133,7 +131,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         Lesson first_lesson = lessons.get(0);
         String subject = first_lesson.getSubject();
         final String teacher = first_lesson.getTeacher();
-        final String classroom = first_lesson.getClassroom();
+        final String classroom = first_lesson.getRoom();
 
         holder.subjectView.setText(subject);
         holder.teacherView.setText("...");
@@ -141,7 +139,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.indicatorView.setRotationX(0);
 
         //Set the color according to the lesson type
-        int color = getColorFromType(first_lesson.getLessonType());
+        int color = getColorFromType(first_lesson.getChangeType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         holder.eventsView.removeAllViews();
@@ -151,13 +149,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         for(int i = 1 ; i < lessons.size(); i++) {
             //Begin from 1, no need to signify about an event already shown to the user
             Lesson lesson = lessons.get(i);
-            existingTypes.add(lesson.getLessonType());
+            existingTypes.add(lesson.getChangeType());
         }
 
-        if (existingTypes.contains(BlichDatabase.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
-        if (existingTypes.contains(BlichDatabase.TYPE_CHANGE)) makeEventDot(holder.eventsView, R.color.lesson_changed);
-        if (existingTypes.contains(BlichDatabase.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
-        if (existingTypes.contains(BlichDatabase.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
+        if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
+        if (existingTypes.contains(Database.TYPE_NEW_TEACHER)) makeEventDot(holder.eventsView, R.color.lesson_changed);
+        if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
+        if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
@@ -215,9 +213,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
         holder.subjectView.setText(lesson.getSubject());
         holder.teacherView.setText(lesson.getTeacher());
-        holder.classroomView.setText(lesson.getClassroom());
+        holder.classroomView.setText(lesson.getRoom());
 
-        int color = getColorFromType(lesson.getLessonType());
+        int color = getColorFromType(lesson.getChangeType());
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         //Set a bottom divider if this is the last child
@@ -239,7 +237,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
             @Override
             public void run() {
                 holder.teacherView.setText(lesson.getTeacher());
-                holder.classroomView.setText(lesson.getClassroom());
+                holder.classroomView.setText(lesson.getRoom());
                 holder.eventsView.setVisibility(View.GONE);
             }
         });
@@ -255,8 +253,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.eventsView.setVisibility(View.VISIBLE);
     }
 
-    public void switchData(QueryEnumerator enumerator) {
-        mQueryHelper.switchData(enumerator);
+    public void switchData(RealmResults<Hour> data) {
+        mQueryHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();
     }
@@ -273,13 +271,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     private int getColorFromType(String lessonType) {
         switch (lessonType) {
-            case BlichDatabase.TYPE_CANCELED:
+            case Database.TYPE_CANCELED:
                 return R.color.lesson_canceled;
-            case BlichDatabase.TYPE_CHANGE:
+            case Database.TYPE_NEW_TEACHER:
                 return R.color.lesson_changed;
-            case BlichDatabase.TYPE_EVENT:
+            case Database.TYPE_EVENT:
                 return R.color.lesson_event;
-            case BlichDatabase.TYPE_EXAM:
+            case Database.TYPE_EXAM:
                 return R.color.lesson_exam;
             default:
                 return R.color.black_text;
@@ -318,27 +316,16 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
     }
 
     private class QueryEnumeratorHelper {
-        private QueryEnumerator mData;
-        private List<Hour> mHours = new ArrayList<>();
+        private RealmResults<Hour> mData;
         private boolean mIsDataValid;
 
-        QueryEnumeratorHelper(QueryEnumerator data) {
+        QueryEnumeratorHelper(RealmResults<Hour> data) {
             switchData(data);
         }
 
-        private void sortData() {
-            if (mIsDataValid) {
-                for (int i = 0; i < mData.getCount(); i++) {
-                    getHour(i);
-                }
-                Collections.sort(mHours);
-            }
-        }
-
-        void switchData(QueryEnumerator data) {
+        void switchData(RealmResults<Hour> data) {
             mData = data;
-            mIsDataValid = data != null;
-            sortData();
+            mIsDataValid = data != null && mData.size() != 0;
         }
 
         boolean isDataValid() {
@@ -346,34 +333,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         }
 
         Hour getHour(int position) {
-
-            if (!mIsDataValid) return null;
-            if (mHours.size() != mData.getCount()) {
-                QueryRow row = mData.getRow(position);
-
-                List<Lesson> lessons = new ArrayList<>();
-                List<Map<String, Object>> filtered = (List<Map<String, Object>>) row.getValue();
-
-                for (Map<String, Object> queriedLesson :
-                        filtered) {
-
-                    String subject = (String) queriedLesson.get(BlichDatabase.SUBJECT_KEY);
-                    String teacher = (String) queriedLesson.get(BlichDatabase.TEACHER_KEY);
-                    String classroom = (String) queriedLesson.get(BlichDatabase.CLASSROOM_KEY);
-                    String lessonType = (String) queriedLesson.get(BlichDatabase.LESSON_TYPE_KEY);
-                    Lesson lesson = new Lesson(subject, teacher, classroom, lessonType);
-
-                    lessons.add(lesson);
-                }
-
-                String queriedHour = (String) row.getKey();
-                int hourNum = Integer.parseInt(queriedHour.replace(BlichDatabase.HOUR_KEY, ""));
-
-                Hour hour = new Hour(hourNum, lessons);
-                mHours.add(position, hour);
-                return hour;
-            }
-            return mHours.get(position);
+            return mData.get(position);
         }
 
         Lesson getLesson(int position, int childPos) {
@@ -384,7 +344,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
         int getHourCount() {
             if (mIsDataValid) {
-                return mData.getCount();
+                return mData.size();
             } else {
                 return 0;
             }

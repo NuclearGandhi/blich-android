@@ -20,22 +20,18 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichDatabase;
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Query;
-import com.couchbase.lite.QueryEnumerator;
-import com.couchbase.lite.QueryRow;
+import com.blackcracks.blich.data.Lesson;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import timber.log.Timber;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
@@ -99,24 +95,14 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
         protected Void doInBackground(Void... params) {
 
             mTeachAndSub = new TreeMap<>();
-
-            Query query = BlichDatabase.sDatabase.getView(BlichDatabase.TEACHER_VIEW_ID)
-                    .createQuery();
-
-            QueryEnumerator result;
-            try {
-                result = query.run();
-                Iterator<QueryRow> it = result;
-                while (it.hasNext()) {
-                    QueryRow row = it.next();
-                    String teacher = (String) row.getKey();
-                    String subject = (String) row.getValue();
-
-                    mTeachAndSub.put(teacher, subject);
-                }
-            } catch (CouchbaseLiteException e) {
-                Timber.e(e);
+            Realm realm = Realm.getDefaultInstance();
+            RealmResults<Lesson> lessons = realm.where(Lesson.class)
+                    .findAll();
+            for(int i = 0; i < lessons.size(); i++) {
+                Lesson lesson = lessons.get(i);
+                mTeachAndSub.put(lesson.getTeacher(), lesson.getSubject());
             }
+
             return null;
         }
 
