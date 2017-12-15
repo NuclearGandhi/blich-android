@@ -406,6 +406,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             Hour hour = new Hour();
             hour.setDay(column);
+            hour.setHour(row);
             RealmList<Lesson> lessonList = new RealmList<>();
 
             for (int k = 0; k < divs.size(); k++) {
@@ -476,6 +477,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
+        realm.deleteAll();
         realm.insert(schedule);
         realm.commitTransaction();
 
