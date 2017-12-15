@@ -30,13 +30,13 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.data.BlichDatabase;
+import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.Schedule;
+import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.UnsavedRevision;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -58,9 +58,10 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -370,6 +371,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+        //Handle not expected situations
         if (classHtml.equals("")) {
             return FETCH_STATUS_EMPTY_HTML;
         }
@@ -380,24 +382,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         }
         Elements lessons = table.getElementsByClass(CELL_CLASS);
 
-        //Initialize "json" structure
-        final ArrayList<Map<String, Object>> schedule = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            Map<String, Object> day = new HashMap<>();
-            day.put(BlichDatabase.DAY_KEY, i);
 
-            List<Map<String, Object>> hours = new ArrayList<>();
-            day.put(BlichDatabase.HOURS_KEY, hours);
-            schedule.add(day);
-        }
+        //Initialize realm objects
+        Schedule schedule = new Schedule();
+        schedule.setClassId(classValue);
+        RealmList<Hour> hourList = new RealmList<>();
 
         //Iterate through each cell in the table
         for (int i = 6; i < lessons.size(); i++) {
             int row = i / 6;
             int column = i % 6 + 1;
-
-            Map<String, Object> day = schedule.get(column);
-            List<Map<String, Object>> hours = (List<Map<String, Object>>) day.get(BlichDatabase.HOURS_KEY);
 
             Element lessonElement = lessons.get(i);
             Elements divs = lessonElement.getElementsByTag("div");
@@ -410,15 +404,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             divs.addAll(tds);
 
-            char[] events = {'f', 'f', 'f', 'f'};
+            Hour hour = new Hour();
+            hour.setDay(column);
+            RealmList<Lesson> lessonList = new RealmList<>();
 
-            ArrayList<Map<String, Object>> lessonList = new ArrayList<>();
             for (int k = 0; k < divs.size(); k++) {
                 Element div = divs.get(k);
                 String html = div.html();
                 String[] text = html.split("</b>");
 
-                String subject, classroom, teacher, lessonType;
+                String subject, room, teacher, lessonType;
 
                 subject = text[0].replace("<b>", "").replace("<br>", " ");
                 subject = Parser.unescapeEntities(subject, false);
@@ -429,75 +424,60 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     text = text[1].split("<br>");
 
                     if (text.length == 2) {
-                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                        room = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
                         teacher = text[1].trim();
                     } else {
-                        classroom = " ";
+                        room = " ";
                         teacher = " ";
                     }
                 } else {
-                    classroom = " ";
+                    room = " ";
                     teacher = " ";
                 }
 
                 switch (div.attr("class")) {
                     case CANCELED_LESSON_CLASS: {
-                        lessonType = BlichDatabase.TYPE_CANCELED;
-                        if (events[0] == 'f') events[0] = 't';
+                        lessonType = Database.TYPE_CANCELED;
                         break;
                     }
                     case CHANGED_LESSON_CLASS: {
-                        lessonType = BlichDatabase.TYPE_CHANGE;
-                        if (events[1] == 'f') events[1] = 't';
+                        lessonType = Database.TYPE_NEW_TEACHER;
                         break;
                     }
                     case EXAM_LESSON_CLASS: {
-                        lessonType = BlichDatabase.TYPE_EXAM;
-                        if (events[2] == 'f') events[2] = 't';
+                        lessonType = Database.TYPE_EXAM;
                         break;
                     }
                     case EVENT_LESSON_CLASS: {
-                        lessonType = BlichDatabase.TYPE_EVENT;
-                        if (events[3] == 'f') events[3] = 't';
+                        lessonType = Database.TYPE_EVENT;
                         break;
                     }
                     default: {
-                        lessonType = BlichDatabase.TYPE_NORMAL;
+                        lessonType = Database.TYPE_NORMAL;
                     }
                 }
 
 
-                Lesson lesson = new Lesson(subject, teacher, classroom, lessonType);
+                Lesson lesson = new Lesson();
+                lesson.setSubject(subject);
+                lesson.setRoom(room);
+                lesson.setTeacher(teacher);
+                lesson.setChangeType(lessonType);
                 addLessonToNotificationList(lesson, column, row);
 
-                Map<String, Object> jsonLesson = new HashMap<>();
-                jsonLesson.put(BlichDatabase.SUBJECT_KEY, subject);
-                jsonLesson.put(BlichDatabase.CLASSROOM_KEY, classroom);
-                jsonLesson.put(BlichDatabase.TEACHER_KEY, teacher);
-                jsonLesson.put(BlichDatabase.LESSON_TYPE_KEY, lessonType);
-
-                lessonList.add(jsonLesson);
+                lessonList.add(lesson);
             }
-            Map<String, Object> hour = new HashMap<>();
-            hour.put(BlichDatabase.HOUR_KEY, row);
-            hour.put(BlichDatabase.LESSONS_KEY, lessonList);
 
-            hours.add(hour);
+            hour.setLessons(lessonList);
+            hourList.add(hour);
         }
 
-        com.couchbase.lite.Document doc = BlichDatabase.sDatabase.getDocument(BlichDatabase.SCHEDULE_DOC_ID);
-        try {
-            doc.update(new com.couchbase.lite.Document.DocumentUpdater() {
-                @Override
-                public boolean update(UnsavedRevision newRevision) {
-                    Map<String, Object> properties = newRevision.getProperties();
-                    properties.put(BlichDatabase.SCHEDULE_KEY, schedule);
-                    return true;
-                }
-            });
-        } catch (CouchbaseLiteException e) {
-            e.printStackTrace();
-        }
+        schedule.setSchedule(hourList);
+
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.insert(schedule);
+        realm.commitTransaction();
 
         return FETCH_STATUS_SUCCESSFUL;
     }
@@ -642,7 +622,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void addLessonToNotificationList(Lesson lesson, int day, int hour) {
-        if (!lesson.getLessonType().equals(BlichDatabase.TYPE_NORMAL)) {
+        if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int tomorrow = today + 1;
             if (tomorrow == 8) tomorrow = 1;
