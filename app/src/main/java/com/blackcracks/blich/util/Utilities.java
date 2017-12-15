@@ -314,7 +314,7 @@ public class Utilities {
                         teacher = arr[0];
                         subject = arr[1];
                     } else {
-                        break;
+                        continue;
                     }
 
                     selection.append(" OR(")

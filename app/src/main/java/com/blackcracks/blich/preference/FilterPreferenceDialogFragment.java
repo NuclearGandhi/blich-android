@@ -59,10 +59,13 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
             for (String teacherAndSubject :
                     teachersAndSubjects) {
                 String[] arr = teacherAndSubject.split(",");
-                String teacher = arr[0];
-                String subject = arr[1];
-                mTeacherList.add(teacher);
-                mSubjectList.add(subject);
+                if (arr.length == 2) {
+                    String teacher = arr[0];
+                    String subject = arr[1];
+
+                    mTeacherList.add(teacher);
+                    mSubjectList.add(subject);
+                }
             }
         }
 
