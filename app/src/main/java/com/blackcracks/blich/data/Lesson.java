@@ -10,6 +10,17 @@ public class Lesson extends RealmObject {
     private String teacher;
     private String changeType;
 
+    public Lesson() {
+
+    }
+
+    public Lesson(String subject, String room, String teacher, String changeType) {
+        this.subject = subject;
+        this.room = room;
+        this.teacher = teacher;
+        this.changeType = changeType;
+    }
+
     public String getSubject() {
         return subject;
     }

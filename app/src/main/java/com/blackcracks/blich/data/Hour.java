@@ -19,6 +19,16 @@ public class Hour extends RealmObject {
     @Required private int hour;
     @Required private RealmList<Lesson> lessons;
 
+    public Hour() {
+
+    }
+
+    public Hour(int day, int hour, RealmList<Lesson> lessons) {
+        this.day = day;
+        this.hour = hour;
+        this.lessons = lessons;
+    }
+
     public int getHour() {
         return hour;
     }
