@@ -13,7 +13,7 @@ import io.realm.annotations.Required;
 
 public class Schedule extends RealmObject {
 
-    @Required private int classId;
+    private int classId;
     @Required private RealmList<Hour> schedule;
 
     public int getClassId() {

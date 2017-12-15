@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
@@ -18,7 +17,10 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Hour;
 
+import java.util.List;
+
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -26,13 +28,14 @@ import io.realm.Sort;
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
 public class ScheduleDayFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<RealmResults<Hour>>{
+        implements LoaderManager.LoaderCallbacks<List<Hour>>{
 
     public static final String DAY_KEY = "day";
 
     private static final int SCHEDULE_LOADER_ID = 1;
 
     private ScheduleAdapter mAdapter;
+    private RealmChangeListener mChangeListener;
     private int mDay;
 
     @Override
@@ -44,6 +47,8 @@ public class ScheduleDayFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setUpRefresher();
+
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
         TextView statusTextView = rootView.findViewById(R.id.text_status);
@@ -59,6 +64,15 @@ public class ScheduleDayFragment extends Fragment
         return rootView;
     }
 
+    private void setUpRefresher() {
+        mChangeListener = new RealmChangeListener<Realm>() {
+            @Override
+            public void onChange(Realm realm) {
+                getLoaderManager().getLoader(SCHEDULE_LOADER_ID).onContentChanged();
+            }
+        };
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -66,23 +80,37 @@ public class ScheduleDayFragment extends Fragment
     }
 
     @Override
-    public Loader<RealmResults<Hour>> onCreateLoader(int id, Bundle args) {
+    public void onStart() {
+        super.onStart();
+        Realm realm = Realm.getDefaultInstance();
+        realm.addChangeListener(mChangeListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Realm realm = Realm.getDefaultInstance();
+        realm.removeChangeListener(mChangeListener);
+    }
+
+    @Override
+    public Loader<List<Hour>> onCreateLoader(int id, Bundle args) {
         return new ScheduleLoader(getContext(), mDay);
     }
 
     @Override
-    public void onLoadFinished(Loader<RealmResults<Hour>> loader, RealmResults<Hour> data) {
+    public void onLoadFinished(Loader<List<Hour>> loader, List<Hour> data) {
         mAdapter.switchData(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<RealmResults<Hour>> loader) {
+    public void onLoaderReset(Loader<List<Hour>> loader) {
         mAdapter.switchData(null);
     }
 
-    static class ScheduleLoader extends AsyncTaskLoader<RealmResults<Hour>> {
+    private static class ScheduleLoader extends Loader<List<Hour>> {
 
-        int mDay;
+        private int mDay;
 
         public ScheduleLoader(Context context, int day) {
             super(context);
@@ -92,26 +120,18 @@ public class ScheduleDayFragment extends Fragment
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            if (takeContentChanged()) {
-                forceLoad();
-            }
+            Realm realm = Realm.getDefaultInstance();
+            RealmResults<Hour> results = realm.where(Hour.class)
+                    .equalTo("day", mDay)
+                    .findAll();
+            results.sort("hour", Sort.ASCENDING);
+            deliverResult(results);
         }
 
         @Override
         protected void onStopLoading() {
             super.onStopLoading();
             cancelLoad();
-        }
-
-        @Override
-        public RealmResults<Hour> loadInBackground() {
-            Realm realm = Realm.getDefaultInstance();
-            RealmResults<Hour> hours = realm.where(Hour.class)
-                    .equalTo("day", mDay)
-                    .findAll();
-
-            hours.sort("hour", Sort.ASCENDING);
-            return hours;
         }
     }
 }

@@ -23,8 +23,6 @@ import com.blackcracks.blich.util.Constants.Database;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.RealmResults;
-
 public class ScheduleAdapter extends BaseExpandableListAdapter implements
         ExpandableListView.OnGroupExpandListener,
         ExpandableListView.OnGroupCollapseListener{
@@ -128,6 +126,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.hourView.setText(hour.getHour() + "");
 
         List<Lesson> lessons = hour.getLessons();
+        if (lessons.size() == 0) return;
         Lesson first_lesson = lessons.get(0);
         String subject = first_lesson.getSubject();
         final String teacher = first_lesson.getTeacher();
@@ -253,7 +252,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.eventsView.setVisibility(View.VISIBLE);
     }
 
-    public void switchData(RealmResults<Hour> data) {
+    public void switchData(List<Hour> data) {
         mQueryHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();
@@ -316,14 +315,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
     }
 
     private class QueryEnumeratorHelper {
-        private RealmResults<Hour> mData;
+        private List<Hour> mData;
         private boolean mIsDataValid;
 
-        QueryEnumeratorHelper(RealmResults<Hour> data) {
+        QueryEnumeratorHelper(List<Hour> data) {
             switchData(data);
         }
 
-        void switchData(RealmResults<Hour> data) {
+        void switchData(List<Hour> data) {
             mData = data;
             mIsDataValid = data != null && mData.size() != 0;
         }
