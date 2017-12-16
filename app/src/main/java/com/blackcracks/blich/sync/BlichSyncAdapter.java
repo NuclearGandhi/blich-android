@@ -480,6 +480,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         realm.deleteAll();
         realm.insert(schedule);
         realm.commitTransaction();
+        realm.close();
 
         return FETCH_STATUS_SUCCESSFUL;
     }

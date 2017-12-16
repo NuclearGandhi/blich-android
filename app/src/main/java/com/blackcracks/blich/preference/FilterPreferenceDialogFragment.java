@@ -103,6 +103,7 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
                 mTeachAndSub.put(lesson.getTeacher(), lesson.getSubject());
             }
 
+            realm.close();
             return null;
         }
 

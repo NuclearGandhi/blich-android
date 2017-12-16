@@ -35,6 +35,8 @@ public class ScheduleDayFragment extends Fragment
     private static final int SCHEDULE_LOADER_ID = 1;
 
     private ScheduleAdapter mAdapter;
+
+    private Realm mRealm;
     private RealmChangeListener mChangeListener;
     private int mDay;
 
@@ -47,6 +49,7 @@ public class ScheduleDayFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mRealm = Realm.getDefaultInstance();
         setUpRefresher();
 
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
@@ -82,20 +85,19 @@ public class ScheduleDayFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        Realm realm = Realm.getDefaultInstance();
-        realm.addChangeListener(mChangeListener);
+        mRealm.addChangeListener(mChangeListener);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Realm realm = Realm.getDefaultInstance();
-        realm.removeChangeListener(mChangeListener);
+        mRealm.removeChangeListener(mChangeListener);
+        mRealm.close();
     }
 
     @Override
     public Loader<List<Hour>> onCreateLoader(int id, Bundle args) {
-        return new ScheduleLoader(getContext(), mDay);
+        return new ScheduleLoader(getContext(), mDay, mRealm);
     }
 
     @Override
@@ -112,16 +114,18 @@ public class ScheduleDayFragment extends Fragment
 
         private int mDay;
 
-        public ScheduleLoader(Context context, int day) {
+        private Realm mRealm;
+
+        public ScheduleLoader(Context context, int day, Realm realm) {
             super(context);
             mDay = day;
+            mRealm = realm;
         }
 
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            Realm realm = Realm.getDefaultInstance();
-            RealmResults<Hour> results = realm.where(Hour.class)
+            RealmResults<Hour> results = mRealm.where(Hour.class)
                     .equalTo("day", mDay)
                     .findAll();
             results.sort("hour", Sort.ASCENDING);
