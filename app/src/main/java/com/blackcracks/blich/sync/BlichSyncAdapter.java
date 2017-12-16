@@ -469,8 +469,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 lessonList.add(lesson);
             }
 
-            hour.setLessons(lessonList);
-            hourList.add(hour);
+            if (lessonList.size() != 0) {
+                hour.setLessons(lessonList);
+                hourList.add(hour);
+            }
         }
 
         schedule.setSchedule(hourList);

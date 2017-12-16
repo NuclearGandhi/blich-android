@@ -126,7 +126,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         holder.hourView.setText(hour.getHour() + "");
 
         List<Lesson> lessons = hour.getLessons();
-        if (lessons.size() == 0) return;
         Lesson first_lesson = lessons.get(0);
         String subject = first_lesson.getSubject();
         final String teacher = first_lesson.getTeacher();
