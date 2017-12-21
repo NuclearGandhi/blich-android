@@ -124,7 +124,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         final Lesson first_lesson = lessons.get(0);
         String subject = first_lesson.getSubject();
         final String teacher = first_lesson.getTeacher();
-        final String classroom = first_lesson.getRoom();
+        final String room = first_lesson.getRoom();
 
         holder.subjectView.setText(subject);
         holder.teacherView.setText("...");
@@ -151,7 +151,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
         if (mExpandedArray.get(groupPosition)) {
-            showExpandedGroup(holder, first_lesson);
+            showExpandedGroup(holder, teacher, room);
         } else {
             showCollapsed(holder);
         }
@@ -159,7 +159,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
             holder.teacherView.setText(teacher);
-            holder.classroomView.setText(classroom);
+            holder.classroomView.setText(room);
             view.setOnClickListener(null);
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
@@ -173,7 +173,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
                         //Expand
                         mExpandableListView.expandGroup(finalGroupPos, true);
                         mExpandedArray.put(finalGroupPos, true);
-                        showExpandedGroup(holder, first_lesson);
+                        showExpandedGroup(holder, teacher, room);
                     } else {
                         //Collapse
                         mExpandableListView.collapseGroup(finalGroupPos);
@@ -245,13 +245,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         parent.addView(view);
     }
 
-    private void showExpandedGroup(final GroupViewHolder holder, final Lesson lesson) {
+    private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
         holder.indicatorView.animate().rotation(180);
+
         holder.teacherView.post(new Runnable() {
             @Override
             public void run() {
-                holder.teacherView.setText(lesson.getTeacher());
-                holder.classroomView.setText(lesson.getRoom());
+                holder.teacherView.setText(teacher);
+                holder.classroomView.setText(room);
                 holder.eventsView.setVisibility(View.GONE);
             }
         });
