@@ -23,9 +23,7 @@ import com.blackcracks.blich.util.Constants.Database;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScheduleAdapter extends BaseExpandableListAdapter implements
-        ExpandableListView.OnGroupExpandListener,
-        ExpandableListView.OnGroupCollapseListener{
+public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private ExpandableListView mExpandableListView;
     private QueryEnumeratorHelper mQueryHelper;
@@ -40,9 +38,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         mContext = context;
         mStatusTextView = statusTextView;
         mExpandableListView = expandableListView;
-
-        mExpandableListView.setOnGroupExpandListener(this);
-        mExpandableListView.setOnGroupCollapseListener(this);
 
         mQueryHelper = new QueryEnumeratorHelper(null);
         mExpandedArray = new SparseBooleanArray();
@@ -125,8 +120,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         Hour hour = (Hour) getGroup(groupPosition);
         holder.hourView.setText(hour.getHour() + "");
 
-        List<Lesson> lessons = hour.getLessons();
-        Lesson first_lesson = lessons.get(0);
+        final List<Lesson> lessons = hour.getLessons();
+        final Lesson first_lesson = lessons.get(0);
         String subject = first_lesson.getSubject();
         final String teacher = first_lesson.getTeacher();
         final String classroom = first_lesson.getRoom();
@@ -155,6 +150,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
         if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
+        if (mExpandedArray.get(groupPosition)) {
+            showExpandedGroup(holder, first_lesson);
+        } else {
+            showCollapsed(holder);
+        }
+
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
             holder.teacherView.setText(teacher);
@@ -172,10 +173,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
                         //Expand
                         mExpandableListView.expandGroup(finalGroupPos, true);
                         mExpandedArray.put(finalGroupPos, true);
+                        showExpandedGroup(holder, first_lesson);
                     } else {
                         //Collapse
                         mExpandableListView.collapseGroup(finalGroupPos);
                         mExpandedArray.put(finalGroupPos, false);
+                        showCollapsed(holder);
                     }
                 }
             });
@@ -226,31 +229,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
 
     }
 
-    @Override
-    public void onGroupExpand(int groupPosition) {
-        final GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
-        final Lesson lesson = (Lesson) getChild(groupPosition, 0);
-        holder.indicatorView.animate().rotation(180);
-        holder.teacherView.post(new Runnable() {
-            @Override
-            public void run() {
-                holder.teacherView.setText(lesson.getTeacher());
-                holder.classroomView.setText(lesson.getRoom());
-                holder.eventsView.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    @Override
-    public void onGroupCollapse(int groupPosition) {
-        GroupViewHolder holder = mViewHolderSparseArray.get(groupPosition);
-        holder.indicatorView.animate().rotation(0);
-        holder.teacherView.setText("...");
-        holder.classroomView.setText("");
-
-        holder.eventsView.setVisibility(View.VISIBLE);
-    }
-
     public void switchData(List<Hour> data) {
         mQueryHelper.switchData(data);
         mExpandedArray.clear();
@@ -265,6 +243,26 @@ public class ScheduleAdapter extends BaseExpandableListAdapter implements
         view.setBackground(drawable);
 
         parent.addView(view);
+    }
+
+    private void showExpandedGroup(final GroupViewHolder holder, final Lesson lesson) {
+        holder.indicatorView.animate().rotation(180);
+        holder.teacherView.post(new Runnable() {
+            @Override
+            public void run() {
+                holder.teacherView.setText(lesson.getTeacher());
+                holder.classroomView.setText(lesson.getRoom());
+                holder.eventsView.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void showCollapsed(GroupViewHolder holder) {
+        holder.indicatorView.animate().rotation(0);
+        holder.teacherView.setText("...");
+        holder.classroomView.setText("");
+
+        holder.eventsView.setVisibility(View.VISIBLE);
     }
 
     private int getColorFromType(String lessonType) {
