@@ -26,7 +26,7 @@ import java.util.List;
 public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private ExpandableListView mExpandableListView;
-    private QueryEnumeratorHelper mQueryHelper;
+    private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
@@ -39,14 +39,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         mStatusTextView = statusTextView;
         mExpandableListView = expandableListView;
 
-        mQueryHelper = new QueryEnumeratorHelper(null);
+        mRealmScheduleHelper = new RealmScheduleHelper(null);
         mExpandedArray = new SparseBooleanArray();
         mViewHolderSparseArray = new SparseArray<>();
     }
 
     @Override
     public int getGroupCount() {
-        int count = mQueryHelper.getHourCount();
+        int count = mRealmScheduleHelper.getHourCount();
         if (count == 0) {
             mStatusTextView.setVisibility(View.VISIBLE);
         } else {
@@ -57,17 +57,17 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mQueryHelper.getChildCount(groupPosition) - 1;
+        return mRealmScheduleHelper.getChildCount(groupPosition) - 1;
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return mQueryHelper.getHour(groupPosition);
+        return mRealmScheduleHelper.getHour(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mQueryHelper.getLesson(groupPosition, childPosition);
+        return mRealmScheduleHelper.getLesson(groupPosition, childPosition);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        if (!mQueryHelper.isDataValid()) return null;
+        if (!mRealmScheduleHelper.isDataValid()) return null;
 
         View view;
         if (convertView == null) {
@@ -188,7 +188,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        if (!mQueryHelper.isDataValid()) return null;
+        if (!mRealmScheduleHelper.isDataValid()) return null;
 
         View view;
         if (convertView == null) {
@@ -230,7 +230,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     }
 
     public void switchData(List<Hour> data) {
-        mQueryHelper.switchData(data);
+        mRealmScheduleHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();
     }
@@ -312,11 +312,11 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         }
     }
 
-    private class QueryEnumeratorHelper {
+    private class RealmScheduleHelper {
         private List<Hour> mData;
         private boolean mIsDataValid;
 
-        QueryEnumeratorHelper(List<Hour> data) {
+        RealmScheduleHelper(List<Hour> data) {
             switchData(data);
         }
 
