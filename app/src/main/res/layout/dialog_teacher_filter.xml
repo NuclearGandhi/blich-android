@@ -41,12 +41,12 @@
         android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:divider="@android:color/transparent"
         android:paddingBottom="180dp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_description"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_description">
     </ListView>
 
 </android.support.constraint.ConstraintLayout>
