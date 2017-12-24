@@ -21,6 +21,8 @@ import com.blackcracks.blich.adapter.TeacherFilterAdapter;
 import com.blackcracks.blich.data.Lesson;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
@@ -130,6 +132,15 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
                     results) {
                 if(!lesson.doesListContainLesson(lessons)) lessons.add(lesson);
             }
+
+            Comparator<Lesson> compareBySubject = new Comparator<Lesson>() {
+                @Override
+                public int compare(Lesson o1, Lesson o2) {
+                    return o1.getSubject().compareTo(o2.getSubject());
+                }
+            };
+            Collections.sort(lessons, compareBySubject);
+
             deliverResult(lessons);
         }
 
