@@ -107,6 +107,10 @@ public class TeacherFilterAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public List<Lesson> getCheckLessons() {
+        return mCheckLessons;
+    }
+
     static class ViewHolder {
         CheckBox checkBox;
 
