@@ -20,6 +20,7 @@ import android.widget.ListView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.TeacherFilterAdapter;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.TeacherSubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat
-implements LoaderManager.LoaderCallbacks<List<Lesson>>{
+implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
 
     private Realm mRealm;
 
@@ -53,7 +54,7 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
         mRealm = Realm.getDefaultInstance();
 
         ListView listView = view.findViewById(R.id.list_view_teacher_filter);
-        List<Lesson> lessons = new ArrayList<>();
+        List<TeacherSubject> teacherSubjects = new ArrayList<>();
 
         mPreference = (FilterPreference) getPreference();
         if (mPreference.getValue() != null && !mPreference.getValue().equals("")) {
@@ -67,15 +68,13 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
                     String teacher = arr[0];
                     String subject = arr[1];
 
-                    Lesson lesson = new Lesson();
-                    lesson.setTeacher(teacher);
-                    lesson.setSubject(subject);
-                    lessons.add(lesson);
+                    TeacherSubject teacherSubject = new TeacherSubject(teacher, subject);
+                    teacherSubjects.add(teacherSubject);
                 }
             }
         }
 
-        mAdapter = new TeacherFilterAdapter(getContext(), null, lessons);
+        mAdapter = new TeacherFilterAdapter(getContext(), null, teacherSubjects);
         listView.setAdapter(mAdapter);
 
         getLoaderManager().initLoader(TEACHER_LOADER_ID, null, this);
@@ -105,10 +104,10 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             StringBuilder value = new StringBuilder();
-            for (Lesson lesson :
-                    mAdapter.getCheckLessons()) {
-                String teacher = lesson.getTeacher();
-                String subject = lesson.getSubject();
+            for (TeacherSubject teacherSubject:
+                    mAdapter.getTeacherSubjects()) {
+                String teacher = teacherSubject.getTeacher();
+                String subject = teacherSubject.getSubject();
 
                 value.append(teacher).append(",").append(subject).append(";");
             }
@@ -118,21 +117,21 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
     }
 
     @Override
-    public Loader<List<Lesson>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<TeacherSubject>> onCreateLoader(int id, Bundle args) {
         return new TeacherLoader(getContext(), mRealm);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Lesson>> loader, List<Lesson> data) {
+    public void onLoadFinished(Loader<List<TeacherSubject>> loader, List<TeacherSubject> data) {
         mAdapter.switchData(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Lesson>> loader) {
+    public void onLoaderReset(Loader<List<TeacherSubject>> loader) {
         mAdapter.switchData(null);
     }
 
-    private static class TeacherLoader extends Loader<List<Lesson>> {
+    private static class TeacherLoader extends Loader<List<TeacherSubject>> {
 
         private Realm mRealm;
 
@@ -148,21 +147,22 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
                     .notEqualTo("teacher", " ")
                     .findAll();
 
-            List<Lesson> lessons = new ArrayList<>();
+            List<TeacherSubject> teacherSubjects = new ArrayList<>();
             for (Lesson lesson :
                     results) {
-                if(!lesson.doesListContainLesson(lessons)) lessons.add(lesson);
+                TeacherSubject teacherSubject = lesson.getTeacherSubject();
+                if (!teacherSubjects.contains(teacherSubject))
+                    teacherSubjects.add(teacherSubject);
             }
 
-            Comparator<Lesson> compareBySubject = new Comparator<Lesson>() {
+            Comparator<TeacherSubject> compareBySubject = new Comparator<TeacherSubject>() {
                 @Override
-                public int compare(Lesson o1, Lesson o2) {
+                public int compare(TeacherSubject o1, TeacherSubject o2) {
                     return o1.getSubject().compareTo(o2.getSubject());
                 }
             };
-            Collections.sort(lessons, compareBySubject);
-
-            deliverResult(lessons);
+            Collections.sort(teacherSubjects, compareBySubject);
+            deliverResult(teacherSubjects);
         }
 
         @Override

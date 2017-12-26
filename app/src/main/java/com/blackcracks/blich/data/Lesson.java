@@ -1,7 +1,5 @@
 package com.blackcracks.blich.data;
 
-import java.util.List;
-
 import io.realm.RealmObject;
 import io.realm.annotations.Required;
 
@@ -55,18 +53,7 @@ public class Lesson extends RealmObject {
         this.changeType = changeType;
     }
 
-    public boolean doesListContainLesson(List<Lesson> lessons) {
-        for (Lesson lesson:
-                lessons) {
-            if (sameTeacherSubject(lesson)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean sameTeacherSubject(Lesson l1) {
-        return l1.getTeacher().equals(getTeacher()) &&
-                l1.getSubject().equals(getSubject());
+    public TeacherSubject getTeacherSubject() {
+        return new TeacherSubject(teacher, subject);
     }
 }
