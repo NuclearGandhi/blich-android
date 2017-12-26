@@ -129,6 +129,7 @@ public class ScheduleDayFragment extends Fragment
                     .equalTo("day", mDay)
                     .findAll();
             results.sort("hour", Sort.ASCENDING);
+
             deliverResult(results);
         }
 

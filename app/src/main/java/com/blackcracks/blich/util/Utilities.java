@@ -78,9 +78,24 @@ public class Utilities {
         else return returnString.replace("/", "");
     }
 
+    public static String getPrefString(Context context,
+                                       int prefKey) {
+        String key = Preferences.getKey(context, prefKey);
+        String defaultValue = (String) Preferences.getDefault(context, prefKey);
+
+        return getPrefString(context, key, defaultValue, false);
+    }
+
     public static boolean getPrefBoolean(Context context, String key, boolean defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(key, defaultValue);
+    }
+
+    public static boolean getPrefBoolean(Context context, int prefKey) {
+            String key = Preferences.getKey(context, prefKey);
+            boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
+
+            return getPrefBoolean(context, key, defaultValue);
     }
 
     public static int getPrefInt(Context context, String key, int defaultValue) {
@@ -285,34 +300,6 @@ public class Utilities {
                     .getString(
                             key,
                             defaultValue.replace("/", ""));
-        }
-    }
-
-    public static class Nosql {
-
-        private static String getFilter(Context context) {
-            return getPrefString(context,
-                    Preferences.getKey(context, Preferences.PREF_FILTER_SELECT_KEY),
-                    (String) Preferences.getDefault(context, Preferences.PREF_FILTER_SELECT_KEY),
-                    false);
-        }
-
-        public static boolean filterString(Context context, String teacher, String subject) {
-            String filter = getFilter(context);
-
-            String[] subAndTeach = filter.split(";");
-            boolean passFilter = false;
-            int i = 0;
-            while (i < subAndTeach.length && !passFilter) {
-                String[] arr = subAndTeach[i].split(",");
-                String teach = arr[0];
-                String sub = arr[1];
-
-                if (teach.equals(teacher) && sub.equals(subject)) passFilter = true;
-                i++;
-            }
-            if (teacher.equals(" ")) passFilter = true;
-            return passFilter;
         }
     }
 }
