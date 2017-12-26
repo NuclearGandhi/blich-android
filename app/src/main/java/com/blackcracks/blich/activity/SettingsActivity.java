@@ -177,15 +177,19 @@ public class SettingsActivity extends AppCompatActivity {
         private void initPrefSummery() {
 
             setClassPickerSummery();
-            setFilterSelectSummery();
+            //setFilterSelectSummery();
+            setNotificationSoundPreference();
+        }
 
+
+        //Notification Sound Preference
+        private void setNotificationSoundPreference() {
             String notificationSoundKey =
                     Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
 
             String notificationSoundDefault =
                     (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
 
-            //Notification Sound Preference
             String uri = Utilities.getPrefString(getContext(),
                     notificationSoundKey,
                     notificationSoundDefault,
