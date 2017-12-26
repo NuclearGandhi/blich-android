@@ -34,15 +34,38 @@
         app:layout_constraintRight_toRightOf="@+id/dialog_teacher_filter_title"
         app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_title"/>
 
+
+    <Button
+        android:id="@+id/btn_select_none"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:foreground="@drawable/ic_select_none_black_24dp"
+        app:layout_constraintEnd_toStartOf="@+id/btn_select_all"
+        app:layout_constraintTop_toTopOf="@+id/dialog_teacher_filter_title"/>
+
+    <Button
+        android:id="@+id/btn_select_all"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:foreground="@drawable/ic_select_all_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_select_none"/>
+
     <ListView
         android:id="@+id/list_view_teacher_filter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
         android:divider="@android:color/transparent"
-        android:paddingBottom="180dp"
+        android:paddingBottom="148dp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

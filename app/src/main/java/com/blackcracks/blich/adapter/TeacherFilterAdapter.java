@@ -26,10 +26,12 @@ import javax.annotation.Nullable;
 
 public class TeacherFilterAdapter extends BaseAdapter {
 
-    Context mContext;
-    RealmTeacherHelper mRealmTeacherHelper;
-    List<Lesson> mCheckLessons;
+    public static final int SELECT_ALL = 0;
+    public static final int SELECT_NONE = 1;
 
+    private Context mContext;
+    private RealmTeacherHelper mRealmTeacherHelper;
+    private List<Lesson> mCheckLessons;
 
     public TeacherFilterAdapter(
             Context context,
@@ -107,6 +109,19 @@ public class TeacherFilterAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void selectLessons(int select) {
+        switch(select) {
+            case SELECT_ALL: {
+                mCheckLessons.addAll(mRealmTeacherHelper.getData());
+                notifyDataSetChanged();
+            }
+            case SELECT_NONE: {
+                mCheckLessons.clear();
+                notifyDataSetChanged();
+            }
+        }
+    }
+
     public List<Lesson> getCheckLessons() {
         return mCheckLessons;
     }
@@ -134,6 +149,10 @@ public class TeacherFilterAdapter extends BaseAdapter {
 
         boolean isDataValid() {
             return mIsDataValid;
+        }
+
+        public List<Lesson> getData() {
+            return mData;
         }
 
         public Lesson getLesson(int position) {

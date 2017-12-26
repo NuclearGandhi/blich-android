@@ -14,6 +14,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.blackcracks.blich.R;
@@ -78,6 +79,26 @@ implements LoaderManager.LoaderCallbacks<List<Lesson>>{
         listView.setAdapter(mAdapter);
 
         getLoaderManager().initLoader(TEACHER_LOADER_ID, null, this);
+
+
+        //Set up button click listeners
+        Button selectAll = view.findViewById(R.id.btn_select_all);
+        Button selectNone = view.findViewById(R.id.btn_select_none);
+
+        selectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_ALL);
+            }
+        });
+
+
+        selectNone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_NONE);
+            }
+        });
     }
 
     @Override
