@@ -18,20 +18,24 @@
         style="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="24dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="@string/dialog_teacher_filter_title"
-        app:layout_constraintRight_toRightOf="parent"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/dialog_teacher_filter_description"
-        style="?android:attr/textAppearanceMedium"
-        android:layout_width="wrap_content"
+        style="?android:attr/textAppearanceSmall"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:text="@string/dialog_teacher_filter_description"
-        app:layout_constraintRight_toRightOf="@+id/dialog_teacher_filter_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_title"/>
 
 
@@ -64,9 +68,9 @@
         android:id="@+id/list_view_teacher_filter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="16dp"
         android:divider="@android:color/transparent"
         android:paddingBottom="148dp"
         app:layout_constraintHorizontal_bias="0.0"
