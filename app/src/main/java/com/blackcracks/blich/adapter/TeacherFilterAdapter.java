@@ -92,13 +92,17 @@ public class TeacherFilterAdapter extends BaseAdapter {
             holder.checkBox.setText(Html.fromHtml(text));
         }
 
-        if (mTeacherSubjects.contains(teacherSubject)) checkBox.setChecked(true);
+        checkBox.setOnCheckedChangeListener(null);
+
+        if (mTeacherSubjects.contains(teacherSubject)){
+            checkBox.setChecked(true);
+        }
         else checkBox.setChecked(false);
 
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) mTeacherSubjects.add(teacherSubject);
+                if (isChecked && !mTeacherSubjects.contains(teacherSubject)) mTeacherSubjects.add(teacherSubject);
                 else mTeacherSubjects.remove(teacherSubject);
             }
         });
@@ -113,15 +117,14 @@ public class TeacherFilterAdapter extends BaseAdapter {
         switch(select) {
             case SELECT_ALL: {
                 mTeacherSubjects.clear();
-                for (TeacherSubject teacherSubject :
-                        mRealmTeacherHelper.getData()) {
-                    mTeacherSubjects.add(teacherSubject);
-                }
+                mTeacherSubjects.addAll(mRealmTeacherHelper.getData());
                 notifyDataSetChanged();
+                break;
             }
             case SELECT_NONE: {
                 mTeacherSubjects.clear();
                 notifyDataSetChanged();
+                break;
             }
         }
     }
