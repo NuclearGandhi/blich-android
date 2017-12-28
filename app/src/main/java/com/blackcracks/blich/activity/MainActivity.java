@@ -31,12 +31,18 @@ import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
 
     //Key to store whether this is the first time MainActivity is created in the app process
     private static final String IS_FIRST_INSTANCE_KEY = "is_first";
+
+    private View mRootView;
 
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
@@ -45,67 +51,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Change locale to hebrew
-        Locale locale = new Locale("iw");
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getApplicationContext().createConfigurationContext(config);
+        //Initialization stuff
+        setLocaleToHebrew();
+        setUpRealm();
+        Timber.plant(new Timber.DebugTree());
 
-        final View view = LayoutInflater.from(this).inflate(
+
+        //Link to the layout
+        mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_main, null, false);
-        setContentView(view);
+        setContentView(mRootView);
 
+        //Restore state if it exists
         if (savedInstanceState != null) {
-            mFragment = getSupportFragmentManager().
-                    getFragment(savedInstanceState, FRAGMENT_TAG);
+            mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_TAG);
         } else {
             mFragment = new ScheduleFragment();
         }
         replaceFragment(mFragment, false);
 
+
+        //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        setupDrawer();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(0).setChecked(true);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        if(item.isChecked()) return false;
-                        mDrawerLayout.closeDrawers();
-                        switch (item.getItemId()) {
-                            case R.id.schedule: {
-                                replaceFragment(new ScheduleFragment(), false);
-                                item.setChecked(true);
-                                return true;
-                            }
-                            case R.id.exams: {
-                                replaceFragment(new ExamsFragment(), false);
-                                item.setChecked(true);
-                                return true;
-                            }
-                            case R.id.news: {
-                                replaceFragment(new NewsFragment(), false);
-                                item.setChecked(true);
-                                return true;
-                            }
-                            case R.id.about: {
-                                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
-                                startActivity(intent);
-                                return true;
-                            }
-                            case R.id.settings: {
-                                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                                startActivity(intent);
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
-        );
-
+        //Open a class picker dialog in case this is the first time the user opened the app
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
             ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
@@ -113,17 +83,18 @@ public class MainActivity extends AppCompatActivity {
             dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
                 @Override
                 public void onDestroy(Context context) {
-                    //Start the periodic syncing of
+                    //Start the periodic sync
                     BlichSyncAdapter.initializeSyncAdapter(context);
-                    Utilities.initializeBlichDataUpdater(context, view);
+                    Utilities.initializeBlichDataUpdater(context, mRootView);
                 }
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                Utilities.initializeBlichDataUpdater(this, view);
+                Utilities.initializeBlichDataUpdater(this, mRootView);
             }
         }
 
+        //Create notification channels
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
@@ -137,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Save the fragment when the activity is destroyed
+     * @param outState
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -144,6 +120,10 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().putFragment(outState,
                 FRAGMENT_TAG,
                 mFragment);
+    }
+
+    public DrawerLayout getDrawerLayout() {
+        return mDrawerLayout;
     }
 
     //replace the fragment
@@ -180,7 +160,61 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.createNotificationChannel(scheduleChannel);
     }
 
-    public DrawerLayout getDrawerLayout() {
-        return mDrawerLayout;
+    private void setLocaleToHebrew() {
+        //Change locale to hebrew
+        Locale locale = new Locale("iw");
+        Locale.setDefault(locale);
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getApplicationContext().createConfigurationContext(config);
+
+    }
+
+    private void setUpRealm() {
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        Realm.setDefaultConfiguration(config);
+    }
+
+    private void setupDrawer() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        if (item.isChecked()) return false;
+                        mDrawerLayout.closeDrawers();
+                        switch (item.getItemId()) {
+                            case R.id.schedule: {
+                                replaceFragment(new ScheduleFragment(), false);
+                                item.setChecked(true);
+                                return true;
+                            }
+                            case R.id.exams: {
+                                replaceFragment(new ExamsFragment(), false);
+                                item.setChecked(true);
+                                return true;
+                            }
+                            case R.id.news: {
+                                replaceFragment(new NewsFragment(), false);
+                                item.setChecked(true);
+                                return true;
+                            }
+                            case R.id.about: {
+                                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                                startActivity(intent);
+                                return true;
+                            }
+                            case R.id.settings: {
+                                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                                startActivity(intent);
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+        );
     }
 }

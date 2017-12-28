@@ -7,34 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.blackcracks.blich.data.BlichContract.*;
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public static final String DATABASE_NAME = "blich.db";
 
-    private final String SQL_CREATE_SCHEDULE_TABLE = "CREATE TABLE " + ScheduleEntry.TABLE_NAME + " (" +
-            ScheduleEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            ScheduleEntry.COL_DAY + " INTEGER NOT NULL, " +
-            ScheduleEntry.COL_HOUR + " INTEGER NOT NULL, " +
-
-            ScheduleEntry.COL_LESSON_COUNT + " INTEGER, " +
-            ScheduleEntry.COL_EVENTS + " TEXT NOT NULL, " +
-            "UNIQUE (" + ScheduleEntry.COL_DAY + ", " + ScheduleEntry.COL_HOUR +
-            ") ON CONFLICT REPLACE);";
-
-    private final String SQL_CREATE_LESSON_TABLE = "CREATE TABLE " + LessonEntry.TABLE_NAME + " (" +
-            LessonEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            LessonEntry.COL_DAY + " INTEGER NOT NULL, " +
-            LessonEntry.COL_HOUR + " INTEGER NOT NULL, " +
-            LessonEntry.COL_LESSON_NUM + " INTEGER NOT NULL, " +
-
-            LessonEntry.COL_SUBJECT + " TEXT NOT NULL, " +
-            LessonEntry.COL_CLASSROOM + " TEXT, " +
-            LessonEntry.COL_TEACHER + " TEXT, " +
-            LessonEntry.COL_LESSON_TYPE + " TEXT NOT NULL, " +
-            "UNIQUE (" + LessonEntry.COL_DAY + ", " + LessonEntry.COL_HOUR +
-            ", " + LessonEntry.COL_LESSON_NUM + ") ON CONFLICT REPLACE);";
-
     final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ";";
+    final String SQL_DROP_LESSON_TABLE = "DROP TABLE " + LessonEntry.TABLE_NAME + ";";
 
     private final String SQL_DROP_LESSON_TABLE = "DROP TABLE + " + LessonEntry.TABLE_NAME + ";";
 
@@ -71,8 +49,6 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
-        db.execSQL(SQL_CREATE_LESSON_TABLE);
         db.execSQL(SQL_CREATE_EXAMS_TABLE);
         db.execSQL(SQL_CREATE_NEWS_TABLE);
         db.execSQL(SQL_CREATE_CLASS_TABLE);
@@ -83,15 +59,13 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 8) {
             db.execSQL(SQL_CREATE_NEWS_TABLE);
         }
-        if (oldVersion < 9) {
-            db.execSQL(SQL_DROP_SCHEDULE_TABLE);
-            db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
-
-            db.execSQL(SQL_CREATE_LESSON_TABLE);
-        }
         if (oldVersion < 10) {
             db.execSQL(SQL_DROP_EXAMS_TABLE);
             db.execSQL(SQL_CREATE_EXAMS_TABLE);
+        }
+        if (oldVersion < 11) {
+            db.execSQL(SQL_DROP_SCHEDULE_TABLE);
+            db.execSQL(SQL_DROP_LESSON_TABLE);
         }
     }
 

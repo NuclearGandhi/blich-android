@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
 
 def keystorePropertiesFile = rootProject.file("../keystore.properties")
 def keystoreProperties = new Properties()
@@ -19,8 +20,8 @@ android {
         applicationId "com.blackcracks.blich"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 22
-        versionName "v1.4.2rc2"
+        versionCode 21
+        versionName "v1.4.2rc1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -40,7 +41,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support:support-v4:26.1.0'
@@ -48,14 +49,14 @@ dependencies {
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:preference-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.google.firebase:firebase-core:11.6.2'
-    implementation 'com.google.firebase:firebase-crash:11.6.2'
-    implementation 'com.google.firebase:firebase-messaging:11.6.2'
+    implementation 'com.google.firebase:firebase-core:11.4.2'
+    implementation 'com.google.firebase:firebase-crash:11.4.2'
     implementation 'org.jsoup:jsoup:1.10.3'
     implementation 'org.apache.httpcomponents:httpcore:4.4.7'
     implementation 'biz.kasual:materialnumberpicker:1.2.1'
     implementation 'com.github.bumptech.glide:glide:4.1.1'
     implementation 'com.github.NuclearGandhi:material-calendarview:v1.4.4'
+    implementation 'com.jakewharton.timber:timber:4.6.0'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support:support-annotations:26.1.0'
     androidTestCompile 'com.android.support.test:runner:1.0.1'

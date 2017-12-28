@@ -6,7 +6,10 @@
   ~ Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
   -->
 
-<resources>
-    <bool name="pref_notification_toggle_default">true</bool>
-    <bool name="pref_filter_toggle_default">false</bool>
-</resources>
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingLeft="8dp"
+          android:paddingRight="8dp">
+
+</CheckBox>

@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.SettingsActivity;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
@@ -68,14 +66,24 @@ public class Utilities {
         return false;
     }
 
+
+    //Preferences
     public static String getPrefString(Context context,
-                                             String key,
-                                             String defaultValue,
-                                             boolean isUri) {
+                                       String key,
+                                       String defaultValue,
+                                       boolean isUri) {
         String returnString = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(key, defaultValue);
         if (isUri) return returnString;
         else return returnString.replace("/", "");
+    }
+
+    public static String getPrefString(Context context,
+                                       int prefKey) {
+        String key = Preferences.getKey(context, prefKey);
+        String defaultValue = (String) Preferences.getDefault(context, prefKey);
+
+        return getPrefString(context, key, defaultValue, false);
     }
 
     public static boolean getPrefBoolean(Context context, String key, boolean defaultValue) {
@@ -83,9 +91,16 @@ public class Utilities {
                 .getBoolean(key, defaultValue);
     }
 
+    public static boolean getPrefBoolean(Context context, int prefKey) {
+            String key = Preferences.getKey(context, prefKey);
+            boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
+
+            return getPrefBoolean(context, key, defaultValue);
+    }
+
     public static int getPrefInt(Context context, String key, int defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-        .getInt(key, defaultValue);
+                .getInt(key, defaultValue);
     }
 
 
@@ -164,7 +179,7 @@ public class Utilities {
                     }
                 });
             } else {
-                throw new NullPointerException("A non-null fragment manager is required "  +
+                throw new NullPointerException("A non-null fragment manager is required " +
                         "in case the user's class isn't configured");
             }
 
@@ -188,7 +203,7 @@ public class Utilities {
                 }
                 default:
                     titleString = R.string.dialog_fetch_unsuccessful_title;
-                    messageString =  R.string.dialog_fetch_unsuccessful_message;
+                    messageString = R.string.dialog_fetch_unsuccessful_message;
             }
             TextView title = dialogView.findViewById(R.id.dialog_title);
             title.setText(titleString);
@@ -265,7 +280,8 @@ public class Utilities {
             int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-            if (hour >= 18 && day != 7) day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
+            if (hour >= 18 && day != 7)
+                day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
             if (day == 7) day = 1; //If it is Saturday, set day to 1 (Sunday).
             return day;
         }
@@ -284,77 +300,6 @@ public class Utilities {
                     .getString(
                             key,
                             defaultValue.replace("/", ""));
-        }
-    }
-
-    public static class Sqlite {
-
-        public static String generateFilterCondition(Context context) {
-
-            StringBuilder selection = new StringBuilder();
-
-            boolean isFilterOn = Utilities.getPrefBoolean(
-                    context,
-                    SettingsActivity.SettingsFragment.PREF_FILTER_TOGGLE_KEY,
-                    false);
-
-            if (isFilterOn) {
-                String[] teachersAndSubjects = Utilities.getPrefString(
-                        context,
-                        SettingsActivity.SettingsFragment.PREF_FILTER_SELECT_KEY,
-                        "",
-                        false)
-                        .split(";");
-
-                for (String teacherAndSubject : teachersAndSubjects) {
-                    String[] arr = teacherAndSubject.split(",");
-                    String teacher;
-                    String subject;
-                    if (arr.length == 2) {
-                        teacher = arr[0];
-                        subject = arr[1];
-                    } else {
-                        continue;
-                    }
-
-                    selection.append(" OR(")
-                            .append(LessonEntry.TABLE_NAME)
-                            .append(".")
-                            .append(LessonEntry.COL_TEACHER)
-                            .append(" LIKE '")
-                            .append(teacher.trim())
-                            .append("'");
-
-                    selection.append(" AND ")
-                            .append(LessonEntry.TABLE_NAME)
-                            .append(".")
-                            .append(LessonEntry.COL_SUBJECT)
-                            .append(" LIKE '")
-                            .append(subject.trim())
-                            .append("')");
-                } //End of iteration
-
-                if (selection.toString().equals(" ")) {
-                    return "";
-                }
-
-                selection.append(" OR " +
-                        LessonEntry.TABLE_NAME +
-                        "." +
-                        LessonEntry.COL_TEACHER +
-                        " LIKE '" +
-                        " " +
-                        "'");
-
-                int firstOrIndex = selection.indexOf("OR");
-                selection = selection.replace(0, firstOrIndex + 2, "");
-                selection.insert(0, " AND(");
-                selection.append(")");
-            }
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, selection.toString());
-            }
-            return selection.toString();
         }
     }
 }

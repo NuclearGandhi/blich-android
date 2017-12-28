@@ -6,16 +6,13 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
 
 @SuppressWarnings("ConstantConditions")
 public class BlichProvider extends ContentProvider {
@@ -23,32 +20,9 @@ public class BlichProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private BlichDatabaseHelper mDatabaseHelper;
 
-    private static final int SCHEDULE = 100;
-    private static final int SCHEDULE_WITH_LESSON = 101;
-    private static final int SCHEDULE_WITH_ANY_LESSON = 102;
-
-    private static final int LESSON = 200;
     private static final int CLASS = 300;
     private static final int EXAMS = 400;
     private static final int NEWS = 500;
-
-    private static final SQLiteQueryBuilder sScheduleWithLessonBuilder;
-
-    static {
-        sScheduleWithLessonBuilder = new SQLiteQueryBuilder();
-
-        //schedule INNER JOIN lesson ON schedule.day = lesson.day AND schedule.hour = lesson.hour
-        sScheduleWithLessonBuilder.setTables(
-                ScheduleEntry.TABLE_NAME + " INNER JOIN " + LessonEntry.TABLE_NAME + " ON " +
-
-                        ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_DAY + " = " +
-                        LessonEntry.TABLE_NAME + "." + LessonEntry.COL_DAY + " AND " +
-
-                        ScheduleEntry.TABLE_NAME + "." + ScheduleEntry.COL_HOUR + " = " +
-                        LessonEntry.TABLE_NAME + "." + LessonEntry.COL_HOUR
-
-        );
-    }
 
     @Override
     public boolean onCreate() {
@@ -67,55 +41,6 @@ public class BlichProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                cursor = db.query(
-                        ScheduleEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null, null,
-                        sortOrder
-                );
-                break;
-            }
-            case SCHEDULE_WITH_LESSON: {
-                int lessonNum = ScheduleEntry.getLessonNumFromUri(uri);
-
-                String newSelection = selection + " AND " +
-                        LessonEntry.COL_LESSON_NUM + " = " + lessonNum;
-
-                cursor = sScheduleWithLessonBuilder.query(
-                        db,
-                        projection,
-                        newSelection,
-                        selectionArgs,
-                        null, null,
-                        sortOrder
-                );
-                break;
-            }
-            case SCHEDULE_WITH_ANY_LESSON: {
-                cursor = sScheduleWithLessonBuilder.query(
-                        db,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null, null,
-                        sortOrder
-                );
-                break;
-            }
-            case LESSON: {
-                cursor = db.query(
-                        LessonEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null, null,
-                        sortOrder
-                );
-                break;
-            }
             case CLASS: {
                 cursor = db.query(
                         ClassEntry.TABLE_NAME,
@@ -163,15 +88,6 @@ public class BlichProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
 
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                return ScheduleEntry.CONTENT_TYPE;
-            }
-            case SCHEDULE_WITH_LESSON: {
-                return ScheduleEntry.CONTENT_TYPE;
-            }
-            case LESSON: {
-                return LessonEntry.CONTENT_TYPE;
-            }
             case CLASS: {
                 return ClassEntry.CONTENT_TYPE;
             }
@@ -193,22 +109,6 @@ public class BlichProvider extends ContentProvider {
 
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                long _id = db.insert(
-                        ScheduleEntry.TABLE_NAME,
-                        null,
-                        values);
-                validateId(_id, uri);
-                break;
-            }
-            case LESSON: {
-                long _id = db.insert(
-                        LessonEntry.TABLE_NAME,
-                        null,
-                        values);
-                validateId(_id, uri);
-                break;
-            }
             case CLASS: {
                 long _id = db.insert(
                         ClassEntry.TABLE_NAME,
@@ -248,32 +148,6 @@ public class BlichProvider extends ContentProvider {
         int returnCount = 0;
 
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                db.beginTransaction();
-                for (ContentValues value : values) {
-                    long _id = db.insert(
-                            ScheduleEntry.TABLE_NAME,
-                            null,
-                            value);
-                    if (_id != -1) {
-                        returnCount++;
-                    }
-                }
-                break;
-            }
-            case LESSON: {
-                db.beginTransaction();
-                for (ContentValues value : values) {
-                    long _id = db.insert(
-                            LessonEntry.TABLE_NAME,
-                            null,
-                            value);
-                    if (_id != -1) {
-                        returnCount++;
-                    }
-                }
-                break;
-            }
             case CLASS: {
                 db.beginTransaction();
                 for (ContentValues value : values) {
@@ -328,20 +202,6 @@ public class BlichProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         int rowsDeleted;
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                rowsDeleted = db.delete(
-                        ScheduleEntry.TABLE_NAME,
-                        selection,
-                        selectionArgs);
-                break;
-            }
-            case LESSON: {
-                rowsDeleted = db.delete(
-                        LessonEntry.TABLE_NAME,
-                        selection,
-                        selectionArgs);
-                break;
-            }
             case CLASS: {
                 rowsDeleted = db.delete(
                         ClassEntry.TABLE_NAME,
@@ -379,22 +239,6 @@ public class BlichProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         int rowsUpdated;
         switch (sUriMatcher.match(uri)) {
-            case SCHEDULE: {
-                rowsUpdated = db.update(
-                        ScheduleEntry.TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-                break;
-            }
-            case LESSON: {
-                rowsUpdated = db.update(
-                        ClassEntry.TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-                break;
-            }
             case CLASS: {
                 rowsUpdated = db.update(
                         ClassEntry.TABLE_NAME,
@@ -431,11 +275,6 @@ public class BlichProvider extends ContentProvider {
     private static UriMatcher buildUriMatcher() {
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = BlichContract.CONTENT_AUTHORITY;
-
-        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE, SCHEDULE);
-        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/#", SCHEDULE_WITH_LESSON);
-        uriMatcher.addURI(authority, BlichContract.PATH_SCHEDULE + "/any", SCHEDULE_WITH_ANY_LESSON);
-        uriMatcher.addURI(authority, BlichContract.PATH_LESSON, LESSON);
         uriMatcher.addURI(authority, BlichContract.PATH_CLASS, CLASS);
         uriMatcher.addURI(authority, BlichContract.PATH_EXAMS, EXAMS);
         uriMatcher.addURI(authority, BlichContract.PATH_NEWS, NEWS);

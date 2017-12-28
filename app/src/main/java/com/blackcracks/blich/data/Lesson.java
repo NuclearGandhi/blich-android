@@ -1,91 +1,59 @@
 package com.blackcracks.blich.data;
 
-import android.support.annotation.NonNull;
+import io.realm.RealmObject;
+import io.realm.annotations.Required;
 
-/**
- * A base class for each lesson in the Schedule Table
- */
-public class Lesson implements Comparable<Lesson> {
+public class Lesson extends RealmObject {
 
-    private int mClassSettings;
-    private int mDay;
-    private int mHour;
-    private String mSubject;
-    private String mClassroom;
-    private String mTeacher;
-    private String mLessonType;
+    @Required private String subject;
+    private String room;
+    private String teacher;
+    private String changeType;
 
-    public Lesson(int classSettings, int day, int hour, String subject, String lessonType) {
-        mClassSettings = classSettings;
-        mDay = day;
-        mHour = hour;
-        mSubject = subject;
-        mLessonType = lessonType;
+    public Lesson() {
+
     }
 
-    public int getDay() {
-        return mDay;
-    }
-
-    public void setDay(int day) {
-        this.mDay = day;
-    }
-
-    public int getClassSettings() {
-        return mClassSettings;
-    }
-
-    public void setClassSettings(int classSettings) {
-        this.mClassSettings = classSettings;
-    }
-
-    public int getHour() {
-        return mHour;
-    }
-
-    public void setHour(int hour) {
-        this.mHour = hour;
+    public Lesson(String subject, String room, String teacher, String changeType) {
+        this.subject = subject;
+        this.room = room;
+        this.teacher = teacher;
+        this.changeType = changeType;
     }
 
     public String getSubject() {
-        return mSubject;
+        return subject;
     }
 
     public void setSubject(String subject) {
-        this.mSubject = subject;
+        this.subject = subject;
     }
 
-    public String getClassroom() {
-        return mClassroom;
+    public String getRoom() {
+        return room;
     }
 
-    public void setClassroom(String classroom) {
-        this.mClassroom = classroom;
+    public void setRoom(String room) {
+        this.room = room;
     }
 
     public String getTeacher() {
-        return mTeacher;
+        return teacher;
     }
 
     public void setTeacher(String teacher) {
-        this.mTeacher = teacher;
+        this.teacher = teacher;
     }
 
-    public String getLessonType() {
-        return mLessonType;
+    public String getChangeType() {
+        return changeType;
     }
 
-    public void setLessonType(String lessonType) {
-        this.mLessonType = lessonType;
+    public void setChangeType(String changeType) {
+        this.changeType = changeType;
     }
 
-    @Override
-    public int compareTo(@NonNull Lesson o) {
-        if (mDay == o.getDay()) {
-            if (mHour == o.getHour()) return 0;
-            else if (mHour > o.getHour()) return 1;
-            else return -1;
-        } else if (mDay > o.getDay()) return 1;
-        else return -1;
+    public TeacherSubject getTeacherSubject() {
+        return new TeacherSubject(teacher, subject);
     }
 }

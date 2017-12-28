@@ -25,22 +25,22 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_filter_category_title">
+    <!--<PreferenceCategory android:title="@string/pref_filter_category_title">-->
 
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:disableDependentsState="false"
-            android:key="@string/pref_filter_toggle_key"
-            android:title="@string/pref_filter_toggle_title"/>
+        <!--<SwitchPreferenceCompat-->
+            <!--android:defaultValue="@bool/pref_filter_toggle_default"-->
+            <!--android:disableDependentsState="false"-->
+            <!--android:key="@string/pref_filter_toggle_key"-->
+            <!--android:title="@string/pref_filter_toggle_title"/>-->
 
-        <com.blackcracks.blich.preference.FilterPreference
-            android:defaultValue=""
-            android:dependency="@string/pref_filter_toggle_key"
-            android:dialogTitle=""
-            android:key="@string/pref_filter_select_key"
-            android:negativeButtonText="@string/dialog_cancel"
-            android:positiveButtonText="@string/dialog_okay"
-            android:title="@string/pref_filter_select_title"/>
+        <!--<com.blackcracks.blich.preference.FilterPreference-->
+            <!--android:defaultValue=""-->
+            <!--android:dependency="@string/pref_filter_toggle_key"-->
+            <!--android:dialogTitle=""-->
+            <!--android:key="@string/pref_filter_select_key"-->
+            <!--android:negativeButtonText="@string/dialog_cancel"-->
+            <!--android:positiveButtonText="@string/dialog_okay"-->
+            <!--android:title="@string/pref_filter_select_title"/>-->
 
-    </PreferenceCategory>
+    <!--</PreferenceCategory>-->
 </android.support.v7.preference.PreferenceScreen>

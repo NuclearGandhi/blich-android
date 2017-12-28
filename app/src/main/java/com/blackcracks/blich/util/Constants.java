@@ -20,15 +20,29 @@ public class Constants {
     public static final int SCHEDULE_LOADER_ID = 15;
     public static final int NEWS_LOADER_ID = 16;
 
+    public static class Database {
+        public static final String TYPE_NEW_TEACHER = "NewTeacher";
+        public static final String TYPE_NEW_HOUR  = "NewHour";
+        public static final String TYPE_NEW_ROOM = "NewRoom";
+        public static final String TYPE_EXAM = "Exam";
+        public static final String TYPE_CANCELED = "FreeLesson";
+        public static final String TYPE_EVENT = "Event";
+        public static final String TYPE_NORMAL = "Normal";
+
+    }
+
     public static class Preferences {
 
         //Preference keys
         @Retention(SOURCE)
-        @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY})
+        @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
+            PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY})
         public @interface PrefIntKeys {}
         public static final int PREF_CLASS_PICKER_KEY = 0;
         public static final int PREF_NOTIFICATION_TOGGLE_KEY = 1;
         public static final int PREF_NOTIFICATION_SOUND_KEY = 2;
+        public static final int PREF_FILTER_TOGGLE_KEY = 3;
+        public static final int PREF_FILTER_SELECT_KEY = 4;
 
         public static String getKey(Context context, @PrefIntKeys int key) {
 
@@ -44,6 +58,14 @@ public class Constants {
                 }
                 case PREF_NOTIFICATION_SOUND_KEY:{
                     resKey = R.string.pref_notification_sound_key;
+                    break;
+                }
+                case PREF_FILTER_TOGGLE_KEY: {
+                    resKey = R.string.pref_filter_toggle_key;
+                    break;
+                }
+                case PREF_FILTER_SELECT_KEY: {
+                    resKey = R.string.pref_filter_select_key;
                     break;
                 }
             }
@@ -63,6 +85,10 @@ public class Constants {
 
                 case PREF_NOTIFICATION_SOUND_KEY:
                     return PREF_NOTIFICATION_SOUND_DEFAULT;
+                case PREF_FILTER_TOGGLE_KEY:
+                    return context.getResources().getBoolean(R.bool.pref_filter_toggle_default);
+                case PREF_FILTER_SELECT_KEY:
+                    return "";
             }
             return null;
         }

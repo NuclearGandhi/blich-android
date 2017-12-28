@@ -9,7 +9,6 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="16dp">
@@ -19,44 +18,65 @@
         style="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="24dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="@string/dialog_teacher_filter_title"
-        app:layout_constraintRight_toRightOf="parent"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/dialog_teacher_filter_description"
-        style="?android:attr/textAppearanceMedium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/dialog_teacher_filter_description"
-        app:layout_constraintRight_toRightOf="@+id/dialog_teacher_filter_title"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_title"/>
-
-    <ScrollView
+        style="?android:attr/textAppearanceSmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="20dp"
-        android:paddingBottom="180dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/dialog_teacher_filter_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_title"/>
+
+
+    <Button
+        android:id="@+id/btn_select_none"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:foreground="@drawable/ic_select_none_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/dialog_teacher_filter_title"
+        app:layout_constraintEnd_toStartOf="@+id/btn_select_all"
+        app:layout_constraintTop_toTopOf="@+id/dialog_teacher_filter_title"/>
+
+    <Button
+        android:id="@+id/btn_select_all"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:foreground="@drawable/ic_select_all_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_select_none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_select_none"/>
+
+    <ListView
+        android:id="@+id/list_view_teacher_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="16dp"
+        android:divider="@android:color/transparent"
+        android:paddingBottom="148dp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_description"
-        >
-
-        <LinearLayout
-            android:id="@+id/filter_teacher_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="0dp"/>
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@+id/dialog_teacher_filter_description">
+    </ListView>
 
 </android.support.constraint.ConstraintLayout>

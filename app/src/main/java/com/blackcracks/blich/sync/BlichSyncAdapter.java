@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,18 +24,16 @@ import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.BlichContract.ClassEntry;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
-import com.blackcracks.blich.data.BlichContract.ScheduleEntry;
+import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.Schedule;
+import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
@@ -61,8 +58,10 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -289,8 +288,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 .apply();
     }
 
-    private
-    @FetchStatus
+    private @FetchStatus
     int fetchSchedule() {
 
         int classValue = 0;
@@ -373,6 +371,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+        //Handle not expected situations
         if (classHtml.equals("")) {
             return FETCH_STATUS_EMPTY_HTML;
         }
@@ -383,15 +382,21 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         }
         Elements lessons = table.getElementsByClass(CELL_CLASS);
 
-        List<ContentValues> scheduleValues = new ArrayList<>();
-        List<ContentValues> lessonValues = new ArrayList<>();
+
+        //Initialize realm objects
+        Schedule schedule = new Schedule();
+        schedule.setClassId(classValue);
+        RealmList<Hour> hourList = new RealmList<>();
+
+        //Iterate through each cell in the table
         for (int i = 6; i < lessons.size(); i++) {
             int row = i / 6;
             int column = i % 6 + 1;
-            Element lesson = lessons.get(i);
-            Elements divs = lesson.getElementsByTag("div");
 
-            Elements trs = lesson.getElementsByTag("tr");
+            Element lessonElement = lessons.get(i);
+            Elements divs = lessonElement.getElementsByTag("div");
+
+            Elements trs = lessonElement.getElementsByTag("tr");
             Elements tds = new Elements();
             for (Element tr : trs) {
                 tds.add(tr.getElementsByTag("td").get(0));
@@ -399,14 +404,17 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             divs.addAll(tds);
 
-            char[] events = {'f', 'f', 'f', 'f'};
+            Hour hour = new Hour();
+            hour.setDay(column);
+            hour.setHour(row);
+            RealmList<Lesson> lessonList = new RealmList<>();
 
             for (int k = 0; k < divs.size(); k++) {
                 Element div = divs.get(k);
                 String html = div.html();
                 String[] text = html.split("</b>");
 
-                String subject, classroom, teacher, lessonType;
+                String subject, room, teacher, lessonType;
 
                 subject = text[0].replace("<b>", "").replace("<br>", " ");
                 subject = Parser.unescapeEntities(subject, false);
@@ -417,91 +425,69 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     text = text[1].split("<br>");
 
                     if (text.length == 2) {
-                        classroom = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
+                        room = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
                         teacher = text[1].trim();
                     } else {
-                        classroom = " ";
+                        room = " ";
                         teacher = " ";
                     }
                 } else {
-                    classroom = " ";
+                    room = " ";
                     teacher = " ";
                 }
 
                 switch (div.attr("class")) {
                     case CANCELED_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_CANCELED;
-                        if (events[0] == 'f') events[0] = 't';
+                        lessonType = Database.TYPE_CANCELED;
                         break;
                     }
                     case CHANGED_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_CHANGED;
-                        if (events[1] == 'f') events[1] = 't';
+                        lessonType = Database.TYPE_NEW_TEACHER;
                         break;
                     }
                     case EXAM_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_EXAM;
-                        if (events[2] == 'f') events[2] = 't';
+                        lessonType = Database.TYPE_EXAM;
                         break;
                     }
                     case EVENT_LESSON_CLASS: {
-                        lessonType = LessonEntry.LESSON_TYPE_EVENT;
-                        if (events[3] == 'f') events[3] = 't';
+                        lessonType = Database.TYPE_EVENT;
                         break;
                     }
                     default: {
-                        lessonType = LessonEntry.LESSON_TYPE_NORMAL;
+                        lessonType = Database.TYPE_NORMAL;
                     }
                 }
 
-                addLessonToNotificationList(classValue,
-                        column,
-                        row,
-                        subject,
-                        lessonType);
 
-                ContentValues lessonValue = new ContentValues();
-                lessonValue.put(LessonEntry.COL_DAY, column);
-                lessonValue.put(LessonEntry.COL_HOUR, row);
-                lessonValue.put(LessonEntry.COL_LESSON_NUM, k);
-                lessonValue.put(LessonEntry.COL_SUBJECT, subject);
-                lessonValue.put(LessonEntry.COL_CLASSROOM, classroom);
-                lessonValue.put(LessonEntry.COL_TEACHER, teacher);
-                lessonValue.put(LessonEntry.COL_LESSON_TYPE, lessonType);
+                Lesson lesson = new Lesson();
+                lesson.setSubject(subject);
+                lesson.setRoom(room);
+                lesson.setTeacher(teacher);
+                lesson.setChangeType(lessonType);
+                addLessonToNotificationList(lesson, column, row);
 
-                lessonValues.add(lessonValue);
+                lessonList.add(lesson);
             }
 
-            ContentValues scheduleValue = new ContentValues();
-            scheduleValue.put(ScheduleEntry.COL_DAY, column);
-            scheduleValue.put(ScheduleEntry.COL_HOUR, row);
-            scheduleValue.put(ScheduleEntry.COL_LESSON_COUNT, divs.size());
-            scheduleValue.put(ScheduleEntry.COL_EVENTS, new String(events));
-
-            scheduleValues.add(scheduleValue);
+            if (lessonList.size() != 0) {
+                hour.setLessons(lessonList);
+                hourList.add(hour);
+            }
         }
-        mContext.getContentResolver().delete(
-                ScheduleEntry.CONTENT_URI,
-                null, null
-        );
-        mContext.getContentResolver().bulkInsert(
-                ScheduleEntry.CONTENT_URI,
-                scheduleValues.toArray(new ContentValues[scheduleValues.size()]));
 
+        schedule.setSchedule(hourList);
 
-        mContext.getContentResolver().delete(
-                LessonEntry.CONTENT_URI,
-                null, null
-        );
-        mContext.getContentResolver().bulkInsert(
-                LessonEntry.CONTENT_URI,
-                lessonValues.toArray(new ContentValues[lessonValues.size()])
-        );
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.deleteAll();
+        realm.insert(schedule);
+        realm.commitTransaction();
+        realm.close();
+
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private
-    @FetchStatus
+    private @FetchStatus
     int fetchExams() {
 
         int classValue;
@@ -640,19 +626,14 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return classValue;
     }
 
-    private void addLessonToNotificationList(int classSettings,
-                                             int day,
-                                             int hour,
-                                             String subject,
-                                             String lessonType) {
-        if (!lessonType.equals(LessonEntry.LESSON_TYPE_NORMAL)) {
+    private void addLessonToNotificationList(Lesson lesson, int day, int hour) {
+        if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int tommorow = today + 1;
-            if (tommorow == 8) tommorow = 1;
+            int tomorrow = today + 1;
+            if (tomorrow == 8) tomorrow = 1;
 
             int dayHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            if ((today == day && dayHour < 17) || tommorow == day) {
-                Lesson lesson = new Lesson(classSettings, day, hour, subject, lessonType);
+            if ((today == day && dayHour < 17) || tomorrow == day) {
                 mLessonNotificationList.add(lesson);
             }
         }
@@ -662,39 +643,13 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         boolean foreground = Utilities.isAppOnForeground(getContext());
 
         if (!mLessonNotificationList.isEmpty() && !foreground) {
-            Collections.sort(mLessonNotificationList);
-            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();
 
             int changesNum = 0;
-            if (mLessonNotificationList.get(0).getDay() == today) {
-
-                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
-                        R.string.notification_update_today)));
-
-                boolean tomorrow = false;
-                for (Lesson lesson : mLessonNotificationList) {
-                    if (lesson.getDay() == today) {
-                        buildTimetableLine(inboxStyle, lesson);
-                        changesNum++;
-                    } else {
-                        if (!tomorrow) {
-                            inboxStyle.addLine(buildTimetableBoldString(getContext().getResources()
-                                    .getString(R.string.notification_update_tomorrow)));
-                        }
-                        tomorrow = true;
-                        buildTimetableLine(inboxStyle, lesson);
-                        changesNum++;
-                    }
-                }
-            } else {
-                inboxStyle.addLine(buildTimetableBoldString(getContext().getResources().getString(
-                        R.string.notification_update_tomorrow)));
-                for (Lesson lesson : mLessonNotificationList) {
-                    buildTimetableLine(inboxStyle, lesson);
-                    changesNum++;
-                }
+            for (Lesson lesson : mLessonNotificationList) {
+                inboxStyle.addLine(lesson.getSubject());
+                changesNum++;
             }
 
             String summery;
@@ -738,23 +693,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         }
         mLessonNotificationList = new ArrayList<>();
-    }
-
-    private Spannable buildTimetableBoldString(String str) {
-        Spannable sp = new SpannableString(str);
-        sp.setSpan(new StyleSpan(Typeface.BOLD), 0, str.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return sp;
-    }
-
-    private void buildTimetableLine(NotificationCompat.InboxStyle inboxStyle, Lesson lesson) {
-        String str = "שעה " +
-                lesson.getHour() +
-                ": " +
-                lesson.getSubject() +
-                "\n";
-        Spannable sp = new SpannableString(str);
-        sp.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, str.indexOf(":"), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        inboxStyle.addLine(sp);
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {

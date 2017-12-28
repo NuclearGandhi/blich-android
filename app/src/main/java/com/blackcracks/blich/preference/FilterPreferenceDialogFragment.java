@@ -7,35 +7,38 @@
 
 package com.blackcracks.blich.preference;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
-import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract.LessonEntry;
-import com.blackcracks.blich.data.BlichDatabaseHelper;
+import com.blackcracks.blich.adapter.TeacherFilterAdapter;
+import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.TeacherSubject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
+import io.realm.Realm;
+import io.realm.RealmResults;
 
-    private static final String[] PROJECTION = {
-            LessonEntry.COL_TEACHER,
-            LessonEntry.COL_SUBJECT
-    };
+public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat
+implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
+
+    private Realm mRealm;
+
     private FilterPreference mPreference;
-    private ViewGroup mTeacherScrollView;
-    private ArrayList<String> mTeacherList;
-    private ArrayList<String> mSubjectList;
+    private TeacherFilterAdapter mAdapter;
+
+    public static final int TEACHER_LOADER_ID = 0;
 
     public static FilterPreferenceDialogFragment newInstance(Preference preference) {
         FilterPreferenceDialogFragment fragment = new FilterPreferenceDialogFragment();
@@ -47,121 +50,126 @@ public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentComp
 
     @Override
     protected void onBindDialogView(View view) {
-
         super.onBindDialogView(view);
-        mPreference = (FilterPreference) getPreference();
-        mTeacherScrollView = view.findViewById(R.id.filter_teacher_list);
+        mRealm = Realm.getDefaultInstance();
 
-        mTeacherList = new ArrayList<>();
-        mSubjectList = new ArrayList<>();
-        if (mPreference.getValue() != null) {
-            String[] teachersAndSubjects = mPreference.getValue().split(";");
-            for (String teacherAndSubject :
-                    teachersAndSubjects) {
-                String[] arr = teacherAndSubject.split(",");
-                if (arr.length == 2) {
+        ListView listView = view.findViewById(R.id.list_view_teacher_filter);
+        List<TeacherSubject> teacherSubjects = new ArrayList<>();
+
+        mPreference = (FilterPreference) getPreference();
+        if (mPreference.getValue() != null && !mPreference.getValue().equals("")) {
+
+            String persisted = mPreference.getValue();
+            String[] subjectsAndTeachers = persisted.split(";");
+            for (String subjectAndTeacher :
+                    subjectsAndTeachers) {
+                if (!subjectAndTeacher.equals("")) {
+                    String[] arr = subjectAndTeacher.split(",");
                     String teacher = arr[0];
                     String subject = arr[1];
 
-                    mTeacherList.add(teacher);
-                    mSubjectList.add(subject);
+                    TeacherSubject teacherSubject = new TeacherSubject(teacher, subject);
+                    teacherSubjects.add(teacherSubject);
                 }
             }
         }
 
-        new LoadTeacherList().execute();
+        mAdapter = new TeacherFilterAdapter(getContext(), null, teacherSubjects);
+        listView.setAdapter(mAdapter);
+
+        getLoaderManager().initLoader(TEACHER_LOADER_ID, null, this);
+
+
+        //Set up button click listeners
+        Button selectAll = view.findViewById(R.id.btn_select_all);
+        Button selectNone = view.findViewById(R.id.btn_select_none);
+
+        selectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_ALL);
+            }
+        });
+
+
+        selectNone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_NONE);
+            }
+        });
     }
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
-            String value = "";
-            for (int i = 0; i < mTeacherList.size(); i++) {
-                String teacher = mTeacherList.get(i);
-                String subject = mSubjectList.get(i);
-                value += teacher + "," + subject;
-                if (i != mTeacherList.size() - 1)
-                    value += ";";
+            StringBuilder value = new StringBuilder();
+            for (TeacherSubject teacherSubject:
+                    mAdapter.getTeacherSubjects()) {
+                String teacher = teacherSubject.getTeacher();
+                String subject = teacherSubject.getSubject();
+
+                value.append(teacher).append(",").append(subject).append(";");
             }
-            mPreference.setValue(value);
+            mPreference.setValue(value.toString());
         }
+        mRealm.close();
     }
 
-    private class LoadTeacherList extends AsyncTask<Void, Void, Void> {
+    @Override
+    public Loader<List<TeacherSubject>> onCreateLoader(int id, Bundle args) {
+        return new TeacherLoader(getContext(), mRealm);
+    }
 
-        private ArrayList<String> mTeachers;
-        private ArrayList<String> mSubjects;
+    @Override
+    public void onLoadFinished(Loader<List<TeacherSubject>> loader, List<TeacherSubject> data) {
+        mAdapter.switchData(data);
+    }
 
-        @Override
-        protected Void doInBackground(Void... params) {
+    @Override
+    public void onLoaderReset(Loader<List<TeacherSubject>> loader) {
+        mAdapter.switchData(null);
+    }
 
-            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+    private static class TeacherLoader extends Loader<List<TeacherSubject>> {
 
-            String selection = LessonEntry.COL_TEACHER + " != ?";
-            String[] selectionArs = {" "};
-            String sortOrder = LessonEntry.COL_SUBJECT + " ASC";
+        private Realm mRealm;
 
-            Cursor cursor = db.query(
-                    true,
-                    LessonEntry.TABLE_NAME,
-                    PROJECTION,
-                    selection,
-                    selectionArs,
-                    null, null,
-                    sortOrder,
-                    null
-            );
-
-            mTeachers = new ArrayList<>();
-            mSubjects = new ArrayList<>();
-
-            for (int i = 0; i < cursor.getCount(); i++) {
-                if (cursor.moveToPosition(i)) {
-                    String teacher = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_TEACHER));
-                    String subject = cursor.getString(cursor.getColumnIndex(LessonEntry.COL_SUBJECT));
-                    mTeachers.add(teacher);
-                    mSubjects.add(subject);
-                }
-            }
-
-            cursor.close();
-            return null;
+        public TeacherLoader(Context context, Realm realm) {
+            super(context);
+            mRealm = realm;
         }
 
         @Override
-        protected void onPostExecute(Void params) {
-            super.onPostExecute(params);
+        protected void onStartLoading() {
+            super.onStartLoading();
+            RealmResults<Lesson> results = mRealm.where(Lesson.class)
+                    .notEqualTo("teacher", " ")
+                    .findAll();
 
-            for (int i = 0; i < mTeachers.size(); i++) {
-                final String teacher = mTeachers.get(i);
-                final String subject = mSubjects.get(i);
-
-                CheckBox view = (CheckBox) LayoutInflater.from(getContext())
-                        .inflate(R.layout.teacher_filter_item, null);
-
-                String formattedText = "<b>" + subject + "</b> - " + teacher;
-                view.setText(Html.fromHtml(formattedText));
-
-                for (int j = 0; j < mTeacherList.size(); j++) {
-                    if (mTeacherList.get(j).equals(teacher) && mSubjectList.get(j).equals(subject)) {
-                        view.setChecked(true);
-                    }
-                }
-                view.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (isChecked) {
-                            mTeacherList.add(teacher);
-                            mSubjectList.add(subject);
-                        } else {
-                            mTeacherList.remove(teacher);
-                            mSubjectList.remove(subject);
-                        }
-                    }
-                });
-                mTeacherScrollView.addView(view);
+            List<TeacherSubject> teacherSubjects = new ArrayList<>();
+            for (Lesson lesson :
+                    results) {
+                TeacherSubject teacherSubject = lesson.getTeacherSubject();
+                if (!teacherSubjects.contains(teacherSubject))
+                    teacherSubjects.add(teacherSubject);
             }
+
+            Comparator<TeacherSubject> compareBySubject = new Comparator<TeacherSubject>() {
+                @Override
+                public int compare(TeacherSubject o1, TeacherSubject o2) {
+                    return o1.getSubject().compareTo(o2.getSubject());
+                }
+            };
+            Collections.sort(teacherSubjects, compareBySubject);
+            deliverResult(teacherSubjects);
+        }
+
+        @Override
+        protected void onStopLoading() {
+            super.onStopLoading();
+            cancelLoad();
         }
     }
+
 }
