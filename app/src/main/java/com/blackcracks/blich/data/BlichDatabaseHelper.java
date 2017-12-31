@@ -12,7 +12,6 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "blich.db";
 
     final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE " + ScheduleEntry.TABLE_NAME + ";";
-    final String SQL_DROP_LESSON_TABLE = "DROP TABLE " + LessonEntry.TABLE_NAME + ";";
 
     private final String SQL_DROP_LESSON_TABLE = "DROP TABLE + " + LessonEntry.TABLE_NAME + ";";
 
@@ -66,14 +65,6 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 11) {
             db.execSQL(SQL_DROP_SCHEDULE_TABLE);
             db.execSQL(SQL_DROP_LESSON_TABLE);
-        }
-    }
-
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion == 11) {
-            db.execSQL(SQL_CREATE_SCHEDULE_TABLE);
-            db.execSQL(SQL_CREATE_LESSON_TABLE);
         }
     }
 }
