@@ -20,6 +20,8 @@ import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
+import android.text.Spanned;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
@@ -116,7 +118,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
     private final Context mContext = getContext();
-    private List<Lesson> mLessonNotificationList = new ArrayList<>();
+    private List<Hour> mHourNotificationList = new ArrayList<>();
 
     BlichSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -397,20 +399,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
 
-
-                Lesson lesson = new Lesson();
-                lesson.setSubject(subject);
-                lesson.setRoom(room);
-                lesson.setTeacher(teacher);
-                lesson.setChangeType(lessonType);
-                addLessonToNotificationList(lesson, column, row);
-
+                Lesson lesson = new Lesson(subject, room, teacher, lessonType);
                 lessonList.add(lesson);
             }
 
             if (lessonList.size() != 0) {
                 hour.setLessons(lessonList);
                 hourList.add(hour);
+
+                if (canAddToNotificationList(hour))
+                    mHourNotificationList.add(hour);
             }
         }
 
@@ -565,31 +563,72 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return classValue;
     }
 
-    private void addLessonToNotificationList(Lesson lesson, int day, int hour) {
-        if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
-            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int tomorrow = today + 1;
-            if (tomorrow == 8) tomorrow = 1;
+    private boolean canAddToNotificationList(Hour hour) {
 
-            int dayHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            if ((today == day && dayHour < 17) || tomorrow == day) {
-                mLessonNotificationList.add(lesson);
+        Calendar calendar = Calendar.getInstance();
+        int today = calendar.get(Calendar.DAY_OF_WEEK);
+        int tomorrow = today + 1;
+        if (tomorrow == 8) tomorrow = 1;
+
+        int hourDay = hour.getDay();
+
+        if (hourDay == today || hourDay == tomorrow) {
+            List<Lesson> lessons = hour.getLessons();
+            for (Lesson lesson:
+                    lessons) {
+                if (lesson.getChangeType().equals(Database.TYPE_NORMAL))
+                    return true;
             }
         }
+        return false;
     }
 
     private void notifyUser() {
         boolean foreground = Utilities.isAppOnForeground(getContext());
 
-        if (!mLessonNotificationList.isEmpty() && !foreground) {
+        if (!mHourNotificationList.isEmpty() && !foreground) {
+
+            Calendar calendar = Calendar.getInstance();
+            int day = calendar.get(Calendar.DAY_OF_WEEK);
+
             NotificationCompat.InboxStyle inboxStyle =
                     new NotificationCompat.InboxStyle();
 
-            int changesNum = 0;
-            for (Lesson lesson : mLessonNotificationList) {
-                inboxStyle.addLine(lesson.getSubject());
-                changesNum++;
+            List<Lesson> todayNotificationLessons = new ArrayList<>();
+            List<Lesson> tomorrowNotificationLessons = new ArrayList<>();
+            for (Hour hour :
+                    mHourNotificationList) {
+                List<Lesson> lessons = hour.getLessons();
+                for (Lesson lesson :
+                        lessons) {
+                    if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
+                        if (hour.getDay() == day)
+                            todayNotificationLessons.add(lesson);
+                        else {
+                            tomorrowNotificationLessons.add(lesson);
+                        }
+                    }
+                }
             }
+
+            if (todayNotificationLessons.size() != 0) {
+                inboxStyle.addLine(getBoldText("היום:"));
+                for (Lesson lesson :
+                        todayNotificationLessons) {
+                    inboxStyle.addLine(lesson.getSubject());
+                }
+            }
+
+
+            if (tomorrowNotificationLessons.size() != 0) {
+                inboxStyle.addLine(getBoldText("מחר:"));
+                for (Lesson lesson :
+                        tomorrowNotificationLessons) {
+                    inboxStyle.addLine(lesson.getSubject());
+                }
+            }
+
+            int changesNum = todayNotificationLessons.size() + tomorrowNotificationLessons.size();
 
             String summery;
             if (changesNum == 1) summery = "ישנו שינוי אחד חדש";
@@ -631,7 +670,11 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
 
         }
-        mLessonNotificationList = new ArrayList<>();
+        mHourNotificationList = new ArrayList<>();
+    }
+
+    private Spanned getBoldText(String text) {
+        return Html.fromHtml("<b> " + text + "</b>");
     }
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
