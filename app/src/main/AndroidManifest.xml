@@ -85,21 +85,6 @@
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
 
-        <receiver
-            android:name=".sync.BlichSyncAdapter$BlichUpdateReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="blich_notify"/>
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".sync.BlichSyncAdapter$StartPeriodicSyncBootReceiver"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".widget.BlichWidgetProvider"
             android:label="מערכת שעות">
             <intent-filter>

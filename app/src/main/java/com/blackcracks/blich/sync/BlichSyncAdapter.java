@@ -2,20 +2,16 @@ package com.blackcracks.blich.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +20,6 @@ import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
@@ -62,6 +57,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -85,7 +81,10 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final int NOTIFICATION_UPDATE_ID = 1;
 
-    private static final String LOG_TAG = BlichSyncAdapter.class.getSimpleName();
+    private static final long SECONDS_PER_MINUTE = 60;
+    private static final long MINUTES_PER_HOUR = 60;
+    private static final long SYNC_HOURS = 3;
+    private static final long SYNC_INTERVAL = SYNC_HOURS * SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
     //Schedule
     private static final String SOURCE_URL =
@@ -126,51 +125,29 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void initializeSyncAdapter(Context context) {
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, BlichUpdateReceiver.class);
-        PendingIntent mornIntent = PendingIntent.getBroadcast(context,
-                0,
-                intent,
-                0);
-
-        PendingIntent nightIntent = PendingIntent.getBroadcast(context,
-                100,
-                intent,
-                0);
-
-        ComponentName receiver = new ComponentName(context, StartPeriodicSyncBootReceiver.class);
-        PackageManager pm = context.getPackageManager();
-
-
         int intKey = Preferences.PREF_NOTIFICATION_TOGGLE_KEY;
         String prefKey = Preferences.getKey(context, intKey);
         boolean prefDefault = (boolean) Preferences.getDefault(context, intKey);
         boolean isPeriodicSyncOn = Utilities.getPrefBoolean(context,
                 prefKey,
                 prefDefault);
+
+        Account syncAccount = getSyncAccount(context);
+        String contentAuthority = context.getString(R.string.content_authority);
+
         if (isPeriodicSyncOn) {
-            Log.d(LOG_TAG, "Initializing sync: on");
-            ContentResolver.setSyncAutomatically(
-                    getSyncAccount(context),
-                    context.getString(R.string.content_authority),
-                    true);
-            configurePeriodicSync(alarmManager, mornIntent, nightIntent);
-
-            pm.setComponentEnabledSetting(receiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP);
+            ContentResolver.addPeriodicSync(
+                    syncAccount,
+                    contentAuthority,
+                    null,
+                    SYNC_INTERVAL
+            );
         } else {
-            Log.d(LOG_TAG, "Initializing sync: off");
-            ContentResolver.setSyncAutomatically(
-                    getSyncAccount(context),
-                    context.getString(R.string.content_authority),
-                    false);
-            alarmManager.cancel(mornIntent);
-            alarmManager.cancel(nightIntent);
-
-            pm.setComponentEnabledSetting(receiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP);
+            ContentResolver.removePeriodicSync(
+                    syncAccount,
+                    contentAuthority,
+                    null
+            );
         }
     }
 
@@ -189,44 +166,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
         return newAccount;
-    }
-
-    private static void configurePeriodicSync(AlarmManager alarmManager,
-                                              PendingIntent mornIntent,
-                                              PendingIntent nightIntent) {
-        Calendar nightNotify = Calendar.getInstance();
-        nightNotify.setTimeInMillis(System.currentTimeMillis());
-        nightNotify.set(Calendar.HOUR_OF_DAY, 21);
-        nightNotify.set(Calendar.MINUTE, 30);
-        Log.d(LOG_TAG, "Before Night notify: " + nightNotify.getTimeInMillis());
-        if (nightNotify.getTimeInMillis() < System.currentTimeMillis()) {
-            nightNotify.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        Log.d(LOG_TAG, "After Night notify: " + nightNotify.getTimeInMillis());
-
-        Calendar mornNotify = Calendar.getInstance();
-        mornNotify.setTimeInMillis(System.currentTimeMillis());
-        mornNotify.set(Calendar.HOUR_OF_DAY, 7);
-        mornNotify.set(Calendar.MINUTE, 0);
-        Log.d(LOG_TAG, "Before Morn notify: " + mornNotify.getTimeInMillis());
-
-        if (mornNotify.getTimeInMillis() < System.currentTimeMillis()) {
-            mornNotify.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        Log.d(LOG_TAG, "After Morn notify: " + mornNotify.getTimeInMillis());
-
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                nightNotify.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
-                mornIntent);
-
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                mornNotify.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
-                nightIntent);
-
     }
 
     public static void syncImmediately(Context context) {
@@ -249,9 +188,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         boolean periodic = bundle.containsKey(SYNC_IS_PERIODIC) && bundle.getBoolean(SYNC_IS_PERIODIC);
 
         if (periodic) {
-            Log.d(LOG_TAG, "Syncing: Periodic");
+            Timber.d("Syncing: Periodic");
         } else {
-            Log.d(LOG_TAG, "Syncing: Manual");
+            Timber.d("Syncing: Manual");
         }
 
         /*
@@ -355,7 +294,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             classHtml = builder.toString();
 
         } catch (IOException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Timber.e(e, e.getMessage());
 
         } catch (BlichFetchException e) { //The user's class isn't configured properly
             //Let the user choose his class again
@@ -366,7 +305,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
+                    Timber.e(e, e.getMessage());
                 }
             }
         }
@@ -519,15 +458,15 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             html = stringBuilder.toString();
 
         } catch (BlichSyncAdapter.BlichFetchException e) {
-            Log.e(LOG_TAG, "Error while trying to get user's class value", e);
+            Timber.e(e, "Error while trying to get user's class value");
         } catch (IOException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Timber.e(e);
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    Timber.e(e, "Error closing stream");
                 }
             }
         }
@@ -711,33 +650,6 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         return result.toString();
-    }
-
-
-    //A receiver that kicks off at 21:30 and 7:00
-    public static class BlichUpdateReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "Receiving Update Broadcast");
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(SYNC_IS_PERIODIC, true);
-
-            ContentResolver.requestSync(getSyncAccount(context),
-                    context.getString(R.string.content_authority),
-                    bundle);
-        }
-    }
-
-    //A receiver that starts the Alarm Service when the device boots.
-    public static class StartPeriodicSyncBootReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-                initializeSyncAdapter(context);
-            }
-        }
     }
 
     public static class BlichFetchException extends Exception {
