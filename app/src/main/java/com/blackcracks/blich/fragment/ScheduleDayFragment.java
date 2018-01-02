@@ -79,7 +79,7 @@ public class ScheduleDayFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(SCHEDULE_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(SCHEDULE_LOADER_ID, Bundle.EMPTY, this);
     }
 
     @Override
