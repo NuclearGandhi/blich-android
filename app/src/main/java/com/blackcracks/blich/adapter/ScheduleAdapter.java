@@ -23,6 +23,8 @@ import com.blackcracks.blich.util.Constants.Database;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private ExpandableListView mExpandableListView;
@@ -332,7 +334,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         void switchData(List<Hour> data) {
             mData = data;
-            mIsDataValid = data != null && mData.size() != 0;
+
+            try {
+                mIsDataValid = data != null && mData.size() != 0;
+            } catch (IllegalStateException e) { //In case Realm instance has been closed
+                mIsDataValid = false;
+                Timber.d("Realm has been closed");
+            }
         }
 
         boolean isDataValid() {
