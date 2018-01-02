@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     /**
      * Save the fragment when the activity is destroyed
      * @param outState
@@ -187,17 +186,17 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         switch (item.getItemId()) {
                             case R.id.schedule: {
-                                replaceFragment(new ScheduleFragment(), false);
+                                replaceFragment(new ScheduleFragment(), true);
                                 item.setChecked(true);
                                 return true;
                             }
                             case R.id.exams: {
-                                replaceFragment(new ExamsFragment(), false);
+                                replaceFragment(new ExamsFragment(), true);
                                 item.setChecked(true);
                                 return true;
                             }
                             case R.id.news: {
-                                replaceFragment(new NewsFragment(), false);
+                                replaceFragment(new NewsFragment(), true);
                                 item.setChecked(true);
                                 return true;
                             }
