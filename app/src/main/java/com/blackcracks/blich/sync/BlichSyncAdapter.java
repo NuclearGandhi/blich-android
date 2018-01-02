@@ -141,7 +141,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             ContentResolver.addPeriodicSync(
                     syncAccount,
                     contentAuthority,
-                    null,
+                    Bundle.EMPTY,
                     SYNC_INTERVAL
             );
         } else {
