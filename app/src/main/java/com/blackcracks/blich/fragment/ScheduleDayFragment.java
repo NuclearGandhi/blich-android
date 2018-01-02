@@ -71,7 +71,7 @@ public class ScheduleDayFragment extends Fragment
         mChangeListener = new RealmChangeListener<Realm>() {
             @Override
             public void onChange(Realm realm) {
-                getLoaderManager().getLoader(SCHEDULE_LOADER_ID).onContentChanged();
+                if (!isDetached()) getLoaderManager().getLoader(SCHEDULE_LOADER_ID).onContentChanged();
             }
         };
     }
