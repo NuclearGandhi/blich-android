@@ -93,7 +93,5 @@
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/schedule_appwidget_info" />
         </receiver>
-
     </application>
-
 </manifest>

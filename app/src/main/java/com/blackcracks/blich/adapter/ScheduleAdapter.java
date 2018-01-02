@@ -122,7 +122,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         final List<Lesson> lessons = hour.getLessons();
         final Lesson first_lesson = lessons.get(0);
-        String subject = first_lesson.getSubject();
+        String subject = filterSubject(first_lesson.getSubject());
         final String teacher = first_lesson.getTeacher();
         final String room = first_lesson.getRoom();
 
@@ -212,7 +212,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
 
-        holder.subjectView.setText(lesson.getSubject());
+        String subject = filterSubject(lesson.getSubject());
+        holder.subjectView.setText(subject);
+
         holder.teacherView.setText(lesson.getTeacher());
         holder.classroomView.setText(lesson.getRoom());
 
@@ -233,6 +235,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         mRealmScheduleHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();
+    }
+
+    private String filterSubject(String subject) {
+        if (subject.contains("מבחן מבחן") || subject.contains("מבחן בוחן")) {
+            return subject.replace("מבחן ", "");
+        } else {
+            return subject;
+        }
     }
 
     private void makeEventDot(ViewGroup parent, @ColorRes int color) {
