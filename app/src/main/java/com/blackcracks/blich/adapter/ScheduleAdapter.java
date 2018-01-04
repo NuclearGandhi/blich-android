@@ -240,7 +240,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     }
 
     private String filterSubject(String subject) {
-        if (subject.contains("מבחן מבחן") || subject.contains("מבחן בוחן")) {
+        if (subject.contains("מבחן מבחן")
+                || subject.contains("מבחן בוחן")
+                || subject.contains("מבחן מבחני")) {
             return subject.replace("מבחן ", "");
         } else {
             return subject;
