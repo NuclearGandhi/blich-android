@@ -144,12 +144,16 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                     Bundle.EMPTY,
                     SYNC_INTERVAL
             );
+
+            Timber.d("Periodic Sync: on");
         } else {
             ContentResolver.removePeriodicSync(
                     syncAccount,
                     contentAuthority,
-                    null
+                    Bundle.EMPTY
             );
+
+            Timber.d("Periodic Sync: off");
         }
     }
 
