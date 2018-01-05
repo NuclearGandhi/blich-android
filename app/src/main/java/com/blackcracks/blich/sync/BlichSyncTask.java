@@ -1,20 +1,20 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.sync;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.AbstractThreadedSyncAdapter;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
@@ -25,14 +25,12 @@ import android.text.Spanned;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.BlichContract.ClassEntry;
-import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.Schedule;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.Constants.IntentConstants;
-import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
 import org.apache.http.NameValuePair;
@@ -63,8 +61,7 @@ import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-
-public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
+public class BlichSyncTask {
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
@@ -115,126 +112,32 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
 
     private static final String EXAMS_TABLE_ID = "ChangesList";
+    
+    
+    private static List<Hour> sHourNotificationList = new ArrayList<>();
 
-
-    private final Context mContext = getContext();
-    private List<Hour> mHourNotificationList = new ArrayList<>();
-
-    BlichSyncAdapter(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
-    }
-
-
-    public static void initializeSyncAdapter(Context context) {
-
-        int intKey = Preferences.PREF_NOTIFICATION_TOGGLE_KEY;
-        String prefKey = Preferences.getKey(context, intKey);
-        boolean prefDefault = (boolean) Preferences.getDefault(context, intKey);
-        boolean isPeriodicSyncOn = Utilities.getPrefBoolean(context,
-                prefKey,
-                prefDefault);
-
-        Account syncAccount = getSyncAccount(context);
-        String contentAuthority = context.getString(R.string.content_authority);
-
-        if (isPeriodicSyncOn) {
-            ContentResolver.addPeriodicSync(
-                    syncAccount,
-                    contentAuthority,
-                    Bundle.EMPTY,
-                    SYNC_INTERVAL
-            );
-
-            Timber.d("Periodic Sync: on");
-        } else {
-            ContentResolver.removePeriodicSync(
-                    syncAccount,
-                    contentAuthority,
-                    Bundle.EMPTY
-            );
-
-            Timber.d("Periodic Sync: off");
-        }
-    }
-
-    private static Account getSyncAccount(Context context) {
-
-        AccountManager accountManager =
-                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
-
-        Account newAccount = new Account(
-                context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
-
-        if (null == accountManager.getPassword(newAccount)) {
-
-            if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
-                return null;
-            }
-        }
-        return newAccount;
-    }
-
-    public static void syncImmediately(Context context) {
-
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(
-                getSyncAccount(context),
-                context.getString(R.string.content_authority),
-                bundle);
-    }
-
-    @Override
-    public void onPerformSync(Account account,
-                              Bundle bundle,
-                              String s,
-                              ContentProviderClient contentProviderClient,
-                              SyncResult syncResult) {
-        boolean periodic = bundle.containsKey(SYNC_IS_PERIODIC) && bundle.getBoolean(SYNC_IS_PERIODIC);
-
-        if (periodic) {
-            Timber.d("Syncing: Periodic");
-        } else {
-            Timber.d("Syncing: Manual");
-        }
-
+    public static void syncBlich(Context context) {
         /*
         Start the fetch.
         If there is a problem while fetching, send the status in the broadcast.
          */
         int status;
-        if ((status = fetchSchedule()) != FETCH_STATUS_SUCCESSFUL ||
-                (status = fetchExams()) != FETCH_STATUS_SUCCESSFUL)
-            sendBroadcast(status);
+        if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
+                (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL)
+            sendBroadcast(context, status);
         else {
-            sendBroadcast(FETCH_STATUS_SUCCESSFUL);
+            sendBroadcast(context, FETCH_STATUS_SUCCESSFUL);
 
             long currentTime = Calendar.getInstance().getTimeInMillis();
-            PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                    .putLong(getContext().getString(R.string.pref_latest_update_key), currentTime)
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
                     .apply();
 
         }
 
-        if (periodic) {
-            notifyUser();
-        }
     }
 
-    private void sendBroadcast(@FetchStatus int status) {
-        Intent intent = new Intent(IntentConstants.ACTION_SYNC_CALLBACK);
-        intent.putExtra(IntentConstants.EXTRA_FETCH_STATUS, status);
-        LocalBroadcastManager.getInstance(getContext())
-                .sendBroadcast(intent);
-
-        PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                .putInt(getContext().getString(R.string.pref_fetch_status_key), status)
-                .apply();
-    }
-
-    private @FetchStatus
-    int fetchSchedule() {
+    private static @FetchStatus int syncSchedule(Context context) {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -242,7 +145,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
 
-            classValue = getClassValue();
+            classValue = getClassValue(context);
 
             /*
             get the html
@@ -300,7 +203,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             classHtml = builder.toString();
 
         } catch (IOException e) {
-            Timber.e(e, e.getMessage());
+            Timber.e(e);
 
         } catch (BlichFetchException e) { //The user's class isn't configured properly
             //Let the user choose his class again
@@ -311,7 +214,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Timber.e(e, e.getMessage());
+                    Timber.e(e);
                 }
             }
         }
@@ -412,7 +315,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
                 hourList.add(hour);
 
                 if (canAddToNotificationList(hour))
-                    mHourNotificationList.add(hour);
+                    sHourNotificationList.add(hour);
             }
         }
 
@@ -428,8 +331,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private @FetchStatus
-    int fetchExams() {
+    private static @FetchStatus int syncExams(Context context) {
 
         int classValue;
         BufferedReader reader = null;
@@ -439,7 +341,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
         //Get the exams html from Blich's site
         try {
-            classValue = getClassValue();
+            classValue = getClassValue(context);
             Uri baseUri = Uri.parse(EXAMS_BASE_URL).buildUpon()
                     .appendQueryParameter(CLASS_VALUE_PARAM, String.valueOf(classValue))
                     .build();
@@ -459,7 +361,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             html = stringBuilder.toString();
 
-        } catch (BlichSyncAdapter.BlichFetchException e) {
+        } catch (BlichFetchException e) {
             Timber.e(e, "Error while trying to get user's class value");
         } catch (IOException e) {
             Timber.e(e);
@@ -502,9 +404,9 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (mPreviousMonth != currentMonth) {
                 ContentValues monthDivider = new ContentValues();
-                monthDivider.put(ExamsEntry.COL_TEACHER, "wut");
-                monthDivider.put(ExamsEntry.COL_DATE, dateInMillis);
-                monthDivider.put(ExamsEntry.COL_SUBJECT, "" + currentMonth);
+                monthDivider.put(BlichContract.ExamsEntry.COL_TEACHER, "wut");
+                monthDivider.put(BlichContract.ExamsEntry.COL_DATE, dateInMillis);
+                monthDivider.put(BlichContract.ExamsEntry.COL_SUBJECT, "" + currentMonth);
 
                 contentValues.add(monthDivider);
             }
@@ -512,41 +414,42 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             mPreviousMonth = currentMonth;
 
             ContentValues row = new ContentValues();
-            row.put(ExamsEntry.COL_DATE, dateInMillis);
-            row.put(ExamsEntry.COL_SUBJECT, subject);
-            row.put(ExamsEntry.COL_TEACHER, teachers);
+            row.put(BlichContract.ExamsEntry.COL_DATE, dateInMillis);
+            row.put(BlichContract.ExamsEntry.COL_SUBJECT, subject);
+            row.put(BlichContract.ExamsEntry.COL_TEACHER, teachers);
 
             contentValues.add(row);
         }
 
         //Delete the whole exams table
-        mContext.getContentResolver().delete(ExamsEntry.CONTENT_URI, null, null);
+        context.getContentResolver().delete(BlichContract.ExamsEntry.CONTENT_URI, null, null);
         //Repopulate the table with updated data
-        mContext.getContentResolver().bulkInsert(
-                ExamsEntry.CONTENT_URI,
+        context.getContentResolver().bulkInsert(
+                BlichContract.ExamsEntry.CONTENT_URI,
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private int getClassValue() throws BlichSyncAdapter.BlichFetchException {
-        String currentClass = Utilities.Class.getCurrentClass(mContext);
+    private static int getClassValue(Context context) 
+            throws BlichFetchException {
+        String currentClass = Utilities.Class.getCurrentClass(context);
         String selection;
         String[] selectionArgs;
 
         if (currentClass.contains("'")) { //Normal class syntax
-            selection = ClassEntry.COL_GRADE + " = ? AND " +
-                    ClassEntry.COL_GRADE_INDEX + " = ?";
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
+                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
             selectionArgs = currentClass.split("'");
         } else { //Abnormal class syntax
-            selection = ClassEntry.COL_GRADE + " = ?";
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
             selectionArgs = new String[]{currentClass};
         }
 
 
-        Cursor cursor = mContext.getContentResolver().query(
-                ClassEntry.CONTENT_URI,
-                new String[]{ClassEntry.COL_CLASS_INDEX},
+        Cursor cursor = context.getContentResolver().query(
+                BlichContract.ClassEntry.CONTENT_URI,
+                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
                 selection,
                 selectionArgs,
                 null);
@@ -556,7 +459,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             if (cursor.moveToFirst()) {
                 classValue = cursor.getInt(0);
             } else {
-                throw new BlichSyncAdapter.BlichFetchException("Can't get the user's class. " +
+                throw new BlichFetchException("Can't get the user's class. " +
                         "Did the user configure his class?");
             }
         } else {
@@ -567,7 +470,18 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return classValue;
     }
 
-    private boolean canAddToNotificationList(Hour hour) {
+    private static void sendBroadcast(Context context, @FetchStatus int status) {
+        Intent intent = new Intent(Constants.IntentConstants.ACTION_SYNC_CALLBACK);
+        intent.putExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS, status);
+        LocalBroadcastManager.getInstance(context)
+                .sendBroadcast(intent);
+
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putInt(context.getString(R.string.pref_fetch_status_key), status)
+                .apply();
+    }
+    
+    private static boolean canAddToNotificationList(Hour hour) {
 
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
@@ -587,10 +501,32 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
         return false;
     }
 
-    private void notifyUser() {
-        boolean foreground = Utilities.isAppOnForeground(getContext());
+    private static Spanned getBoldText(String text) {
+        return Html.fromHtml("<b> " + text + "</b>");
+    }
 
-        if (!mHourNotificationList.isEmpty() && !foreground) {
+    private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (NameValuePair pair : params) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
+
+    private static void notifyUser(Context context) {
+        boolean foreground = Utilities.isAppOnForeground(context);
+
+        if (!sHourNotificationList.isEmpty() && !foreground) {
 
             Calendar calendar = Calendar.getInstance();
             int day = calendar.get(Calendar.DAY_OF_WEEK);
@@ -601,7 +537,7 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             List<Lesson> todayNotificationLessons = new ArrayList<>();
             List<Lesson> tomorrowNotificationLessons = new ArrayList<>();
             for (Hour hour :
-                    mHourNotificationList) {
+                    sHourNotificationList) {
                 List<Lesson> lessons = hour.getLessons();
                 for (Lesson lesson :
                         lessons) {
@@ -639,65 +575,44 @@ public class BlichSyncAdapter extends AbstractThreadedSyncAdapter {
             else summery = "ישנם " + changesNum + " שינויים חדשים";
             inboxStyle.setSummaryText(summery);
 
-            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
-            String prefKey = Preferences.getKey(getContext(), intKey);
-            String prefDefault = (String) Preferences.getDefault(getContext(), intKey);
+            int intKey = Constants.Preferences.PREF_NOTIFICATION_SOUND_KEY;
+            String prefKey = Constants.Preferences.getKey(context, intKey);
+            String prefDefault = (String) Constants.Preferences.getDefault(context, intKey);
             Uri ringtone = Uri.parse(Utilities
-                    .getPrefString(getContext(),
+                    .getPrefString(context,
                             prefKey,
                             prefDefault,
                             true));
 
-            Intent intent = new Intent(getContext(), MainActivity.class);
+            Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
-                    getContext(),
+                    context,
                     0,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             Notification notification = new NotificationCompat.Builder(
-                    getContext(),
-                    getContext().getString(R.string.notification_channel_schedule_id))
+                    context,
+                    context.getString(R.string.notification_channel_schedule_id))
                     .setSmallIcon(R.drawable.ic_timetable_white_24dp)
-                    .setContentTitle(getContext().getResources().getString(
+                    .setContentTitle(context.getResources().getString(
                             R.string.notification_update_title))
                     .setContentText(summery)
                     .setSound(ringtone)
                     .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     .setStyle(inboxStyle)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
                     .build();
 
             NotificationManager notificationManager =
-                    (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
 
         }
-        mHourNotificationList = new ArrayList<>();
+        sHourNotificationList = new ArrayList<>();
     }
 
-    private Spanned getBoldText(String text) {
-        return Html.fromHtml("<b> " + text + "</b>");
-    }
-
-    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-
-        for (NameValuePair pair : params) {
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
-        }
-
-        return result.toString();
-    }
 
     public static class BlichFetchException extends Exception {
         public BlichFetchException(String message) {

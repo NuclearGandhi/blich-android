@@ -20,7 +20,7 @@
         <provider
             android:name=".data.BlichProvider"
             android:authorities="@string/content_authority"
-            android:exported="true"
+            android:exported="false"
             android:syncable="true">
         </provider>
 
@@ -52,28 +52,6 @@
             android:theme="@style/AppTheme">
         </activity>
 
-        <service
-            android:name=".sync.BlichAuthenticatorService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"/>
-        </service>
-        <service
-            android:name=".sync.BlichSyncService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter"/>
-        </service>
         <service
             android:name=".data.FetchClassService"
             android:exported="false"/>
