@@ -116,25 +116,25 @@ public class BlichSyncTask {
     
     private static List<Hour> sHourNotificationList = new ArrayList<>();
 
-    public static void syncBlich(Context context) {
+    public static @FetchStatus int syncBlich(Context context) {
         /*
         Start the fetch.
         If there is a problem while fetching, send the status in the broadcast.
          */
         int status;
         if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
-                (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL)
-            sendBroadcast(context, status);
+                (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
+            return status;
+        }
         else {
-            sendBroadcast(context, FETCH_STATUS_SUCCESSFUL);
-
+            notifyUser(context);
             long currentTime = Calendar.getInstance().getTimeInMillis();
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
                     .apply();
 
+            return status;
         }
-
     }
 
     private static @FetchStatus int syncSchedule(Context context) {
@@ -468,17 +468,6 @@ public class BlichSyncTask {
 
         cursor.close();
         return classValue;
-    }
-
-    private static void sendBroadcast(Context context, @FetchStatus int status) {
-        Intent intent = new Intent(Constants.IntentConstants.ACTION_SYNC_CALLBACK);
-        intent.putExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS, status);
-        LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(intent);
-
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putInt(context.getString(R.string.pref_fetch_status_key), status)
-                .apply();
     }
     
     private static boolean canAddToNotificationList(Hour hour) {
