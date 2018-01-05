@@ -11,7 +11,7 @@ import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Utilities;
 
 import org.jsoup.Jsoup;
@@ -48,7 +48,7 @@ public class ExamsFetchTest {
     }
 
     @Test
-    public void fetchExams() throws BlichSyncAdapter.BlichFetchException {
+    public void fetchExams() throws BlichSyncTask.BlichFetchException {
 
         //int classValue;
         int classValue = 15;
@@ -78,7 +78,7 @@ public class ExamsFetchTest {
 
             html = stringBuilder.toString();
 
-        //} catch (BlichSyncAdapter.BlichFetchException e) {
+        //} catch (BlichSyncTask.BlichFetchException e) {
         //    Log.e(LOG_TAG, "Error while trying to get user's class value", e);
         } catch (IOException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -132,7 +132,7 @@ public class ExamsFetchTest {
         //return true;
     }
 
-    private int getClassValue() throws BlichSyncAdapter.BlichFetchException {
+    private int getClassValue() throws BlichSyncTask.BlichFetchException {
         String currentClass = Utilities.Class.getCurrentClass(mContext);
         String selection;
         String[] selectionArgs;
@@ -160,7 +160,7 @@ public class ExamsFetchTest {
             if (cursor.moveToFirst()) {
                 classValue = cursor.getInt(0);
             } else {
-                throw new BlichSyncAdapter.BlichFetchException("Can't get the user's class. Did the user configure his class?");
+                throw new BlichSyncTask.BlichFetchException("Can't get the user's class. Did the user configure his class?");
             }
         } else {
             throw new NullPointerException("Queried cursor is null");

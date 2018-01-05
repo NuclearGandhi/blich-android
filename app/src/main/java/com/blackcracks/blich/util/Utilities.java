@@ -19,7 +19,8 @@ import android.widget.TextView;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncTask;
+import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 
 import java.text.ParseException;
@@ -126,7 +127,7 @@ public class Utilities {
         updateBlichData(context, view);
     }
 
-    //Call BlichSyncAdapter to begin a sync
+    //Call BlichSyncTask to begin a sync
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
@@ -137,9 +138,9 @@ public class Utilities {
                     .apply();
             isConnected = Utilities.isThereNetworkConnection(context);
             if (isConnected) {
-                BlichSyncAdapter.syncImmediately(context);
+                BlichSyncUtils.startImmediateSync(context);
             } else {
-                onSyncFinished(context, view, BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION, null);
+                onSyncFinished(context, view, BlichSyncTask.FETCH_STATUS_NO_CONNECTION, null);
             }
         }
         if (BuildConfig.DEBUG) {
@@ -149,23 +150,23 @@ public class Utilities {
         }
     }
 
-    //Callback from BlichSyncAdapter's sync
+    //Callback from BlichSyncTask's sync
     public static void onSyncFinished(final Context context,
                                       final View view,
-                                      @BlichSyncAdapter.FetchStatus int status,
+                                      @BlichSyncTask.FetchStatus int status,
                                       @Nullable FragmentManager fragmentManager) {
 
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
                 .apply();
 
-        if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
+        if (status == BlichSyncTask.FETCH_STATUS_SUCCESSFUL) {
             Snackbar.make(view,
                     R.string.snackbar_fetch_successful,
                     Snackbar.LENGTH_LONG)
                     .show();
 
-        } else if (status == BlichSyncAdapter.FETCH_STATUS_CLASS_NOT_CONFIGURED) {
+        } else if (status == BlichSyncTask.FETCH_STATUS_CLASS_NOT_CONFIGURED) {
 
             if (fragmentManager != null) {
                 ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
@@ -174,7 +175,7 @@ public class Utilities {
                     @Override
                     public void onDestroy(Context context) {
                         //Start the periodic syncing of
-                        BlichSyncAdapter.initializeSyncAdapter(context);
+                        BlichSyncUtils.initialize(context);
                         Utilities.initializeBlichDataUpdater(context, view);
                     }
                 });
@@ -191,12 +192,12 @@ public class Utilities {
             @StringRes int titleString;
             @StringRes int messageString;
             switch (status) {
-                case BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION: {
+                case BlichSyncTask.FETCH_STATUS_NO_CONNECTION: {
                     titleString = R.string.dialog_fetch_no_connection_title;
                     messageString = R.string.dialog_fetch_no_connection_message;
                     break;
                 }
-                case BlichSyncAdapter.FETCH_STATUS_EMPTY_HTML: {
+                case BlichSyncTask.FETCH_STATUS_EMPTY_HTML: {
                     titleString = R.string.dialog_fetch_empty_html_title;
                     messageString = R.string.dialog_fetch_empty_html_message;
                     break;

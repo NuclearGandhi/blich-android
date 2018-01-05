@@ -36,7 +36,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.NewsAdapter;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.data.FetchNewsService;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
@@ -169,9 +169,9 @@ public class NewsCategoryFragment extends Fragment implements
     }
 
     //Callback from FetchNewsService
-    private void onFetchFinished(final Context context, @BlichSyncAdapter.FetchStatus int status) {
+    private void onFetchFinished(final Context context, @BlichSyncTask.FetchStatus int status) {
 
-        if (status == BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL) {
+        if (status == BlichSyncTask.FETCH_STATUS_SUCCESSFUL) {
             Snackbar.make(mRootView,
                     R.string.snackbar_fetch_successful,
                     Snackbar.LENGTH_LONG)
@@ -184,12 +184,12 @@ public class NewsCategoryFragment extends Fragment implements
             @StringRes int titleString;
             @StringRes int messageString;
             switch (status) {
-                case BlichSyncAdapter.FETCH_STATUS_NO_CONNECTION: {
+                case BlichSyncTask.FETCH_STATUS_NO_CONNECTION: {
                     titleString = R.string.dialog_fetch_no_connection_title;
                     messageString = R.string.dialog_fetch_no_connection_message;
                     break;
                 }
-                case BlichSyncAdapter.FETCH_STATUS_EMPTY_HTML: {
+                case BlichSyncTask.FETCH_STATUS_EMPTY_HTML: {
                     titleString = R.string.dialog_fetch_empty_html_title;
                     messageString = R.string.dialog_fetch_empty_html_message;
                     break;
@@ -235,9 +235,9 @@ public class NewsCategoryFragment extends Fragment implements
         @Override
         public void onReceive(Context context, Intent intent) {
             //Callback
-            @BlichSyncAdapter.FetchStatus int status =
+            @BlichSyncTask.FetchStatus int status =
                     intent.getIntExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY,
-                    BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
+                    BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
             onFetchFinished(getContext(), status);
         }
     }

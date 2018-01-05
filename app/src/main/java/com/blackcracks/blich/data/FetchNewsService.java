@@ -8,7 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Utilities;
@@ -80,7 +80,7 @@ public class FetchNewsService extends IntentService {
         Utilities.News.setIsFetchingForCategory(getBaseContext(), category, false);
     }
 
-    private @BlichSyncAdapter.FetchStatus int fetchNews(@NewsCategory int category) {
+    private @BlichSyncTask.FetchStatus int fetchNews(@NewsCategory int category) {
         BufferedReader reader = null;
         String html = null;
 
@@ -139,15 +139,15 @@ public class FetchNewsService extends IntentService {
             }
         }
 
-        if (html == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
+        if (html == null) return BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL;
 
         Document document = Jsoup.parse(html, "", Parser.xmlParser());
-        if (document == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
+        if (document == null) return BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL;
         Elements news = document.getElementsByTag(TAG_ARTICLE);
 
         List<ContentValues> contentValuesList = new ArrayList<>();
 
-        if (news == null) return BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL;
+        if (news == null) return BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL;
         for (Element article : news) {
             String title = article.getElementsByTag(TAG_TITLE).get(0).text();
 
@@ -175,6 +175,6 @@ public class FetchNewsService extends IntentService {
                 category,
                 System.currentTimeMillis());
 
-        return BlichSyncAdapter.FETCH_STATUS_SUCCESSFUL;
+        return BlichSyncTask.FETCH_STATUS_SUCCESSFUL;
     }
 }

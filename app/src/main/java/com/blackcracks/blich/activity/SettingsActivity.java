@@ -21,7 +21,7 @@ import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
@@ -167,7 +167,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Utilities.updateBlichData(getContext(), getView());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
-                BlichSyncAdapter.initializeSyncAdapter(getContext());
+                BlichSyncUtils.initialize(getContext());
         }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
                 setFilterSelectSummery();

@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
@@ -60,9 +60,9 @@ public abstract class BlichBaseFragment extends Fragment implements
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                @BlichSyncAdapter.FetchStatus int status =
+                @BlichSyncTask.FetchStatus int status =
                         intent.getIntExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS,
-                                BlichSyncAdapter.FETCH_STATUS_UNSUCCESSFUL);
+                                BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
                 Utilities.onSyncFinished(getContext(), mRootView, status, mFragmentManager);
             }
         };

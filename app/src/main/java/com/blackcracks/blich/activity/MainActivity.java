@@ -26,7 +26,7 @@ import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.sync.BlichSyncAdapter;
+import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDestroy(Context context) {
                     //Start the periodic sync
-                    BlichSyncAdapter.initializeSyncAdapter(context);
+                    BlichSyncUtils.initialize(context);
                     Utilities.initializeBlichDataUpdater(context, mRootView);
                 }
             });
