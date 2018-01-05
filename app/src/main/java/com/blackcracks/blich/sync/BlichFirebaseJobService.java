@@ -21,23 +21,23 @@ import com.firebase.jobdispatcher.JobService;
 
 public class BlichFirebaseJobService extends JobService {
 
-    private AsyncTask<Void, Void, Integer> mFetchBlichTask;
+    private AsyncTask<Void, Void, Void> mFetchBlichTask;
 
     @SuppressLint("StaticFieldLeak")
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
-        mFetchBlichTask = new AsyncTask<Void, Void, Integer>() {
+        mFetchBlichTask = new AsyncTask<Void, Void, Void>() {
 
             @Override
-            protected Integer doInBackground(Void... voids) {
+            protected Void doInBackground(Void... voids) {
                 Context context = getApplicationContext();
-                return BlichSyncTask.syncBlich(context);
+                BlichSyncTask.syncBlich(context);
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Integer status) {
+            protected void onPostExecute(Void aVoid) {
                 jobFinished(jobParameters, false);
-                sendBroadcast(getApplicationContext(), status);
             }
         };
 
