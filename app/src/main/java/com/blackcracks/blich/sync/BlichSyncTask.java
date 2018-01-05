@@ -19,7 +19,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -79,11 +78,6 @@ public class BlichSyncTask {
     private static final String SYNC_IS_PERIODIC = "is_periodic";
 
     private static final int NOTIFICATION_UPDATE_ID = 1;
-
-    private static final long SECONDS_PER_MINUTE = 60;
-    private static final long MINUTES_PER_HOUR = 60;
-    private static final long SYNC_HOURS = 3;
-    private static final long SYNC_INTERVAL = SYNC_HOURS * SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
     //Schedule
     private static final String SOURCE_URL =
