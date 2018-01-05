@@ -65,6 +65,9 @@
         </service>
 
         <service
+            android:name=".sync.BlichSyncIntentService"
+            android:exported="false" />
+        <service
             android:name=".sync.BlichFirebaseJobService"
             android:exported="false">
             <intent-filter>
