@@ -52,6 +52,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:11.8.0'
     implementation 'com.google.firebase:firebase-crash:11.8.0'
     implementation 'com.google.firebase:firebase-messaging:11.8.0'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     implementation 'org.jsoup:jsoup:1.10.3'
     implementation 'org.apache.httpcomponents:httpcore:4.4.7'
     implementation 'biz.kasual:materialnumberpicker:1.2.1'
