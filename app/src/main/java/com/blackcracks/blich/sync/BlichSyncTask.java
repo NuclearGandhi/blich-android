@@ -15,10 +15,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -75,8 +75,6 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
-    private static final String SYNC_IS_PERIODIC = "is_periodic";
-
     private static final int NOTIFICATION_UPDATE_ID = 1;
 
     //Schedule
@@ -118,7 +116,6 @@ public class BlichSyncTask {
         int status;
         if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
                 (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
-            return status;
         }
         else {
             notifyUser(context);
@@ -126,9 +123,9 @@ public class BlichSyncTask {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
                     .apply();
-
-            return status;
         }
+
+        return status;
     }
 
     private static @FetchStatus int syncSchedule(Context context) {
@@ -595,7 +592,6 @@ public class BlichSyncTask {
         }
         sHourNotificationList = new ArrayList<>();
     }
-
 
     public static class BlichFetchException extends Exception {
         public BlichFetchException(String message) {

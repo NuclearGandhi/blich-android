@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.realm.RealmConfiguration;
+
 public class Utilities {
 
     private static final String TAG = Utilities.class.getSimpleName();
@@ -228,6 +230,14 @@ public class Utilities {
                                 }
                             })
                     .show();
+        }
+    }
+
+    public static class Realm {
+        public static void setUpRealm(Context context) {
+            io.realm.Realm.init(context);
+            RealmConfiguration config = new RealmConfiguration.Builder().build();
+            io.realm.Realm.setDefaultConfiguration(config);
         }
     }
 

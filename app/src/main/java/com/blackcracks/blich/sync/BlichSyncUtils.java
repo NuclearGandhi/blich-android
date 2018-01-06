@@ -29,8 +29,6 @@ public class BlichSyncUtils {
 
     private static final String SUNSHINE_SYNC_TAG = "sunshine_tag";
 
-    private static boolean sInitialized;
-
     private static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {
 
         Driver driver = new GooglePlayDriver(context);
@@ -53,12 +51,9 @@ public class BlichSyncUtils {
     }
 
     synchronized public static void initialize(@NonNull Context context) {
-        if (sInitialized) return;
-        sInitialized = true;
-
         scheduleFirebaseJobDispatcherSync(context);
-        startImmediateSync(context);
     }
+
 
     public static void startImmediateSync(@NonNull final Context context) {
         Intent intentToSyncImmediately = new Intent(context, BlichSyncIntentService.class);

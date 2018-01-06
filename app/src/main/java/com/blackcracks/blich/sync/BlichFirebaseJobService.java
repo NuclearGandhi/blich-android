@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
@@ -22,6 +23,12 @@ public class BlichFirebaseJobService extends JobService {
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
         mFetchBlichTask = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                Utilities.Realm.setUpRealm(getApplicationContext());
+            }
 
             @Override
             protected Void doInBackground(Void... voids) {

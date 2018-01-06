@@ -31,8 +31,6 @@ import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Initialization stuff
         setLocaleToHebrew();
-        setUpRealm();
+        Utilities.Realm.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
 
 
@@ -90,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
+                BlichSyncUtils.initialize(this);
                 Utilities.initializeBlichDataUpdater(this, mRootView);
             }
         }
@@ -167,12 +166,6 @@ public class MainActivity extends AppCompatActivity {
         config.setLocale(locale);
         getApplicationContext().createConfigurationContext(config);
 
-    }
-
-    private void setUpRealm() {
-        Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
-        Realm.setDefaultConfiguration(config);
     }
 
     private void setupDrawer() {
