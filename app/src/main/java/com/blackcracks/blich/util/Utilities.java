@@ -157,6 +157,7 @@ public class Utilities {
     }
 
     //Callback from BlichSyncTask's sync
+    @SuppressLint("SwitchIntDef")
     public static void onSyncFinished(final Context context,
                                       final View view,
                                       @BlichSyncTask.FetchStatus int status,

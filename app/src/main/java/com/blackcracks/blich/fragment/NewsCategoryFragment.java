@@ -171,6 +171,7 @@ public class NewsCategoryFragment extends Fragment implements
     }
 
     //Callback from FetchNewsService
+    @SuppressLint("SwitchIntDef")
     private void onFetchFinished(final Context context, @BlichSyncTask.FetchStatus int status) {
 
         if (status == BlichSyncTask.FETCH_STATUS_SUCCESSFUL) {
