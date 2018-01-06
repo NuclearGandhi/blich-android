@@ -133,7 +133,10 @@ public class Utilities {
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
-        boolean isFetching = getPrefBoolean(context, context.getString(R.string.pref_is_syncing_key), false);
+        boolean isFetching = getPrefBoolean(
+                context,
+                Preferences.PREF_IS_SYNCING_KEY
+        );
         if (!isFetching) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putBoolean(context.getString(R.string.pref_is_syncing_key), true)

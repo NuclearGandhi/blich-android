@@ -86,7 +86,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         DrawerLayout drawerLayout = activity.getDrawerLayout();
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                activity, drawerLayout, toolbar,R.string.drawer_open_desc, R.string.drawer_close_desc) {
+                activity, drawerLayout, toolbar, R.string.drawer_open_desc, R.string.drawer_close_desc) {
 
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -112,7 +112,11 @@ public abstract class BlichBaseFragment extends Fragment implements
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(Constants.IntentConstants.ACTION_SYNC_CALLBACK));
-        mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(getContext(), getString(R.string.pref_is_syncing_key), false));
+
+        mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(
+                getContext(),
+                Constants.Preferences.PREF_IS_SYNCING_KEY
+        ));
     }
 
     @Override
@@ -126,13 +130,19 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_is_syncing_key))) {
-            mSwipeRefreshLayout.setRefreshing(sharedPreferences.getBoolean(getString(R.string.pref_is_syncing_key), true));
+            mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(
+                    getContext(),
+                    Constants.Preferences.PREF_IS_SYNCING_KEY
+            ));
         }
     }
 
-    protected abstract @LayoutRes int getFragmentLayout();
+    protected abstract @LayoutRes
+    int getFragmentLayout();
 
-    protected abstract @StringRes int getFragmentTitle();
+    protected abstract @StringRes
+    int getFragmentTitle();
 
-    protected abstract @MenuRes int getMenuResource();
+    protected abstract @MenuRes
+    int getMenuResource();
 }

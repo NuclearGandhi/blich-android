@@ -22,7 +22,7 @@ public class Constants {
 
     public static class Database {
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
-        public static final String TYPE_NEW_HOUR  = "NewHour";
+        public static final String TYPE_NEW_HOUR = "NewHour";
         public static final String TYPE_NEW_ROOM = "NewRoom";
         public static final String TYPE_EXAM = "Exam";
         public static final String TYPE_CANCELED = "FreeLesson";
@@ -36,13 +36,19 @@ public class Constants {
         //Preference keys
         @Retention(SOURCE)
         @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
-            PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY})
-        public @interface PrefIntKeys {}
+                PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_IS_SYNCING_KEY})
+        public @interface PrefIntKeys {
+        }
+
         public static final int PREF_CLASS_PICKER_KEY = 0;
+
         public static final int PREF_NOTIFICATION_TOGGLE_KEY = 1;
         public static final int PREF_NOTIFICATION_SOUND_KEY = 2;
+
         public static final int PREF_FILTER_TOGGLE_KEY = 3;
         public static final int PREF_FILTER_SELECT_KEY = 4;
+
+        public static final int PREF_IS_SYNCING_KEY = 100;
 
         public static String getKey(Context context, @PrefIntKeys int key) {
 
@@ -52,11 +58,11 @@ public class Constants {
                     resKey = R.string.pref_class_picker_key;
                     break;
                 }
-                case PREF_NOTIFICATION_TOGGLE_KEY:{
+                case PREF_NOTIFICATION_TOGGLE_KEY: {
                     resKey = R.string.pref_notification_toggle_key;
                     break;
                 }
-                case PREF_NOTIFICATION_SOUND_KEY:{
+                case PREF_NOTIFICATION_SOUND_KEY: {
                     resKey = R.string.pref_notification_sound_key;
                     break;
                 }
@@ -68,6 +74,9 @@ public class Constants {
                     resKey = R.string.pref_filter_select_key;
                     break;
                 }
+                case PREF_IS_SYNCING_KEY: {
+                    resKey = R.string.pref_is_syncing_key;
+                }
             }
             return context.getString(resKey);
         }
@@ -77,18 +86,24 @@ public class Constants {
 
         public static Object getDefault(Context context, @PrefIntKeys int key) {
             switch (key) {
-                case PREF_CLASS_PICKER_KEY:
+                case PREF_CLASS_PICKER_KEY: {
                     return context.getString(R.string.pref_class_picker_default);
-
-                case PREF_NOTIFICATION_TOGGLE_KEY:
+                }
+                case PREF_NOTIFICATION_TOGGLE_KEY: {
                     return context.getResources().getBoolean(R.bool.pref_notification_toggle_default);
-
-                case PREF_NOTIFICATION_SOUND_KEY:
+                }
+                case PREF_NOTIFICATION_SOUND_KEY: {
                     return PREF_NOTIFICATION_SOUND_DEFAULT;
-                case PREF_FILTER_TOGGLE_KEY:
+                }
+                case PREF_FILTER_TOGGLE_KEY: {
                     return context.getResources().getBoolean(R.bool.pref_filter_toggle_default);
-                case PREF_FILTER_SELECT_KEY:
+                }
+                case PREF_FILTER_SELECT_KEY: {
                     return "";
+                }
+                case PREF_IS_SYNCING_KEY: {
+                    return true;
+                }
             }
             return null;
         }
