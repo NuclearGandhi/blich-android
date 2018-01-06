@@ -81,7 +81,8 @@
         android:rotation="0"
         android:src="@drawable/ic_expand_more_24dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"/>
+        app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"
+        tools:ignore="ContentDescription"/>
 
     <LinearLayout
         android:id="@+id/schedule_group_events"

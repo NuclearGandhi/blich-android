@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
+            android:focusable="true"
             android:minHeight="?attr/actionBarSize"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
@@ -48,6 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:clickable="true"
+                android:focusable="true"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
@@ -56,7 +58,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:rotation="180"
-                    android:src="@drawable/ic_arrow_drop_white_black_24dp"/>
+                    android:src="@drawable/ic_arrow_drop_white_black_24dp"
+                    tools:ignore="ContentDescription"/>
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -65,10 +68,10 @@
 
     <TextView
         android:id="@+id/schedule_no_data"
-        android:text="@string/schedule_no_data"
         android:layout_width="wrap_content"
-        android:padding="16dp"
         android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/schedule_no_data"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.v4.widget.SwipeRefreshLayout

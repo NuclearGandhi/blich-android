@@ -83,5 +83,8 @@
     <string name="news_no_data">משוך למטה כדי לעדכן</string>
     <string name="schedule_no_data">אין מידע לגבי מבחנים קרובים</string>
     <string name="widget_title">מערכת שעות</string>
+    <string name="contentdes_article_image">תמונה</string>
+    <string name="contentdes_drawer_logo">לוגו</string>
+    <string name="about_support_email">לחץ כדי לשלוח מייל</string>
 
 </resources>
