@@ -3,7 +3,6 @@
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976d2</color>
     <color name="colorAccent">#00838f</color>
-    <color name="preference_accent">@color/colorAccent</color>
 
     <color name="blue_400">#42a5f5</color>
     <color name="almost_black">#8A000000</color>
@@ -17,8 +16,6 @@
     <color name="lesson_event">#388E3C</color>
 
     <color name="calendar_selected_day">#42A5F5</color>
-
-    <color name="button_selected">#005662</color>
 
     <color name="widget_background">#FFFFFF</color>
 </resources>
