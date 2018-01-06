@@ -1,5 +1,6 @@
 package com.blackcracks.blich.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -177,6 +178,7 @@ public class NewsCategoryFragment extends Fragment implements
                     Snackbar.LENGTH_LONG)
                     .show();
         } else {
+            @SuppressLint("InflateParams")
             View dialogView = LayoutInflater.from(context).inflate(
                     R.layout.dialog_fetch_failed,
                     null);

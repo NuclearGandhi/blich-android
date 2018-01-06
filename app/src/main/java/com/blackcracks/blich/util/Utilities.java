@@ -1,5 +1,6 @@
 package com.blackcracks.blich.util;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -190,6 +191,7 @@ public class Utilities {
             }
 
         } else {
+            @SuppressLint("InflateParams")
             View dialogView = LayoutInflater.from(context).inflate(
                     R.layout.dialog_fetch_failed,
                     null);

@@ -156,8 +156,10 @@ public class ChooseClassDialogFragment extends DialogFragment {
 
     //If the fetching failed, show a Dialog
     private void onFetchFailed() {
+        @SuppressLint("InflateParams")
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
                 null);
+
         TextView message = view.findViewById(R.id.dialog_message);
         message.setText(R.string.dialog_fetch_class_no_connection_message);
         new AlertDialog.Builder(getContext())

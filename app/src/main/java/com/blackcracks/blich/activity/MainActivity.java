@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
 
+    @SuppressLint("InflateParams")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
-                R.layout.activity_main, null, false);
+                R.layout.activity_main, null , false);
         setContentView(mRootView);
 
         //Restore state if it exists

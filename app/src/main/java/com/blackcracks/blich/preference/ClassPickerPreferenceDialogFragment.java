@@ -1,5 +1,6 @@
 package com.blackcracks.blich.preference;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -117,8 +118,10 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     }
 
     private void onFetchFailed() {
+        @SuppressLint("InflateParams")
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
                 null);
+
         TextView message = view.findViewById(R.id.dialog_message);
         message.setText(R.string.dialog_fetch_class_no_connection_message);
         new AlertDialog.Builder(getContext())
