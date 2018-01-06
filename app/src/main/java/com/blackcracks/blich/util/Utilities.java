@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 
 import io.realm.RealmConfiguration;
+import timber.log.Timber;
 
 public class Utilities {
 
@@ -116,7 +116,7 @@ public class Utilities {
         try {
             examDate = dateFormat.parse(date);
         } catch (ParseException e) {
-            Log.d(TAG, e.getMessage(), e);
+            Timber.d(e, e.getMessage());
         }
 
         return examDate.getTime();
@@ -150,7 +150,7 @@ public class Utilities {
             }
         }
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "updateBlichData() called" +
+            Timber.d("updateBlichData() called" +
                     ", isFetching = " + isFetching +
                     ", isConnected = " + isConnected);
         }

@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.sync.BlichSyncTask;
@@ -34,6 +33,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -136,7 +137,7 @@ public class FetchNewsService extends IntentService {
 
             html = builder.toString();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Timber.e(e);
         } finally {
             try {
                 if (reader != null) {

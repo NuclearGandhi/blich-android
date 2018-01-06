@@ -25,7 +25,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +41,8 @@ import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
 import java.lang.reflect.Field;
+
+import timber.log.Timber;
 
 public class NewsCategoryFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -275,9 +276,9 @@ public class NewsCategoryFragment extends Fragment implements
             mIsEnabledField.setBoolean(accessibilityManager, false);
             mAccessibilityManagerField.set(snackbar, accessibilityManager);
         } catch (NoSuchFieldException e) {
-            Log.e(TAG, e.getMessage());
+            Timber.e(e.getMessage());
         } catch (IllegalAccessException e) {
-            Log.e(TAG, e.getMessage());
+            Timber.e(e.getMessage());
         }
 
         snackbar.show();
