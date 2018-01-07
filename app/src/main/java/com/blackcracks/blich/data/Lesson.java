@@ -1,22 +1,23 @@
 package com.blackcracks.blich.data;
 
 import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.annotations.LinkingObjects;
 import io.realm.annotations.Required;
 
 public class Lesson extends RealmObject {
 
-    private int hour;
     @Required private String subject;
     private String room;
     private String teacher;
     private String changeType;
+    @LinkingObjects("lessons") private final RealmResults<Hour> owners = null;
 
     public Lesson() {
 
     }
 
-    public Lesson(int hour, String subject, String room, String teacher, String changeType) {
-        this.hour = hour;
+    public Lesson(String subject, String room, String teacher, String changeType) {
         this.subject = subject;
         this.room = room;
         this.teacher = teacher;
@@ -59,11 +60,7 @@ public class Lesson extends RealmObject {
         return new TeacherSubject(teacher, subject);
     }
 
-    public int getHour() {
-        return hour;
-    }
-
-    public void setHour(int hour) {
-        this.hour = hour;
+    public RealmResults<Hour> getOwners() {
+        return owners;
     }
 }
