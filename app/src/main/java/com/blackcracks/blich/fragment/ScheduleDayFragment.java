@@ -16,11 +16,19 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Hour;
+import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Utilities;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmList;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -125,10 +133,55 @@ public class ScheduleDayFragment extends Fragment
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            RealmResults<Hour> results = mRealm.where(Hour.class)
-                    .equalTo("day", mDay)
-                    .findAll();
-            results.sort("hour", Sort.ASCENDING);
+
+            boolean isFilterOn = Utilities.getPrefBoolean(
+                    getContext(),
+                    Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
+
+            List<Hour> results;
+
+            if (isFilterOn) {
+                RealmResults<Lesson> lessons = getFilteredLessonsQuery()
+                        .findAll();
+
+                results = new ArrayList<>();
+                for (Lesson lesson :
+                        lessons) {
+                    int hourNum = lesson.getOwners().get(0).getHour();
+                    Hour hour = null;
+
+                    for (Hour result :
+                            results) {
+                        if (result.getHour() == hourNum) hour = result;
+                    }
+
+                    if (hour == null) {
+                        RealmList<Lesson> lessonList = new RealmList<>();
+                        lessonList.add(lesson);
+                        hour = new Hour(mDay, hourNum, lessonList);
+                        results.add(hour);
+                    } else {
+                        hour.getLessons().add(lesson);
+                    }
+                }
+
+                Comparator<Hour> hourComparator = new Comparator<Hour>() {
+                    @Override
+                    public int compare(Hour o1, Hour o2) {
+                        if (o1.getHour() > o2.getHour()) return 1;
+                        else if (o1.getHour() == o2.getHour()) return 0;
+                        else return -1;
+                    }
+                };
+
+                Collections.sort(results, hourComparator);
+
+            } else {
+                results = mRealm.where(Hour.class)
+                        .equalTo("day", mDay)
+                        .findAll()
+                        .sort("hour", Sort.ASCENDING);
+            }
 
             deliverResult(results);
         }
@@ -137,6 +190,39 @@ public class ScheduleDayFragment extends Fragment
         protected void onStopLoading() {
             super.onStopLoading();
             cancelLoad();
+        }
+
+        private RealmQuery<Lesson> getFilteredLessonsQuery() {
+            String teacherFilter = Utilities.getPrefString(
+                    getContext(),
+                    Constants.Preferences.PREF_FILTER_SELECT_KEY);
+            String[] teacherSubjects = teacherFilter.split(";");
+
+            RealmQuery<Lesson> lessons = mRealm.where(Lesson.class)
+                    .equalTo("owners.day", mDay)
+                    .and()
+                    .beginGroup()
+                        .equalTo("teacher", " ");
+
+            for (String teacherSubject :
+                    teacherSubjects) {
+                if (teacherSubject.equals("")) break;
+
+                String[] arr = teacherSubject.split(",");
+                String teacher = arr[0];
+                String subject = arr[1];
+
+                lessons.or()
+                        .beginGroup()
+                            .equalTo("teacher", teacher)
+                            .and()
+                            .equalTo("subject", subject)
+                        .endGroup();
+            }
+
+            lessons.endGroup();
+
+            return lessons;
         }
     }
 }

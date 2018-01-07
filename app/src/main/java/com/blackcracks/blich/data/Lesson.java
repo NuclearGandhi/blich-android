@@ -11,7 +11,7 @@ public class Lesson extends RealmObject {
     private String room;
     private String teacher;
     private String changeType;
-    @LinkingObjects("lessons") private final RealmResults<Hour> owners = null;
+    @LinkingObjects("lessons") private final RealmResults<Hour> owners  = null;
 
     public Lesson() {
 
