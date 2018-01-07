@@ -70,5 +70,8 @@
     <string name="contentdes_article_image">תמונה</string>
     <string name="contentdes_drawer_logo">לוגו</string>
     <string name="about_support_email">לחץ כדי לשלוח מייל</string>
+    <string name="drawer_open_desc">פתוח</string>
+    <string name="drawer_close_desc">סגור</string>
+    <string name="notification_update_title">מערכת שעות</string>
 
 </resources>

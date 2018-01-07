@@ -177,7 +177,7 @@ public class SettingsActivity extends AppCompatActivity {
         private void initPrefSummery() {
 
             setClassPickerSummery();
-            //setFilterSelectSummery();
+            setFilterSelectSummery();
             setNotificationSoundPreference();
         }
 
