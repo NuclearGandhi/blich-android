@@ -297,7 +297,7 @@ public class BlichSyncTask {
                     }
                 }
 
-                Lesson lesson = new Lesson(subject, room, teacher, lessonType);
+                Lesson lesson = new Lesson(row, subject, room, teacher, lessonType);
                 lessonList.add(lesson);
             }
 

@@ -5,6 +5,7 @@ import io.realm.annotations.Required;
 
 public class Lesson extends RealmObject {
 
+    @Required private int hour;
     @Required private String subject;
     private String room;
     private String teacher;
@@ -14,7 +15,8 @@ public class Lesson extends RealmObject {
 
     }
 
-    public Lesson(String subject, String room, String teacher, String changeType) {
+    public Lesson(int hour, String subject, String room, String teacher, String changeType) {
+        this.hour = hour;
         this.subject = subject;
         this.room = room;
         this.teacher = teacher;
@@ -55,5 +57,13 @@ public class Lesson extends RealmObject {
 
     public TeacherSubject getTeacherSubject() {
         return new TeacherSubject(teacher, subject);
+    }
+
+    public int getHour() {
+        return hour;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
     }
 }
