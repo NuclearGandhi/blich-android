@@ -5,7 +5,7 @@ import io.realm.annotations.Required;
 
 public class Lesson extends RealmObject {
 
-    @Required private int hour;
+    private int hour;
     @Required private String subject;
     private String room;
     private String teacher;

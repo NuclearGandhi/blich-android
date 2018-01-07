@@ -30,7 +30,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.realm.DynamicRealm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
+import io.realm.RealmSchema;
 import timber.log.Timber;
 
 public class Utilities {
@@ -242,7 +245,22 @@ public class Utilities {
     public static class Realm {
         public static void setUpRealm(Context context) {
             io.realm.Realm.init(context);
-            RealmConfiguration config = new RealmConfiguration.Builder().build();
+            RealmConfiguration config = new RealmConfiguration.Builder()
+                    .schemaVersion(1)
+                    .migration(new RealmMigration() {
+                        @Override
+                        public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
+
+                            RealmSchema schema = realm.getSchema();
+
+                            if (oldVersion == 0) {
+                                schema.get("Lesson")
+                                        .addField("hour", int.class);
+                                oldVersion++;
+                            }
+                        }
+                    })
+                    .build();
             io.realm.Realm.setDefaultConfiguration(config);
         }
     }
