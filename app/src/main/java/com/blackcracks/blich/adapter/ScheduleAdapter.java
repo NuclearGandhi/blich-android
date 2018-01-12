@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
-    private SparseArray<GroupViewHolder> mViewHolderSparseArray;
 
     public ScheduleAdapter(ExpandableListView expandableListView,
                            Context context,
@@ -43,7 +41,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         mRealmScheduleHelper = new RealmScheduleHelper(null);
         mExpandedArray = new SparseBooleanArray();
-        mViewHolderSparseArray = new SparseArray<>();
     }
 
     @Override
@@ -124,10 +121,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         final List<Lesson> lessons = hour.getLessons();
         final Lesson first_lesson = lessons.get(0);
+
         String subject = filterSubject(first_lesson.getSubject());
         final String teacher = first_lesson.getTeacher();
         final String room = first_lesson.getRoom();
 
+        //Set initial values
         holder.subjectView.setText(subject);
         holder.teacherView.setText("...");
         holder.classroomView.setText("");
@@ -158,6 +157,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
             showCollapsed(holder);
         }
 
+        //Set values according to the amount of children in this hour
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
             holder.teacherView.setText(teacher);
@@ -185,7 +185,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
                 }
             });
         }
-        mViewHolderSparseArray.put(groupPosition, holder);
     }
 
     @Override
