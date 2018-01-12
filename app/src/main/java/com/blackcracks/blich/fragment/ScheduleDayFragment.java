@@ -130,20 +130,26 @@ public class ScheduleDayFragment extends Fragment
             mRealm = realm;
         }
 
+        /**
+         * Query the schedule data and filter it if need
+         */
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
 
+            //Check if the user wants to filter the schedule
             boolean isFilterOn = Utilities.getPrefBoolean(
                     getContext(),
                     Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
 
             List<Hour> results;
 
-            if (isFilterOn) {
+            if (isFilterOn) { //Filter
+                //Query using Inverse-Relationship and filter
                 RealmResults<Lesson> lessons = getFilteredLessonsQuery()
                         .findAll();
 
+                //Translate the lesson list to hour list
                 results = new ArrayList<>();
                 for (Lesson lesson :
                         lessons) {
@@ -165,6 +171,7 @@ public class ScheduleDayFragment extends Fragment
                     }
                 }
 
+                //Sort the hours
                 Comparator<Hour> hourComparator = new Comparator<Hour>() {
                     @Override
                     public int compare(Hour o1, Hour o2) {
@@ -176,7 +183,7 @@ public class ScheduleDayFragment extends Fragment
 
                 Collections.sort(results, hourComparator);
 
-            } else {
+            } else {//No filter, Query all
                 results = mRealm.where(Hour.class)
                         .equalTo("day", mDay)
                         .findAll()
@@ -192,6 +199,10 @@ public class ScheduleDayFragment extends Fragment
             cancelLoad();
         }
 
+        /**
+         * Get a query object that contains all the filter rules
+         * @return {@link RealmQuery} object with filter rules
+         */
         private RealmQuery<Lesson> getFilteredLessonsQuery() {
             String teacherFilter = Utilities.getPrefString(
                     getContext(),
@@ -199,9 +210,10 @@ public class ScheduleDayFragment extends Fragment
             String[] teacherSubjects = teacherFilter.split(";");
 
             RealmQuery<Lesson> lessons = mRealm.where(Lesson.class)
-                    .equalTo("owners.day", mDay)
+                    .equalTo("owners.day", mDay) //Inverse Relationship
                     .and()
                     .beginGroup()
+                        //Lessons with empty teacher are changes
                         .equalTo("teacher", " ");
 
             for (String teacherSubject :
