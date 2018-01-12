@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import io.realm.DynamicRealm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmMigration;
+import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 import timber.log.Timber;
 
@@ -267,6 +269,45 @@ public class Utilities {
                     })
                     .build();
             io.realm.Realm.setDefaultConfiguration(config);
+        }
+
+
+        /**
+         * Get a query object that contains all the filter rules
+         * @return {@link RealmQuery} object with filter rules
+         */
+        public static RealmQuery<Lesson> getFilteredLessonsQuery(io.realm.Realm realm, Context context, int day) {
+            String teacherFilter = Utilities.getPrefString(
+                    context,
+                    Preferences.PREF_FILTER_SELECT_KEY);
+            String[] teacherSubjects = teacherFilter.split(";");
+
+            RealmQuery<Lesson> lessons = realm.where(Lesson.class)
+                    .equalTo("owners.day", day) //Inverse Relationship
+                    .and()
+                    .beginGroup()
+                    //Lessons with empty teacher are changes
+                    .equalTo("teacher", " ");
+
+            for (String teacherSubject :
+                    teacherSubjects) {
+                if (teacherSubject.equals("")) break;
+
+                String[] arr = teacherSubject.split(",");
+                String teacher = arr[0];
+                String subject = arr[1];
+
+                lessons.or()
+                        .beginGroup()
+                        .equalTo("teacher", teacher)
+                        .and()
+                        .equalTo("subject", subject)
+                        .endGroup();
+            }
+
+            lessons.endGroup();
+
+            return lessons;
         }
     }
 

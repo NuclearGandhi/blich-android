@@ -28,7 +28,6 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmList;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -149,7 +148,10 @@ public class ScheduleDayFragment extends Fragment
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
-                RealmResults<Lesson> lessons = getFilteredLessonsQuery()
+                RealmResults<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(
+                        mRealm,
+                        getContext(),
+                        mDay)
                         .findAll();
 
                 //Translate the lesson list to hour list
@@ -200,44 +202,6 @@ public class ScheduleDayFragment extends Fragment
         protected void onStopLoading() {
             super.onStopLoading();
             cancelLoad();
-        }
-
-        /**
-         * Get a query object that contains all the filter rules
-         * @return {@link RealmQuery} object with filter rules
-         */
-        private RealmQuery<Lesson> getFilteredLessonsQuery() {
-            String teacherFilter = Utilities.getPrefString(
-                    getContext(),
-                    Constants.Preferences.PREF_FILTER_SELECT_KEY);
-            String[] teacherSubjects = teacherFilter.split(";");
-
-            RealmQuery<Lesson> lessons = mRealm.where(Lesson.class)
-                    .equalTo("owners.day", mDay) //Inverse Relationship
-                    .and()
-                    .beginGroup()
-                        //Lessons with empty teacher are changes
-                        .equalTo("teacher", " ");
-
-            for (String teacherSubject :
-                    teacherSubjects) {
-                if (teacherSubject.equals("")) break;
-
-                String[] arr = teacherSubject.split(",");
-                String teacher = arr[0];
-                String subject = arr[1];
-
-                lessons.or()
-                        .beginGroup()
-                            .equalTo("teacher", teacher)
-                            .and()
-                            .equalTo("subject", subject)
-                        .endGroup();
-            }
-
-            lessons.endGroup();
-
-            return lessons;
         }
     }
 }
