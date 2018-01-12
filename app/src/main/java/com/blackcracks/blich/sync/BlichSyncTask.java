@@ -548,7 +548,9 @@ public class BlichSyncTask {
                 }
             }
 
+            //Save the number of changes in total;
             int changesNum = todayNotificationLessons.size() + tomorrowNotificationLessons.size();
+            if (changesNum == 0) return; //Stop
 
             String summery;
             if (changesNum == 1) summery = "ישנו שינוי אחד חדש";
