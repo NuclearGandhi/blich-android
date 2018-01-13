@@ -20,14 +20,12 @@ import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -154,27 +152,7 @@ public class ScheduleDayFragment extends Fragment
                         mDay)
                         .findAll();
 
-                //Translate the lesson list to hour list
-                results = new ArrayList<>();
-                for (Lesson lesson :
-                        lessons) {
-                    int hourNum = lesson.getOwners().get(0).getHour();
-                    Hour hour = null;
-
-                    for (Hour result :
-                            results) {
-                        if (result.getHour() == hourNum) hour = result;
-                    }
-
-                    if (hour == null) {
-                        RealmList<Lesson> lessonList = new RealmList<>();
-                        lessonList.add(lesson);
-                        hour = new Hour(mDay, hourNum, lessonList);
-                        results.add(hour);
-                    } else {
-                        hour.getLessons().add(lesson);
-                    }
-                }
+                results = Utilities.Realm.convertLessonListToHour(lessons, mDay);
 
                 //Sort the hours
                 Comparator<Hour> hourComparator = new Comparator<Hour>() {

@@ -27,6 +27,7 @@ import com.blackcracks.blich.util.Constants.Preferences;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Locale;
 
 import io.realm.DynamicRealm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 import io.realm.RealmMigration;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
@@ -308,6 +310,32 @@ public class Utilities {
             lessons.endGroup();
 
             return lessons;
+        }
+
+        public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {
+            //Translate the lesson list to hour list
+            List<Hour> results = new ArrayList<>();
+            for (Lesson lesson :
+                    lessons) {
+                int hourNum = lesson.getOwners().get(0).getHour();
+                Hour hour = null;
+
+                for (Hour result :
+                        results) {
+                    if (result.getHour() == hourNum) hour = result;
+                }
+
+                if (hour == null) {
+                    RealmList<Lesson> lessonList = new RealmList<>();
+                    lessonList.add(lesson);
+                    hour = new Hour(day, hourNum, lessonList);
+                    results.add(hour);
+                } else {
+                    hour.getLessons().add(lesson);
+                }
+            }
+
+            return results;
         }
 
         public static class RealmScheduleHelper {
