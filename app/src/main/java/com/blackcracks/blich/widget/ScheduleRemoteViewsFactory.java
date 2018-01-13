@@ -4,6 +4,8 @@ import android.content.Context;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
@@ -12,7 +14,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 import io.realm.Sort;
 
 public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
@@ -21,11 +22,11 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     private Realm mRealm;
 
     private int mDay;
-    private RealmWidgetHelper mRealmHelper;
+    private Utilities.Realm.RealmScheduleHelper mRealmHelper;
 
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
-        mRealmHelper = new RealmWidgetHelper(null);
+        mRealmHelper = new Utilities.Realm.RealmScheduleHelper(null);
 
         Calendar calendar = Calendar.getInstance();
         mDay = calendar.get(Calendar.DAY_OF_WEEK);
@@ -44,17 +45,20 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
                 Constants.Preferences.PREF_FILTER_TOGGLE_KEY
         );
 
-        RealmResults<Lesson> data;
+        List<Hour> data;
         if (isFilterOn) {
-            data = Utilities.Realm.getFilteredLessonsQuery(mRealm, mContext, mDay)
-                    .findAll();
+            List<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(mRealm, mContext, mDay)
+                    .findAll()
+                    .sort("owners.day", Sort.ASCENDING);
+
+            data = Utilities.Realm.convertLessonListToHour(lessons, mDay);
+
+
         } else {
-            data = mRealm.where(Lesson.class)
-                    .equalTo("owners.day", mDay)
+            data = mRealm.where(Hour.class)
+                    .equalTo("day", mDay)
                     .findAll();
         }
-
-        data.sort("owners.day", Sort.ASCENDING);
 
         mRealmHelper.switchData(data);
     }
@@ -66,12 +70,54 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public int getCount() {
-        return mRealmHelper.getCount();
+        int hourCount = mRealmHelper.getHourCount();
+        int lessonCount = 0;
+        for(int i = 0; i < hourCount; i++) {
+            lessonCount += mRealmHelper.getHour(i).getLessons().size();
+        }
+
+        return lessonCount;
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
-        return null;
+        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_item);
+        views.setTextViewText(
+                R.id.widget_schedule_hour,
+                Integer.toString(position + 1)); //position = hour - 1
+
+        views.removeAllViews(R.id.widget_schedule_group);
+
+        for (int i = 0; i < mRealmHelper.getHourCount(); i++) {
+            Lesson lesson = mRealmHelper.getHour(i).getLessons().get(i);
+            String subject = lesson.getSubject();
+            String lessonType = lesson.getChangeType();
+
+            int textColor = getColorFromType(lessonType);
+
+            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
+            info.setTextViewText(R.id.widget_schedule_subject, subject);
+            info.setTextColor(R.id.widget_schedule_subject, textColor);
+
+            views.addView(R.id.widget_schedule_group, info);
+        }
+
+        return views;
+    }
+
+    private int getColorFromType(String lessonType) {
+        switch (lessonType) {
+            case Constants.Database.TYPE_CANCELED:
+                return R.color.lesson_canceled;
+            case Constants.Database.TYPE_NEW_TEACHER:
+                return R.color.lesson_changed;
+            case Constants.Database.TYPE_EVENT:
+                return R.color.lesson_event;
+            case Constants.Database.TYPE_EXAM:
+                return R.color.lesson_exam;
+            default:
+                return R.color.black_text;
+        }
     }
 
     @Override
@@ -92,30 +138,5 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     @Override
     public boolean hasStableIds() {
         return true;
-    }
-
-    private class RealmWidgetHelper {
-
-        private List<Lesson> mData;
-        private boolean mIsDataValid;
-
-        RealmWidgetHelper(List<Lesson> data) {
-            switchData(data);
-        }
-
-        public void switchData(List<Lesson> data) {
-            mData = data;
-            if (mData == null) mIsDataValid = false;
-        }
-
-        public Lesson getLesson(int position) {
-            if (!mIsDataValid) return null;
-            return mData.get(position);
-        }
-
-        public int getCount() {
-            if (!mIsDataValid) return 0;
-            return mData.size();
-        }
     }
 }
