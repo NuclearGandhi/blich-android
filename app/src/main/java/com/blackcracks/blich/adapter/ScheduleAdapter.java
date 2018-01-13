@@ -18,16 +18,15 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private ExpandableListView mExpandableListView;
-    private RealmScheduleHelper mRealmScheduleHelper;
+    private Utilities.Realm.RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
@@ -39,7 +38,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         mStatusTextView = statusTextView;
         mExpandableListView = expandableListView;
 
-        mRealmScheduleHelper = new RealmScheduleHelper(null);
+        mRealmScheduleHelper = new Utilities.Realm.RealmScheduleHelper(null);
         mExpandedArray = new SparseBooleanArray();
     }
 
@@ -322,56 +321,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
             subjectView = view.findViewById(R.id.schedule_child_subject);
             classroomView = view.findViewById(R.id.schedule_child_classroom);
             teacherView = view.findViewById(R.id.schedule_child_teacher);
-        }
-    }
-
-    private class RealmScheduleHelper {
-        private List<Hour> mData;
-        private boolean mIsDataValid;
-
-        RealmScheduleHelper(List<Hour> data) {
-            switchData(data);
-        }
-
-        void switchData(List<Hour> data) {
-            mData = data;
-
-            try {
-                mIsDataValid = data != null && mData.size() != 0;
-            } catch (IllegalStateException e) { //In case Realm instance has been closed
-                mIsDataValid = false;
-                Timber.d("Realm has been closed");
-            }
-        }
-
-        boolean isDataValid() {
-            return mIsDataValid;
-        }
-
-        Hour getHour(int position) {
-            return mData.get(position);
-        }
-
-        Lesson getLesson(int position, int childPos) {
-            if (!mIsDataValid) return null;
-            Hour hour = getHour(position);
-            return hour.getLessons().get(childPos);
-        }
-
-        int getHourCount() {
-            if (mIsDataValid) {
-                return mData.size();
-            } else {
-                return 0;
-            }
-        }
-
-        int getChildCount(int position) {
-            if (mIsDataValid) {
-                return getHour(position).getLessons().size();
-            } else {
-                return 0;
-            }
         }
     }
 }

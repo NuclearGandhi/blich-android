@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncTask;
@@ -271,7 +272,6 @@ public class Utilities {
             io.realm.Realm.setDefaultConfiguration(config);
         }
 
-
         /**
          * Get a query object that contains all the filter rules
          * @return {@link RealmQuery} object with filter rules
@@ -308,6 +308,56 @@ public class Utilities {
             lessons.endGroup();
 
             return lessons;
+        }
+
+        public static class RealmScheduleHelper {
+            private List<Hour> mData;
+            private boolean mIsDataValid;
+
+            public RealmScheduleHelper(List<Hour> data) {
+                switchData(data);
+            }
+
+            public void switchData(List<Hour> data) {
+                mData = data;
+
+                try {
+                    mIsDataValid = data != null && mData.size() != 0;
+                } catch (IllegalStateException e) { //In case Realm instance has been closed
+                    mIsDataValid = false;
+                    Timber.d("Realm has been closed");
+                }
+            }
+
+            public boolean isDataValid() {
+                return mIsDataValid;
+            }
+
+            public Hour getHour(int position) {
+                return mData.get(position);
+            }
+
+            public Lesson getLesson(int position, int childPos) {
+                if (!mIsDataValid) return null;
+                Hour hour = getHour(position);
+                return hour.getLessons().get(childPos);
+            }
+
+            public int getHourCount() {
+                if (mIsDataValid) {
+                    return mData.size();
+                } else {
+                    return 0;
+                }
+            }
+
+            public int getChildCount(int position) {
+                if (mIsDataValid) {
+                    return getHour(position).getLessons().size();
+                } else {
+                    return 0;
+                }
+            }
         }
     }
 
