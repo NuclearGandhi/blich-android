@@ -40,6 +40,7 @@ public class BlichFirebaseJobService extends JobService {
             @Override
             protected void onPostExecute(Void aVoid) {
                 jobFinished(jobParameters, false);
+                Utilities.updateWidget(getBaseContext());
             }
         };
 

@@ -16,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Utilities;
 
 public class BlichSyncIntentService extends IntentService {
 
@@ -27,6 +28,7 @@ public class BlichSyncIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         int status = BlichSyncTask.syncBlich(getApplicationContext());
         sendBroadcast(getApplicationContext(), status);
+        Utilities.updateWidget(getApplicationContext());
     }
 
     private static void sendBroadcast(Context context, @BlichSyncTask.FetchStatus int status) {

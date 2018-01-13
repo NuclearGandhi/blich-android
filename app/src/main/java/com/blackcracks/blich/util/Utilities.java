@@ -3,6 +3,8 @@ package com.blackcracks.blich.util;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -16,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
@@ -26,6 +29,7 @@ import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.widget.BlichWidgetProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -257,6 +261,14 @@ public class Utilities {
         config.setLocale(locale);
         context.getApplicationContext().createConfigurationContext(config);
 
+    }
+
+
+    public static void updateWidget(Context context) {
+        ComponentName widget = new ComponentName(context, BlichWidgetProvider.class);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule);
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
+        widgetManager.updateAppWidget(widget, views);
     }
 
     public static class Realm {
