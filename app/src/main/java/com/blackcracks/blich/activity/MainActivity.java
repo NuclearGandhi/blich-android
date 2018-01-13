@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,8 +28,6 @@ import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.Locale;
-
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //Initialization stuff
-        setLocaleToHebrew();
+        Utilities.setLocaleToHebrew(this);
         Utilities.Realm.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
 
@@ -157,16 +154,6 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.createNotificationChannel(scheduleChannel);
-    }
-
-    private void setLocaleToHebrew() {
-        //Change locale to hebrew
-        Locale locale = new Locale("iw");
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getApplicationContext().createConfigurationContext(config);
-
     }
 
     private void setupDrawer() {

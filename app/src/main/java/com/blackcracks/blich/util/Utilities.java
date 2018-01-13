@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -246,6 +247,16 @@ public class Utilities {
                             })
                     .show();
         }
+    }
+
+    public static void setLocaleToHebrew(Context context) {
+        //Change locale to hebrew
+        Locale locale = new Locale("iw");
+        Locale.setDefault(locale);
+        Configuration config = context.getResources().getConfiguration();
+        config.setLocale(locale);
+        context.getApplicationContext().createConfigurationContext(config);
+
     }
 
     public static class Realm {
