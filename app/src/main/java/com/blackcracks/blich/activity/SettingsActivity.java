@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.activity;
 
 import android.content.Intent;
@@ -9,6 +16,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
@@ -27,6 +35,10 @@ import com.blackcracks.blich.util.Utilities;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final String FRAGMENT_KEY = "fragment_settings";
+
+    private Fragment mFragment;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,9 +53,25 @@ public class SettingsActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_forward_white_24dp);
         }
 
+        if (savedInstanceState != null) {
+            mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_KEY);
+        } else {
+            mFragment = new SettingsFragment();
+        }
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment, new SettingsFragment())
+                .replace(R.id.fragment, mFragment)
                 .commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager().putFragment(
+                outState,
+                FRAGMENT_KEY,
+                mFragment
+        );
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat
