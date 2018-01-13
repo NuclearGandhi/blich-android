@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -269,6 +270,16 @@ public class Utilities {
                                 oldVersion++;
                             }
                         }
+
+                        @Override
+                        public int hashCode() {
+                            return 37;
+                        }
+
+                        @Override
+                        public boolean equals(Object obj) {
+                            return obj instanceof RealmMigration;
+                        }
                     })
                     .build();
             io.realm.Realm.setDefaultConfiguration(config);
@@ -318,6 +329,32 @@ public class Utilities {
             for (Lesson lesson :
                     lessons) {
                 int hourNum = lesson.getOwners().get(0).getHour();
+                Hour hour = null;
+
+                for (Hour result :
+                        results) {
+                    if (result.getHour() == hourNum) hour = result;
+                }
+
+                if (hour == null) {
+                    RealmList<Lesson> lessonList = new RealmList<>();
+                    lessonList.add(lesson);
+                    hour = new Hour(day, hourNum, lessonList);
+                    results.add(hour);
+                } else {
+                    hour.getLessons().add(lesson);
+                }
+            }
+
+            return results;
+        }
+
+        public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day, SparseIntArray hourArr) {
+            //Translate the lesson list to hour list
+            List<Hour> results = new ArrayList<>();
+            for (int i = 0; i < lessons.size(); i++) {
+                Lesson lesson = lessons.get(i);
+                int hourNum = hourArr.get(i);
                 Hour hour = null;
 
                 for (Hour result :

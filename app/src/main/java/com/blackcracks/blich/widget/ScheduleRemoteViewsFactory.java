@@ -1,6 +1,7 @@
 package com.blackcracks.blich.widget;
 
 import android.content.Context;
+import android.util.SparseIntArray;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -10,7 +11,8 @@ import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
@@ -28,17 +30,17 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
         mContext = context;
         mRealmHelper = new Utilities.Realm.RealmScheduleHelper(null);
 
-        Calendar calendar = Calendar.getInstance();
-        mDay = calendar.get(Calendar.DAY_OF_WEEK);
+        mDay = Utilities.Schedule.getWantedDayOfTheWeek();
     }
 
     @Override
     public void onCreate() {
-        mRealm = Realm.getDefaultInstance();
+        Utilities.Realm.setUpRealm(mContext);
     }
 
     @Override
     public void onDataSetChanged() {
+        mRealm = Realm.getDefaultInstance();
 
         boolean isFilterOn = Utilities.getPrefBoolean(
                 mContext,
@@ -48,35 +50,47 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
         List<Hour> data;
         if (isFilterOn) {
             List<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(mRealm, mContext, mDay)
-                    .findAll()
-                    .sort("owners.day", Sort.ASCENDING);
+                    .findAll();
 
-            data = Utilities.Realm.convertLessonListToHour(lessons, mDay);
+            SparseIntArray hourArr = new SparseIntArray();
+            for (int i = 0; i < lessons.size(); i++) {
+                hourArr.append(i, lessons.get(i).getOwners().get(0).getHour());
+            }
 
+            lessons = mRealm.copyFromRealm(lessons);
+
+            data = Utilities.Realm.convertLessonListToHour(lessons, mDay, hourArr);
+
+            Comparator<Hour> hourComparator = new Comparator<Hour>() {
+                @Override
+                public int compare(Hour o1, Hour o2) {
+                    if (o1.getHour() > o2.getHour()) return 1;
+                    else if (o1.getHour() == o2.getHour()) return 0;
+                    else return -1;
+                }
+            };
+
+            Collections.sort(data, hourComparator);
 
         } else {
             data = mRealm.where(Hour.class)
                     .equalTo("day", mDay)
+                    .sort("day", Sort.ASCENDING)
                     .findAll();
+
+            data = mRealm.copyFromRealm(data);
         }
-
-        mRealmHelper.switchData(data);
-    }
-
-    @Override
-    public void onDestroy() {
+        switchData(data);
         mRealm.close();
     }
 
     @Override
-    public int getCount() {
-        int hourCount = mRealmHelper.getHourCount();
-        int lessonCount = 0;
-        for(int i = 0; i < hourCount; i++) {
-            lessonCount += mRealmHelper.getHour(i).getLessons().size();
-        }
+    public void onDestroy() {
+    }
 
-        return lessonCount;
+    @Override
+    public int getCount() {
+        return mRealmHelper.getHourCount();
     }
 
     @Override
@@ -91,8 +105,9 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
         views.removeAllViews(R.id.widget_schedule_group);
 
-        for (int i = 0; i < mRealmHelper.getHourCount(); i++) {
-            Lesson lesson = mRealmHelper.getHour(i).getLessons().get(i);
+
+        for (int i = 0; i < mRealmHelper.getHour(position).getLessons().size(); i++) {
+            Lesson lesson = mRealmHelper.getHour(position).getLessons().get(i);
             String subject = lesson.getSubject();
             String lessonType = lesson.getChangeType();
 
@@ -130,7 +145,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -141,5 +156,10 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     @Override
     public boolean hasStableIds() {
         return true;
+    }
+
+    private void switchData(List<Hour> data) {
+        mRealmHelper.switchData(data);
+
     }
 }
