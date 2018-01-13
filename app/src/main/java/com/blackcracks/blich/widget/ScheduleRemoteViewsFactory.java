@@ -81,10 +81,13 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public RemoteViews getViewAt(int position) {
+
+        int hour = mRealmHelper.getHour(position).getHour();
+
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_item);
         views.setTextViewText(
                 R.id.widget_schedule_hour,
-                Integer.toString(position + 1)); //position = hour - 1
+                Integer.toString(hour));
 
         views.removeAllViews(R.id.widget_schedule_group);
 
