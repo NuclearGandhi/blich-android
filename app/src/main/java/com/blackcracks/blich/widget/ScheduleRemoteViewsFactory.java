@@ -8,6 +8,7 @@ import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
+import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
@@ -22,10 +23,12 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     private int mDay;
     private RealmWidgetHelper mRealmHelper;
 
-    public ScheduleRemoteViewsFactory(Context context, int day) {
+    public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
-        mDay = day;
         mRealmHelper = new RealmWidgetHelper(null);
+
+        Calendar calendar = Calendar.getInstance();
+        mDay = calendar.get(Calendar.DAY_OF_WEEK);
     }
 
     @Override

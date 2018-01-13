@@ -7,6 +7,6 @@ public class ScheduleRemoteViewsService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new ScheduleRemoteViewsFactory();
+        return new ScheduleRemoteViewsFactory(getApplicationContext());
     }
 }

@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
@@ -38,13 +37,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, day);
 
-        Locale locale;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            locale = context.getResources().getConfiguration().getLocales().get(0);
-        } else {
-            locale = context.getResources().getConfiguration().locale;
-        }
-
+        Locale locale = new Locale("iw");
         views.setTextViewText(
                 R.id.widget_schedule_title,
                 "מערכת שעות - " + calendar.getDisplayName(
