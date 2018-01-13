@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
@@ -44,6 +45,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
                         Calendar.DAY_OF_WEEK,
                         Calendar.LONG,
                         locale));
+        views.setTextColor(R.id.widget_schedule_title, Color.WHITE);
 
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);
