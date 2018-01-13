@@ -1,7 +1,7 @@
 package com.blackcracks.blich.widget;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.util.SparseIntArray;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -116,7 +116,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
             RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
             info.setTextViewText(R.id.widget_schedule_subject, subject);
-            info.setTextColor(R.id.widget_schedule_subject, textColor);
+            info.setTextColor(R.id.widget_schedule_subject, ContextCompat.getColor(mContext, textColor));
 
             views.addView(R.id.widget_schedule_group, info);
         }
@@ -135,7 +135,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
             case Constants.Database.TYPE_EXAM:
                 return R.color.lesson_exam;
             default:
-                return Color.BLACK;
+                return R.color.black_text;
         }
     }
 
