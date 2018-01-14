@@ -54,7 +54,7 @@ public class ExamAdapter extends CursorAdapter {
             int year = date.get(Calendar.YEAR);
 
             TextView monthDivider = (TextView) LayoutInflater.from(mContext)
-                    .inflate(R.layout.exam_month_divider, parent);
+                    .inflate(R.layout.exam_month_divider, parent, false);
 
             String monthText = month + " " + year;
             monthDivider.setText(monthText);
