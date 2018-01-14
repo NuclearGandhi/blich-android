@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
+    private NavigationView mNavigationView;
 
     @SuppressLint("InflateParams")
     @Override
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             mFragment = new ScheduleFragment();
         }
         replaceFragment(mFragment, false);
-
+        setupBackPress();
 
         //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -157,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDrawer() {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(0).setChecked(true);
-        navigationView.setNavigationItemSelectedListener(
+        mNavigationView = findViewById(R.id.nav_view);
+        mNavigationView.getMenu().getItem(0).setChecked(true);
+        mNavigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -193,6 +194,28 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         return false;
+                    }
+                }
+        );
+    }
+
+    private void setupBackPress() {
+        getSupportFragmentManager().addOnBackStackChangedListener(
+                new android.support.v4.app.FragmentManager.OnBackStackChangedListener() {
+                    @Override
+                    public void onBackStackChanged() {
+                        mFragment = getSupportFragmentManager().findFragmentById(R.id.fragment);
+
+                        int itemToCheck = 0;
+                        if (mFragment instanceof ScheduleFragment) {
+                            itemToCheck = R.id.schedule;
+                        } else if (mFragment instanceof ExamsFragment) {
+                            itemToCheck = R.id.exams;
+                        } else if (mFragment instanceof NewsFragment) {
+                            itemToCheck = R.id.news;
+                        }
+
+                        mNavigationView.setCheckedItem(itemToCheck);
                     }
                 }
         );
