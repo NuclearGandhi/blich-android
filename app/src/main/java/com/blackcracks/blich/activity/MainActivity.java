@@ -27,12 +27,19 @@ import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Utilities;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
+
+    private static final String EVENT_CHANGE_FRAGMENT = "change_fragment";
+    private static final String EVENT_PARAM_FRAGMENT = "fragment";
+
+    private static final String EVENT_OPEN_ACTIVITY = "open_activity";
+    private static final String EVENT_PARAM_ACTIVITY = "activity";
 
     //Key to store whether this is the first time MainActivity is created in the app process
     private static final String IS_FIRST_INSTANCE_KEY = "is_first";
@@ -42,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+    private FirebaseAnalytics mFirebaseAnalytic;
 
     @SuppressLint("InflateParams")
     @Override
@@ -52,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
         Utilities.setLocaleToHebrew(this);
         Utilities.Realm.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
-
+        setupFirstLaunch(savedInstanceState);
+        mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 
         //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
@@ -71,26 +80,6 @@ public class MainActivity extends AppCompatActivity {
         //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         setupDrawer();
-
-        //Open a class picker dialog in case this is the first time the user opened the app
-        boolean isFirstLaunch = Utilities.isFirstLaunch(this);
-        if (isFirstLaunch) {
-            ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
-            dialogFragment.show(getSupportFragmentManager(), "choose_class");
-            dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
-                @Override
-                public void onDestroy(Context context) {
-                    //Start the periodic sync
-                    BlichSyncUtils.initialize(context);
-                    Utilities.initializeBlichDataUpdater(context, mRootView);
-                }
-            });
-        } else {
-            if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                BlichSyncUtils.initialize(this);
-                Utilities.initializeBlichDataUpdater(this, mRootView);
-            }
-        }
 
         //Create notification channels
         if (Build.VERSION.SDK_INT >= 26) {
@@ -125,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
     //replace the fragment
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {
-
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment, fragment, FRAGMENT_TAG);
@@ -135,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
         }
         transaction.commit();
         mFragment = fragment;
+
+        logChangeFragment(mFragment.getClass());
     }
 
     @RequiresApi(api = 26)
@@ -155,6 +145,29 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.createNotificationChannel(scheduleChannel);
+    }
+
+    private void setupFirstLaunch(Bundle savedInstanceState) {
+
+        //Open a class picker dialog in case this is the first time the user opened the app
+        boolean isFirstLaunch = Utilities.isFirstLaunch(this);
+        if (isFirstLaunch) {
+            ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "choose_class");
+            dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
+                @Override
+                public void onDestroy(Context context) {
+                    //Start the periodic sync
+                    BlichSyncUtils.initialize(context);
+                    Utilities.initializeBlichDataUpdater(context, mRootView);
+                }
+            });
+        } else {
+            if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
+                BlichSyncUtils.initialize(this);
+                Utilities.initializeBlichDataUpdater(this, mRootView);
+            }
+        }
     }
 
     private void setupDrawer() {
@@ -185,11 +198,15 @@ public class MainActivity extends AppCompatActivity {
                             case R.id.about: {
                                 Intent intent = new Intent(MainActivity.this, AboutActivity.class);
                                 startActivity(intent);
+
+                                logOpenActivity(AboutActivity.class);
                                 return true;
                             }
                             case R.id.settings: {
                                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                                 startActivity(intent);
+
+                                logOpenActivity(SettingsActivity.class);
                                 return true;
                             }
                         }
@@ -216,8 +233,22 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         mNavigationView.setCheckedItem(itemToCheck);
+
+                        logChangeFragment(mFragment.getClass());
                     }
                 }
         );
+    }
+
+    private void logChangeFragment(Class fragment) {
+        Bundle bundle = new Bundle();
+        bundle.putString(EVENT_PARAM_FRAGMENT, fragment.getSimpleName());
+        mFirebaseAnalytic.logEvent(EVENT_CHANGE_FRAGMENT, bundle);
+    }
+
+    private void logOpenActivity(Class activity) {
+        Bundle bundle = new Bundle();
+        bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
+        mFirebaseAnalytic.logEvent(EVENT_OPEN_ACTIVITY, bundle);
     }
 }
