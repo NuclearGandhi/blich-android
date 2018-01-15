@@ -137,6 +137,8 @@ public class ScheduleDayFragment extends Fragment
         protected void onStartLoading() {
             super.onStartLoading();
 
+            if (mRealm.isClosed()) return;
+
             //Check if the user wants to filter the schedule
             boolean isFilterOn = Utilities.getPrefBoolean(
                     getContext(),
