@@ -104,20 +104,20 @@ public class BlichSyncTask {
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
 
     private static final String EXAMS_TABLE_ID = "ChangesList";
-    
-    
+
+
     private static List<Hour> sHourNotificationList = new ArrayList<>();
 
-    public static @FetchStatus int syncBlich(Context context) {
-        /*
-        Start the fetch.
-        If there is a problem while fetching, send the status in the broadcast.
-         */
+    /**
+     * Start the fetch.
+     * If there is a problem while fetching, send the status in the broadcast.
+     */
+    public static @FetchStatus
+    int syncBlich(Context context) {
         int status;
         if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
                 (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
-        }
-        else {
+        } else {
             notifyUser(context);
             long currentTime = Calendar.getInstance().getTimeInMillis();
             PreferenceManager.getDefaultSharedPreferences(context).edit()
@@ -128,7 +128,8 @@ public class BlichSyncTask {
         return status;
     }
 
-    private static @FetchStatus int syncSchedule(Context context) {
+    private static @FetchStatus
+    int syncSchedule(Context context) {
 
         int classValue = 0;
         BufferedReader reader = null;
@@ -322,7 +323,8 @@ public class BlichSyncTask {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private static @FetchStatus int syncExams(Context context) {
+    private static @FetchStatus
+    int syncExams(Context context) {
 
         int classValue;
         BufferedReader reader = null;
@@ -422,7 +424,7 @@ public class BlichSyncTask {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private static int getClassValue(Context context) 
+    private static int getClassValue(Context context)
             throws BlichFetchException {
         String currentClass = Utilities.Class.getCurrentClass(context);
         String selection;
@@ -460,7 +462,7 @@ public class BlichSyncTask {
         cursor.close();
         return classValue;
     }
-    
+
     private static boolean canAddToNotificationList(Hour hour) {
 
         Calendar calendar = Calendar.getInstance();
@@ -472,7 +474,7 @@ public class BlichSyncTask {
 
         if (hourDay == today || hourDay == tomorrow) {
             List<Lesson> lessons = hour.getLessons();
-            for (Lesson lesson:
+            for (Lesson lesson :
                     lessons) {
                 if (lesson.getChangeType().equals(Database.TYPE_NORMAL))
                     return true;
