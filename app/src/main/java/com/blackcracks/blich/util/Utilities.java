@@ -51,9 +51,6 @@ import timber.log.Timber;
 
 public class Utilities {
 
-    private static final String EVENT_BEGIN_SYNC = "begin_sync";
-    private static final String EVENT_END_SYNC = "end_sync";
-
     public static boolean isThereNetworkConnection(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -149,11 +146,7 @@ public class Utilities {
     //Call BlichSyncTask to begin a sync
     public static void updateBlichData(Context context, View view) {
 
-        //Log the beginning of sync
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
-
-        boolean isConnected;
+        boolean isConnected = false;
         boolean isFetching = getPrefBoolean(
                 context,
                 Preferences.PREF_IS_SYNCING_KEY
