@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -30,6 +31,7 @@ import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.widget.BlichWidgetProvider;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,8 +51,8 @@ import timber.log.Timber;
 
 public class Utilities {
 
-    private static final String TAG = Utilities.class.getSimpleName();
-
+    private static final String EVENT_BEGIN_SYNC = "begin_sync";
+    private static final String EVENT_END_SYNC = "end_sync";
 
     public static boolean isThereNetworkConnection(Context context) {
         ConnectivityManager cm =
@@ -147,7 +149,11 @@ public class Utilities {
     //Call BlichSyncTask to begin a sync
     public static void updateBlichData(Context context, View view) {
 
-        boolean isConnected = false;
+        //Log the beginning of sync
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
+
+        boolean isConnected;
         boolean isFetching = getPrefBoolean(
                 context,
                 Preferences.PREF_IS_SYNCING_KEY
@@ -176,6 +182,10 @@ public class Utilities {
                                       final View view,
                                       @BlichSyncTask.FetchStatus int status,
                                       @Nullable FragmentManager fragmentManager) {
+
+        //Log the end of sync
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        firebaseAnalytics.logEvent(EVENT_END_SYNC, Bundle.EMPTY);
 
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
