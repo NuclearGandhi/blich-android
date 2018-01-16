@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,7 @@ import com.blackcracks.blich.data.Schedule;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -61,6 +63,11 @@ import timber.log.Timber;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 public class BlichSyncTask {
+
+    private static final String EVENT_BEGIN_SYNC = "begin_sync";
+    private static final String EVENT_END_SYNC = "end_sync";
+
+    private static final String PARAM_STATUS_SYNC = "status";
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
@@ -114,6 +121,10 @@ public class BlichSyncTask {
      */
     public static @FetchStatus
     int syncBlich(Context context) {
+        //Log the beginning of sync
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
+
         int status;
         if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
                 (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
@@ -125,6 +136,11 @@ public class BlichSyncTask {
                     .apply();
         }
 
+
+        //Log the end of sync
+        Bundle bundle = new Bundle();
+        bundle.putInt(PARAM_STATUS_SYNC, status);
+        firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
         return status;
     }
 

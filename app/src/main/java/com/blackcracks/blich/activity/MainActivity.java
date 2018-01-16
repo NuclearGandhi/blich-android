@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Utilities.Realm.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
         setupFirstLaunch(savedInstanceState);
+
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 
         //Link to the layout
@@ -122,9 +123,9 @@ public class MainActivity extends AppCompatActivity {
             transaction.addToBackStack(null);
         }
         transaction.commit();
-        mFragment = fragment;
 
-        logChangeFragment(mFragment.getClass());
+        if (fragment != mFragment) logChangeFragment(mFragment.getClass());
+        mFragment = fragment;
     }
 
     @RequiresApi(api = 26)
@@ -221,20 +222,21 @@ public class MainActivity extends AppCompatActivity {
                 new android.support.v4.app.FragmentManager.OnBackStackChangedListener() {
                     @Override
                     public void onBackStackChanged() {
-                        mFragment = getSupportFragmentManager().findFragmentById(R.id.fragment);
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment);
 
                         int itemToCheck = 0;
-                        if (mFragment instanceof ScheduleFragment) {
+                        if (fragment instanceof ScheduleFragment) {
                             itemToCheck = R.id.schedule;
-                        } else if (mFragment instanceof ExamsFragment) {
+                        } else if (fragment instanceof ExamsFragment) {
                             itemToCheck = R.id.exams;
-                        } else if (mFragment instanceof NewsFragment) {
+                        } else if (fragment instanceof NewsFragment) {
                             itemToCheck = R.id.news;
                         }
 
-                        mNavigationView.setCheckedItem(itemToCheck);
+                        if (mFragment != fragment) logChangeFragment(mFragment.getClass());
+                        mFragment = fragment;
 
-                        logChangeFragment(mFragment.getClass());
+                        mNavigationView.setCheckedItem(itemToCheck);
                     }
                 }
         );
