@@ -2,6 +2,7 @@ package com.blackcracks.blich.fragment;
 
 
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -15,7 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.blackcracks.blich.R;
@@ -76,7 +77,7 @@ public class ScheduleFragment extends BlichBaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         final MenuItem filter = menu.findItem(R.id.action_filter_toggle);
-        ImageView icon = (ImageView) LayoutInflater.from(getContext())
+        ImageButton icon = (ImageButton) LayoutInflater.from(getContext())
                 .inflate(R.layout.menu_filter_list, null, false);
         filter.setActionView(icon);
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
@@ -88,65 +89,27 @@ public class ScheduleFragment extends BlichBaseFragment {
             }
         });
 
-        icon.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            icon.setTooltipText(getString(R.string.action_button_filter_toggle));
+        } else {
+            icon.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
 
-                int x = v.getLeft();
-                int y = v.getTop() + 2*v.getHeight();
-                Toast toast = Toast.makeText(getContext(), R.string.action_button_filter_toggle, Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.TOP|Gravity.END, x, y);
-                toast.show();
-                return true;
-            }
-        });
+                    int x = v.getLeft();
+                    int y = v.getTop() + 2 * v.getHeight();
+                    Toast toast = Toast.makeText(getContext(), R.string.action_button_filter_toggle, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP | Gravity.END, x, y);
+                    toast.show();
+                    return true;
+                }
+            });
+        }
 
         if (!isFilterOn) {
             icon.setImageDrawable(
                     ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
             );
-        }
-    }
-
-    private void toggleFilterAction(MenuItem item) {
-        String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
-        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-                .edit()
-                .putBoolean(prefKey, !isFilterOn)
-                .apply();
-
-        final ImageView icon = (ImageView) item.getActionView();
-        if (isFilterOn) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                //Begin animation
-                AnimatedVectorDrawable animated = (AnimatedVectorDrawable)
-                        ContextCompat.getDrawable(getContext(), R.drawable.anim_ant_man);
-
-                icon.setImageDrawable(animated);
-
-                Handler handler = new Handler();
-                animated.start();
-                handler.postDelayed(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                //Change image
-                                icon.setImageDrawable(
-                                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp));
-                            }
-                        },
-                        1539);
-            } else {
-                //Change image
-                icon.setImageDrawable(
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
-                );
-            }
-        } else {
-            //Change image
-            icon.setImageDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
         }
     }
 
@@ -163,6 +126,51 @@ public class ScheduleFragment extends BlichBaseFragment {
             }
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    private void toggleFilterAction(MenuItem item) {
+        String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .edit()
+                .putBoolean(prefKey, !isFilterOn)
+                .apply();
+
+        final ImageButton icon = (ImageButton) item.getActionView();
+        if (isFilterOn) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                //Begin animation
+                AnimatedVectorDrawable animated = (AnimatedVectorDrawable)
+                        ContextCompat.getDrawable(getContext(), R.drawable.anim_ant_man);
+
+                icon.setImageDrawable(animated);
+
+                Handler handler = new Handler();
+                animated.start();
+                icon.setEnabled(false);
+                handler.postDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                //Change image
+                                icon.setImageDrawable(
+                                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp));
+                                icon.setEnabled(true);
+                            }
+                        },
+                        500);
+            } else {
+                //Change image
+                icon.setImageDrawable(
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
+                );
+            }
+        } else {
+            //Change image
+            icon.setImageDrawable(
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
         }
     }
 }

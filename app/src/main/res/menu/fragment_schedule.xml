@@ -5,14 +5,14 @@
     tools:context=".fragment.ScheduleFragment">
 
     <item
+        android:id="@+id/action_filter_toggle"
+        android:title="@string/action_button_filter_toggle"
+        android:actionLayout="@layout/menu_filter_list"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="@string/action_button_refresh"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_filter_toggle"
-        android:title="@string/action_button_filter_toggle"
-        android:actionLayout="@layout/menu_filter_list"
-        app:showAsAction="ifRoom"/>
 </menu>
