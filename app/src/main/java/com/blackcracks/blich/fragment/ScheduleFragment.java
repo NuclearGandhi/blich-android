@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -90,8 +91,12 @@ public class ScheduleFragment extends BlichBaseFragment {
         icon.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(getContext(), R.string.action_button_filter_toggle, Toast.LENGTH_SHORT)
-                        .show();
+
+                int x = v.getLeft();
+                int y = v.getTop() + 2*v.getHeight();
+                Toast toast = Toast.makeText(getContext(), R.string.action_button_filter_toggle, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.TOP|Gravity.END, x, y);
+                toast.show();
                 return true;
             }
         });

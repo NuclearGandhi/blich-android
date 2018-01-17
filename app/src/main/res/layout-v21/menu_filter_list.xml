@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) Ido Fang Bentov - All Rights Reserved
   ~ Unauthorized copying of this file, via any medium is strictly prohibited
@@ -12,7 +11,7 @@
     style="@android:style/Widget.ActionButton"
     android:layout_width="24dp"
     android:layout_height="24dp"
-    android:background="?android:selectableItemBackground"
+    android:background="?android:selectableItemBackgroundBorderless"
     tools:ignore="ContentDescription">
 
 </ImageView>
