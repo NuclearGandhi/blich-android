@@ -1,7 +1,9 @@
 package com.blackcracks.blich.fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -17,7 +19,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Collections;
@@ -32,8 +34,9 @@ import io.realm.Sort;
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
-public class ScheduleDayFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<List<Hour>>{
+public class ScheduleDayFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<List<Hour>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String DAY_KEY = "day";
 
@@ -91,9 +94,23 @@ public class ScheduleDayFragment extends Fragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         mRealm.addChangeListener(mChangeListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -116,6 +133,13 @@ public class ScheduleDayFragment extends Fragment
     @Override
     public void onLoaderReset(Loader<List<Hour>> loader) {
         mAdapter.switchData(null);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY))) {
+            getLoaderManager().restartLoader(SCHEDULE_LOADER_ID, Bundle.EMPTY, this);
+        }
     }
 
     private static class ScheduleLoader extends Loader<List<Hour>> {
@@ -142,7 +166,7 @@ public class ScheduleDayFragment extends Fragment
             //Check if the user wants to filter the schedule
             boolean isFilterOn = Utilities.getPrefBoolean(
                     getContext(),
-                    Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
+                    Preferences.PREF_FILTER_TOGGLE_KEY);
 
             List<Hour> results;
 

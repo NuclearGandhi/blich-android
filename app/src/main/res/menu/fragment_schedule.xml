@@ -12,7 +12,7 @@
 
     <item
         android:id="@+id/action_filter_toggle"
-        android:icon="@drawable/ic_filter_list_white_24dp"
         android:title="@string/action_button_filter_toggle"
+        android:actionLayout="@layout/menu_filter_list"
         app:showAsAction="ifRoom"/>
 </menu>
