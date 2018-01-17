@@ -9,4 +9,10 @@
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="@string/action_button_refresh"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_filter_toggle"
+        android:icon="@drawable/ic_filter_list_white_24dp"
+        android:title="@string/action_button_filter_toggle"
+        app:showAsAction="ifRoom"/>
 </menu>

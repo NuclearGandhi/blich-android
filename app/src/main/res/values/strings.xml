@@ -7,6 +7,7 @@
     <string name="content_authority">com.blackcracks.blich</string>
 
     <string name="action_button_refresh">עדכן</string>
+    <string name="action_button_filter_toggle">סינון</string>
 
     <string name="pref_class_picker_key">class_picker</string>
     <string name="pref_class_picker_title">כיתה</string>
