@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
@@ -83,6 +84,15 @@ public class ScheduleFragment extends BlichBaseFragment {
             @Override
             public void onClick(View v) {
                 toggleFilterAction(filter);
+            }
+        });
+
+        icon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getContext(), R.string.action_button_filter_toggle, Toast.LENGTH_SHORT)
+                        .show();
+                return true;
             }
         });
 
