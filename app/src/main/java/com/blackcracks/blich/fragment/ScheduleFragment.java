@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -136,7 +137,6 @@ public class ScheduleFragment extends BlichBaseFragment {
         }
     }
 
-
     private void toggleFilterAction(MenuItem item) {
 
         //Get the filter toggle state and reverse it
@@ -149,30 +149,10 @@ public class ScheduleFragment extends BlichBaseFragment {
 
         //Get the action view
         final ImageButton icon = (ImageButton) item.getActionView();
-        if (isFilterOn) {
+        if (isFilterOn) { //We need to disable it
             //If API > 21, start an animation, else simply change the image
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                //Begin animation
-                AnimatedVectorDrawable animated = (AnimatedVectorDrawable)
-                        ContextCompat.getDrawable(getContext(), R.drawable.anim_ant_man);
-
-                icon.setImageDrawable(animated);
-                animated.start();
-
-                //Disable the button while animating
-                Handler handler = new Handler();
-                icon.setEnabled(false);
-                handler.postDelayed(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                //Change image
-                                icon.setImageDrawable(
-                                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp));
-                                icon.setEnabled(true);
-                            }
-                        },
-                        500);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                startFilterActionAnimation(icon, false);
             } else {
                 //Change image
                 icon.setImageDrawable(
@@ -180,9 +160,47 @@ public class ScheduleFragment extends BlichBaseFragment {
                 );
             }
         } else {
-            //Change image
-            icon.setImageDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
+            //If API > 21, start an animation, else simply change the image
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                startFilterActionAnimation(icon, true);
+            } else {
+                //Change image
+                icon.setImageDrawable(
+                        ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
+            }
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void startFilterActionAnimation(final ImageButton icon, final boolean enable) {
+        //Get the drawable id
+        int drawableId;
+        if (enable) drawableId = R.drawable.anim_enable_filter_man;
+        else drawableId = R.drawable.anim_disable_filter;
+
+        AnimatedVectorDrawable animated = (AnimatedVectorDrawable)
+                ContextCompat.getDrawable(getContext(), drawableId);
+
+        //Begin the animation
+        icon.setImageDrawable(animated);
+        animated.start();
+
+        //Disable the button while animating
+        Handler handler = new Handler();
+        icon.setEnabled(false);
+        handler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        //Change image at the end of the animation
+                        int imageId;
+                        if (enable) imageId = R.drawable.ic_filter_list_white_24dp;
+                        else imageId = R.drawable.ic_disabled_filter_list_white_24dp;
+                        icon.setImageDrawable(
+                                ContextCompat.getDrawable(getContext(), imageId));
+                        icon.setEnabled(true);
+                    }
+                },
+                500);
     }
 }
