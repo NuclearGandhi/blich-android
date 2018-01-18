@@ -99,10 +99,14 @@ public abstract class BlichBaseFragment extends Fragment implements
         mFragmentManager = activity.getSupportFragmentManager();
     }
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(getMenuResource(), menu);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override

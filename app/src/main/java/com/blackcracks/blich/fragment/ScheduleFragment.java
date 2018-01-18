@@ -144,9 +144,12 @@ public class ScheduleFragment extends BlichBaseFragment {
         //Get the filter toggle state
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
         //Set the correct image according to the filter toggle state
-        if (!isFilterOn && mFilterActionButton != null) {
+        if (mFilterActionButton != null) {
+            int drawableId;
+            if (isFilterOn) drawableId = R.drawable.ic_filter_list_white_24dp;
+            else drawableId = R.drawable.ic_disabled_filter_list_white_24dp;
             mFilterActionButton.setImageDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
+                    ContextCompat.getDrawable(getContext(), drawableId)
             );
         }
     }
