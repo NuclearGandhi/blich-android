@@ -130,9 +130,6 @@ public class ScheduleFragment extends BlichBaseFragment {
                 Utilities.updateBlichData(getContext(), mRootView);
                 return true;
             }
-            case R.id.action_filter_toggle: {
-                toggleFilterAction();
-            }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -155,10 +152,20 @@ public class ScheduleFragment extends BlichBaseFragment {
     }
 
     private void toggleFilterAction() {
-
-        //Get the filter toggle state and reverse it
+        //Get the filter toggle state
         String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+
+        //Test if the user had setup filtering in the settings
+        String filterSelect = Utilities.getPrefString(getContext(), Preferences.PREF_FILTER_SELECT_KEY);
+        if (filterSelect.equals("") && !isFilterOn) {
+            Toast.makeText(getContext(), R.string.toast_filter_not_setup, Toast.LENGTH_LONG)
+                    .show();
+
+            return;
+        }
+
+        //Reverse the filter toggle state
         PreferenceManager.getDefaultSharedPreferences(getContext())
                 .edit()
                 .putBoolean(prefKey, !isFilterOn)
