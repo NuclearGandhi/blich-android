@@ -76,10 +76,15 @@ public class ScheduleFragment extends BlichBaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
+        //Get the menu item
         final MenuItem filter = menu.findItem(R.id.action_filter_toggle);
+        //Inflate it with a view
         ImageButton icon = (ImageButton) LayoutInflater.from(getContext())
                 .inflate(R.layout.menu_filter_list, null, false);
         filter.setActionView(icon);
+
+        //Get the filter toggle state
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
 
         icon.setOnClickListener(new View.OnClickListener() {
@@ -89,6 +94,7 @@ public class ScheduleFragment extends BlichBaseFragment {
             }
         });
 
+        //Set appropriate tooltips, according to api version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             icon.setTooltipText(getString(R.string.action_button_filter_toggle));
         } else {
@@ -106,6 +112,7 @@ public class ScheduleFragment extends BlichBaseFragment {
             });
         }
 
+        //Set the correct image according to the filter toggle state
         if (!isFilterOn) {
             icon.setImageDrawable(
                     ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
@@ -131,6 +138,8 @@ public class ScheduleFragment extends BlichBaseFragment {
 
 
     private void toggleFilterAction(MenuItem item) {
+
+        //Get the filter toggle state and reverse it
         String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
         PreferenceManager.getDefaultSharedPreferences(getContext())
@@ -138,17 +147,20 @@ public class ScheduleFragment extends BlichBaseFragment {
                 .putBoolean(prefKey, !isFilterOn)
                 .apply();
 
+        //Get the action view
         final ImageButton icon = (ImageButton) item.getActionView();
         if (isFilterOn) {
+            //If API > 21, start an animation, else simply change the image
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 //Begin animation
                 AnimatedVectorDrawable animated = (AnimatedVectorDrawable)
                         ContextCompat.getDrawable(getContext(), R.drawable.anim_ant_man);
 
                 icon.setImageDrawable(animated);
-
-                Handler handler = new Handler();
                 animated.start();
+
+                //Disable the button while animating
+                Handler handler = new Handler();
                 icon.setEnabled(false);
                 handler.postDelayed(
                         new Runnable() {
