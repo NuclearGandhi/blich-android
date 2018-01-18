@@ -32,6 +32,7 @@ import com.blackcracks.blich.util.Utilities;
 public class ScheduleFragment extends BlichBaseFragment {
 
     private View mRootView;
+    private ImageButton mFilterActionButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,25 +82,32 @@ public class ScheduleFragment extends BlichBaseFragment {
         //Get the menu item
         final MenuItem filter = menu.findItem(R.id.action_filter_toggle);
         //Inflate it with a view
-        ImageButton icon = (ImageButton) LayoutInflater.from(getContext())
+        mFilterActionButton = (ImageButton) LayoutInflater.from(getContext())
                 .inflate(R.layout.menu_filter_list, null, false);
-        filter.setActionView(icon);
+        filter.setActionView(mFilterActionButton);
 
         //Get the filter toggle state
         boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
 
-        icon.setOnClickListener(new View.OnClickListener() {
+        //Set the correct image according to the filter toggle state
+        if (!isFilterOn) {
+            mFilterActionButton.setImageDrawable(
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
+            );
+        }
+
+        mFilterActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleFilterAction(filter);
+                toggleFilterAction();
             }
         });
 
         //Set appropriate tooltips, according to api version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            icon.setTooltipText(getString(R.string.action_button_filter_toggle));
+            mFilterActionButton.setTooltipText(getString(R.string.action_button_filter_toggle));
         } else {
-            icon.setOnLongClickListener(new View.OnLongClickListener() {
+            mFilterActionButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
 
@@ -112,13 +120,6 @@ public class ScheduleFragment extends BlichBaseFragment {
                 }
             });
         }
-
-        //Set the correct image according to the filter toggle state
-        if (!isFilterOn) {
-            icon.setImageDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
-            );
-        }
     }
 
     @Override
@@ -130,14 +131,27 @@ public class ScheduleFragment extends BlichBaseFragment {
                 return true;
             }
             case R.id.action_filter_toggle: {
-                toggleFilterAction(item);
+                toggleFilterAction();
             }
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void toggleFilterAction(MenuItem item) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Get the filter toggle state
+        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        //Set the correct image according to the filter toggle state
+        if (!isFilterOn && mFilterActionButton != null) {
+            mFilterActionButton.setImageDrawable(
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
+            );
+        }
+    }
+
+    private void toggleFilterAction() {
 
         //Get the filter toggle state and reverse it
         String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
@@ -148,31 +162,30 @@ public class ScheduleFragment extends BlichBaseFragment {
                 .apply();
 
         //Get the action view
-        final ImageButton icon = (ImageButton) item.getActionView();
         if (isFilterOn) { //We need to disable it
             //If API > 21, start an animation, else simply change the image
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                startFilterActionAnimation(icon, false);
+                startFilterActionAnimation(false);
             } else {
                 //Change image
-                icon.setImageDrawable(
+                mFilterActionButton.setImageDrawable(
                         ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
                 );
             }
         } else {
             //If API > 21, start an animation, else simply change the image
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                startFilterActionAnimation(icon, true);
+                startFilterActionAnimation(true);
             } else {
                 //Change image
-                icon.setImageDrawable(
+                mFilterActionButton.setImageDrawable(
                         ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
             }
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void startFilterActionAnimation(final ImageButton icon, final boolean enable) {
+    private void startFilterActionAnimation(final boolean enable) {
         //Get the drawable id
         int drawableId;
         if (enable) drawableId = R.drawable.anim_enable_filter_man;
@@ -182,12 +195,12 @@ public class ScheduleFragment extends BlichBaseFragment {
                 ContextCompat.getDrawable(getContext(), drawableId);
 
         //Begin the animation
-        icon.setImageDrawable(animated);
+        mFilterActionButton.setImageDrawable(animated);
         animated.start();
 
         //Disable the button while animating
         Handler handler = new Handler();
-        icon.setEnabled(false);
+        mFilterActionButton.setEnabled(false);
         handler.postDelayed(
                 new Runnable() {
                     @Override
@@ -196,9 +209,9 @@ public class ScheduleFragment extends BlichBaseFragment {
                         int imageId;
                         if (enable) imageId = R.drawable.ic_filter_list_white_24dp;
                         else imageId = R.drawable.ic_disabled_filter_list_white_24dp;
-                        icon.setImageDrawable(
+                        mFilterActionButton.setImageDrawable(
                                 ContextCompat.getDrawable(getContext(), imageId));
-                        icon.setEnabled(true);
+                        mFilterActionButton.setEnabled(true);
                     }
                 },
                 500);
