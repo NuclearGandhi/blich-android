@@ -175,6 +175,7 @@ public class ScheduleDayFragment extends Fragment implements
                 RealmResults<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(
                         mRealm,
                         getContext(),
+                        Lesson.class,
                         mDay)
                         .findAll();
 

@@ -43,6 +43,7 @@ import io.realm.DynamicRealm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmMigration;
+import io.realm.RealmModel;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 import timber.log.Timber;
@@ -107,10 +108,10 @@ public class Utilities {
     }
 
     public static boolean getPrefBoolean(Context context, int prefKey) {
-            String key = Preferences.getKey(context, prefKey);
-            boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
+        String key = Preferences.getKey(context, prefKey);
+        boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
 
-            return getPrefBoolean(context, key, defaultValue);
+        return getPrefBoolean(context, key, defaultValue);
     }
 
     public static int getPrefInt(Context context, String key, int defaultValue) {
@@ -336,20 +337,37 @@ public class Utilities {
 
         /**
          * Get a query object that contains all the filter rules
+         *
          * @return {@link RealmQuery} object with filter rules
          */
-        public static RealmQuery<Lesson> getFilteredLessonsQuery(io.realm.Realm realm, Context context, int day) {
+        public static <E extends RealmModel> RealmQuery<E> getFilteredLessonsQuery(
+                io.realm.Realm realm,
+                Context context,
+                java.lang.Class<E> clazz,
+                int day) {
+
             String teacherFilter = Utilities.getPrefString(
                     context,
                     Preferences.PREF_FILTER_SELECT_KEY);
             String[] teacherSubjects = teacherFilter.split(";");
 
-            RealmQuery<Lesson> lessons = realm.where(Lesson.class)
-                    .equalTo("owners.day", day) //Inverse Relationship
+            String dayAttribute;
+            switch (clazz.getSimpleName()) {
+                case "Change": {
+                    dayAttribute = "day";
+                    break;
+                }
+                default: {
+                    dayAttribute = "owners.day";
+                    break;
+                }
+            }
+            RealmQuery<E> results = realm.where(clazz)
+                    .equalTo(dayAttribute, day) //Inverse Relationship
                     .and()
                     .beginGroup()
-                    //Lessons with empty teacher are changes
-                    .equalTo("teacher", " ");
+                    //Set an impossible case for easier code writing
+                    .equalTo("subject", 150);
 
             for (String teacherSubject :
                     teacherSubjects) {
@@ -359,7 +377,7 @@ public class Utilities {
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                lessons.or()
+                results.or()
                         .beginGroup()
                         .equalTo("teacher", teacher)
                         .and()
@@ -367,9 +385,9 @@ public class Utilities {
                         .endGroup();
             }
 
-            lessons.endGroup();
+            results.endGroup();
 
-            return lessons;
+            return results;
         }
 
         public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {
