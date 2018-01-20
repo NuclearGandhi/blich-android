@@ -219,14 +219,15 @@ public class BlichSyncTask {
         for(int i = 0; i < jsonChanges.length(); i++) {
             Change change = new Change();
             JSONObject jsonChange = jsonChanges.getJSONObject(i);
+            JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
 
             change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
             change.setHour(jsonChange.getInt(Database.JSON_INT_HOUR));
-            change.setSubject(jsonChange.getString(Database.JSON_STRING_SUBJECT));
-            change.setTeacher(jsonChange.getString(Database.JSON_STRING_TEACHER));
+            change.setSubject(jsonStudyGroup.getString(Database.JSON_STRING_SUBJECT));
+            change.setTeacher(jsonStudyGroup.getString(Database.JSON_STRING_TEACHER));
             change.setNewHour(jsonChange.getInt(Database.JSON_INT_NEW_HOUR));
             change.setNewTeacher(jsonChange.getString(Database.JSON_STRING_NEW_TEACHER));
-            change.setNewRoom(jsonChange.getString(Database.JSON_STRING_ROOM));
+            change.setNewRoom(jsonChange.getString(Database.JSON_STRING_NEW_ROOM));
 
             changes.add(change);
         }
