@@ -68,7 +68,7 @@
 
     <string name="notification_channel_schedule_id">schedule_channel</string>
     <string name="notification_channel_schedule_name">Schedule</string>
-    <string name="notification_channel_schedule_description">Notify about upcoming changes in blichData</string>
+    <string name="notification_channel_schedule_description">Notify about upcoming changes in schedule</string>
 
     <string name="notification_update_title">מערכת שעות</string>
 
