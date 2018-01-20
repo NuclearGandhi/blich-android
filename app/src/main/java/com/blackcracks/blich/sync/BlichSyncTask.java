@@ -345,6 +345,10 @@ public class BlichSyncTask {
                 .findAll();
         hours.deleteAllFromRealm();
 
+        RealmResults<Change> changes = realm.where(Change.class)
+                .findAll();
+        changes.deleteAllFromRealm();
+
         //Insert new data
         realm.insert(blichData);
         realm.commitTransaction();
