@@ -49,6 +49,7 @@ import java.util.Scanner;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -240,20 +241,23 @@ public class BlichSyncTask {
 
             RealmList<Lesson> lessons = new RealmList<>();
             JSONArray jsonLessons = jsonHour.getJSONArray(Database.JSON_ARRAY_LESSONS);
-            for(int j = 0; i < jsonLessons.length(); j++) {
+            for(int j = 0; j < jsonLessons.length(); j++) {
                 Lesson lesson = new Lesson();
                 JSONObject jsonLesson = jsonLessons.getJSONObject(j);
 
                 lesson.setSubject(jsonLesson.getString(Database.JSON_STRING_SUBJECT));
                 lesson.setTeacher(jsonLesson.getString(Database.JSON_STRING_TEACHER));
                 lesson.setRoom(jsonLesson.getString(Database.JSON_STRING_ROOM));
+                lesson.setChangeType(Database.TYPE_NORMAL);
 
                 lessons.add(lesson);
             }
 
+            int day = (jsonHour.getInt(Database.JSON_INT_DAY) + 1) % 7;
+
             hour.setLessons(lessons);
-            hour.setHour(jsonHour.getInt(Database.JSON_INT_DAY));
-            hour.setDay(jsonHour.getInt(Database.JSON_INT_DAY));
+            hour.setHour(jsonHour.getInt(Database.JSON_INT_HOUR));
+            hour.setDay(day);
 
             hours.add(hour);
         }
@@ -262,7 +266,12 @@ public class BlichSyncTask {
         schedule.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
 
         realm.beginTransaction();
-        realm.delete(Schedule.class);
+        //Delete old data
+        RealmResults<Hour> oldData = realm.where(Hour.class)
+                .findAll();
+        oldData.deleteAllFromRealm();
+
+        //Insert new data
         realm.insert(schedule);
         realm.commitTransaction();
 
