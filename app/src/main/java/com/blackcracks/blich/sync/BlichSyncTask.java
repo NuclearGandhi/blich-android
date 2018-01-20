@@ -19,6 +19,7 @@ import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
@@ -109,7 +110,7 @@ public class BlichSyncTask {
         firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
 
         BlichData blichData = new BlichData();
-        int status = syncSchedule(context, blichData);
+        int status = fetchData(context, blichData);
         if (status == FETCH_STATUS_SUCCESSFUL) syncExams(context);
 
         //Save in preferences the latest update time
@@ -129,24 +130,48 @@ public class BlichSyncTask {
     }
 
     private static @FetchStatus
-    int syncSchedule(Context context, BlichData blichData) {
+    int fetchData(Context context, BlichData blichData) {
+        for(int i = 0; i < 2; i++) {
+            String json;
 
-        String json;
+            String command = COMMAND_SCHEDULE;
+            switch (i) {
+                case 0: {
+                    command = COMMAND_SCHEDULE;
+                    break;
+                }
+                case 1: {
+                    command = COMMAND_CHANGES;
+                    break;
+                }
+            }
 
-        try {
-            json = getResponseFromUrl(buildUrlFromCommand(context, COMMAND_SCHEDULE));
+            try {
+                json = getResponseFromUrl(buildUrlFromCommand(context, command));
 
-            if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
-            insertScheduleJsonIntoData(json, blichData);
-        } catch (IOException e) {
-            Timber.e(e);
-            return FETCH_STATUS_UNSUCCESSFUL;
-        } catch (JSONException e) {
-            Timber.e(e);
-            return FETCH_STATUS_UNSUCCESSFUL;
-        } catch (BlichFetchException e) {
-            return FETCH_STATUS_CLASS_NOT_CONFIGURED;
+                if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
+
+                switch (command) {
+                    case COMMAND_SCHEDULE: {
+                        insertScheduleJsonIntoData(json, blichData);
+                        break;
+                    }
+                    case COMMAND_CHANGES: {
+                        insertChangesJsonIntoData(json, blichData);
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                Timber.e(e);
+                return FETCH_STATUS_UNSUCCESSFUL;
+            } catch (JSONException e) {
+                Timber.e(e);
+                return FETCH_STATUS_UNSUCCESSFUL;
+            } catch (BlichFetchException e) {
+                return FETCH_STATUS_CLASS_NOT_CONFIGURED;
+            }
         }
+
         return FETCH_STATUS_SUCCESSFUL;
     }
 
@@ -184,6 +209,29 @@ public class BlichSyncTask {
 
         blichData.setHours(hours);
         blichData.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
+    }
+
+    private static void insertChangesJsonIntoData(String json, BlichData blichData) throws JSONException {
+        JSONObject raw = new JSONObject(json);
+
+        JSONArray jsonChanges = raw.getJSONArray(Database.JSON_ARRAY_CHANGES);
+        RealmList<Change> changes = new RealmList<>();
+        for(int i = 0; i < jsonChanges.length(); i++) {
+            Change change = new Change();
+            JSONObject jsonChange = jsonChanges.getJSONObject(i);
+
+            change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
+            change.setHour(jsonChange.getInt(Database.JSON_INT_HOUR));
+            change.setSubject(jsonChange.getString(Database.JSON_STRING_SUBJECT));
+            change.setTeacher(jsonChange.getString(Database.JSON_STRING_TEACHER));
+            change.setNewHour(jsonChange.getInt(Database.JSON_INT_NEW_HOUR));
+            change.setNewTeacher(jsonChange.getString(Database.JSON_STRING_NEW_TEACHER));
+            change.setNewRoom(jsonChange.getString(Database.JSON_STRING_ROOM));
+
+            changes.add(change);
+        }
+
+        blichData.setChanges(changes);
     }
 
     private static @FetchStatus

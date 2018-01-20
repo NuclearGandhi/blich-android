@@ -15,6 +15,7 @@ public class BlichData extends RealmObject {
 
     private int classId;
     @Required private RealmList<Hour> hours;
+    @Required private RealmList<Change> changes;
 
     public int getClassId() {
         return classId;
@@ -30,5 +31,13 @@ public class BlichData extends RealmObject {
 
     public void setHours(RealmList<Hour> hours) {
         this.hours = hours;
+    }
+
+    public RealmList<Change> getChanges() {
+        return changes;
+    }
+
+    public void setChanges(RealmList<Change> changes) {
+        this.changes = changes;
     }
 }

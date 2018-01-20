@@ -273,7 +273,7 @@ public class Utilities {
         public static void setUpRealm(Context context) {
             io.realm.Realm.init(context);
             RealmConfiguration config = new RealmConfiguration.Builder()
-                    .schemaVersion(4)
+                    .schemaVersion(5)
                     .migration(new RealmMigration() {
                         @Override
                         public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -291,13 +291,26 @@ public class Utilities {
                                 oldVersion++;
                             }
                             if (oldVersion == 2) {
-                                schema.get("BlichData")
+                                schema.get("Schedule")
                                         .removeField("schedule")
                                         .addRealmListField("hours", schema.get("Hour"));
                                 oldVersion++;
                             }
                             if (oldVersion == 3) {
                                 schema.rename("Schedule", "BlichData");
+                                oldVersion++;
+                            }
+                            if (oldVersion == 4) {
+                                schema.create("Change")
+                                        .addField("changeType", String.class)
+                                        .addField("hour", int.class)
+                                        .addField("subject", String.class)
+                                        .addField("teacher", String.class)
+                                        .addField("newTeacher", String.class)
+                                        .addField("newRoom", String.class)
+                                        .addField("newHour", int.class);
+                                schema.get("BlichData")
+                                        .addRealmListField("changes", schema.get("Change"));
                                 oldVersion++;
                             }
                         }
