@@ -23,8 +23,10 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
@@ -340,7 +342,7 @@ public class Utilities {
          *
          * @return {@link RealmQuery} object with filter rules
          */
-        public static <E extends RealmModel> RealmQuery<E> getFilteredLessonsQuery(
+        public static <E extends RealmModel> RealmQuery<E> getFilteredQuery(
                 io.realm.Realm realm,
                 Context context,
                 java.lang.Class<E> clazz,
@@ -443,18 +445,22 @@ public class Utilities {
         }
 
         public static class RealmScheduleHelper {
-            private List<Hour> mData;
+            private List<Hour> mHours;
+            private List<Change> mChanges;
             private boolean mIsDataValid;
 
-            public RealmScheduleHelper(List<Hour> data) {
+            public RealmScheduleHelper(ScheduleResult data) {
                 switchData(data);
             }
 
-            public void switchData(List<Hour> data) {
-                mData = data;
+            public void switchData(ScheduleResult data) {
+                if (data != null) {
+                    mHours = data.getHours();
+                    mChanges = data.getChanges();
+                }
 
                 try {
-                    mIsDataValid = data != null && mData.size() != 0;
+                    mIsDataValid = data != null && mHours != null && mChanges != null && !mHours.isEmpty();
                 } catch (IllegalStateException e) { //In case Realm instance has been closed
                     mIsDataValid = false;
                     Timber.d("Realm has been closed");
@@ -466,7 +472,17 @@ public class Utilities {
             }
 
             public Hour getHour(int position) {
-                return mData.get(position);
+                return mHours.get(position);
+            }
+
+            public List<Change> getChanges(int hour) {
+                List<Change> changes = new ArrayList<>();
+                for (Change change :
+                        mChanges) {
+                    if (change.getHour() == hour) changes.add(change);
+                }
+
+                return changes;
             }
 
             public Lesson getLesson(int position, int childPos) {
@@ -477,7 +493,7 @@ public class Utilities {
 
             public int getHourCount() {
                 if (mIsDataValid) {
-                    return mData.size();
+                    return mHours.size();
                 } else {
                     return 0;
                 }

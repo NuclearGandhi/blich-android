@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
 
@@ -231,7 +232,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     }
 
-    public void switchData(List<Hour> data) {
+    public void switchData(ScheduleResult data) {
         mRealmScheduleHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();

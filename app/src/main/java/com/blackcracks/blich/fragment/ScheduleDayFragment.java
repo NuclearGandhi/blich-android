@@ -17,8 +17,10 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 
@@ -35,7 +37,7 @@ import io.realm.Sort;
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
 public class ScheduleDayFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<List<Hour>>,
+        LoaderManager.LoaderCallbacks<ScheduleResult>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String DAY_KEY = "day";
@@ -121,17 +123,17 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
-    public Loader<List<Hour>> onCreateLoader(int id, Bundle args) {
+    public Loader<ScheduleResult> onCreateLoader(int id, Bundle args) {
         return new ScheduleLoader(getContext(), mDay, mRealm);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Hour>> loader, List<Hour> data) {
+    public void onLoadFinished(Loader<ScheduleResult> loader, ScheduleResult data) {
         mAdapter.switchData(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Hour>> loader) {
+    public void onLoaderReset(Loader<ScheduleResult> loader) {
         mAdapter.switchData(null);
     }
 
@@ -142,7 +144,7 @@ public class ScheduleDayFragment extends Fragment implements
         }
     }
 
-    private static class ScheduleLoader extends Loader<List<Hour>> {
+    private static class ScheduleLoader extends Loader<ScheduleResult> {
 
         private int mDay;
 
@@ -169,13 +171,21 @@ public class ScheduleDayFragment extends Fragment implements
                     Preferences.PREF_FILTER_TOGGLE_KEY);
 
             List<Hour> results;
+            List<Change> changes;
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
-                RealmResults<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(
+                RealmResults<Lesson> lessons = Utilities.Realm.getFilteredQuery(
                         mRealm,
                         getContext(),
                         Lesson.class,
+                        mDay)
+                        .findAll();
+
+                changes = Utilities.Realm.getFilteredQuery(
+                        mRealm,
+                        getContext(),
+                        Change.class,
                         mDay)
                         .findAll();
 
@@ -198,9 +208,14 @@ public class ScheduleDayFragment extends Fragment implements
                         .equalTo("day", mDay)
                         .findAll()
                         .sort("hour", Sort.ASCENDING);
+
+                changes = mRealm.where(Change.class)
+                        .equalTo("day", mDay)
+                        .findAll();
             }
 
-            deliverResult(results);
+            ScheduleResult result = new ScheduleResult(results, changes);
+            deliverResult(result);
         }
 
         @Override
