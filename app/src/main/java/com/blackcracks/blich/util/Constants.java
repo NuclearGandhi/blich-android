@@ -32,6 +32,7 @@ public class Constants {
         public static final String JSON_STRING_TEACHER = "Teacher";
         public static final String JSON_STRING_ROOM = "Room";
 
+        public static final String JSON_STRING_DATE = "Date";
         public static final String JSON_ARRAY_CHANGES = "Changes";
         public static final String JSON_OBJECT_STUDY_GROUP = "StudyGroup";
         public static final String JSON_STRING_CHANGE_TYPE = "ChangeType";

@@ -7,12 +7,15 @@
 
 package com.blackcracks.blich.data;
 
+import java.util.Calendar;
+
 import io.realm.RealmObject;
 
 public class Change extends RealmObject {
 
     private String changeType;
 
+    private int day;
     private int hour;
     private String teacher;
     private String subject;
@@ -24,7 +27,7 @@ public class Change extends RealmObject {
     public Change() {
     }
 
-    public Change(String changeType, int hour, String teacher, String subject) {
+    public Change(String changeType, int day, int hour, String teacher, String subject) {
         this.changeType = changeType;
         this.hour = hour;
         this.teacher = teacher;
@@ -37,6 +40,20 @@ public class Change extends RealmObject {
 
     public void setChangeType(String changeType) {
         this.changeType = changeType;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public void setDay(long timeInMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMillis);
+        this.day = calendar.get(Calendar.DAY_OF_WEEK);
     }
 
     public int getHour() {

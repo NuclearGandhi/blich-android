@@ -273,7 +273,7 @@ public class Utilities {
         public static void setUpRealm(Context context) {
             io.realm.Realm.init(context);
             RealmConfiguration config = new RealmConfiguration.Builder()
-                    .schemaVersion(5)
+                    .schemaVersion(6)
                     .migration(new RealmMigration() {
                         @Override
                         public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -311,6 +311,11 @@ public class Utilities {
                                         .addField("newHour", int.class);
                                 schema.get("BlichData")
                                         .addRealmListField("changes", schema.get("Change"));
+                                oldVersion++;
+                            }
+                            if (oldVersion == 5) {
+                                schema.get("Change")
+                                        .addField("day", int.class);
                                 oldVersion++;
                             }
                         }

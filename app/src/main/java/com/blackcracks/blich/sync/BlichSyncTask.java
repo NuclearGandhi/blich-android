@@ -221,7 +221,13 @@ public class BlichSyncTask {
             JSONObject jsonChange = jsonChanges.getJSONObject(i);
             JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
 
+            String date = jsonChange.getString(Database.JSON_STRING_DATE);
+            int firstCut = date.indexOf("(");
+            int lastCut = date.indexOf(")");
+            long timeInMillis = Long.parseLong(date.substring(firstCut, lastCut));
+
             change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
+            change.setDay(timeInMillis);
             change.setHour(jsonChange.getInt(Database.JSON_INT_HOUR));
             change.setSubject(jsonStudyGroup.getString(Database.JSON_STRING_SUBJECT));
             change.setTeacher(jsonStudyGroup.getString(Database.JSON_STRING_TEACHER));
