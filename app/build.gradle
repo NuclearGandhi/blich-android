@@ -30,6 +30,9 @@ android {
             signingConfig signingConfigs.Blich
         }
     }
+    buildTypes.each {
+        it.buildConfigField('String', 'ShahafBlichApiKey', ShahafBlichApiKey)
+    }
     packagingOptions {
         exclude 'META-INF/NOTICE' // will not include NOTICE file
         exclude 'META-INF/LICENSE' // will not include LICENSE file

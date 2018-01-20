@@ -21,6 +21,17 @@ public class Constants {
     public static final int NEWS_LOADER_ID = 16;
 
     public static class Database {
+        public static final String JSON_ARRAY_HOURS = "Schedule";
+        public static final String JSON_INT_CLASS_ID = "ClassId";
+
+        public static final String JSON_INT_DAY = "day";
+        public static final String JSON_INT_HOUR = "Hour";
+        public static final String JSON_ARRAY_LESSONS = "Lessons";
+
+        public static final String JSON_STRING_SUBJECT = "Subject";
+        public static final String JSON_STRING_TEACHER = "Teacher";
+        public static final String JSON_STRING_ROOM = "Room";
+
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
         public static final String TYPE_NEW_HOUR = "NewHour";
         public static final String TYPE_NEW_ROOM = "NewRoom";

@@ -7,54 +7,45 @@
 
 package com.blackcracks.blich.sync;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.text.Html;
-import android.text.Spanned;
 
+import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.Schedule;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -67,7 +58,7 @@ public class BlichSyncTask {
     private static final String EVENT_BEGIN_SYNC = "begin_sync";
     private static final String EVENT_END_SYNC = "end_sync";
 
-    private static final String PARAM_STATUS_SYNC = "status";
+    private static final String LOG_PARAM_STATUS_SYNC = "status";
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
@@ -82,38 +73,29 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
-    private static final int NOTIFICATION_UPDATE_ID = 1;
 
     //Schedule
-    private static final String SOURCE_URL =
-            "http://blich.iscool.co.il/tabid/2117/language/he-IL/Default.aspx";
+    private static final String BLICH_BASE_URI =
+            "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/ApiHandler.ashx";
 
-    private static final String VIEW_STATE = "__VIEWSTATE";
-    private static final String LAST_FOCUS = "__LAS" +
-            "TFOCUS";
-    private static final String EVENT_ARGUMENT = "__EVENTARGUMENT";
-    private static final String EVENT_TARGET = "__EVENTTARGET";
+    private static final String PARAM_SID = "sid";
+    private static final String PARAM_API_KEY = "token";
+    private static final String PARAM_COMMAND = "cmd";
+    private static final String PARAM_CLASS_ID = "clsid";
 
-    private static final String SELECTOR_NAME = "dnn$ctr7919$TimeTableView$ClassesList";
 
-    private static final String SCHEDULE_BUTTON_NAME = "dnn$ctr7919$TimeTableView$btnChangesTable";
-
-    private static final String SCHEDULE_TABLE_ID = "dnn_ctr7919_TimeTableView_PlaceHolder";
-
-    private static final String CELL_CLASS = "TTCell";
-    private static final String CANCELED_LESSON_CLASS = "TableFreeChange";
-    private static final String CHANGED_LESSON_CLASS = "TableFillChange";
-    private static final String EXAM_LESSON_CLASS = "TableExamChange";
-    private static final String EVENT_LESSON_CLASS = "TableEventChange";
+    private static final int BLICH_ID = 540211;
+    private static final String COMMAND_CLASSES = "classes";
+    private static final String COMMAND_SCHEDULE = "schedule";
+    private static final String COMMAND_EXAMS = "exams";
+    private static final String COMMAND_EVENTS = "events";
+    private static final String COMMAND_CHANGES = "changes";
 
     //Exams
     private static final String EXAMS_BASE_URL =
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
 
     private static final String EXAMS_TABLE_ID = "ChangesList";
-
-
-    private static List<Hour> sHourNotificationList = new ArrayList<>();
 
     /**
      * Start the fetch.
@@ -129,7 +111,6 @@ public class BlichSyncTask {
         if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
                 (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
         } else {
-            notifyUser(context);
             long currentTime = Calendar.getInstance().getTimeInMillis();
             PreferenceManager.getDefaultSharedPreferences(context).edit()
                     .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
@@ -139,204 +120,153 @@ public class BlichSyncTask {
 
         //Log the end of sync
         Bundle bundle = new Bundle();
-        bundle.putInt(PARAM_STATUS_SYNC, status);
+        bundle.putInt(LOG_PARAM_STATUS_SYNC, status);
         firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
+
         return status;
     }
 
     private static @FetchStatus
     int syncSchedule(Context context) {
 
-        int classValue = 0;
-        BufferedReader reader = null;
-        String classHtml = "";
+        String json;
 
         try {
+            json = getResponseFromUrl(buildScheduleUrl(context));
 
-            classValue = getClassValue(context);
-
-            /*
-            get the html
-             */
-            URL viewStateUrl = new URL(SOURCE_URL);
-            URLConnection viewStateCon = viewStateUrl.openConnection();
-            viewStateCon.setConnectTimeout(10000);
-            viewStateCon.setDoOutput(true);
-
-            reader = new BufferedReader(new InputStreamReader(viewStateCon.getInputStream()));
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-            String html = builder.toString();
-
-            /*
-            parse the html to get the view state
-             */
-            Document document = Jsoup.parse(html);
-            Element viewState = document.getElementById(VIEW_STATE);
-
-            String viewStateValue;
-            if (viewState != null) {
-                viewStateValue = viewState.attr("value");
-            } else {
-                return FETCH_STATUS_EMPTY_HTML;
-            }
-
-            /*
-            create a POST request
-             */
-            URL scheduleUrl = new URL(SOURCE_URL);
-            HttpURLConnection scheduleCon = (HttpURLConnection) scheduleUrl.openConnection();
-            scheduleCon.setConnectTimeout(10000);
-            scheduleCon.setDoOutput(true);
-
-            List<NameValuePair> nameValuePairs = new ArrayList<>();
-            nameValuePairs.add(new BasicNameValuePair(EVENT_TARGET, SCHEDULE_BUTTON_NAME));
-            nameValuePairs.add(new BasicNameValuePair(EVENT_ARGUMENT, ""));
-            nameValuePairs.add(new BasicNameValuePair(SELECTOR_NAME, Integer.toString(classValue)));
-            nameValuePairs.add(new BasicNameValuePair(VIEW_STATE, viewStateValue));
-            nameValuePairs.add(new BasicNameValuePair(LAST_FOCUS, ""));
-
-            OutputStreamWriter classWriter = new OutputStreamWriter(scheduleCon.getOutputStream());
-            classWriter.write(getQuery(nameValuePairs));
-            classWriter.flush();
-
-            reader = new BufferedReader(new InputStreamReader(scheduleCon.getInputStream()));
-            builder = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-            classHtml = builder.toString();
-
+            if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
+            loadJsonIntoRealm(json);
         } catch (IOException e) {
             Timber.e(e);
-
-        } catch (BlichFetchException e) { //The user's class isn't configured properly
-            //Let the user choose his class again
+            return FETCH_STATUS_UNSUCCESSFUL;
+        } catch (JSONException e) {
+            Timber.e(e);
+            return FETCH_STATUS_UNSUCCESSFUL;
+        } catch (BlichFetchException e) {
             return FETCH_STATUS_CLASS_NOT_CONFIGURED;
+        }
+        return FETCH_STATUS_SUCCESSFUL;
+    }
 
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    Timber.e(e);
-                }
-            }
+    private static String getResponseFromUrl(URL url) throws IOException {
+        HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
+
+        InputStream in = scheduleConnection.getInputStream();
+
+        Scanner scanner = new Scanner(in);
+        scanner.useDelimiter("\\A");
+
+        boolean hasInput = scanner.hasNext();
+        String response = null;
+        if (hasInput) {
+            response = scanner.next();
+        }
+        scanner.close();
+        scheduleConnection.disconnect();
+
+        return response;
+    }
+
+    private static URL buildScheduleUrl(Context context)
+            throws BlichFetchException {
+        int classValue = getClassValue(context);
+
+        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
+                .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
+                .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
+                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
+                .appendQueryParameter(PARAM_COMMAND, COMMAND_SCHEDULE)
+                .build();
+
+        if (BuildConfig.DEBUG) Timber.d("Building URI: %s", scheduleUri.toString());
+
+        try {
+            return new URL(scheduleUri.toString());
+        } catch (MalformedURLException e) {
+            Timber.e(e);
+            return null;
+        }
+    }
+
+    private static int getClassValue(Context context)
+            throws BlichFetchException {
+        String currentClass = Utilities.Class.getCurrentClass(context);
+        String selection;
+        String[] selectionArgs;
+
+        if (currentClass.contains("'")) { //Normal class syntax
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
+                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
+            selectionArgs = currentClass.split("'");
+        } else { //Abnormal class syntax
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
+            selectionArgs = new String[]{currentClass};
         }
 
-        //Handle not expected situations
-        if (classHtml.equals("")) {
-            return FETCH_STATUS_EMPTY_HTML;
-        }
-        Document document = Jsoup.parse(classHtml);
-        Element table = document.getElementById(SCHEDULE_TABLE_ID);
-        if (table == null) {
-            return FETCH_STATUS_EMPTY_HTML;
-        }
-        Elements lessons = table.getElementsByClass(CELL_CLASS);
 
+        Cursor cursor = context.getContentResolver().query(
+                BlichContract.ClassEntry.CONTENT_URI,
+                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
+                selection,
+                selectionArgs,
+                null);
 
-        //Initialize realm objects
-        Schedule schedule = new Schedule();
-        schedule.setClassId(classValue);
-        RealmList<Hour> hourList = new RealmList<>();
-
-        //Iterate through each cell in the table
-        for (int i = 6; i < lessons.size(); i++) {
-            int row = i / 6;
-            int column = i % 6 + 1;
-
-            Element lessonElement = lessons.get(i);
-            Elements divs = lessonElement.getElementsByTag("div");
-
-            Elements trs = lessonElement.getElementsByTag("tr");
-            Elements tds = new Elements();
-            for (Element tr : trs) {
-                tds.add(tr.getElementsByTag("td").get(0));
+        int classValue;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                classValue = cursor.getInt(0);
+            } else {
+                throw new BlichFetchException("Can't get the user's class. " +
+                        "Did the user configure his class?");
             }
-
-            divs.addAll(tds);
-
-            Hour hour = new Hour();
-            hour.setDay(column);
-            hour.setHour(row);
-            RealmList<Lesson> lessonList = new RealmList<>();
-
-            for (int k = 0; k < divs.size(); k++) {
-                Element div = divs.get(k);
-                String html = div.html();
-                String[] text = html.split("</b>");
-
-                String subject, room, teacher, lessonType;
-
-                subject = text[0].replace("<b>", "").replace("<br>", " ");
-                subject = Parser.unescapeEntities(subject, false);
-                subject = subject.trim();
-
-                //TODO Improve this shitty code
-                if (text.length == 2) {
-                    text = text[1].split("<br>");
-
-                    if (text.length == 2) {
-                        room = text[0].replace("&nbsp;&nbsp;", "").replace("(", "").replace(")", "");
-                        teacher = text[1].trim();
-                    } else {
-                        room = " ";
-                        teacher = " ";
-                    }
-                } else {
-                    room = " ";
-                    teacher = " ";
-                }
-
-                switch (div.attr("class")) {
-                    case CANCELED_LESSON_CLASS: {
-                        lessonType = Database.TYPE_CANCELED;
-                        break;
-                    }
-                    case CHANGED_LESSON_CLASS: {
-                        lessonType = Database.TYPE_NEW_TEACHER;
-                        break;
-                    }
-                    case EXAM_LESSON_CLASS: {
-                        lessonType = Database.TYPE_EXAM;
-                        break;
-                    }
-                    case EVENT_LESSON_CLASS: {
-                        lessonType = Database.TYPE_EVENT;
-                        break;
-                    }
-                    default: {
-                        lessonType = Database.TYPE_NORMAL;
-                    }
-                }
-
-                Lesson lesson = new Lesson(subject, room, teacher, lessonType);
-                lessonList.add(lesson);
-            }
-
-            if (lessonList.size() != 0) {
-                hour.setLessons(lessonList);
-                hourList.add(hour);
-
-                if (canAddToNotificationList(hour))
-                    sHourNotificationList.add(hour);
-            }
+        } else {
+            throw new NullPointerException("Queried cursor is null");
         }
 
-        schedule.setSchedule(hourList);
+        cursor.close();
+        return classValue;
+    }
 
+    private static void loadJsonIntoRealm(String json) throws JSONException {
         Realm realm = Realm.getDefaultInstance();
+        JSONObject raw = new JSONObject(json);
+
+        JSONArray jsonHours = raw.getJSONArray(Database.JSON_ARRAY_HOURS);
+        Schedule schedule = new Schedule();
+        RealmList<Hour> hours = new RealmList<>();
+        for(int i = 0; i < jsonHours.length(); i++) {
+            Hour hour = new Hour();
+            JSONObject jsonHour = jsonHours.getJSONObject(i);
+
+            RealmList<Lesson> lessons = new RealmList<>();
+            JSONArray jsonLessons = jsonHour.getJSONArray(Database.JSON_ARRAY_LESSONS);
+            for(int j = 0; i < jsonLessons.length(); j++) {
+                Lesson lesson = new Lesson();
+                JSONObject jsonLesson = jsonLessons.getJSONObject(j);
+
+                lesson.setSubject(jsonLesson.getString(Database.JSON_STRING_SUBJECT));
+                lesson.setTeacher(jsonLesson.getString(Database.JSON_STRING_TEACHER));
+                lesson.setRoom(jsonLesson.getString(Database.JSON_STRING_ROOM));
+
+                lessons.add(lesson);
+            }
+
+            hour.setLessons(lessons);
+            hour.setHour(jsonHour.getInt(Database.JSON_INT_DAY));
+            hour.setDay(jsonHour.getInt(Database.JSON_INT_DAY));
+
+            hours.add(hour);
+        }
+
+        schedule.setHours(hours);
+        schedule.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
+
         realm.beginTransaction();
-        realm.deleteAll();
+        realm.delete(Schedule.class);
         realm.insert(schedule);
         realm.commitTransaction();
-        realm.close();
 
-        return FETCH_STATUS_SUCCESSFUL;
+        realm.close();
     }
 
     private static @FetchStatus
@@ -438,179 +368,6 @@ public class BlichSyncTask {
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
         return FETCH_STATUS_SUCCESSFUL;
-    }
-
-    private static int getClassValue(Context context)
-            throws BlichFetchException {
-        String currentClass = Utilities.Class.getCurrentClass(context);
-        String selection;
-        String[] selectionArgs;
-
-        if (currentClass.contains("'")) { //Normal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
-            selectionArgs = currentClass.split("'");
-        } else { //Abnormal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
-            selectionArgs = new String[]{currentClass};
-        }
-
-
-        Cursor cursor = context.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                selection,
-                selectionArgs,
-                null);
-
-        int classValue;
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                classValue = cursor.getInt(0);
-            } else {
-                throw new BlichFetchException("Can't get the user's class. " +
-                        "Did the user configure his class?");
-            }
-        } else {
-            throw new NullPointerException("Queried cursor is null");
-        }
-
-        cursor.close();
-        return classValue;
-    }
-
-    private static boolean canAddToNotificationList(Hour hour) {
-
-        Calendar calendar = Calendar.getInstance();
-        int today = calendar.get(Calendar.DAY_OF_WEEK);
-        int tomorrow = today + 1;
-        if (tomorrow == 8) tomorrow = 1;
-
-        int hourDay = hour.getDay();
-
-        if (hourDay == today || hourDay == tomorrow) {
-            List<Lesson> lessons = hour.getLessons();
-            for (Lesson lesson :
-                    lessons) {
-                if (lesson.getChangeType().equals(Database.TYPE_NORMAL))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    private static Spanned getBoldText(String text) {
-        return Html.fromHtml("<b> " + text + "</b>");
-    }
-
-    private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-
-        for (NameValuePair pair : params) {
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
-        }
-
-        return result.toString();
-    }
-
-    private static void notifyUser(Context context) {
-        boolean foreground = Utilities.isAppOnForeground(context);
-
-        if (!sHourNotificationList.isEmpty() && !foreground) {
-
-            Calendar calendar = Calendar.getInstance();
-            int day = calendar.get(Calendar.DAY_OF_WEEK);
-
-            NotificationCompat.InboxStyle inboxStyle =
-                    new NotificationCompat.InboxStyle();
-
-            List<Lesson> todayNotificationLessons = new ArrayList<>();
-            List<Lesson> tomorrowNotificationLessons = new ArrayList<>();
-            for (Hour hour :
-                    sHourNotificationList) {
-                List<Lesson> lessons = hour.getLessons();
-                for (Lesson lesson :
-                        lessons) {
-                    if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
-                        if (hour.getDay() == day)
-                            todayNotificationLessons.add(lesson);
-                        else {
-                            tomorrowNotificationLessons.add(lesson);
-                        }
-                    }
-                }
-            }
-
-            if (todayNotificationLessons.size() != 0) {
-                inboxStyle.addLine(getBoldText("היום:"));
-                for (Lesson lesson :
-                        todayNotificationLessons) {
-                    inboxStyle.addLine(lesson.getSubject());
-                }
-            }
-
-
-            if (tomorrowNotificationLessons.size() != 0) {
-                inboxStyle.addLine(getBoldText("מחר:"));
-                for (Lesson lesson :
-                        tomorrowNotificationLessons) {
-                    inboxStyle.addLine(lesson.getSubject());
-                }
-            }
-
-            //Save the number of changes in total;
-            int changesNum = todayNotificationLessons.size() + tomorrowNotificationLessons.size();
-            if (changesNum == 0) return; //Stop
-
-            String summery;
-            if (changesNum == 1) summery = "ישנו שינוי אחד חדש";
-            else summery = "ישנם " + changesNum + " שינויים חדשים";
-            inboxStyle.setSummaryText(summery);
-
-            int intKey = Constants.Preferences.PREF_NOTIFICATION_SOUND_KEY;
-            String prefKey = Constants.Preferences.getKey(context, intKey);
-            String prefDefault = (String) Constants.Preferences.getDefault(context, intKey);
-            Uri ringtone = Uri.parse(Utilities
-                    .getPrefString(context,
-                            prefKey,
-                            prefDefault,
-                            true));
-
-            Intent intent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            Notification notification = new NotificationCompat.Builder(
-                    context,
-                    context.getString(R.string.notification_channel_schedule_id))
-                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
-                    .setContentTitle(context.getResources().getString(
-                            R.string.notification_update_title))
-                    .setContentText(summery)
-                    .setSound(ringtone)
-                    .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                    .setStyle(inboxStyle)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .build();
-
-            NotificationManager notificationManager =
-                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
-
-        }
-        sHourNotificationList = new ArrayList<>();
     }
 
     public static class BlichFetchException extends Exception {

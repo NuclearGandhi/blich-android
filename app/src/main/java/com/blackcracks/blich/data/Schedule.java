@@ -14,7 +14,7 @@ import io.realm.annotations.Required;
 public class Schedule extends RealmObject {
 
     private int classId;
-    @Required private RealmList<Hour> schedule;
+    @Required private RealmList<Hour> hours;
 
     public int getClassId() {
         return classId;
@@ -24,11 +24,11 @@ public class Schedule extends RealmObject {
         this.classId = classId;
     }
 
-    public RealmList<Hour> getSchedule() {
-        return schedule;
+    public RealmList<Hour> getHours() {
+        return hours;
     }
 
-    public void setSchedule(RealmList<Hour> schedule) {
-        this.schedule = schedule;
+    public void setHours(RealmList<Hour> hours) {
+        this.hours = hours;
     }
 }
