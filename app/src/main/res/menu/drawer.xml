@@ -5,7 +5,7 @@
         android:checkableBehavior="single"
         android:orderInCategory="1">
         <item
-            android:id="@+id/schedule"
+            android:id="@+id/blichData"
             android:icon="@drawable/ic_timetable_grey600_24dp"
             android:title="@string/drawer_schedule_title"/>
 

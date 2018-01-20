@@ -273,7 +273,7 @@ public class Utilities {
         public static void setUpRealm(Context context) {
             io.realm.Realm.init(context);
             RealmConfiguration config = new RealmConfiguration.Builder()
-                    .schemaVersion(3)
+                    .schemaVersion(4)
                     .migration(new RealmMigration() {
                         @Override
                         public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -291,9 +291,13 @@ public class Utilities {
                                 oldVersion++;
                             }
                             if (oldVersion == 2) {
-                                schema.get("Schedule")
+                                schema.get("BlichData")
                                         .removeField("schedule")
                                         .addRealmListField("hours", schema.get("Hour"));
+                                oldVersion++;
+                            }
+                            if (oldVersion == 3) {
+                                schema.rename("Schedule", "BlichData");
                                 oldVersion++;
                             }
                         }

@@ -18,9 +18,9 @@ import android.support.v7.preference.PreferenceManager;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
+import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.Schedule;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -75,7 +75,7 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
 
-    //Schedule
+    //BlichData
     private static final String BLICH_BASE_URI =
             "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/ApiHandler.ashx";
 
@@ -108,16 +108,17 @@ public class BlichSyncTask {
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
         firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
 
-        int status;
-        if ((status = syncSchedule(context)) != FETCH_STATUS_SUCCESSFUL ||
-                (status = syncExams(context)) != FETCH_STATUS_SUCCESSFUL) {
-        } else {
-            long currentTime = Calendar.getInstance().getTimeInMillis();
-            PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
-                    .apply();
-        }
+        BlichData blichData = new BlichData();
+        int status = syncSchedule(context, blichData);
+        if (status == FETCH_STATUS_SUCCESSFUL) syncExams(context);
 
+        //Save in preferences the latest update time
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
+                .apply();
+
+        loadDataIntoRealm(blichData);
 
         //Log the end of sync
         Bundle bundle = new Bundle();
@@ -128,15 +129,15 @@ public class BlichSyncTask {
     }
 
     private static @FetchStatus
-    int syncSchedule(Context context) {
+    int syncSchedule(Context context, BlichData blichData) {
 
         String json;
 
         try {
-            json = getResponseFromUrl(buildScheduleUrl(context));
+            json = getResponseFromUrl(buildUrlFromCommand(context, COMMAND_SCHEDULE));
 
             if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
-            loadJsonIntoRealm(json);
+            insertScheduleJsonIntoData(json, blichData);
         } catch (IOException e) {
             Timber.e(e);
             return FETCH_STATUS_UNSUCCESSFUL;
@@ -149,99 +150,18 @@ public class BlichSyncTask {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private static String getResponseFromUrl(URL url) throws IOException {
-        HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
-
-        InputStream in = scheduleConnection.getInputStream();
-
-        Scanner scanner = new Scanner(in);
-        scanner.useDelimiter("\\A");
-
-        boolean hasInput = scanner.hasNext();
-        String response = null;
-        if (hasInput) {
-            response = scanner.next();
-        }
-        scanner.close();
-        scheduleConnection.disconnect();
-
-        return response;
-    }
-
-    private static URL buildScheduleUrl(Context context)
-            throws BlichFetchException {
-        int classValue = getClassValue(context);
-
-        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
-                .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
-                .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
-                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
-                .appendQueryParameter(PARAM_COMMAND, COMMAND_SCHEDULE)
-                .build();
-
-        if (BuildConfig.DEBUG) Timber.d("Building URI: %s", scheduleUri.toString());
-
-        try {
-            return new URL(scheduleUri.toString());
-        } catch (MalformedURLException e) {
-            Timber.e(e);
-            return null;
-        }
-    }
-
-    private static int getClassValue(Context context)
-            throws BlichFetchException {
-        String currentClass = Utilities.Class.getCurrentClass(context);
-        String selection;
-        String[] selectionArgs;
-
-        if (currentClass.contains("'")) { //Normal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
-            selectionArgs = currentClass.split("'");
-        } else { //Abnormal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
-            selectionArgs = new String[]{currentClass};
-        }
-
-
-        Cursor cursor = context.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                selection,
-                selectionArgs,
-                null);
-
-        int classValue;
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                classValue = cursor.getInt(0);
-            } else {
-                throw new BlichFetchException("Can't get the user's class. " +
-                        "Did the user configure his class?");
-            }
-        } else {
-            throw new NullPointerException("Queried cursor is null");
-        }
-
-        cursor.close();
-        return classValue;
-    }
-
-    private static void loadJsonIntoRealm(String json) throws JSONException {
-        Realm realm = Realm.getDefaultInstance();
+    private static void insertScheduleJsonIntoData(String json, BlichData blichData) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonHours = raw.getJSONArray(Database.JSON_ARRAY_HOURS);
-        Schedule schedule = new Schedule();
         RealmList<Hour> hours = new RealmList<>();
-        for(int i = 0; i < jsonHours.length(); i++) {
+        for (int i = 0; i < jsonHours.length(); i++) {
             Hour hour = new Hour();
             JSONObject jsonHour = jsonHours.getJSONObject(i);
 
             RealmList<Lesson> lessons = new RealmList<>();
             JSONArray jsonLessons = jsonHour.getJSONArray(Database.JSON_ARRAY_LESSONS);
-            for(int j = 0; j < jsonLessons.length(); j++) {
+            for (int j = 0; j < jsonLessons.length(); j++) {
                 Lesson lesson = new Lesson();
                 JSONObject jsonLesson = jsonLessons.getJSONObject(j);
 
@@ -262,20 +182,8 @@ public class BlichSyncTask {
             hours.add(hour);
         }
 
-        schedule.setHours(hours);
-        schedule.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
-
-        realm.beginTransaction();
-        //Delete old data
-        RealmResults<Hour> oldData = realm.where(Hour.class)
-                .findAll();
-        oldData.deleteAllFromRealm();
-
-        //Insert new data
-        realm.insert(schedule);
-        realm.commitTransaction();
-
-        realm.close();
+        blichData.setHours(hours);
+        blichData.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
     }
 
     private static @FetchStatus
@@ -377,6 +285,100 @@ public class BlichSyncTask {
                 contentValues.toArray(new ContentValues[contentValues.size()]));
 
         return FETCH_STATUS_SUCCESSFUL;
+    }
+
+    private static void loadDataIntoRealm(BlichData blichData) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        //Delete old data
+        RealmResults<Hour> hours = realm.where(Hour.class)
+                .findAll();
+        hours.deleteAllFromRealm();
+
+        //Insert new data
+        realm.insert(blichData);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    private static int getClassValue(Context context)
+            throws BlichFetchException {
+        String currentClass = Utilities.Class.getCurrentClass(context);
+        String selection;
+        String[] selectionArgs;
+
+        if (currentClass.contains("'")) { //Normal class syntax
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
+                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
+            selectionArgs = currentClass.split("'");
+        } else { //Abnormal class syntax
+            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
+            selectionArgs = new String[]{currentClass};
+        }
+
+
+        Cursor cursor = context.getContentResolver().query(
+                BlichContract.ClassEntry.CONTENT_URI,
+                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
+                selection,
+                selectionArgs,
+                null);
+
+        int classValue;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                classValue = cursor.getInt(0);
+            } else {
+                throw new BlichFetchException("Can't get the user's class. " +
+                        "Did the user configure his class?");
+            }
+        } else {
+            throw new NullPointerException("Queried cursor is null");
+        }
+
+        cursor.close();
+        return classValue;
+    }
+
+    private static URL buildUrlFromCommand(Context context, String command)
+            throws BlichFetchException {
+        int classValue = getClassValue(context);
+
+        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
+                .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
+                .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
+                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
+                .appendQueryParameter(PARAM_COMMAND, command)
+                .build();
+
+        if (BuildConfig.DEBUG) Timber.d("Building URI: %s", scheduleUri.toString());
+
+        try {
+            return new URL(scheduleUri.toString());
+        } catch (MalformedURLException e) {
+            Timber.e(e);
+            return null;
+        }
+    }
+
+    private static String getResponseFromUrl(URL url) throws IOException {
+        HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
+
+        InputStream in = scheduleConnection.getInputStream();
+
+        Scanner scanner = new Scanner(in);
+        scanner.useDelimiter("\\A");
+
+        boolean hasInput = scanner.hasNext();
+        String response = null;
+        if (hasInput) {
+            response = scanner.next();
+        }
+        scanner.close();
+        scheduleConnection.disconnect();
+
+        return response;
     }
 
     public static class BlichFetchException extends Exception {

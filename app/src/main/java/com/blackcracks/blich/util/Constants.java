@@ -21,7 +21,7 @@ public class Constants {
     public static final int NEWS_LOADER_ID = 16;
 
     public static class Database {
-        public static final String JSON_ARRAY_HOURS = "Schedule";
+        public static final String JSON_ARRAY_HOURS = "BlichData";
         public static final String JSON_INT_CLASS_ID = "ClassId";
 
         public static final String JSON_INT_DAY = "Day";

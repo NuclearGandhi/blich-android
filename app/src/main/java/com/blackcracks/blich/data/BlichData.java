@@ -11,7 +11,7 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Required;
 
-public class Schedule extends RealmObject {
+public class BlichData extends RealmObject {
 
     private int classId;
     @Required private RealmList<Hour> hours;
