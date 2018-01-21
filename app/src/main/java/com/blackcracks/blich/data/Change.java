@@ -7,6 +7,8 @@
 
 package com.blackcracks.blich.data;
 
+import com.blackcracks.blich.util.Constants;
+
 import java.util.Calendar;
 
 import io.realm.RealmObject;
@@ -102,5 +104,29 @@ public class Change extends RealmObject {
 
     public void setNewHour(int newHour) {
         this.newHour = newHour;
+    }
+
+    public String buildSubject() {
+        String str = "";
+        switch (getChangeType()) {
+            case Constants.Database.TYPE_CANCELED: {
+                str = "ביטול " + getSubject() + ", " + getTeacher();
+                break;
+            }
+            case Constants.Database.TYPE_NEW_HOUR: {
+                str = "הזזת שיעור " + getSubject() + " לשעה " + getNewHour();
+                break;
+            }
+            case Constants.Database.TYPE_NEW_ROOM: {
+                str = "החלפת חדר של שיעור " + getSubject() + " ל " + getNewRoom();
+                break;
+            }
+            case Constants.Database.TYPE_NEW_TEACHER: {
+                str = " החלפת מורה של שיעור" + getSubject() + " ל " + getNewTeacher();
+                break;
+            }
+        }
+
+        return str;
     }
 }

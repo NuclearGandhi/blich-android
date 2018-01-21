@@ -369,7 +369,7 @@ public class Utilities {
                     .and()
                     .beginGroup()
                     //Set an impossible case for easier code writing
-                    .equalTo("subject", 150);
+                    .equalTo("subject", "oghegijd39");
 
             for (String teacherSubject :
                     teacherSubjects) {
@@ -489,6 +489,17 @@ public class Utilities {
                 if (!mIsDataValid) return null;
                 Hour hour = getHour(position);
                 return hour.getLessons().get(childPos);
+            }
+
+            public @Nullable Change getChange(int hour, Lesson lesson) {
+                List<Change> hourChanges = getChanges(hour);
+                for(int i = 0; i < hourChanges.size(); i++) {
+                    Change change = hourChanges.get(i);
+                    if (change.getTeacher().equals(lesson.getTeacher()) &&
+                            change.getSubject().equals(lesson.getSubject()))
+                        return change;
+                }
+                return null;
             }
 
             public int getHourCount() {

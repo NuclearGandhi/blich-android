@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -140,10 +141,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         holder.eventsView.setVisibility(View.VISIBLE);
         //Add dots to signify that there are changes
         List<String> existingTypes = new ArrayList<>();
-        for(int i = 1 ; i < lessons.size(); i++) {
+        List<Change> changes = mRealmScheduleHelper.getChanges(hour.getHour());
+
+        for(int i = 1 ; i < changes.size(); i++) {
             //Begin from 1, no need to signify about an event already shown to the user
-            Lesson lesson = lessons.get(i);
-            existingTypes.add(lesson.getChangeType());
+            Change change = changes.get(i);
+            existingTypes.add(change.getChangeType());
         }
 
         if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
@@ -212,14 +215,28 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
+        Change change = mRealmScheduleHelper.getChange(
+                mRealmScheduleHelper.getHour(groupPosition).getHour(),
+                lesson
+        );
 
-        String subject = filterSubject(lesson.getSubject());
-        holder.subjectView.setText(subject);
+        int color;
+        if (change == null) {
+            String subject = filterSubject(lesson.getSubject());
+            holder.subjectView.setText(subject);
 
-        holder.teacherView.setText(lesson.getTeacher());
-        holder.classroomView.setText(lesson.getRoom());
+            holder.teacherView.setText(lesson.getTeacher());
+            holder.classroomView.setText(lesson.getRoom());
 
-        int color = getColorFromType(lesson.getChangeType());
+            color = R.color.black_text;
+        } else {
+            holder.subjectView.setText(change.buildSubject());
+            holder.teacherView.setText("");
+            holder.classroomView.setText("");
+
+            color = getColorFromType(change.getChangeType());
+        }
+
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         //Set a bottom divider if this is the last child
@@ -229,13 +246,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         } else {
             divider.setVisibility(View.GONE);
         }
-
-    }
-
-    public void switchData(ScheduleResult data) {
-        mRealmScheduleHelper.switchData(data);
-        mExpandedArray.clear();
-        notifyDataSetChanged();
     }
 
     private String filterSubject(String subject) {
@@ -292,6 +302,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
             default:
                 return R.color.black_text;
         }
+    }
+
+    public void switchData(ScheduleResult data) {
+        mRealmScheduleHelper.switchData(data);
+        mExpandedArray.clear();
+        notifyDataSetChanged();
     }
 
     private static class GroupViewHolder {
