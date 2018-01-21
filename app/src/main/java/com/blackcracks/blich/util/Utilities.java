@@ -45,7 +45,7 @@ import io.realm.DynamicRealm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmMigration;
-import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 import timber.log.Timber;
@@ -347,7 +347,7 @@ public class Utilities {
          *
          * @return {@link RealmQuery} object with filter rules
          */
-        public static <E extends RealmModel> RealmQuery<E> getFilteredQuery(
+        public static <E extends RealmObject> RealmQuery<E> getFilteredQuery(
                 io.realm.Realm realm,
                 Context context,
                 java.lang.Class<E> clazz,
@@ -358,20 +358,18 @@ public class Utilities {
                     Preferences.PREF_FILTER_SELECT_KEY);
             String[] teacherSubjects = teacherFilter.split(";");
 
-            String dayAttribute;
+            RealmQuery<E> query;
             switch (clazz.getSimpleName()) {
                 case "Change": {
-                    dayAttribute = "day";
+                    query = buildBaseChangeQuery(realm, clazz, day);
                     break;
                 }
                 default: {
-                    dayAttribute = "owners.day";
+                    query = buildBaseLessonQuery(realm, clazz, day);
                     break;
                 }
             }
-            RealmQuery<E> results = realm.where(clazz)
-                    .equalTo(dayAttribute, day) //Inverse Relationship
-                    .and()
+            query.and()
                     .beginGroup()
                     //Set an impossible case for easier code writing
                     .equalTo("subject", "oghegijd39");
@@ -384,7 +382,7 @@ public class Utilities {
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                results.or()
+                query.or()
                         .beginGroup()
                         .equalTo("teacher", teacher)
                         .and()
@@ -392,9 +390,52 @@ public class Utilities {
                         .endGroup();
             }
 
-            results.endGroup();
+            query.endGroup();
 
-            return results;
+            return query;
+        }
+
+        public static <E extends RealmObject> RealmQuery<E> buildBaseLessonQuery(
+                io.realm.Realm realm,
+                java.lang.Class<E> clazz,
+                int day) {
+             return realm.where(clazz)
+                    .equalTo("day", day);
+        }
+
+        public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
+                io.realm.Realm realm,
+                java.lang.Class<E> clazz,
+                int day) {
+
+            Calendar calendar = Calendar.getInstance();
+            int today = calendar.get(Calendar.DAY_OF_WEEK);
+
+            //If today is Saturday, go to next week
+            if (today == 7) {
+                int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+                if (weekOfYear == 52) weekOfYear = 0;
+                weekOfYear++;
+                calendar.set(Calendar.WEEK_OF_YEAR, weekOfYear);
+            }
+            //Set time for today, 00:00 am
+            calendar.set(Calendar.DAY_OF_WEEK, day);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            Date minDate = calendar.getTime();
+
+            //Set time for today 23:59 pm
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+
+            Date maxDate = calendar.getTime();
+
+            RealmQuery<E> query = realm.where(clazz)
+                    .between("date", minDate, maxDate);
+            return query;
         }
 
         public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {

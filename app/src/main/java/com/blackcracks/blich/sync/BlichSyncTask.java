@@ -45,6 +45,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -221,13 +222,14 @@ public class BlichSyncTask {
             JSONObject jsonChange = jsonChanges.getJSONObject(i);
             JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
 
-            String date = jsonChange.getString(Database.JSON_STRING_DATE);
-            int firstCut = date.indexOf("(") + 1;
-            int lastCut = date.indexOf(")");
-            long timeInMillis = Long.parseLong(date.substring(firstCut, lastCut));
+            String jsonDate = jsonChange.getString(Database.JSON_STRING_DATE);
+            int firstCut = jsonDate.indexOf("(") + 1;
+            int lastCut = jsonDate.indexOf(")");
+            long timeInMillis = Long.parseLong(jsonDate.substring(firstCut, lastCut));
+            Date date = new Date(timeInMillis);
 
             change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
-            change.setDay(timeInMillis);
+            change.setDate(date);
             change.setHour(jsonChange.getInt(Database.JSON_INT_HOUR));
             change.setSubject(jsonStudyGroup.getString(Database.JSON_STRING_SUBJECT));
             change.setTeacher(jsonStudyGroup.getString(Database.JSON_STRING_TEACHER));

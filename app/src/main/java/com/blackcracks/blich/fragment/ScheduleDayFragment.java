@@ -209,8 +209,10 @@ public class ScheduleDayFragment extends Fragment implements
                         .findAll()
                         .sort("hour", Sort.ASCENDING);
 
-                changes = mRealm.where(Change.class)
-                        .equalTo("day", mDay)
+                changes = Utilities.Realm.buildBaseChangeQuery(
+                        mRealm,
+                        Change.class,
+                        mDay)
                         .findAll();
             }
 
