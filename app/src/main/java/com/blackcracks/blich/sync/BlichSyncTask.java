@@ -222,7 +222,7 @@ public class BlichSyncTask {
             JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
 
             String date = jsonChange.getString(Database.JSON_STRING_DATE);
-            int firstCut = date.indexOf("(");
+            int firstCut = date.indexOf("(") + 1;
             int lastCut = date.indexOf(")");
             long timeInMillis = Long.parseLong(date.substring(firstCut, lastCut));
 

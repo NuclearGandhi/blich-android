@@ -7,11 +7,14 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -50,7 +53,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
         List<Hour> data;
         if (isFilterOn) {
-            List<Lesson> lessons = Utilities.Realm.getFilteredLessonsQuery(mRealm, mContext, mDay)
+            List<Lesson> lessons = Utilities.Realm.getFilteredQuery(mRealm, mContext, Lesson.class, mDay)
                     .findAll();
 
             SparseIntArray hourArr = new SparseIntArray();
@@ -160,7 +163,11 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     }
 
     private void switchData(List<Hour> data) {
-        mRealmHelper.switchData(data);
+        ScheduleResult result = new ScheduleResult(
+                data,
+                new ArrayList<Change>()
+        );
+        mRealmHelper.switchData(result);
 
     }
 }
