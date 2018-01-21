@@ -122,20 +122,36 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         final List<Lesson> lessons = hour.getLessons();
         final Lesson first_lesson = lessons.get(0);
+        Change firstChange = mRealmScheduleHelper.getChange(hour.getHour(), first_lesson);
 
-        String subject = filterSubject(first_lesson.getSubject());
-        final String teacher = first_lesson.getTeacher();
-        final String room = first_lesson.getRoom();
+        String subject;
+        final String teacher;
+        final String room;
+
+        int color;
+
+        if (firstChange == null) {
+            subject = filterSubject(first_lesson.getSubject());
+            teacher = first_lesson.getTeacher();
+            room = first_lesson.getRoom();
+
+            color = R.color.black_text;
+        } else {
+            subject = firstChange.buildSubject();
+            teacher = "";
+            room = "";
+
+            color = getColorFromType(firstChange.getChangeType());
+        }
+
+        //Set the color according to the lesson type
+        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         //Set initial values
         holder.subjectView.setText(subject);
         holder.teacherView.setText("...");
         holder.classroomView.setText("");
         holder.indicatorView.setRotationX(0);
-
-        //Set the color according to the lesson type
-        int color = getColorFromType(first_lesson.getChangeType());
-        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         holder.eventsView.removeAllViews();
         holder.eventsView.setVisibility(View.VISIBLE);
