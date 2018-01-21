@@ -276,7 +276,7 @@ public class Utilities {
         public static void setUpRealm(Context context) {
             io.realm.Realm.init(context);
             RealmConfiguration config = new RealmConfiguration.Builder()
-                    .schemaVersion(6)
+                    .schemaVersion(7)
                     .migration(new RealmMigration() {
                         @Override
                         public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -319,6 +319,11 @@ public class Utilities {
                             if (oldVersion == 5) {
                                 schema.get("Change")
                                         .addField("day", int.class);
+                                oldVersion++;
+                            } if (oldVersion == 6) {
+                                schema.get("Change")
+                                        .removeField("day")
+                                        .addField("date", Date.class);
                                 oldVersion++;
                             }
                         }

@@ -9,7 +9,7 @@ package com.blackcracks.blich.data;
 
 import com.blackcracks.blich.util.Constants;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import io.realm.RealmObject;
 
@@ -17,7 +17,7 @@ public class Change extends RealmObject {
 
     private String changeType;
 
-    private int day;
+    private Date date;
     private int hour;
     private String teacher;
     private String subject;
@@ -29,7 +29,7 @@ public class Change extends RealmObject {
     public Change() {
     }
 
-    public Change(String changeType, int day, int hour, String teacher, String subject) {
+    public Change(String changeType, Date date, int hour, String teacher, String subject) {
         this.changeType = changeType;
         this.hour = hour;
         this.teacher = teacher;
@@ -44,18 +44,12 @@ public class Change extends RealmObject {
         this.changeType = changeType;
     }
 
-    public int getDay() {
-        return day;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDay(int day) {
-        this.day = day;
-    }
-
-    public void setDay(long timeInMillis) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeInMillis);
-        this.day = calendar.get(Calendar.DAY_OF_WEEK);
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public int getHour() {
@@ -118,11 +112,11 @@ public class Change extends RealmObject {
                 break;
             }
             case Constants.Database.TYPE_NEW_ROOM: {
-                str = "החלפת חדר של שיעור " + getSubject() + " ל " + getNewRoom();
+                str = "החלפת חדר של שיעור " + getSubject() + " ל" + getNewRoom();
                 break;
             }
             case Constants.Database.TYPE_NEW_TEACHER: {
-                str = " החלפת מורה של שיעור" + getSubject() + " ל " + getNewTeacher();
+                str = "החלפת מורה של שיעור " + getSubject() + " ל" + getNewTeacher();
                 break;
             }
         }
