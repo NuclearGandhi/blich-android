@@ -311,6 +311,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
                 return R.color.lesson_canceled;
             case Database.TYPE_NEW_TEACHER:
                 return R.color.lesson_changed;
+            case Database.TYPE_NEW_ROOM:
+                return R.color.lesson_changed;
+            case Database.TYPE_NEW_HOUR:
+                return R.color.lesson_changed;
             case Database.TYPE_EVENT:
                 return R.color.lesson_event;
             case Database.TYPE_EXAM:
