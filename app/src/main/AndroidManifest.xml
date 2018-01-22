@@ -53,10 +53,10 @@
         </activity>
 
         <service
-            android:name=".data.FetchClassService"
+            android:name=".sync.FetchClassService"
             android:exported="false"/>
         <service
-            android:name=".data.FetchNewsService"
+            android:name=".sync.FetchNewsService"
             android:exported="false">
         </service>
         <service

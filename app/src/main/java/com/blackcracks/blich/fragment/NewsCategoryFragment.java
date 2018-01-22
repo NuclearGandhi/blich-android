@@ -35,7 +35,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.NewsAdapter;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
-import com.blackcracks.blich.data.FetchNewsService;
+import com.blackcracks.blich.sync.FetchNewsService;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;

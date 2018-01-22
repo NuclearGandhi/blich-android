@@ -26,7 +26,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichDatabaseHelper;
-import com.blackcracks.blich.data.FetchClassService;
+import com.blackcracks.blich.sync.FetchClassService;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.Utilities;
 

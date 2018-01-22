@@ -5,12 +5,14 @@
  * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.sync;
 
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.blackcracks.blich.data.BlichContract;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

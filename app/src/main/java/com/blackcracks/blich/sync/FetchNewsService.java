@@ -5,7 +5,7 @@
  * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.sync;
 
 import android.app.IntentService;
 import android.content.ContentValues;
@@ -14,7 +14,6 @@ import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
-import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.IntentConstants;
 import com.blackcracks.blich.util.Utilities;
