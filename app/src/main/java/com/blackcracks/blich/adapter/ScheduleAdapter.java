@@ -166,7 +166,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         }
 
         if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
-        if (existingTypes.contains(Database.TYPE_NEW_TEACHER)) makeEventDot(holder.eventsView, R.color.lesson_changed);
+        if (
+                existingTypes.contains(Database.TYPE_NEW_TEACHER) ||
+                existingTypes.contains(Database.TYPE_NEW_HOUR) ||
+                existingTypes.contains(Database.TYPE_NEW_ROOM)) {
+            makeEventDot(holder.eventsView, R.color.lesson_changed);
+        }
         if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
         if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
