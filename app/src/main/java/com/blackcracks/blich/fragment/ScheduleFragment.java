@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.Utilities;
 
 /**
@@ -47,7 +48,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         if (viewPager != null) {
             viewPager.setAdapter(pagerAdapter);
 
-            int day = Utilities.Schedule.getWantedDayOfTheWeek();
+            int day = ScheduleUtils.getWantedDayOfTheWeek();
             viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);
 
         }

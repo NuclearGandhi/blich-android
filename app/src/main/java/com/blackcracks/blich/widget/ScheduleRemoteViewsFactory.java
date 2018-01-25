@@ -13,6 +13,7 @@ import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.RealmUtils;
+import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
         mContext = context;
         mRealmHelper = new RealmUtils.RealmScheduleHelper(null);
 
-        mDay = Utilities.Schedule.getWantedDayOfTheWeek();
+        mDay = ScheduleUtils.getWantedDayOfTheWeek();
     }
 
     @Override

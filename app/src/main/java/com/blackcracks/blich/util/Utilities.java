@@ -30,7 +30,6 @@ import com.blackcracks.blich.widget.BlichWidgetProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -298,20 +297,6 @@ public class Utilities {
 
         public static String getActionForCategory(int category) {
             return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK + category;
-        }
-    }
-
-    public static class Schedule {
-
-        public static int getWantedDayOfTheWeek() {
-
-            int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-
-            if (hour >= 18 && day != 7)
-                day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
-            if (day == 7) day = 1; //If it is Saturday, set day to 1 (Sunday).
-            return day;
         }
     }
 

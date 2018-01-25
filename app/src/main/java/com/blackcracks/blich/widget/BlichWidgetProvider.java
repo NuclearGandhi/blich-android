@@ -10,7 +10,7 @@ import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.ScheduleUtils;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.widget_schedule_title, pendingIntent);
 
-        int day = Utilities.Schedule.getWantedDayOfTheWeek();
+        int day = ScheduleUtils.getWantedDayOfTheWeek();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, day);
 
