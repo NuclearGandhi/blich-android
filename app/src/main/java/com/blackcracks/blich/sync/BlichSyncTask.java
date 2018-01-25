@@ -22,6 +22,7 @@ import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.util.ClassUtils;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -365,7 +366,7 @@ public class BlichSyncTask {
 
     private static int getClassValue(Context context)
             throws BlichFetchException {
-        String currentClass = Utilities.Class.getCurrentClass(context);
+        String currentClass = ClassUtils.getCurrentClass(context);
         String selection;
         String[] selectionArgs;
 

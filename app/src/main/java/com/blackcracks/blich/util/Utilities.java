@@ -257,19 +257,4 @@ public class Utilities {
         widgetManager.updateAppWidget(widget, views);
     }
 
-    public static class Class {
-
-        public static String getCurrentClass(Context context) {
-
-            @Preferences.PrefIntKeys int intKey = Preferences.PREF_CLASS_PICKER_KEY;
-            String key = Preferences.getKey(context, intKey);
-
-            String defaultValue = (String) Preferences.getDefault(context, intKey);
-
-            return PreferenceManager.getDefaultSharedPreferences(context)
-                    .getString(
-                            key,
-                            defaultValue.replace("/", ""));
-        }
-    }
 }

@@ -12,9 +12,6 @@ import android.preference.PreferenceManager;
 
 import com.blackcracks.blich.R;
 
-/**
- * Created by Administrator on 1/25/2018.
- */
 public class NewsUtils {
 
     public static void setIsFetchingForCategory(Context context, int category, boolean isFetching) {

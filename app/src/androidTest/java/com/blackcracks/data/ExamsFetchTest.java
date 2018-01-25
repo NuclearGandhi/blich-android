@@ -12,7 +12,7 @@ import android.util.Log;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.sync.BlichSyncTask;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.ClassUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -133,7 +133,7 @@ public class ExamsFetchTest {
     }
 
     private int getClassValue() throws BlichSyncTask.BlichFetchException {
-        String currentClass = Utilities.Class.getCurrentClass(mContext);
+        String currentClass = ClassUtils.getCurrentClass(mContext);
         String selection;
         String[] selectionArgs;
 
