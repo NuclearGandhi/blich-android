@@ -16,7 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.IntentConstants;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.NewsUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -72,19 +72,19 @@ public class FetchNewsService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         @NewsCategory int category = intent.getIntExtra(Constants.IntentConstants.EXTRA_NEWS_CATEGORY, CATEGORY_GENERAL);
 
-        if (Utilities.News.getIsFetchingForCategory(getBaseContext(), category)) return;
+        if (NewsUtils.getIsFetchingForCategory(getBaseContext(), category)) return;
 
         //Set isFetching to true;
-        Utilities.News.setIsFetchingForCategory(getBaseContext(), category, true);
+        NewsUtils.setIsFetchingForCategory(getBaseContext(), category, true);
 
         int status = fetchNews(category);
-        Intent broadcast = new Intent(Utilities.News.getActionForCategory(category));
+        Intent broadcast = new Intent(NewsUtils.getActionForCategory(category));
         broadcast.putExtra(IntentConstants.EXTRA_NEWS_CATEGORY, status);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(broadcast);
 
         //Set isFetching to false
-        Utilities.News.setIsFetchingForCategory(getBaseContext(), category, false);
+        NewsUtils.setIsFetchingForCategory(getBaseContext(), category, false);
     }
 
     private @BlichSyncTask.FetchStatus
@@ -179,7 +179,7 @@ public class FetchNewsService extends IntentService {
                 contentValuesList.toArray(new ContentValues[contentValuesList.size()]));
 
         //Update the latest update preference
-        Utilities.News.setPreferenceLatestUpdateForCategory(getBaseContext(),
+        NewsUtils.setPreferenceLatestUpdateForCategory(getBaseContext(),
                 category,
                 System.currentTimeMillis());
 

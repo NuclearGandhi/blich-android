@@ -257,49 +257,6 @@ public class Utilities {
         widgetManager.updateAppWidget(widget, views);
     }
 
-    public static class News {
-
-        public static void setIsFetchingForCategory(Context context, int category, boolean isFetching) {
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(
-                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
-                    isFetching
-            ).apply();
-        }
-
-        public static boolean getIsFetchingForCategory(Context context, int category) {
-            return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                    context.getResources().getString(R.string.pref_is_fetching_news_key) + category,
-                    false
-            );
-        }
-
-        public static void resetIsFetchingPreferences(Context context) {
-            for (int i = 0; i <= 4; i++) {
-                setIsFetchingForCategory(context, i, false);
-            }
-        }
-
-        public static void setPreferenceLatestUpdateForCategory(Context context,
-                                                                int category,
-                                                                long epoch) {
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(
-                    context.getResources().getString(R.string.pref_latest_update_key) + category,
-                    epoch
-            ).apply();
-        }
-
-        public static long getLatestUpdateForCategory(Context context, int category) {
-            return PreferenceManager.getDefaultSharedPreferences(context).getLong(
-                    context.getResources().getString(R.string.pref_latest_update_key) + category,
-                    0
-            );
-        }
-
-        public static String getActionForCategory(int category) {
-            return Constants.IntentConstants.ACTION_FETCH_NEWS_CALLBACK + category;
-        }
-    }
-
     public static class Class {
 
         public static String getCurrentClass(Context context) {

@@ -38,7 +38,7 @@ import com.blackcracks.blich.data.BlichContract.NewsEntry;
 import com.blackcracks.blich.sync.FetchNewsService;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.NewsUtils;
 
 import java.lang.reflect.Field;
 
@@ -65,7 +65,7 @@ public class NewsCategoryFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         mCategory = getArguments() != null ? getArguments().getInt(KEY_CATEGORY) : 0;
 
-        Utilities.News.resetIsFetchingPreferences(getContext());
+        NewsUtils.resetIsFetchingPreferences(getContext());
     }
 
     @Nullable
@@ -110,9 +110,9 @@ public class NewsCategoryFragment extends Fragment implements
         PreferenceManager.getDefaultSharedPreferences(getContext())
                 .registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver,
-                new IntentFilter(Utilities.News.getActionForCategory(mCategory)));
+                new IntentFilter(NewsUtils.getActionForCategory(mCategory)));
         mSwipeRefreshLayout.setRefreshing(
-                Utilities.News.getIsFetchingForCategory(getContext(),
+                NewsUtils.getIsFetchingForCategory(getContext(),
                         mCategory));
 
         showLatestUpdate();
@@ -230,7 +230,7 @@ public class NewsCategoryFragment extends Fragment implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String isFetchingKey = getString(R.string.pref_is_fetching_news_key) + mCategory;
         if (key.equals(isFetchingKey)) {
-            mSwipeRefreshLayout.setRefreshing(Utilities.News.getIsFetchingForCategory(getContext(), mCategory));
+            mSwipeRefreshLayout.setRefreshing(NewsUtils.getIsFetchingForCategory(getContext(), mCategory));
         }
     }
 
@@ -247,7 +247,7 @@ public class NewsCategoryFragment extends Fragment implements
     }
 
     private void showLatestUpdate() {
-        long latestUpdateInMillis = Utilities.News.getLatestUpdateForCategory(
+        long latestUpdateInMillis = NewsUtils.getLatestUpdateForCategory(
                 getContext(),
                 mCategory
         );
