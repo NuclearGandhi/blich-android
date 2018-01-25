@@ -31,6 +31,7 @@ import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.Utilities;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -137,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
 
-                String existingValue = Utilities.getPrefString(getContext(),
+                String existingValue = PreferencesUtils.getString(getContext(),
                         key,
                         (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY),
                         true);
@@ -219,7 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
             String notificationSoundDefault =
                     (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
 
-            String uri = Utilities.getPrefString(getContext(),
+            String uri = PreferencesUtils.getString(getContext(),
                     notificationSoundKey,
                     notificationSoundDefault,
                     true);

@@ -26,6 +26,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.JobParameters;
@@ -111,8 +112,8 @@ public class BlichFirebaseJobService extends JobService {
             int intKey = Constants.Preferences.PREF_NOTIFICATION_SOUND_KEY;
             String prefKey = Constants.Preferences.getKey(context, intKey);
             String prefDefault = (String) Constants.Preferences.getDefault(context, intKey);
-            Uri ringtone = Uri.parse(Utilities
-                    .getPrefString(context,
+            Uri ringtone = Uri.parse(PreferencesUtils
+                    .getString(context,
                             prefKey,
                             prefDefault,
                             true));

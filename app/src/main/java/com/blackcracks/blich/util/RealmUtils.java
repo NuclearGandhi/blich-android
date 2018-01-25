@@ -113,7 +113,7 @@ public class RealmUtils {
             Class<E> clazz,
             int day) {
 
-        String teacherFilter = Utilities.getPrefString(
+        String teacherFilter = PreferencesUtils.getString(
                 context,
                 Constants.Preferences.PREF_FILTER_SELECT_KEY);
         String[] teacherSubjects = teacherFilter.split(";");

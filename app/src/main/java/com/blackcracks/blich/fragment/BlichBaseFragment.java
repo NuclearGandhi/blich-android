@@ -29,6 +29,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.Utilities;
 
 /**
@@ -117,7 +118,7 @@ public abstract class BlichBaseFragment extends Fragment implements
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(Constants.IntentConstants.ACTION_SYNC_CALLBACK));
 
-        mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(
+        mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(
                 getContext(),
                 Constants.Preferences.PREF_IS_SYNCING_KEY
         ));
@@ -134,7 +135,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_is_syncing_key))) {
-            mSwipeRefreshLayout.setRefreshing(Utilities.getPrefBoolean(
+            mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(
                     getContext(),
                     Constants.Preferences.PREF_IS_SYNCING_KEY
             ));

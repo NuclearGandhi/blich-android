@@ -12,7 +12,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -51,7 +51,7 @@ public class BlichSyncUtils {
     }
 
     synchronized public static void initialize(@NonNull Context context) {
-        boolean is_notifications_on = Utilities.getPrefBoolean(context,
+        boolean is_notifications_on = PreferencesUtils.getBoolean(context,
                 Constants.Preferences.PREF_NOTIFICATION_TOGGLE_KEY);
 
         Driver driver = new GooglePlayDriver(context);

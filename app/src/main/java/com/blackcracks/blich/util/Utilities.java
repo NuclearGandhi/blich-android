@@ -70,44 +70,6 @@ public class Utilities {
         return false;
     }
 
-
-    //Preferences
-    public static String getPrefString(Context context,
-                                       String key,
-                                       String defaultValue,
-                                       boolean isUri) {
-        String returnString = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(key, defaultValue);
-        if (isUri) return returnString;
-        else return returnString.replace("/", "");
-    }
-
-    public static String getPrefString(Context context,
-                                       int prefKey) {
-        String key = Preferences.getKey(context, prefKey);
-        String defaultValue = (String) Preferences.getDefault(context, prefKey);
-
-        return getPrefString(context, key, defaultValue, false);
-    }
-
-    public static boolean getPrefBoolean(Context context, String key, boolean defaultValue) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(key, defaultValue);
-    }
-
-    public static boolean getPrefBoolean(Context context, int prefKey) {
-        String key = Preferences.getKey(context, prefKey);
-        boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
-
-        return getPrefBoolean(context, key, defaultValue);
-    }
-
-    public static int getPrefInt(Context context, String key, int defaultValue) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(key, defaultValue);
-    }
-
-
     public static long getTimeInMillisFromDate(String date) {
 
         Locale locale = new Locale("iw");
@@ -134,7 +96,7 @@ public class Utilities {
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected = false;
-        boolean isFetching = getPrefBoolean(
+        boolean isFetching = PreferencesUtils.getBoolean(
                 context,
                 Preferences.PREF_IS_SYNCING_KEY
         );

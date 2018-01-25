@@ -12,9 +12,9 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
-import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +48,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     public void onDataSetChanged() {
         mRealm = Realm.getDefaultInstance();
 
-        boolean isFilterOn = Utilities.getPrefBoolean(
+        boolean isFilterOn = PreferencesUtils.getBoolean(
                 mContext,
                 Constants.Preferences.PREF_FILTER_TOGGLE_KEY
         );

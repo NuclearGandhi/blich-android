@@ -22,8 +22,8 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.Utilities;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -167,7 +167,7 @@ public class ScheduleDayFragment extends Fragment implements
             if (mRealm.isClosed()) return;
 
             //Check if the user wants to filter the schedule
-            boolean isFilterOn = Utilities.getPrefBoolean(
+            boolean isFilterOn = PreferencesUtils.getBoolean(
                     getContext(),
                     Preferences.PREF_FILTER_TOGGLE_KEY);
 

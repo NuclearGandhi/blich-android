@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.Utilities;
 
@@ -88,7 +89,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         filter.setActionView(mFilterActionButton);
 
         //Get the filter toggle state
-        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
 
         //Set the correct image according to the filter toggle state
         if (!isFilterOn) {
@@ -140,7 +141,7 @@ public class ScheduleFragment extends BlichBaseFragment {
     public void onResume() {
         super.onResume();
         //Get the filter toggle state
-        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
         //Set the correct image according to the filter toggle state
         if (mFilterActionButton != null) {
             int drawableId;
@@ -155,10 +156,10 @@ public class ScheduleFragment extends BlichBaseFragment {
     private void toggleFilterAction() {
         //Get the filter toggle state
         String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
-        boolean isFilterOn = Utilities.getPrefBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
 
         //Test if the user had setup filtering in the settings
-        String filterSelect = Utilities.getPrefString(getContext(), Preferences.PREF_FILTER_SELECT_KEY);
+        String filterSelect = PreferencesUtils.getString(getContext(), Preferences.PREF_FILTER_SELECT_KEY);
         if (filterSelect.equals("") && !isFilterOn) {
             Toast.makeText(getContext(), R.string.toast_filter_not_setup, Toast.LENGTH_LONG)
                     .show();
