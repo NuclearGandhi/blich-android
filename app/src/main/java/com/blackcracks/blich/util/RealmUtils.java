@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.DynamicRealm;
+import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmMigration;
@@ -107,16 +108,11 @@ public class RealmUtils {
      *
      * @return {@link RealmQuery} object with filter rules
      */
-    public static <E extends RealmObject> RealmQuery<E> getFilteredQuery(
-            io.realm.Realm realm,
+    public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
+            Realm realm,
             Context context,
             Class<E> clazz,
             int day) {
-
-        String teacherFilter = PreferencesUtils.getString(
-                context,
-                Constants.Preferences.PREF_FILTER_SELECT_KEY);
-        String[] teacherSubjects = teacherFilter.split(";");
 
         RealmQuery<E> query;
         switch (clazz.getSimpleName()) {
@@ -129,6 +125,20 @@ public class RealmUtils {
                 break;
             }
         }
+
+        return buildFilteredQuery(query, context);
+    }
+
+    public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
+            RealmQuery<E> query,
+            Context context) {
+
+
+        String teacherFilter = PreferencesUtils.getString(
+                context,
+                Constants.Preferences.PREF_FILTER_SELECT_KEY);
+        String[] teacherSubjects = teacherFilter.split(";");
+
         query.and()
                 .beginGroup()
                 //Set an impossible case for easier code writing
@@ -155,6 +165,7 @@ public class RealmUtils {
         return query;
     }
 
+
     public static <E extends RealmObject> RealmQuery<E> buildBaseLessonQuery(
             io.realm.Realm realm,
             Class<E> clazz,
@@ -164,20 +175,12 @@ public class RealmUtils {
     }
 
     public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
-            io.realm.Realm realm,
+            Realm realm,
             Class<E> clazz,
             int day) {
 
         Calendar calendar = Calendar.getInstance();
-        int today = calendar.get(Calendar.DAY_OF_WEEK);
 
-        //If today is Saturday, go to next week
-        if (today == 7) {
-            int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
-            if (weekOfYear == 52) weekOfYear = 0;
-            weekOfYear++;
-            calendar.set(Calendar.WEEK_OF_YEAR, weekOfYear);
-        }
         //Set time for today, 00:00 am
         calendar.set(Calendar.DAY_OF_WEEK, day);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -192,6 +195,15 @@ public class RealmUtils {
         calendar.set(Calendar.MINUTE, 59);
 
         Date maxDate = calendar.getTime();
+
+        return buildBaseChangeQuery(realm, clazz, minDate, maxDate);
+    }
+
+    public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
+            Realm realm,
+            Class<E> clazz,
+            Date minDate,
+            Date maxDate) {
 
         RealmQuery<E> query = realm.where(clazz)
                 .between("date", minDate, maxDate);

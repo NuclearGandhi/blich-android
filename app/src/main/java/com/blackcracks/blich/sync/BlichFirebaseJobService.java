@@ -22,10 +22,8 @@ import android.text.Spanned;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -34,10 +32,11 @@ import com.firebase.jobdispatcher.JobService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
+import io.realm.RealmQuery;
 
 public class BlichFirebaseJobService extends JobService {
 
@@ -83,28 +82,44 @@ public class BlichFirebaseJobService extends JobService {
         return true;
     }
 
-    private List<Hour> fetchNotificationList() {
+    private List<Change> fetchNotificationList() {
         Calendar calendar = Calendar.getInstance();
-        int today = calendar.get(Calendar.DAY_OF_WEEK);
-        int tomorrow = today + 1;
-        if (tomorrow == 8) tomorrow = 1;
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Date minDate = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        Date maxDate = calendar.getTime();
 
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Hour> results = realm.where(Hour.class)
-                .beginGroup()
-                    .equalTo("day", today)
-                    .or()
-                    .equalTo("day", tomorrow)
-                .endGroup()
-                .and()
-                .notEqualTo("lessons.changeType", Database.TYPE_NORMAL)
-                .findAll();
+        RealmQuery<Change> query = RealmUtils.buildBaseChangeQuery(
+                realm,
+                Change.class,
+                minDate,
+                maxDate
+        );
 
-        return results;
+        RealmUtils.buildFilteredQuery(
+                query,
+                getBaseContext()
+        );
+
+        query.sort("date");
+
+        return query.findAll();
     }
 
     private void notifyUser(Context context) {
-        List<Hour> notificationList = fetchNotificationList();
+        List<Change> notificationList = fetchNotificationList();
         if (!notificationList.isEmpty()) {
 
             NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
@@ -146,49 +161,43 @@ public class BlichFirebaseJobService extends JobService {
         }
     }
 
-    private NotificationCompat.InboxStyle buildNotificationContent(List<Hour> notificationList) {
+    private NotificationCompat.InboxStyle buildNotificationContent(List<Change> notificationList) {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        int today = calendar.get(Calendar.DAY_OF_WEEK);
 
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
 
-        List<Lesson> todayNotificationLessons = new ArrayList<>();
-        List<Lesson> tomorrowNotificationLessons = new ArrayList<>();
-        for (Hour hour :
+        List<Change> todayNotificationChanges = new ArrayList<>();
+        List<Change> tomorrowNotificationChanges = new ArrayList<>();
+        for (Change change:
                 notificationList) {
-            List<Lesson> lessons = hour.getLessons();
-            for (Lesson lesson :
-                    lessons) {
-                if (!lesson.getChangeType().equals(Database.TYPE_NORMAL)) {
-                    if (hour.getDay() == day)
-                        todayNotificationLessons.add(lesson);
-                    else {
-                        tomorrowNotificationLessons.add(lesson);
-                    }
-                }
-            }
+            Calendar date = Calendar.getInstance();
+            date.setTime(change.getDate());
+            int day = date.get(Calendar.DAY_OF_WEEK);
+            if (today == day) todayNotificationChanges.add(change);
+            else todayNotificationChanges.add(change);
         }
 
-        if (todayNotificationLessons.size() != 0) {
+        if (todayNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("היום:"));
-            for (Lesson lesson :
-                    todayNotificationLessons) {
-                inboxStyle.addLine(lesson.getSubject());
+            for (Change change :
+                    todayNotificationChanges) {
+                inboxStyle.addLine(change.buildSubject());
             }
         }
 
 
-        if (tomorrowNotificationLessons.size() != 0) {
+        if (tomorrowNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("מחר:"));
-            for (Lesson lesson :
-                    tomorrowNotificationLessons) {
-                inboxStyle.addLine(lesson.getSubject());
+            for (Change change :
+                    tomorrowNotificationChanges) {
+                inboxStyle.addLine(change.buildSubject());
             }
         }
 
         //Save the number of changes in total;
-        int changesNum = todayNotificationLessons.size() + tomorrowNotificationLessons.size();
+        int changesNum = todayNotificationChanges.size() + tomorrowNotificationChanges.size();
         if (changesNum == 0) return null; //Stop
 
         String summery;

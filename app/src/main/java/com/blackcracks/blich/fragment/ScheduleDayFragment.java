@@ -176,14 +176,14 @@ public class ScheduleDayFragment extends Fragment implements
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
-                RealmResults<Lesson> lessons = RealmUtils.getFilteredQuery(
+                RealmResults<Lesson> lessons = RealmUtils.buildFilteredQuery(
                         mRealm,
                         getContext(),
                         Lesson.class,
                         mDay)
                         .findAll();
 
-                changes = RealmUtils.getFilteredQuery(
+                changes = RealmUtils.buildFilteredQuery(
                         mRealm,
                         getContext(),
                         Change.class,

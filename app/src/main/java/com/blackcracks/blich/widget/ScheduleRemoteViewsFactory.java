@@ -55,7 +55,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
         List<Hour> data;
         if (isFilterOn) {
-            List<Lesson> lessons = RealmUtils.getFilteredQuery(mRealm, mContext, Lesson.class, mDay)
+            List<Lesson> lessons = RealmUtils.buildFilteredQuery(mRealm, mContext, Lesson.class, mDay)
                     .findAll();
 
             SparseIntArray hourArr = new SparseIntArray();
