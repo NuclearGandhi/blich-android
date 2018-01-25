@@ -12,6 +12,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.ArrayList;
@@ -28,18 +29,18 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     private Realm mRealm;
 
     private int mDay;
-    private Utilities.Realm.RealmScheduleHelper mRealmHelper;
+    private RealmUtils.RealmScheduleHelper mRealmHelper;
 
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
-        mRealmHelper = new Utilities.Realm.RealmScheduleHelper(null);
+        mRealmHelper = new RealmUtils.RealmScheduleHelper(null);
 
         mDay = Utilities.Schedule.getWantedDayOfTheWeek();
     }
 
     @Override
     public void onCreate() {
-        Utilities.Realm.setUpRealm(mContext);
+        RealmUtils.setUpRealm(mContext);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
         List<Hour> data;
         if (isFilterOn) {
-            List<Lesson> lessons = Utilities.Realm.getFilteredQuery(mRealm, mContext, Lesson.class, mDay)
+            List<Lesson> lessons = RealmUtils.getFilteredQuery(mRealm, mContext, Lesson.class, mDay)
                     .findAll();
 
             SparseIntArray hourArr = new SparseIntArray();
@@ -63,7 +64,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
             lessons = mRealm.copyFromRealm(lessons);
 
-            data = Utilities.Realm.convertLessonListToHour(lessons, mDay, hourArr);
+            data = RealmUtils.convertLessonListToHour(lessons, mDay, hourArr);
 
             Comparator<Hour> hourComparator = new Comparator<Hour>() {
                 @Override

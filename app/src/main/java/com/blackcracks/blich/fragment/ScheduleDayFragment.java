@@ -22,6 +22,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Collections;
@@ -175,21 +176,21 @@ public class ScheduleDayFragment extends Fragment implements
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
-                RealmResults<Lesson> lessons = Utilities.Realm.getFilteredQuery(
+                RealmResults<Lesson> lessons = RealmUtils.getFilteredQuery(
                         mRealm,
                         getContext(),
                         Lesson.class,
                         mDay)
                         .findAll();
 
-                changes = Utilities.Realm.getFilteredQuery(
+                changes = RealmUtils.getFilteredQuery(
                         mRealm,
                         getContext(),
                         Change.class,
                         mDay)
                         .findAll();
 
-                results = Utilities.Realm.convertLessonListToHour(lessons, mDay);
+                results = RealmUtils.convertLessonListToHour(lessons, mDay);
 
                 //Sort the hours
                 Comparator<Hour> hourComparator = new Comparator<Hour>() {
@@ -209,7 +210,7 @@ public class ScheduleDayFragment extends Fragment implements
                         .findAll()
                         .sort("hour", Sort.ASCENDING);
 
-                changes = Utilities.Realm.buildBaseChangeQuery(
+                changes = RealmUtils.buildBaseChangeQuery(
                         mRealm,
                         Change.class,
                         mDay)

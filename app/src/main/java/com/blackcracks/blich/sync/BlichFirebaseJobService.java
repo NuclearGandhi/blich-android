@@ -26,6 +26,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
@@ -51,7 +52,7 @@ public class BlichFirebaseJobService extends JobService {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                Utilities.Realm.setUpRealm(getApplicationContext());
+                RealmUtils.setUpRealm(getApplicationContext());
             }
 
             @Override

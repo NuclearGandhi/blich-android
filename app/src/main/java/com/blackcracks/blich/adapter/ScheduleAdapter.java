@@ -20,7 +20,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.RealmUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
 public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private ExpandableListView mExpandableListView;
-    private Utilities.Realm.RealmScheduleHelper mRealmScheduleHelper;
+    private RealmUtils.RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
@@ -40,7 +40,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         mStatusTextView = statusTextView;
         mExpandableListView = expandableListView;
 
-        mRealmScheduleHelper = new Utilities.Realm.RealmScheduleHelper(null);
+        mRealmScheduleHelper = new RealmUtils.RealmScheduleHelper(null);
         mExpandedArray = new SparseBooleanArray();
     }
 

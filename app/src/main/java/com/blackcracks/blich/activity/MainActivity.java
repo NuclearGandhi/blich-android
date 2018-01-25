@@ -26,6 +26,7 @@ import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Initialization stuff
         Utilities.setLocaleToHebrew(this);
-        Utilities.Realm.setUpRealm(this);
+        RealmUtils.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
         setupFirstLaunch(savedInstanceState);
 
