@@ -176,7 +176,7 @@ public class BlichFirebaseJobService extends JobService {
             date.setTime(change.getDate());
             int day = date.get(Calendar.DAY_OF_WEEK);
             if (today == day) todayNotificationChanges.add(change);
-            else todayNotificationChanges.add(change);
+            else tomorrowNotificationChanges.add(change);
         }
 
         if (todayNotificationChanges.size() != 0) {
