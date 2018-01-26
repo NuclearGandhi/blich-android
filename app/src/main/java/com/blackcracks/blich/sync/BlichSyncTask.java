@@ -259,6 +259,7 @@ public class BlichSyncTask {
 
             Date date = parseDate(jsonEvent.getString(Database.JSON_STRING_DATE));
             event.setDate(date);
+            event.setName(Database.JSON_NAME);
             event.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
             event.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
             event.setRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
