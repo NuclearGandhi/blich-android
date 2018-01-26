@@ -221,6 +221,11 @@ public class RealmUtils {
     private static Date[] buildDatesBasedOnDay (int day) {
         Calendar calendar = Calendar.getInstance();
 
+        //If Saturday, go to next week
+        int today = calendar.get(Calendar.DAY_OF_WEEK);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if ((today == 6 && hour > 18) || today == 7) calendar.add(Calendar.WEEK_OF_YEAR, 1);
+
         //Set time for today, 00:00 am
         calendar.set(Calendar.DAY_OF_WEEK, day);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
