@@ -13,10 +13,12 @@ public class ScheduleResult {
 
     private List<Hour> mHours;
     private List<Change> mChanges;
+    private List<Event> mEvents;
 
-    public ScheduleResult(List<Hour> hours, List<Change> changes) {
+    public ScheduleResult(List<Hour> hours, List<Change> changes, List<Event> events) {
         mHours = hours;
         mChanges = changes;
+        mEvents = events;
     }
 
     public List<Hour> getHours() {
@@ -25,5 +27,9 @@ public class ScheduleResult {
 
     public List<Change> getChanges() {
         return mChanges;
+    }
+
+    public List<Event> getEvents() {
+        return mEvents;
     }
 }

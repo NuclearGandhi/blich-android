@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -26,7 +27,6 @@ import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
@@ -171,8 +171,9 @@ public class ScheduleDayFragment extends Fragment implements
                     getContext(),
                     Preferences.PREF_FILTER_TOGGLE_KEY);
 
-            List<Hour> results;
+            List<Hour> hours;
             List<Change> changes;
+            List<Event> events;
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
@@ -183,6 +184,9 @@ public class ScheduleDayFragment extends Fragment implements
                         mDay)
                         .findAll();
 
+                hours = RealmUtils.convertLessonListToHour(lessons, mDay);
+                Collections.sort(hours);
+
                 changes = RealmUtils.buildFilteredQuery(
                         mRealm,
                         getContext(),
@@ -190,25 +194,13 @@ public class ScheduleDayFragment extends Fragment implements
                         mDay)
                         .findAll();
 
-                results = RealmUtils.convertLessonListToHour(lessons, mDay);
-
-                //Sort the hours
-                Comparator<Hour> hourComparator = new Comparator<Hour>() {
-                    @Override
-                    public int compare(Hour o1, Hour o2) {
-                        if (o1.getHour() > o2.getHour()) return 1;
-                        else if (o1.getHour() == o2.getHour()) return 0;
-                        else return -1;
-                    }
-                };
-
-                Collections.sort(results, hourComparator);
-
             } else {//No filter, Query all
-                results = mRealm.where(Hour.class)
+                List<Hour> hourList = mRealm.where(Hour.class)
                         .equalTo("day", mDay)
                         .findAll()
                         .sort("hour", Sort.ASCENDING);
+
+                hours = mRealm.copyFromRealm(hourList);
 
                 changes = RealmUtils.buildBaseChangeQuery(
                         mRealm,
@@ -217,7 +209,13 @@ public class ScheduleDayFragment extends Fragment implements
                         .findAll();
             }
 
-            ScheduleResult result = new ScheduleResult(results, changes);
+            events = RealmUtils.buildBaseEventQuery(
+                    mRealm,
+                    Event.class,
+                    mDay)
+                    .findAll();
+
+            ScheduleResult result = new ScheduleResult(hours, changes, events);
             deliverResult(result);
         }
 

@@ -13,12 +13,14 @@ import android.support.annotation.Nullable;
 import android.util.SparseIntArray;
 
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -192,6 +194,31 @@ public class RealmUtils {
             Class<E> clazz,
             int day) {
 
+        Date[] date = buildDatesBasedOnDay(day);
+        return buildBaseChangeQuery(realm, clazz, date[0], date[1]);
+    }
+
+    public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
+            Realm realm,
+            Class<E> clazz,
+            Date minDate,
+            Date maxDate) {
+
+        return realm.where(clazz)
+                .between("date", minDate, maxDate);
+    }
+
+    public static <E extends RealmObject> RealmQuery<E> buildBaseEventQuery(
+            Realm realm,
+            Class<E> clazz,
+            int day) {
+
+        Date[] date = buildDatesBasedOnDay(day);
+        return realm.where(clazz)
+                .between("date", date[0], date[1]);
+    }
+
+    private static Date[] buildDatesBasedOnDay (int day) {
         Calendar calendar = Calendar.getInstance();
 
         //Set time for today, 00:00 am
@@ -201,26 +228,16 @@ public class RealmUtils {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        Date minDate = calendar.getTime();
+        Date[] date = new Date[2];
+        date[0] = calendar.getTime();
 
         //Set time for today 23:59 pm
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
 
-        Date maxDate = calendar.getTime();
+        date[1] = calendar.getTime();
 
-        return buildBaseChangeQuery(realm, clazz, minDate, maxDate);
-    }
-
-    public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
-            Realm realm,
-            Class<E> clazz,
-            Date minDate,
-            Date maxDate) {
-
-        RealmQuery<E> query = realm.where(clazz)
-                .between("date", minDate, maxDate);
-        return query;
+        return date;
     }
 
     public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {
@@ -289,12 +306,15 @@ public class RealmUtils {
                 mHours = data.getHours();
                 mChanges = data.getChanges();
             }
-
             try {
                 mIsDataValid = data != null && mHours != null && mChanges != null && !mHours.isEmpty();
             } catch (IllegalStateException e) { //In case Realm instance has been closed
                 mIsDataValid = false;
                 Timber.d("Realm has been closed");
+            }
+
+            if (mIsDataValid) {
+                insertEventsIntoHours(data.getEvents());
             }
         }
 
@@ -302,8 +322,40 @@ public class RealmUtils {
             return mIsDataValid;
         }
 
+        private void insertEventsIntoHours(List<Event> events) {
+            for (Event event :
+                    events) {
+                int bHour = event.getBeginHour();
+                int eHour = event.getEndHour();
+
+                for (int i = bHour; i < eHour; i++) {
+                    Hour hour = getHourByNum(i);
+                    if (hour == null) {
+                        hour = new Hour(
+                                getHour(0).getDay(),
+                                i,
+                                null);
+                        mHours.add(hour);
+                    }
+
+                    hour.getEvents().add(event);
+                }
+            }
+
+            Collections.sort(mHours);
+        }
+
+
         public Hour getHour(int position) {
             return mHours.get(position);
+        }
+
+        public @Nullable Hour getHourByNum(int hourNum) {
+            for (Hour hour :
+                    mHours) {
+                if (hour.getHour() == hourNum) return hour;
+            }
+            return null;
         }
 
         public List<Change> getChanges(int hour) {

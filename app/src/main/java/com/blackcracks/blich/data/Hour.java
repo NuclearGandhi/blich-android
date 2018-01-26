@@ -7,16 +7,22 @@
 
 package com.blackcracks.blich.data;
 
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 
-public class Hour extends RealmObject {
+public class Hour extends RealmObject implements Comparable<Hour> {
 
     private int day;
     private int hour;
     private RealmList<Lesson> lessons;
+
+    @Ignore private List<Event> events = new ArrayList<>();
 
     public Hour() {
 
@@ -50,5 +56,20 @@ public class Hour extends RealmObject {
 
     public void setDay(int day) {
         this.day = day;
+    }
+
+    public List<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events = events;
+    }
+
+    @Override
+    public int compareTo(@NonNull Hour o) {
+        if (getHour() > o.getHour()) return 1;
+        else if (getHour() == o.getHour()) return 0;
+        else return -1;
     }
 }
