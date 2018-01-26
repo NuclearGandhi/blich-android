@@ -14,6 +14,7 @@ import io.realm.RealmObject;
 public class Event extends RealmObject {
 
     private Date date;
+    private String name;
     private int beginHour;
     private int endHour;
 
@@ -21,8 +22,9 @@ public class Event extends RealmObject {
 
     public Event() {}
 
-    public Event(Date date, int beginHour, int endHour) {
+    public Event(Date date, String name, int beginHour, int endHour) {
         this.date = date;
+        this.name = name;
         this.beginHour = beginHour;
         this.endHour = endHour;
     }
@@ -33,6 +35,14 @@ public class Event extends RealmObject {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getBeginHour() {

@@ -92,6 +92,7 @@ public class RealmUtils {
                         } if (oldVersion == 7) {
                             schema.create("Event")
                                     .addField("date", Date.class)
+                                    .addField("name", String.class)
                                     .addField("beginHour", int.class)
                                     .addField("endHour", int.class)
                                     .addField("room", String.class);
