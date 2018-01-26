@@ -8,6 +8,7 @@ import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -167,7 +168,8 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     private void switchData(List<Hour> data) {
         ScheduleResult result = new ScheduleResult(
                 data,
-                new ArrayList<Change>()
+                new ArrayList<Change>(),
+                new ArrayList<Event>()
         );
         mRealmHelper.switchData(result);
 
