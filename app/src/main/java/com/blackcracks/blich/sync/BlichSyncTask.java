@@ -20,6 +20,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.ClassUtils;
@@ -133,7 +134,7 @@ public class BlichSyncTask {
 
     private static @FetchStatus
     int fetchData(Context context, BlichData blichData) {
-        for(int i = 0; i < 2; i++) {
+        for(int i = 0; i < 3; i++) {
             String json;
 
             String command = COMMAND_SCHEDULE;
@@ -145,6 +146,9 @@ public class BlichSyncTask {
                 case 1: {
                     command = COMMAND_CHANGES;
                     break;
+                }
+                case 2: {
+                    command = COMMAND_EVENTS;
                 }
             }
 
@@ -161,6 +165,9 @@ public class BlichSyncTask {
                     case COMMAND_CHANGES: {
                         insertChangesJsonIntoData(json, blichData);
                         break;
+                    }
+                    case COMMAND_EVENTS: {
+                        insertEventsJsonIntoData(json, blichData);
                     }
                 }
             } catch (IOException e) {
@@ -224,10 +231,7 @@ public class BlichSyncTask {
             JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
 
             String jsonDate = jsonChange.getString(Database.JSON_STRING_DATE);
-            int firstCut = jsonDate.indexOf("(") + 1;
-            int lastCut = jsonDate.indexOf(")");
-            long timeInMillis = Long.parseLong(jsonDate.substring(firstCut, lastCut));
-            Date date = new Date(timeInMillis);
+            Date date = parseDate(jsonDate);
 
             change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
             change.setDate(date);
@@ -242,6 +246,27 @@ public class BlichSyncTask {
         }
 
         blichData.setChanges(changes);
+    }
+
+    private static void insertEventsJsonIntoData(String json, BlichData blichData) throws JSONException {
+        JSONObject raw = new JSONObject(json);
+
+        JSONArray jsonEvents = raw.getJSONArray(Database.JSON_ARRAY_EVENTS);
+        RealmList<Event> events = new RealmList<>();
+        for(int i = 0; i < jsonEvents.length(); i++) {
+            JSONObject jsonEvent = jsonEvents.getJSONObject(i);
+            Event event = new Event();
+
+            Date date = parseDate(jsonEvent.getString(Database.JSON_STRING_DATE));
+            event.setDate(date);
+            event.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
+            event.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
+            event.setRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
+
+            events.add(event);
+        }
+
+        blichData.setEvents(events);
     }
 
     private static @FetchStatus
@@ -441,6 +466,13 @@ public class BlichSyncTask {
         scheduleConnection.disconnect();
 
         return response;
+    }
+
+    private static Date parseDate(String jsonDate) {
+        int firstCut = jsonDate.indexOf("(") + 1;
+        int lastCut = jsonDate.indexOf(")");
+        long timeInMillis = Long.parseLong(jsonDate.substring(firstCut, lastCut));
+        return new Date(timeInMillis);
     }
 
     public static class BlichFetchException extends Exception {

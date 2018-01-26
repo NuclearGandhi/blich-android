@@ -31,14 +31,18 @@ public class Constants {
         public static final String JSON_STRING_SUBJECT = "Subject";
         public static final String JSON_STRING_TEACHER = "Teacher";
         public static final String JSON_STRING_ROOM = "Room";
-
         public static final String JSON_STRING_DATE = "Date";
+
         public static final String JSON_ARRAY_CHANGES = "Changes";
         public static final String JSON_OBJECT_STUDY_GROUP = "StudyGroup";
         public static final String JSON_STRING_CHANGE_TYPE = "ChangeType";
         public static final String JSON_INT_NEW_HOUR = "NewHour";
         public static final String JSON_STRING_NEW_TEACHER = "NewTeacher";
         public static final String JSON_STRING_NEW_ROOM = "NewRoom";
+
+        public static final String JSON_ARRAY_EVENTS = "events";
+        public static final String JSON_INT_BEGIN_HOUR = "FromHour";
+        public static final String JSON_INT_END_HOUR = "EndHour";
 
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
         public static final String TYPE_NEW_HOUR = "NewHour";
