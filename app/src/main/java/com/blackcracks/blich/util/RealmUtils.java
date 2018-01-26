@@ -8,6 +8,7 @@
 package com.blackcracks.blich.util;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.SparseIntArray;
 
@@ -36,10 +37,12 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(7)
+                .schemaVersion(8)
                 .migration(new RealmMigration() {
+
+                    @SuppressWarnings("ConstantConditions")
                     @Override
-                    public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
+                    public void migrate(@NonNull DynamicRealm realm, long oldVersion, long newVersion) {
 
                         RealmSchema schema = realm.getSchema();
 
@@ -85,6 +88,15 @@ public class RealmUtils {
                             schema.get("Change")
                                     .removeField("day")
                                     .addField("date", Date.class);
+                            oldVersion++;
+                        } if (oldVersion == 7) {
+                            schema.create("Event")
+                                    .addField("date", Date.class)
+                                    .addField("beginHour", int.class)
+                                    .addField("endHour", int.class)
+                                    .addField("room", String.class);
+                            schema.get("BlichData")
+                                    .addRealmListField("events", schema.get("Event"));
                             oldVersion++;
                         }
                     }
