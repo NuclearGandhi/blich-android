@@ -118,19 +118,32 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     private void bindGroupView(int groupPosition, View view) {
 
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
+
+        //Get the overall data object
         Hour hour = (Hour) getGroup(groupPosition);
+
+        //Set the hour indicator text
         holder.hourView.setText(hour.getHour() + "");
 
+        //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
         List<Event> events = hour.getEvents();
 
+        //The main data
         String subject;
         final String teacher;
         final String room;
 
         int color;
 
-        if (lessons == null && events.size() != 0) {
+        /*
+        There are 4 types of children:
+        -Lesson
+        -Change (replaces Lesson)
+        -Event (in addition to Lesson)
+        -Exam (in addition to Lesson)
+         */
+        if (lessons == null) { //Then display an event
             Event event = events.get(0);
             subject = event.buildName();
             teacher = "";
@@ -141,13 +154,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
             Lesson first_lesson = lessons.get(0);
             Change firstChange = mRealmScheduleHelper.getChange(hour.getHour(), first_lesson);
 
-            if (firstChange == null) {
+            if (firstChange == null) { //Then display a normal lesson
                 subject = filterSubject(first_lesson.getSubject());
                 teacher = first_lesson.getTeacher();
                 room = first_lesson.getRoom();
 
                 color = R.color.black_text;
-            } else {
+            } else { //Then display a modified lesson
                 subject = firstChange.buildSubject();
                 teacher = "";
                 room = "";
@@ -167,6 +180,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         holder.eventsView.removeAllViews();
         holder.eventsView.setVisibility(View.VISIBLE);
+
         //Add dots to signify that there are changes
         List<String> existingTypes = new ArrayList<>();
         List<Change> changes = mRealmScheduleHelper.getChanges(hour.getHour());
@@ -177,6 +191,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
             existingTypes.add(change.getChangeType());
         }
 
+        //Add event dots, if needed
         if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
         if (
                 existingTypes.contains(Database.TYPE_NEW_TEACHER) ||
@@ -187,13 +202,17 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
         if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
+        //Display the correct state of the group
         if (mExpandedArray.get(groupPosition)) {
             showExpandedGroup(holder, teacher, room);
         } else {
             showCollapsed(holder);
         }
 
-        //Set values according to the amount of children in this hour
+        /*
+        If there are no children, show a simple item.
+        Else, show the indicator view and add a click listener
+         */
         if (getChildrenCount(groupPosition) == 0) {
             holder.indicatorView.setVisibility(View.GONE);
             holder.teacherView.setText(teacher);
@@ -206,6 +225,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
                 @Override
                 public void onClick(View v) {
+
                     boolean isExpanded = mExpandedArray.get(finalGroupPos, false);
                     if (!isExpanded) {
                         //Expand
@@ -248,10 +268,19 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
 
+        /*
+        There are 4 types of children:
+        -Lesson
+        -Change (replaces Lesson)
+        -Event (in addition to Lesson)
+        -Exam (in addition to Lesson)
+         */
+
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
 
         Event event = null;
         if (lesson == null) {
+            //Calculate the offset from the last normal lesson, and get the corresponding event
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition);
             List<Event> events = mRealmScheduleHelper.getHour(groupPosition).getEvents();
             event = events.get(childPosition - lastLessonPos);
@@ -263,20 +292,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         );
 
         int color;
-        if (event != null) {
+        if (event != null) { //Then show an event
             holder.subjectView.setText(event.buildName());
             holder.teacherView.setText("");
             holder.classroomView.setText("");
 
             color = getColorFromType(Database.TYPE_EVENT);
         }
-        else if (change != null) {
+        else if (change != null) { //Then show a change
             holder.subjectView.setText(change.buildSubject());
             holder.teacherView.setText("");
             holder.classroomView.setText("");
 
             color = getColorFromType(change.getChangeType());
-        } else {
+        } else { //Then show a normal lesson
             String subject = filterSubject(lesson.getSubject());
             holder.subjectView.setText(subject);
 
