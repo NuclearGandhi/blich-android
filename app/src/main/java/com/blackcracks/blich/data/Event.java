@@ -68,4 +68,8 @@ public class Event extends RealmObject {
     public void setRoom(String room) {
         this.room = room;
     }
+
+    public String buildName() {
+        return name + ", " + room;
+    }
 }

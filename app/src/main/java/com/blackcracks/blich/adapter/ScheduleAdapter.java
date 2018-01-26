@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -121,8 +122,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         holder.hourView.setText(hour.getHour() + "");
 
         final List<Lesson> lessons = hour.getLessons();
-        final Lesson first_lesson = lessons.get(0);
-        Change firstChange = mRealmScheduleHelper.getChange(hour.getHour(), first_lesson);
+        List<Event> events = hour.getEvents();
 
         String subject;
         final String teacher;
@@ -130,18 +130,30 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         int color;
 
-        if (firstChange == null) {
-            subject = filterSubject(first_lesson.getSubject());
-            teacher = first_lesson.getTeacher();
-            room = first_lesson.getRoom();
-
-            color = R.color.black_text;
-        } else {
-            subject = firstChange.buildSubject();
+        if (lessons == null && events.size() != 0) {
+            Event event = events.get(0);
+            subject = event.buildName();
             teacher = "";
             room = "";
 
-            color = getColorFromType(firstChange.getChangeType());
+            color = getColorFromType(Database.TYPE_EVENT);
+        } else {
+            Lesson first_lesson = lessons.get(0);
+            Change firstChange = mRealmScheduleHelper.getChange(hour.getHour(), first_lesson);
+
+            if (firstChange == null) {
+                subject = filterSubject(first_lesson.getSubject());
+                teacher = first_lesson.getTeacher();
+                room = first_lesson.getRoom();
+
+                color = R.color.black_text;
+            } else {
+                subject = firstChange.buildSubject();
+                teacher = "";
+                room = "";
+
+                color = getColorFromType(firstChange.getChangeType());
+            }
         }
 
         //Set the color according to the lesson type
@@ -235,27 +247,43 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
+
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
+
+        Event event = null;
+        if (lesson == null) {
+            int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition);
+            List<Event> events = mRealmScheduleHelper.getHour(groupPosition).getEvents();
+            event = events.get(childPosition - lastLessonPos);
+        }
+
         Change change = mRealmScheduleHelper.getChange(
                 mRealmScheduleHelper.getHour(groupPosition).getHour(),
                 lesson
         );
 
         int color;
-        if (change == null) {
+        if (event != null) {
+            holder.subjectView.setText(event.buildName());
+            holder.teacherView.setText("");
+            holder.classroomView.setText("");
+
+            color = getColorFromType(Database.TYPE_EVENT);
+        }
+        else if (change != null) {
+            holder.subjectView.setText(change.buildSubject());
+            holder.teacherView.setText("");
+            holder.classroomView.setText("");
+
+            color = getColorFromType(change.getChangeType());
+        } else {
             String subject = filterSubject(lesson.getSubject());
             holder.subjectView.setText(subject);
 
             holder.teacherView.setText(lesson.getTeacher());
             holder.classroomView.setText(lesson.getRoom());
 
-            color = R.color.black_text;
-        } else {
-            holder.subjectView.setText(change.buildSubject());
-            holder.teacherView.setText("");
-            holder.classroomView.setText("");
-
-            color = getColorFromType(change.getChangeType());
+            color = getColorFromType(Database.TYPE_NORMAL);
         }
 
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));

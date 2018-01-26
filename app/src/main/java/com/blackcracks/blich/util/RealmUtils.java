@@ -345,7 +345,6 @@ public class RealmUtils {
             Collections.sort(mHours);
         }
 
-
         public Hour getHour(int position) {
             return mHours.get(position);
         }
@@ -368,10 +367,11 @@ public class RealmUtils {
             return changes;
         }
 
-        public Lesson getLesson(int position, int childPos) {
+        public @Nullable Lesson getLesson(int position, int childPos) {
             if (!mIsDataValid) return null;
             Hour hour = getHour(position);
-            return hour.getLessons().get(childPos);
+            if (hour.getLessons() != null) return hour.getLessons().get(childPos);
+            else return null;
         }
 
         public @Nullable
@@ -395,6 +395,15 @@ public class RealmUtils {
         }
 
         public int getChildCount(int position) {
+            if (mIsDataValid) {
+                Hour hour = getHour(position);
+                return hour.getLessons().size() + hour.getEvents().size();
+            } else {
+                return 0;
+            }
+        }
+
+        public int getLessonCount(int position) {
             if (mIsDataValid) {
                 return getHour(position).getLessons().size();
             } else {
