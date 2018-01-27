@@ -110,7 +110,8 @@ public class BlichFirebaseJobService extends JobService {
 
         RealmUtils.buildFilteredQuery(
                 query,
-                getBaseContext()
+                getBaseContext(),
+                Change.class
         );
 
         query.sort("date");

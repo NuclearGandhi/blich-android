@@ -140,18 +140,23 @@ public class RealmUtils {
                 query = buildBaseChangeQuery(realm, clazz, day);
                 break;
             }
+            case "Event": {
+                query = buildBaseEventQuery(realm, clazz, day);
+                break;
+            }
             default: {
                 query = buildBaseLessonQuery(realm, clazz, day);
                 break;
             }
         }
 
-        return buildFilteredQuery(query, context);
+        return buildFilteredQuery(query, context, clazz);
     }
 
     public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
-            Context context) {
+            Context context,
+            Class<E> clazz) {
 
 
         String teacherFilter = PreferencesUtils.getString(
@@ -160,9 +165,24 @@ public class RealmUtils {
         String[] teacherSubjects = teacherFilter.split(";");
 
         query.and()
-                .beginGroup()
+                .beginGroup();
+
+        switch (clazz.getSimpleName()) {
+            case "Event": {
+                query
+                        .beginGroup()
+                        .equalTo("teacher", "")
+                        .and()
+                        .equalTo("subject", "")
+                        .endGroup();
+                break;
+            }
+            default: {
                 //Set an impossible case for easier code writing
-                .equalTo("subject", "oghegijd39");
+                query.equalTo("subject", "oghegijd39");
+                break;
+            }
+        }
 
         for (String teacherSubject :
                 teacherSubjects) {
