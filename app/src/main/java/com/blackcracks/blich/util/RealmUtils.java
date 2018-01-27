@@ -186,7 +186,7 @@ public class RealmUtils {
             Class<E> clazz,
             int day) {
         return realm.where(clazz)
-                .equalTo("day", day);
+                .equalTo("owners.day", day);
     }
 
     public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
