@@ -258,11 +258,23 @@ public class BlichSyncTask {
             Event event = new Event();
 
             Date date = parseDate(jsonEvent.getString(Database.JSON_STRING_DATE));
+
+            String subject = "";
+            String teacher = "";
+            if (!jsonEvent.isNull(Database.JSON_OBJECT_STUDY_GROUP)) {
+                JSONObject studyGroup = jsonEvent.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
+                subject = studyGroup.getString(Database.JSON_STRING_SUBJECT);
+                teacher = studyGroup.getString(Database.JSON_STRING_TEACHER);
+            }
+
+
             event.setDate(date);
             event.setName(jsonEvent.getString(Database.JSON_NAME));
             event.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
             event.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
             event.setRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
+            event.setSubject(subject);
+            event.setTeacher(teacher);
 
             events.add(event);
         }

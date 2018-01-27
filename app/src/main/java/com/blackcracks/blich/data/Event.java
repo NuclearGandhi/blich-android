@@ -19,6 +19,8 @@ public class Event extends RealmObject {
     private int endHour;
 
     private String room;
+    private String subject;
+    private String teacher;
 
     public Event() {}
 
@@ -68,6 +70,22 @@ public class Event extends RealmObject {
 
     public void setRoom(String room) {
         this.room = room;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
     }
 
     public String buildName() {

@@ -101,6 +101,11 @@ public class RealmUtils {
                             schema.get("BlichData")
                                     .addRealmListField("events", schema.get("Event"));
                             oldVersion++;
+                        } if (oldVersion == 8) {
+                            schema.get("Event")
+                                    .addField("subject", String.class)
+                                    .addField("teacher", String.class);
+                            oldVersion++;
                         }
                     }
 
