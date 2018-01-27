@@ -58,7 +58,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mRealmScheduleHelper.getChildCount(groupPosition) - 1;
+        int count = mRealmScheduleHelper.getChildCount(groupPosition);
+        if (count != 0) count--;
+        return count;
     }
 
     @Override
@@ -143,7 +145,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         -Event (in addition to Lesson)
         -Exam (in addition to Lesson)
          */
-        if (lessons == null) { //Then display an event
+        if (lessons == null || mRealmScheduleHelper.isHourAnEvent(hour)) { //Then display an event
             Event event = events.get(0);
             subject = event.buildName();
             teacher = "";

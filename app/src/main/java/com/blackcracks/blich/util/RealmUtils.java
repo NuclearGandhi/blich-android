@@ -39,7 +39,7 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(8)
+                .schemaVersion(9)
                 .migration(new RealmMigration() {
 
                     @SuppressWarnings("ConstantConditions")
@@ -396,6 +396,17 @@ public class RealmUtils {
             return null;
         }
 
+        public boolean isHourAnEvent(Hour hour) {
+            List<Event> events = hour.getEvents();
+            if (events.size() != 0) {
+                Event event = events.get(0);
+                if (event.getTeacher() != null && event.getSubject() != null)
+                    if (event.getTeacher().equals("") && event.getSubject().equals(""))
+                        return true;
+            }
+            return false;
+        }
+
         public int getHourCount() {
             if (mIsDataValid) {
                 return mHours.size();
@@ -407,8 +418,9 @@ public class RealmUtils {
         public int getChildCount(int position) {
             if (mIsDataValid) {
                 Hour hour = getHour(position);
+                if (isHourAnEvent(hour)) return 0;
                 if (hour.getLessons() != null) return hour.getLessons().size() + hour.getEvents().size();
-                else return hour.getEvents().size();
+                return hour.getEvents().size();
             } else {
                 return 0;
             }
