@@ -337,7 +337,7 @@ public class RealmUtils {
                 mChanges = data.getChanges();
             }
             try {
-                mIsDataValid = data != null && mHours != null && mChanges != null && !mHours.isEmpty();
+                mIsDataValid = data != null && mHours != null && mChanges != null;
             } catch (IllegalStateException e) { //In case Realm instance has been closed
                 mIsDataValid = false;
                 Timber.d("Realm has been closed");
@@ -345,6 +345,7 @@ public class RealmUtils {
 
             if (mIsDataValid) {
                 insertEventsIntoHours(data.getEvents());
+                if (mHours.isEmpty()) mIsDataValid = false;
             }
         }
 
@@ -362,7 +363,7 @@ public class RealmUtils {
                     Hour hour = getHourByNum(i);
                     if (hour == null) {
                         hour = new Hour(
-                                getHour(0).getDay(),
+                                -1, //Doesn't matter
                                 i,
                                 null);
                         mHours.add(hour);
