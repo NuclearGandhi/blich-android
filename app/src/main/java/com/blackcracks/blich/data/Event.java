@@ -50,6 +50,7 @@ public class Event extends RealmObject {
     }
 
     public void setBeginHour(int beginHour) {
+        if (beginHour == 0) beginHour++;
         this.beginHour = beginHour;
     }
 
@@ -70,6 +71,8 @@ public class Event extends RealmObject {
     }
 
     public String buildName() {
+        if (room.equals("")) return name;
+
         return name + ", " + room;
     }
 }

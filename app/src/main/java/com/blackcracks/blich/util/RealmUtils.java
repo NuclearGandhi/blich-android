@@ -374,9 +374,9 @@ public class RealmUtils {
 
         public @Nullable Lesson getLesson(int position, int childPos) {
             if (!mIsDataValid) return null;
-            Hour hour = getHour(position);
-            if (hour.getLessons() != null) return hour.getLessons().get(childPos);
-            else return null;
+            List<Lesson> lessons = getHour(position).getLessons();
+            if (lessons != null && lessons.size() > childPos) return lessons.get(childPos);
+            return null;
         }
 
         public @Nullable
@@ -402,7 +402,8 @@ public class RealmUtils {
         public int getChildCount(int position) {
             if (mIsDataValid) {
                 Hour hour = getHour(position);
-                return hour.getLessons().size() + hour.getEvents().size();
+                if (hour.getLessons() != null) return hour.getLessons().size() + hour.getEvents().size();
+                else return hour.getEvents().size();
             } else {
                 return 0;
             }

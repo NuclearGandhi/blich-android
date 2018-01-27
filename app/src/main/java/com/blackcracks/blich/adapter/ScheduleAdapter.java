@@ -281,9 +281,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         Event event = null;
         if (lesson == null) {
             //Calculate the offset from the last normal lesson, and get the corresponding event
-            int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition);
+            int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
             List<Event> events = mRealmScheduleHelper.getHour(groupPosition).getEvents();
-            event = events.get(childPosition - lastLessonPos);
+            event = events.get(lastLessonPos - childPosition);
         }
 
         Change change = mRealmScheduleHelper.getChange(
@@ -319,6 +319,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         //Set a bottom divider if this is the last child
         View divider = view.findViewById(R.id.divider);
+        divider.setVisibility(View.GONE);
         if (getChildrenCount(groupPosition) - 1 == childPosition) {
             divider.setVisibility(View.VISIBLE);
         } else {
