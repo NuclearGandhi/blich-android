@@ -26,6 +26,7 @@ import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -195,12 +196,12 @@ public class ScheduleDayFragment extends Fragment implements
                         .findAll();
 
             } else {//No filter, Query all
-                List<Hour> hourList = mRealm.where(Hour.class)
+                RealmResults<Hour> hourList = mRealm.where(Hour.class)
                         .equalTo("day", mDay)
                         .findAll()
                         .sort("hour", Sort.ASCENDING);
 
-                hours = mRealm.copyFromRealm(hourList);
+                hours = new ArrayList<>(hourList);
 
                 changes = RealmUtils.buildBaseChangeQuery(
                         mRealm,
