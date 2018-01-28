@@ -131,6 +131,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         final List<Lesson> lessons = hour.getLessons();
         List<Event> events = hour.getEvents();
 
+        Lesson firstLesson;
+        Change firstChange = null;
+
         //The main data
         String subject;
         final String teacher;
@@ -145,7 +148,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
         -Event (in addition to Lesson)
         -Exam (in addition to Lesson)
          */
-        if (lessons == null || mRealmScheduleHelper.isHourAnEvent(hour)) { //Then display an event
+        boolean isAnHourEvent = mRealmScheduleHelper.isHourAnEvent(hour);
+        if (lessons == null || isAnHourEvent) { //Then display an event
             Event event = events.get(0);
             subject = event.buildName();
             teacher = "";
@@ -153,13 +157,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
             color = getColorFromType(Database.TYPE_EVENT);
         } else {
-            Lesson first_lesson = lessons.get(0);
-            Change firstChange = mRealmScheduleHelper.getChange(hour.getHour(), first_lesson);
+            firstLesson = lessons.get(0);
+            firstChange = mRealmScheduleHelper.getChange(hour.getHour(), firstLesson);
 
             if (firstChange == null) { //Then display a normal lesson
-                subject = filterSubject(first_lesson.getSubject());
-                teacher = first_lesson.getTeacher();
-                room = first_lesson.getRoom();
+                subject = filterSubject(firstLesson.getSubject());
+                teacher = firstLesson.getTeacher();
+                room = firstLesson.getRoom();
 
                 color = R.color.black_text;
             } else { //Then display a modified lesson
@@ -169,6 +173,31 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
                 color = getColorFromType(firstChange.getChangeType());
             }
+        }
+
+        if (!isAnHourEvent) {
+            //Add dots to signify that there are changes
+            List<String> existingTypes = new ArrayList<>();
+            List<Change> changes = mRealmScheduleHelper.getChanges(hour.getHour());
+
+            for(int i = 0; i < changes.size(); i++) {
+                Change change = changes.get(i);
+                if (firstChange != null && change != firstChange) {
+                    existingTypes.add(change.getChangeType());
+                }
+            }
+
+            //Add event dots, if needed
+            if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
+            if (
+                    existingTypes.contains(Database.TYPE_NEW_TEACHER) ||
+                            existingTypes.contains(Database.TYPE_NEW_HOUR) ||
+                            existingTypes.contains(Database.TYPE_NEW_ROOM)) {
+                makeEventDot(holder.eventsView, R.color.lesson_changed);
+            }
+            if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
+            if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
+
         }
 
         //Set the color according to the lesson type
@@ -182,27 +211,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter{
 
         holder.eventsView.removeAllViews();
         holder.eventsView.setVisibility(View.VISIBLE);
-
-        //Add dots to signify that there are changes
-        List<String> existingTypes = new ArrayList<>();
-        List<Change> changes = mRealmScheduleHelper.getChanges(hour.getHour());
-
-        for(int i = 1 ; i < changes.size(); i++) {
-            //Begin from 1, no need to signify about an event already shown to the user
-            Change change = changes.get(i);
-            existingTypes.add(change.getChangeType());
-        }
-
-        //Add event dots, if needed
-        if (existingTypes.contains(Database.TYPE_CANCELED)) makeEventDot(holder.eventsView, R.color.lesson_canceled);
-        if (
-                existingTypes.contains(Database.TYPE_NEW_TEACHER) ||
-                existingTypes.contains(Database.TYPE_NEW_HOUR) ||
-                existingTypes.contains(Database.TYPE_NEW_ROOM)) {
-            makeEventDot(holder.eventsView, R.color.lesson_changed);
-        }
-        if (existingTypes.contains(Database.TYPE_EXAM)) makeEventDot(holder.eventsView, R.color.lesson_exam);
-        if (existingTypes.contains(Database.TYPE_EVENT)) makeEventDot(holder.eventsView, R.color.lesson_event);
 
         //Display the correct state of the group
         if (mExpandedArray.get(groupPosition)) {
