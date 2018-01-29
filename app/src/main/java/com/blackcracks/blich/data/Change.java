@@ -100,23 +100,27 @@ public class Change extends RealmObject {
         this.newHour = newHour;
     }
 
-    public String buildSubject() {
+    private String buildLessonName() {
+        return getSubject() + ", " + getTeacher();
+    }
+
+    public String buildLabel() {
         String str = "";
         switch (getChangeType()) {
             case Constants.Database.TYPE_CANCELED: {
-                str = "ביטול " + getSubject() + ", " + getTeacher();
+                str = "ביטול " + buildLessonName();
                 break;
             }
             case Constants.Database.TYPE_NEW_HOUR: {
-                str = "הזזת שיעור " + getSubject() + " לשעה " + getNewHour();
+                str = "הזזת " + buildLessonName() + " לשעה " + getNewHour();
                 break;
             }
             case Constants.Database.TYPE_NEW_ROOM: {
-                str = "החלפת חדר של שיעור " + getSubject() + " ל" + getNewRoom();
+                str = buildLessonName() + " -> חדר: " + getNewRoom();
                 break;
             }
             case Constants.Database.TYPE_NEW_TEACHER: {
-                str = "החלפת מורה של שיעור " + getSubject() + " ל" + getNewTeacher();
+                str = buildLessonName() + " -> מורה: " + getNewTeacher();
                 break;
             }
         }

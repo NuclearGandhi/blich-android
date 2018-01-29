@@ -169,7 +169,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
                 color = R.color.black_text;
             } else { //Then display a modified lesson
-                subject = firstChange.buildSubject();
+                subject = firstChange.buildLabel();
                 teacher = "";
                 room = "";
 
@@ -320,7 +320,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
             color = getColorFromType(Database.TYPE_EVENT);
         } else if (change != null) { //Then show a change
-            holder.subjectView.setText(change.buildSubject());
+            holder.subjectView.setText(change.buildLabel());
             holder.teacherView.setText("");
             holder.classroomView.setText("");
 
