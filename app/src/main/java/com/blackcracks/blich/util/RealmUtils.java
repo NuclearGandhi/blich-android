@@ -407,9 +407,14 @@ public class RealmUtils {
 
         public @Nullable
         Change getChange(int hour, Lesson lesson) {
-            List<Change> hourChanges = getChanges(hour);
-            for (int i = 0; i < hourChanges.size(); i++) {
-                Change change = hourChanges.get(i);
+            List<Change> changes = getChanges(hour);
+            return getChange(changes, lesson);
+        }
+
+        public @Nullable
+        Change getChange(List<Change> changes, Lesson lesson) {
+            for (int i = 0; i < changes.size(); i++) {
+                Change change = changes.get(i);
                 if (change.getTeacher().equals(lesson.getTeacher()) &&
                         change.getSubject().equals(lesson.getSubject()))
                     return change;
