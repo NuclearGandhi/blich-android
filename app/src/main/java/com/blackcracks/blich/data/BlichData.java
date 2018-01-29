@@ -17,6 +17,7 @@ public class BlichData extends RealmObject {
     @Required private RealmList<Hour> hours;
     @Required private RealmList<Change> changes;
     @Required private RealmList<Event> events;
+    @Required private RealmList<Exam> exams;
 
     public int getClassId() {
         return classId;

@@ -39,7 +39,7 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(9)
+                .schemaVersion(10)
                 .migration(new RealmMigration() {
 
                     @SuppressWarnings("ConstantConditions")
@@ -105,6 +105,18 @@ public class RealmUtils {
                             schema.get("Event")
                                     .addField("subject", String.class)
                                     .addField("teacher", String.class);
+                            oldVersion++;
+                        } if (oldVersion == 9) {
+                            schema.create("Exam")
+                                    .addField("date", Date.class)
+                                    .addField("name", String.class)
+                                    .addField("beginHour", int.class)
+                                    .addField("endHour", int.class)
+                                    .addField("room", String.class)
+                                    .addField("subject", String.class)
+                                    .addField("teacher", String.class);
+                            schema.get("BlichData")
+                                    .addRealmListField("exams", schema.get("Exam"));
                             oldVersion++;
                         }
                     }

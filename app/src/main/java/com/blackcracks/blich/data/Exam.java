@@ -11,24 +11,40 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
-public class Event extends RealmObject {
+public class Exam extends RealmObject {
 
-    private Date date;
     private String name;
+    private Date date;
+
     private int beginHour;
     private int endHour;
-
     private String room;
-    private String subject;
+
     private String teacher;
+    private String subject;
 
-    public Event() {}
+    public Exam() {}
 
-    public Event(Date date, String name, int beginHour, int endHour) {
-        setDate(date);
+    public Exam(String name, Date date, int beginHour, int endHour, String room) {
         setName(name);
+        setDate(date);
         setBeginHour(beginHour);
         setEndHour(endHour);
+        setRoom(room);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name.contains("מבחן") ||
+                name.contains("בוחן") ||
+                name.contains("מבחני")) {
+            this.name = name;
+        } else {
+            this.name = "מבחן ב" + name;
+        }
     }
 
     public Date getDate() {
@@ -37,14 +53,6 @@ public class Event extends RealmObject {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getBeginHour() {
@@ -72,14 +80,6 @@ public class Event extends RealmObject {
         this.room = room;
     }
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
     public String getTeacher() {
         return teacher;
     }
@@ -88,9 +88,11 @@ public class Event extends RealmObject {
         this.teacher = teacher;
     }
 
-    public String buildName() {
-        if (room.equals("")) return name;
+    public String getSubject() {
+        return subject;
+    }
 
-        return name + ", " + room;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

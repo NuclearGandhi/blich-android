@@ -23,6 +23,7 @@ public class Hour extends RealmObject implements Comparable<Hour> {
     private RealmList<Lesson> lessons;
 
     @Ignore private List<Event> events = new ArrayList<>();
+    @Ignore private List<Exam> exams = new ArrayList<>();
 
     public Hour() {
 
