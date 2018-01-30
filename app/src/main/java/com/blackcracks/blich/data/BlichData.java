@@ -50,4 +50,12 @@ public class BlichData extends RealmObject {
     public void setEvents(RealmList<Event> events) {
         this.events = events;
     }
+
+    public RealmList<Exam> getExams() {
+        return exams;
+    }
+
+    public void setExams(RealmList<Exam> exams) {
+        this.exams = exams;
+    }
 }

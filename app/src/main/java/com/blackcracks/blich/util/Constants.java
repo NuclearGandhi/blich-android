@@ -45,6 +45,8 @@ public class Constants {
         public static final String JSON_INT_BEGIN_HOUR = "FromHour";
         public static final String JSON_INT_END_HOUR = "ToHour";
 
+        public static final String JSON_ARRAY_EXAMS = "Exams";
+
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
         public static final String TYPE_NEW_HOUR = "HourMove";
         public static final String TYPE_NEW_ROOM = "NewRoom";

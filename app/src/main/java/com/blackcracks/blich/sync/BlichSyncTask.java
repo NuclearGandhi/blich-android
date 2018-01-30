@@ -21,6 +21,7 @@ import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
+import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.ClassUtils;
@@ -134,7 +135,7 @@ public class BlichSyncTask {
 
     private static @FetchStatus
     int fetchData(Context context, BlichData blichData) {
-        for(int i = 0; i < 3; i++) {
+        for(int i = 0; i < 4; i++) {
             String json;
 
             String command = COMMAND_SCHEDULE;
@@ -149,6 +150,11 @@ public class BlichSyncTask {
                 }
                 case 2: {
                     command = COMMAND_EVENTS;
+                    break;
+                }
+                case 3: {
+                    command = COMMAND_EXAMS;
+                    break;
                 }
             }
 
@@ -168,6 +174,11 @@ public class BlichSyncTask {
                     }
                     case COMMAND_EVENTS: {
                         insertEventsJsonIntoData(json, blichData);
+                        break;
+                    }
+                    case COMMAND_EXAMS: {
+                        insertExamsJsonIntoData(json, blichData);
+                        break;
                     }
                 }
             } catch (IOException e) {
@@ -280,6 +291,39 @@ public class BlichSyncTask {
         }
 
         blichData.setEvents(events);
+    }
+
+    private static void insertExamsJsonIntoData(String json, BlichData blichData) throws JSONException{
+        JSONObject raw = new JSONObject(json);
+
+        JSONArray jsonExams = raw.getJSONArray(Database.JSON_ARRAY_EXAMS);
+        RealmList<Exam> exams = new RealmList<>();
+        for (int i = 0; i < jsonExams.length(); i++) {
+            JSONObject jsonExam = jsonExams.getJSONObject(i);
+            Exam exam = new Exam();
+
+            Date date = parseDate(jsonExam.getString(Database.JSON_STRING_DATE));
+            String subject = "";
+            String teacher = "";
+            if (!jsonExam.isNull(Database.JSON_OBJECT_STUDY_GROUP)) {
+                JSONObject studyGroup = jsonExam.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
+                subject = studyGroup.getString(Database.JSON_STRING_SUBJECT);
+                teacher = studyGroup.getString(Database.JSON_STRING_TEACHER);
+            }
+
+
+            exam.setDate(date);
+            exam.setName(jsonExam.getString(Database.JSON_NAME));
+            exam.setBeginHour(jsonExam.getInt(Database.JSON_INT_BEGIN_HOUR));
+            exam.setEndHour(jsonExam.getInt(Database.JSON_INT_END_HOUR));
+            exam.setRoom(jsonExam.getString(Database.JSON_STRING_ROOM));
+            exam.setSubject(subject);
+            exam.setTeacher(teacher);
+
+            exams.add(exam);
+        }
+
+        blichData.setExams(exams);
     }
 
     private static @FetchStatus
