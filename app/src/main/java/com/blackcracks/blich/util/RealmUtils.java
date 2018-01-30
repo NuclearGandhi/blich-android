@@ -148,18 +148,12 @@ public class RealmUtils {
 
         RealmQuery<E> query;
         switch (clazz.getSimpleName()) {
-            case "Change": {
-                query = buildBaseChangeQuery(realm, clazz, day);
-                break;
-            }
-            case "Event": {
-                query = buildBaseEventQuery(realm, clazz, day);
-                break;
-            }
-            default: {
+            case "Lesson":
                 query = buildBaseLessonQuery(realm, clazz, day);
                 break;
-            }
+            default:
+                query = buildBaseQuery(realm, clazz, day);
+                break;
         }
 
         return buildFilteredQuery(query, context, clazz);
@@ -226,16 +220,16 @@ public class RealmUtils {
                 .equalTo("owners.day", day);
     }
 
-    public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
+    public static <E extends RealmObject> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
             int day) {
 
         Date[] date = buildDatesBasedOnDay(day);
-        return buildBaseChangeQuery(realm, clazz, date[0], date[1]);
+        return buildBaseQuery(realm, clazz, date[0], date[1]);
     }
 
-    public static <E extends RealmObject> RealmQuery<E> buildBaseChangeQuery(
+    public static <E extends RealmObject> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
             Date minDate,
@@ -243,16 +237,6 @@ public class RealmUtils {
 
         return realm.where(clazz)
                 .between("date", minDate, maxDate);
-    }
-
-    public static <E extends RealmObject> RealmQuery<E> buildBaseEventQuery(
-            Realm realm,
-            Class<E> clazz,
-            int day) {
-
-        Date[] date = buildDatesBasedOnDay(day);
-        return realm.where(clazz)
-                .between("date", date[0], date[1]);
     }
 
     private static Date[] buildDatesBasedOnDay (int day) {

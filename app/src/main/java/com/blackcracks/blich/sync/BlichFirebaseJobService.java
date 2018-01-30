@@ -101,7 +101,7 @@ public class BlichFirebaseJobService extends JobService {
         Date maxDate = calendar.getTime();
 
         Realm realm = Realm.getDefaultInstance();
-        RealmQuery<Change> query = RealmUtils.buildBaseChangeQuery(
+        RealmQuery<Change> query = RealmUtils.buildBaseQuery(
                 realm,
                 Change.class,
                 minDate,

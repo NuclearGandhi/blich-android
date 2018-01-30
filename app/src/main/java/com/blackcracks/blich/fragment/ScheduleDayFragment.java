@@ -195,6 +195,13 @@ public class ScheduleDayFragment extends Fragment implements
                         mDay)
                         .findAll();
 
+                events = RealmUtils.buildFilteredQuery(
+                        mRealm,
+                        getContext(),
+                        Event.class,
+                        mDay)
+                        .findAll();
+
             } else {//No filter, Query all
                 RealmResults<Hour> hourList = mRealm.where(Hour.class)
                         .equalTo("day", mDay)
@@ -203,18 +210,22 @@ public class ScheduleDayFragment extends Fragment implements
 
                 hours = new ArrayList<>(hourList);
 
-                changes = RealmUtils.buildBaseChangeQuery(
+                changes = RealmUtils.buildBaseQuery(
                         mRealm,
                         Change.class,
                         mDay)
                         .findAll();
+
+                events = RealmUtils.buildBaseQuery(
+                        mRealm,
+                        Event.class,
+                        mDay)
+                        .findAll();
             }
 
-            events = RealmUtils.buildBaseEventQuery(
-                    mRealm,
-                    Event.class,
-                    mDay)
-                    .findAll();
+
+
+
 
             ScheduleResult result = new ScheduleResult(hours, changes, events);
             deliverResult(result);
