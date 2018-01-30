@@ -14,11 +14,13 @@ public class ScheduleResult {
     private List<Hour> mHours;
     private List<Change> mChanges;
     private List<Event> mEvents;
+    private List<Exam> mExams;
 
-    public ScheduleResult(List<Hour> hours, List<Change> changes, List<Event> events) {
+    public ScheduleResult(List<Hour> hours, List<Change> changes, List<Event> events, List<Exam> exams) {
         mHours = hours;
         mChanges = changes;
         mEvents = events;
+        mExams = exams;
     }
 
     public List<Hour> getHours() {
@@ -31,5 +33,13 @@ public class ScheduleResult {
 
     public List<Event> getEvents() {
         return mEvents;
+    }
+
+    public List<Exam> getExams() {
+        return mExams;
+    }
+
+    public boolean isDataValid() {
+        return mHours != null && mChanges != null && mEvents != null && mExams != null;
     }
 }

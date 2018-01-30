@@ -333,7 +333,7 @@ public class RealmUtils {
                 mChanges = data.getChanges();
             }
             try {
-                mIsDataValid = data != null && mHours != null && mChanges != null;
+                mIsDataValid = data.isDataValid();
             } catch (IllegalStateException e) { //In case Realm instance has been closed
                 mIsDataValid = false;
                 Timber.d("Realm has been closed");

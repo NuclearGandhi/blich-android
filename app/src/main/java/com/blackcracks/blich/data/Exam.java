@@ -95,4 +95,8 @@ public class Exam extends RealmObject {
     public void setSubject(String subject) {
         this.subject = subject;
     }
+
+    public String buildLabel() {
+        return getName() + " לקבוצה של " + getTeacher() + ", בחדר " + getRoom();
+    }
 }

@@ -19,6 +19,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
+import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -175,6 +176,7 @@ public class ScheduleDayFragment extends Fragment implements
             List<Hour> hours;
             List<Change> changes;
             List<Event> events;
+            List<Exam> exams;
 
             if (isFilterOn) { //Filter
                 //Query using Inverse-Relationship and filter
@@ -202,6 +204,13 @@ public class ScheduleDayFragment extends Fragment implements
                         mDay)
                         .findAll();
 
+                exams = RealmUtils.buildFilteredQuery(
+                        mRealm,
+                        getContext(),
+                        Exam.class,
+                        mDay)
+                        .findAll();
+
             } else {//No filter, Query all
                 RealmResults<Hour> hourList = mRealm.where(Hour.class)
                         .equalTo("day", mDay)
@@ -221,13 +230,19 @@ public class ScheduleDayFragment extends Fragment implements
                         Event.class,
                         mDay)
                         .findAll();
+
+                exams = RealmUtils.buildBaseQuery(
+                        mRealm,
+                        Exam.class,
+                        mDay)
+                        .findAll();
             }
 
+            changes = new ArrayList<>(changes);
+            events = new ArrayList<>(events);
+            exams = new ArrayList<>(exams);
 
-
-
-
-            ScheduleResult result = new ScheduleResult(hours, changes, events);
+            ScheduleResult result = new ScheduleResult(hours, changes, events, exams);
             deliverResult(result);
         }
 
