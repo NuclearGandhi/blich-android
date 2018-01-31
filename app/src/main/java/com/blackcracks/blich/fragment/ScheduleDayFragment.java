@@ -240,7 +240,6 @@ public class ScheduleDayFragment extends Fragment implements
 
             changes = new ArrayList<>(changes);
             events = new ArrayList<>(events);
-            exams = new ArrayList<>(exams);
 
             ScheduleResult result = new ScheduleResult(hours, changes, events, exams);
             deliverResult(result);

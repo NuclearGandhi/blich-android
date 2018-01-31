@@ -328,6 +328,7 @@ public class RealmUtils {
         }
 
         public void switchData(ScheduleResult data) {
+            //Get the changes and hours
             if (data != null) {
                 mHours = data.getHours();
                 mChanges = data.getChanges();
@@ -339,9 +340,10 @@ public class RealmUtils {
                 Timber.d("Realm has been closed");
             }
 
+            //Get the events, and insert them into the hours
             if (mIsDataValid) {
                 insertEventsIntoHours(data.getEvents());
-                if (mHours.isEmpty()) mIsDataValid = false;
+                if (mHours.isEmpty()) mIsDataValid = false; //There is nothing to display
             }
         }
 
