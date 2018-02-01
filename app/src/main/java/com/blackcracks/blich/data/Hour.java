@@ -9,20 +9,16 @@ package com.blackcracks.blich.data;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 
 public class Hour extends RealmObject implements Comparable<Hour> {
 
     private int day;
     private int hour;
     private RealmList<Lesson> lessons;
-
-    @Ignore private List<Event> events = new ArrayList<>();
 
     public Hour() {
 
@@ -56,14 +52,6 @@ public class Hour extends RealmObject implements Comparable<Hour> {
 
     public void setDay(int day) {
         this.day = day;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
     }
 
     @Override
