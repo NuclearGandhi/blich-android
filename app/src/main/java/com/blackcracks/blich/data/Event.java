@@ -7,20 +7,20 @@
 
 package com.blackcracks.blich.data;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+
+import com.blackcracks.blich.R;
+
 import java.util.Date;
 
-import io.realm.RealmObject;
+public class Event extends DatedLesson {
 
-public class Event extends RealmObject {
-
-    private Date date;
     private String name;
     private int beginHour;
     private int endHour;
 
     private String room;
-    private String subject;
-    private String teacher;
 
     public Event() {}
 
@@ -31,12 +31,16 @@ public class Event extends RealmObject {
         setEndHour(endHour);
     }
 
-    public Date getDate() {
-        return date;
+    @Override
+    public String buildName() {
+        if (room.equals("")) return name;
+
+        return name + ", " + room;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    @Override
+    public int getColor(Context context) {
+        return ContextCompat.getColor(context, R.color.lesson_event);
     }
 
     public String getName() {
@@ -70,27 +74,5 @@ public class Event extends RealmObject {
 
     public void setRoom(String room) {
         this.room = room;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
-    }
-
-    public String buildName() {
-        if (room.equals("")) return name;
-
-        return name + ", " + room;
     }
 }

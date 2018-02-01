@@ -7,20 +7,18 @@
 
 package com.blackcracks.blich.data;
 
-import com.blackcracks.blich.util.Constants;
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+
+import com.blackcracks.blich.R;
+import com.blackcracks.blich.util.Constants.Database;
 
 import java.util.Date;
 
-import io.realm.RealmObject;
-
-public class Change extends RealmObject {
+public class Change extends DatedLesson {
 
     private String changeType;
-
-    private Date date;
     private int hour;
-    private String teacher;
-    private String subject;
 
     private String newTeacher;
     private String newRoom;
@@ -29,11 +27,48 @@ public class Change extends RealmObject {
     public Change() {
     }
 
-    public Change(String changeType, Date date, int hour, String teacher, String subject) {
-        this.changeType = changeType;
-        this.hour = hour;
-        this.teacher = teacher;
-        this.subject = subject;
+    public Change(Date date, String subject, String teacher, String changeType, int hour) {
+        super(date, subject, teacher);
+        setChangeType(changeType);
+        setHour(hour);
+    }
+
+    @Override
+    public String buildName() {
+        String str = "";
+        switch (getChangeType()) {
+            case Database.TYPE_CANCELED: {
+                str = "ביטול " + buildLessonName();
+                break;
+            }
+            case Database.TYPE_NEW_HOUR: {
+                str = "הזזת " + buildLessonName() + " לשעה " + getNewHour();
+                break;
+            }
+            case Database.TYPE_NEW_ROOM: {
+                str = buildLessonName() + " -> חדר: " + getNewRoom();
+                break;
+            }
+            case Database.TYPE_NEW_TEACHER: {
+                str = buildLessonName() + " -> מורה: " + getNewTeacher();
+                break;
+            }
+        }
+
+        return str;
+    }
+
+    @Override
+    public int getColor(Context context) {
+        int colorId;
+        if (changeType.equals(Database.TYPE_CANCELED)) colorId = R.color.lesson_canceled;
+        colorId = R.color.lesson_changed;
+
+        return ContextCompat.getColor(context, colorId);
+    }
+
+    private String buildLessonName() {
+        return getSubject() + ", " + getTeacher();
     }
 
     public String getChangeType() {
@@ -44,36 +79,12 @@ public class Change extends RealmObject {
         this.changeType = changeType;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public int getHour() {
         return hour;
     }
 
     public void setHour(int hour) {
         this.hour = hour;
-    }
-
-    public String getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 
     public String getNewTeacher() {
@@ -98,33 +109,5 @@ public class Change extends RealmObject {
 
     public void setNewHour(int newHour) {
         this.newHour = newHour;
-    }
-
-    private String buildLessonName() {
-        return getSubject() + ", " + getTeacher();
-    }
-
-    public String buildLabel() {
-        String str = "";
-        switch (getChangeType()) {
-            case Constants.Database.TYPE_CANCELED: {
-                str = "ביטול " + buildLessonName();
-                break;
-            }
-            case Constants.Database.TYPE_NEW_HOUR: {
-                str = "הזזת " + buildLessonName() + " לשעה " + getNewHour();
-                break;
-            }
-            case Constants.Database.TYPE_NEW_ROOM: {
-                str = buildLessonName() + " -> חדר: " + getNewRoom();
-                break;
-            }
-            case Constants.Database.TYPE_NEW_TEACHER: {
-                str = buildLessonName() + " -> מורה: " + getNewTeacher();
-                break;
-            }
-        }
-
-        return str;
     }
 }

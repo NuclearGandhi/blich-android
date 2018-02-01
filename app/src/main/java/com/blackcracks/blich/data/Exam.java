@@ -7,21 +7,20 @@
 
 package com.blackcracks.blich.data;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+
+import com.blackcracks.blich.R;
+
 import java.util.Date;
 
-import io.realm.RealmObject;
-
-public class Exam extends RealmObject {
+public class Exam extends DatedLesson {
 
     private String name;
-    private Date date;
 
     private int beginHour;
     private int endHour;
     private String room;
-
-    private String teacher;
-    private String subject;
 
     public Exam() {}
 
@@ -31,6 +30,16 @@ public class Exam extends RealmObject {
         setBeginHour(beginHour);
         setEndHour(endHour);
         setRoom(room);
+    }
+
+    @Override
+    public String buildName() {
+        return getName() + " לקבוצה של " + getTeacher() + ", בחדר " + getRoom();
+    }
+
+    @Override
+    public int getColor(Context context) {
+        return ContextCompat.getColor(context, R.color.lesson_exam);
     }
 
     public String getName() {
@@ -45,14 +54,6 @@ public class Exam extends RealmObject {
         } else {
             this.name = "מבחן ב" + name;
         }
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public int getBeginHour() {
@@ -78,25 +79,5 @@ public class Exam extends RealmObject {
 
     public void setRoom(String room) {
         this.room = room;
-    }
-
-    public String getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String buildLabel() {
-        return getName() + " לקבוצה של " + getTeacher() + ", בחדר " + getRoom();
     }
 }
