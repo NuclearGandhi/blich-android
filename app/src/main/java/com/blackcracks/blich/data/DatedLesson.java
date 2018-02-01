@@ -14,7 +14,7 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
-public abstract class DatedLesson extends RealmObject {
+public abstract class DatedLesson extends RealmObject implements Comparable<DatedLesson>{
 
     private Date date;
     private String subject;
@@ -30,6 +30,11 @@ public abstract class DatedLesson extends RealmObject {
 
     public abstract String buildName();
     public abstract @ColorInt int getColor(Context context);
+    public abstract boolean isEqualToHour(int hour);
+
+    public boolean isReplacing() {
+        return !getTeacher().equals("") && !getSubject().equals("");
+    }
 
     public Date getDate() {
         return date;

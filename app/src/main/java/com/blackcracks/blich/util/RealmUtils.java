@@ -9,18 +9,13 @@ package com.blackcracks.blich.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.SparseIntArray;
 
-import com.blackcracks.blich.data.Change;
-import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.ScheduleResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +27,6 @@ import io.realm.RealmMigration;
 import io.realm.RealmObject;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
-import timber.log.Timber;
 
 public class RealmUtils {
 
@@ -156,13 +150,12 @@ public class RealmUtils {
                 break;
         }
 
-        return buildFilteredQuery(query, context, clazz);
+        return buildFilteredQuery(query, context);
     }
 
     public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
-            Context context,
-            Class<E> clazz) {
+            Context context) {
 
 
         String teacherFilter = PreferencesUtils.getString(
@@ -171,24 +164,12 @@ public class RealmUtils {
         String[] teacherSubjects = teacherFilter.split(";");
 
         query.and()
-                .beginGroup();
-
-        switch (clazz.getSimpleName()) {
-            case "Event": {
-                query
-                        .beginGroup()
+                .beginGroup()
+                    .beginGroup()
                         .equalTo("teacher", "")
                         .and()
                         .equalTo("subject", "")
-                        .endGroup();
-                break;
-            }
-            default: {
-                //Set an impossible case for easier code writing
-                query.equalTo("subject", "oghegijd39");
-                break;
-            }
-        }
+                .endGroup();
 
         for (String teacherSubject :
                 teacherSubjects) {
@@ -318,144 +299,4 @@ public class RealmUtils {
         return results;
     }
 
-    public static class RealmScheduleHelper {
-        private List<Hour> mHours;
-        private List<Change> mChanges;
-        private boolean mIsDataValid;
-
-        public RealmScheduleHelper(ScheduleResult data) {
-            switchData(data);
-        }
-
-        public void switchData(ScheduleResult data) {
-            //Get the changes and hours
-            if (data != null) {
-                mHours = data.getHours();
-                mChanges = data.getChanges();
-            }
-            try {
-                mIsDataValid = data.isDataValid();
-            } catch (IllegalStateException e) { //In case Realm instance has been closed
-                mIsDataValid = false;
-                Timber.d("Realm has been closed");
-            }
-
-            //Get the events, and insert them into the hours
-            if (mIsDataValid) {
-                insertEventsIntoHours(data.getEvents());
-                if (mHours.isEmpty()) mIsDataValid = false; //There is nothing to display
-            }
-        }
-
-        public boolean isDataValid() {
-            return mIsDataValid;
-        }
-
-        private void insertEventsIntoHours(List<Event> events) {
-            for (Event event :
-                    events) {
-                int bHour = event.getBeginHour();
-                int eHour = event.getEndHour();
-
-                for (int i = bHour; i < eHour; i++) {
-                    Hour hour = getHourByNum(i);
-                    if (hour == null) {
-                        hour = new Hour(
-                                -1, //Doesn't matter
-                                i,
-                                null);
-                        mHours.add(hour);
-                    }
-
-                    hour.getEvents().add(event);
-                }
-            }
-
-            Collections.sort(mHours);
-        }
-
-        public Hour getHour(int position) {
-            return mHours.get(position);
-        }
-
-        public @Nullable Hour getHourByNum(int hourNum) {
-            for (Hour hour :
-                    mHours) {
-                if (hour.getHour() == hourNum) return hour;
-            }
-            return null;
-        }
-
-        public List<Change> getChanges(int hour) {
-            List<Change> changes = new ArrayList<>();
-            for (Change change :
-                    mChanges) {
-                if (change.getHour() == hour) changes.add(change);
-            }
-
-            return changes;
-        }
-
-        public @Nullable Lesson getLesson(int position, int childPos) {
-            if (!mIsDataValid) return null;
-            List<Lesson> lessons = getHour(position).getLessons();
-            if (lessons != null && lessons.size() > childPos) return lessons.get(childPos);
-            return null;
-        }
-
-        public @Nullable
-        Change getChange(int hour, Lesson lesson) {
-            List<Change> changes = getChanges(hour);
-            return getChange(changes, lesson);
-        }
-
-        public @Nullable
-        Change getChange(List<Change> changes, Lesson lesson) {
-            for (int i = 0; i < changes.size(); i++) {
-                Change change = changes.get(i);
-                if (change.getTeacher().equals(lesson.getTeacher()) &&
-                        change.getSubject().equals(lesson.getSubject()))
-                    return change;
-            }
-            return null;
-        }
-
-        public boolean isHourAnEvent(Hour hour) {
-            List<Event> events = hour.getEvents();
-            if (events.size() != 0) {
-                Event event = events.get(0);
-                if (event.getTeacher() != null && event.getSubject() != null)
-                    if (event.getTeacher().equals("") && event.getSubject().equals(""))
-                        return true;
-            }
-            return false;
-        }
-
-        public int getHourCount() {
-            if (mIsDataValid) {
-                return mHours.size();
-            } else {
-                return 0;
-            }
-        }
-
-        public int getChildCount(int position) {
-            if (mIsDataValid) {
-                Hour hour = getHour(position);
-                if (isHourAnEvent(hour)) return 0;
-                if (hour.getLessons() != null) return hour.getLessons().size() + hour.getEvents().size();
-                return hour.getEvents().size();
-            } else {
-                return 0;
-            }
-        }
-
-        public int getLessonCount(int position) {
-            if (mIsDataValid) {
-                return getHour(position).getLessons().size();
-            } else {
-                return 0;
-            }
-        }
-    }
 }

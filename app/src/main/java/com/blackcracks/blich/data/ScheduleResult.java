@@ -12,34 +12,23 @@ import java.util.List;
 public class ScheduleResult {
 
     private List<Hour> mHours;
-    private List<Change> mChanges;
-    private List<Event> mEvents;
-    private List<Exam> mExams;
+    private List<DatedLesson> mDatedLessons;
 
-    public ScheduleResult(List<Hour> hours, List<Change> changes, List<Event> events, List<Exam> exams) {
+    public ScheduleResult(List<Hour> hours) {
         mHours = hours;
-        mChanges = changes;
-        mEvents = events;
-        mExams = exams;
     }
 
     public List<Hour> getHours() {
         return mHours;
     }
 
-    public List<Change> getChanges() {
-        return mChanges;
-    }
-
-    public List<Event> getEvents() {
-        return mEvents;
-    }
-
-    public List<Exam> getExams() {
-        return mExams;
+    public List<DatedLesson> getDatedLessons() {
+        return mDatedLessons;
     }
 
     public boolean isDataValid() {
-        return mHours != null && mChanges != null && mEvents != null && mExams != null;
+        if (mHours == null || mDatedLessons == null) return false;
+        if (mHours.size() == 0 && mDatedLessons.size() == 0) return false;
+        return true;
     }
 }

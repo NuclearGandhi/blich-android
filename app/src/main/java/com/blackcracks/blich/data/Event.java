@@ -8,6 +8,7 @@
 package com.blackcracks.blich.data;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 import com.blackcracks.blich.R;
@@ -43,6 +44,11 @@ public class Event extends DatedLesson {
         return ContextCompat.getColor(context, R.color.lesson_event);
     }
 
+    @Override
+    public boolean isEqualToHour(int hour) {
+        return beginHour < hour && hour < endHour;
+    }
+
     public String getName() {
         return name;
     }
@@ -74,5 +80,10 @@ public class Event extends DatedLesson {
 
     public void setRoom(String room) {
         this.room = room;
+    }
+
+    @Override
+    public int compareTo(@NonNull DatedLesson o) {
+        return 0;
     }
 }
