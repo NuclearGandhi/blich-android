@@ -14,8 +14,9 @@ public class ScheduleResult {
     private List<Hour> mHours;
     private List<DatedLesson> mDatedLessons;
 
-    public ScheduleResult(List<Hour> hours) {
+    public ScheduleResult(List<Hour> hours, List<DatedLesson> datedLessons) {
         mHours = hours;
+        mDatedLessons = datedLessons;
     }
 
     public List<Hour> getHours() {

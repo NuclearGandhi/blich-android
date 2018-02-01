@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
@@ -238,10 +239,11 @@ public class ScheduleDayFragment extends Fragment implements
                         .findAll();
             }
 
-            changes = new ArrayList<>(changes);
-            events = new ArrayList<>(events);
+            List<DatedLesson> datedLessons = new ArrayList<DatedLesson>(changes);
+            datedLessons.addAll(events);
+            datedLessons.addAll(exams);
 
-            ScheduleResult result = new ScheduleResult(hours, changes, events, exams);
+            ScheduleResult result = new ScheduleResult(hours, datedLessons);
             deliverResult(result);
         }
 
