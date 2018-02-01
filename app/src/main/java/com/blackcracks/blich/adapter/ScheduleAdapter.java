@@ -2,7 +2,7 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.ColorRes;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -15,21 +15,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.RealmUtils;
+import com.blackcracks.blich.util.RealmScheduleHelper;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private ExpandableListView mExpandableListView;
-    private RealmUtils.RealmScheduleHelper mRealmScheduleHelper;
+    private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private TextView mStatusTextView;
     private SparseBooleanArray mExpandedArray;
@@ -41,7 +41,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         mStatusTextView = statusTextView;
         mExpandableListView = expandableListView;
 
-        mRealmScheduleHelper = new RealmUtils.RealmScheduleHelper(null);
+        mRealmScheduleHelper = new RealmScheduleHelper(null);
         mExpandedArray = new SparseBooleanArray();
     }
 
@@ -70,7 +70,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mRealmScheduleHelper.getLesson(groupPosition, childPosition);
+        return mRealmScheduleHelper.getLesson(groupPosition, childPosition + 1);
     }
 
     @Override
@@ -129,18 +129,14 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
-        List<Event> events = hour.getEvents();
-        List<Change> changes = mRealmScheduleHelper.getChanges(hour.getHour());
 
         Lesson firstLesson;
-        Change firstChange = null;
-        Event firstEvent = null;
+        Event singleEvent = mRealmScheduleHelper.getSingleChildHour(hour);
 
         //The main data
         String subject;
         final String teacher;
         final String room;
-
         int color;
 
         /*
@@ -150,30 +146,26 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         -Event (in addition to Lesson)
         -Exam (in addition to Lesson)
          */
-        boolean isAnHourEvent = mRealmScheduleHelper.isHourAnEvent(hour);
-        if (lessons == null || isAnHourEvent) { //Then display an event
-            firstEvent = events.get(0);
-            subject = firstEvent.buildName();
+        if (singleEvent != null) { //Then display the event
+            subject = singleEvent.buildName();
             teacher = "";
             room = "";
-
-            color = getColorFromType(Database.TYPE_EVENT);
+            color = ContextCompat.getColor(mContext, R.color.lesson_event);
         } else {
-            firstLesson = lessons.get(0);
-            firstChange = mRealmScheduleHelper.getChange(changes, firstLesson);
+            firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
+            DatedLesson replacement = mRealmScheduleHelper.getLessonReplacement(firstLesson);
 
-            if (firstChange == null) { //Then display a normal lesson
+
+            if (replacement == null) { //Then display a normal lesson
                 subject = filterSubject(firstLesson.getSubject());
                 teacher = firstLesson.getTeacher();
                 room = firstLesson.getRoom();
-
-                color = R.color.black_text;
+                color = ContextCompat.getColor(mContext, R.color.black_text);
             } else { //Then display a modified lesson
-                subject = firstChange.buildLabel();
+                subject = replacement.buildName();
                 teacher = "";
                 room = "";
-
-                color = getColorFromType(firstChange.getChangeType());
+                color = replacement.getColor(mContext);
             }
         }
 
@@ -189,38 +181,11 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.eventsView.removeAllViews();
         holder.eventsView.setVisibility(View.VISIBLE);
 
-        if (!isAnHourEvent) {
-            //Add dots to signify that there are changes
-            List<String> existingTypes = new ArrayList<>();
-
-            for (Change change :
-                    changes) {
-                if (change != firstChange) {
-                    existingTypes.add(change.getChangeType());
-                }
-            }
-
-            for (Event event :
-                    events) {
-                if (event != firstEvent) {
-                    existingTypes.add(Database.TYPE_EVENT);
-                }
-            }
-
-            //Add event dots, if needed
-            if (existingTypes.contains(Database.TYPE_CANCELED))
-                makeEventDot(holder.eventsView, R.color.lesson_canceled);
-            if (
-                    existingTypes.contains(Database.TYPE_NEW_TEACHER) ||
-                            existingTypes.contains(Database.TYPE_NEW_HOUR) ||
-                            existingTypes.contains(Database.TYPE_NEW_ROOM)) {
-                makeEventDot(holder.eventsView, R.color.lesson_changed);
-            }
-            if (existingTypes.contains(Database.TYPE_EXAM))
-                makeEventDot(holder.eventsView, R.color.lesson_exam);
-            if (existingTypes.contains(Database.TYPE_EVENT))
-                makeEventDot(holder.eventsView, R.color.lesson_event);
-
+        //Add dots to signify that there are changes
+        if (singleEvent == null) {
+            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour);
+            removeDuplicateDaterLessons(datedLessons);
+            loadDatedLessonsToEventDots(holder.eventsView, datedLessons);
         }
 
         //Display the correct state of the group
@@ -289,57 +254,41 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
 
-        /*
-        There are 4 types of children:
-        -Lesson
-        -Change (replaces Lesson)
-        -Event (in addition to Lesson)
-        -Exam (in addition to Lesson)
-         */
-
-        Lesson lesson = (Lesson) getChild(groupPosition, childPosition + 1);
-
-        Event event = null;
-        if (lesson == null) {
-            //Calculate the offset from the last normal lesson, and get the corresponding event
+        Lesson lesson = (Lesson) getChild(groupPosition, childPosition);
+        DatedLesson datedLesson;
+        if (lesson == null) {//This is not a replacer DatedLesson
+            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons((Hour) getGroup(groupPosition));
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
-            List<Event> events = mRealmScheduleHelper.getHour(groupPosition).getEvents();
-            event = events.get(lastLessonPos - childPosition);
+            datedLesson = datedLessons.get(lastLessonPos - childPosition);
+        } else {
+            datedLesson = mRealmScheduleHelper.getLessonReplacement(lesson);
         }
-
-        Change change = mRealmScheduleHelper.getChange(
-                mRealmScheduleHelper.getHour(groupPosition).getHour(),
-                lesson
-        );
-
+        String subject;
+        final String teacher;
+        final String room;
         int color;
-        if (event != null) { //Then show an event
-            holder.subjectView.setText(event.buildName());
-            holder.teacherView.setText("");
-            holder.classroomView.setText("");
 
-            color = getColorFromType(Database.TYPE_EVENT);
-        } else if (change != null) { //Then show a change
-            holder.subjectView.setText(change.buildLabel());
-            holder.teacherView.setText("");
-            holder.classroomView.setText("");
-
-            color = getColorFromType(change.getChangeType());
-        } else { //Then show a normal lesson
-            String subject = filterSubject(lesson.getSubject());
-            holder.subjectView.setText(subject);
-
-            holder.teacherView.setText(lesson.getTeacher());
-            holder.classroomView.setText(lesson.getRoom());
-
-            color = getColorFromType(Database.TYPE_NORMAL);
+        if (datedLesson != null) {
+            subject = datedLesson.buildName();
+            teacher = "";
+            room = "";
+            color = datedLesson.getColor(mContext);
+        } else {
+            subject = lesson.getSubject();
+            teacher = lesson.getTeacher();
+            room = lesson.getRoom();
+            color = ContextCompat.getColor(mContext, R.color.black_text);
         }
+
+        holder.subjectView.setText(subject);
+        holder.subjectView.setTextColor(color);
+        holder.teacherView.setText(teacher);
+        holder.classroomView.setText(room);
 
         holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
 
         //Set a bottom divider if this is the last child
         View divider = view.findViewById(R.id.divider);
-        divider.setVisibility(View.GONE);
         if (getChildrenCount(groupPosition) - 1 == childPosition) {
             divider.setVisibility(View.VISIBLE);
         } else {
@@ -357,14 +306,43 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
     }
 
-    private void makeEventDot(final ViewGroup parent, @ColorRes int color) {
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
+    private void removeDuplicateDaterLessons(List<DatedLesson> list) {
+        if (list.size() != 0 || list.size() != 1) {
+            //Get all the changes, and remove all duplicate types
+            //Build the comparator
+            Comparator<DatedLesson> typeComparator = new Comparator<DatedLesson>() {
+                @Override
+                public int compare(DatedLesson o1, DatedLesson o2) {
+                    return o1.getType().compareTo(o2.getType());
+                }
+            };
+
+            //Sort
+            Collections.sort(list, typeComparator);
+
+            //Delete
+            for (int i = 1; i < list.size(); i++) {
+                DatedLesson lesson = list.get(i);
+                DatedLesson prevLesson = list.get(i - 1);
+                if (lesson.getType().equals(prevLesson.getType())) list.remove(lesson);
+            }
+        }
+    }
+
+    private void loadDatedLessonsToEventDots(ViewGroup parent, List<DatedLesson> list) {
+        for (DatedLesson lesson :
+                list) {
+            makeEventDot(parent, lesson.getColor(mContext));
+        }
+    }
+
+    private void makeEventDot(ViewGroup parent, @ColorInt int color) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
 
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.events_dot);
-        drawable.setColor(ContextCompat.getColor(mContext, color));
+        drawable.setColor(color);
         view.setBackground(drawable);
         parent.addView(view);
-
     }
 
     private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
@@ -386,25 +364,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.classroomView.setText("");
 
         holder.eventsView.setVisibility(View.VISIBLE);
-    }
-
-    private int getColorFromType(String lessonType) {
-        switch (lessonType) {
-            case Database.TYPE_CANCELED:
-                return R.color.lesson_canceled;
-            case Database.TYPE_NEW_TEACHER:
-                return R.color.lesson_changed;
-            case Database.TYPE_NEW_ROOM:
-                return R.color.lesson_changed;
-            case Database.TYPE_NEW_HOUR:
-                return R.color.lesson_changed;
-            case Database.TYPE_EVENT:
-                return R.color.lesson_event;
-            case Database.TYPE_EXAM:
-                return R.color.lesson_exam;
-            default:
-                return R.color.black_text;
-        }
     }
 
     public void switchData(ScheduleResult data) {

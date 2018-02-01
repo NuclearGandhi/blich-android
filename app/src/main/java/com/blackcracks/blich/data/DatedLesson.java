@@ -29,11 +29,16 @@ public abstract class DatedLesson extends RealmObject implements Comparable<Date
     }
 
     public abstract String buildName();
-    public abstract @ColorInt int getColor(Context context);
+    public abstract String getType();
     public abstract boolean isEqualToHour(int hour);
+    public abstract @ColorInt int getColor(Context context);
 
-    public boolean isReplacing() {
+    public boolean isAReplacer() {
         return !getTeacher().equals("") && !getSubject().equals("");
+    }
+
+    public boolean canReplaceLesson(Lesson toReplace) {
+        return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 
     public Date getDate() {

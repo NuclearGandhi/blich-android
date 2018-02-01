@@ -60,10 +60,15 @@ public class Change extends DatedLesson {
     }
 
     @Override
+    public String getType() {
+        return changeType;
+    }
+
+    @Override
     public int getColor(Context context) {
         int colorId;
         if (changeType.equals(Database.TYPE_CANCELED)) colorId = R.color.lesson_canceled;
-        colorId = R.color.lesson_changed;
+        else colorId = R.color.lesson_changed;
 
         return ContextCompat.getColor(context, colorId);
     }

@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.util.Constants;
 
 import java.util.Date;
 
@@ -36,6 +37,11 @@ public class Exam extends DatedLesson {
     @Override
     public String buildName() {
         return getName() + " לקבוצה של " + getTeacher() + ", בחדר " + getRoom();
+    }
+
+    @Override
+    public String getType() {
+        return Constants.Database.TYPE_EXAM;
     }
 
     @Override

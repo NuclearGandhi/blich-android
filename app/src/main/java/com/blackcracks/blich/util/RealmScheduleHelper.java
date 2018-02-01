@@ -15,6 +15,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -23,7 +24,6 @@ public class RealmScheduleHelper {
     private List<Hour> mHours;
     private List<DatedLesson> mDatedLessons;
 
-    private List<Event> mEvents;
     private boolean mIsDataValid;
 
     public RealmScheduleHelper(ScheduleResult data) {
@@ -61,23 +61,43 @@ public class RealmScheduleHelper {
         return null;
     }
 
-    public boolean isHourSingleEvent(Hour hour) {
+    public @Nullable
+    DatedLesson getLessonReplacement(Lesson toReplace) {
+        for (DatedLesson datedLesson :
+                mDatedLessons) {
+            if (datedLesson.canReplaceLesson(toReplace)) return datedLesson;
+        }
+
+        return null;
+    }
+
+    public @Nullable
+    Event getSingleChildHour(Hour hour) {
         for (DatedLesson lesson :
                 mDatedLessons) {
             if (lesson instanceof Event &&
                     lesson.isEqualToHour(hour.getHour()) &&
-                    !lesson.isReplacing()) {
-                return true;
+                    !lesson.isAReplacer()) {
+                return (Event) lesson;
             }
         }
-        return false;
+        return null;
+    }
+
+    public List<DatedLesson> getDatedLessons(Hour hour) {
+        List<DatedLesson> lessons = new ArrayList<>();
+        for (DatedLesson datedLesson:
+                mDatedLessons) {
+            if (datedLesson.isEqualToHour(hour.getHour())) lessons.add(datedLesson);
+        }
+        return lessons;
     }
 
     private int getNonReplacingLessonsCount(Hour hour) {
         int count = 0;
         for (DatedLesson datedLesson :
                 mDatedLessons) {
-            if (!datedLesson.isReplacing() &&
+            if (!datedLesson.isAReplacer() &&
                     datedLesson.isEqualToHour(hour.getHour())) count++;
         }
         return count;
@@ -94,7 +114,7 @@ public class RealmScheduleHelper {
     public int getChildCount(int position) {
         if (mIsDataValid) {
             Hour hour = getHour(position);
-            if (isHourSingleEvent(hour)) {
+            if (getSingleChildHour(hour) != null) {
                 return 0;
             }
             return hour.getLessons().size() + getNonReplacingLessonsCount(hour);
