@@ -132,6 +132,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         Lesson firstLesson;
         Event singleEvent = mRealmScheduleHelper.getSingleChildHour(hour);
+        DatedLesson replacement = null;
 
         //The main data
         String subject;
@@ -153,8 +154,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             color = ContextCompat.getColor(mContext, R.color.lesson_event);
         } else {
             firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
-            DatedLesson replacement = mRealmScheduleHelper.getLessonReplacement(firstLesson);
-
+            replacement = mRealmScheduleHelper.getLessonReplacement(firstLesson);
 
             if (replacement == null) { //Then display a normal lesson
                 subject = firstLesson.getSubject();
@@ -183,9 +183,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         //Add dots to signify that there are changes
         if (singleEvent == null) {
-            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour);
-            removeDuplicateDaterLessons(datedLessons);
-            loadDatedLessonsToEventDots(holder.eventsView, datedLessons);
+            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
+            removeDuplicateDaterLessons(datedLessons); //Remove duplicates
+            datedLessons.remove(replacement); //Remove the displayed dated lesson
+            loadDatedLessonsToEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
         }
 
         //Display the correct state of the group

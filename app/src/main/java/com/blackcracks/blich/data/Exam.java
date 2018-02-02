@@ -70,6 +70,15 @@ public class Exam extends RealmObject implements DatedLesson {
         return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Exam) {
+            Exam e = (Exam) obj;
+            return buildName().equals(e.buildName());
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }

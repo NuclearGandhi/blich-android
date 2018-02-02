@@ -95,6 +95,15 @@ public class Change extends RealmObject implements DatedLesson {
         return this.hour == hour;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Change) {
+            Change c = (Change) obj;
+            return buildName().equals(c.buildName());
+        }
+        return false;
+    }
+
     private String buildLessonName() {
         return getSubject() + ", " + getTeacher();
     }

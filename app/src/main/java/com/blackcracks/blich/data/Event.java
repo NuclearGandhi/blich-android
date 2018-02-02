@@ -69,6 +69,15 @@ public class Event extends RealmObject implements DatedLesson {
         return ContextCompat.getColor(context, R.color.lesson_event);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Event) {
+            Event e = (Event) obj;
+            return buildName().equals(e.buildName());
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }
