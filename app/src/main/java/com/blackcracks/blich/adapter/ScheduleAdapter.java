@@ -157,7 +157,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
 
             if (replacement == null) { //Then display a normal lesson
-                subject = filterSubject(firstLesson.getSubject());
+                subject = firstLesson.getSubject();
                 teacher = firstLesson.getTeacher();
                 room = firstLesson.getRoom();
                 color = ContextCompat.getColor(mContext, R.color.black_text);
@@ -170,7 +170,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
 
         //Set the color according to the lesson type
-        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
+        holder.subjectView.setTextColor(color);
 
         //Set initial values
         holder.subjectView.setText(subject);
@@ -229,6 +229,27 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
+        holder.indicatorView.animate().rotation(180);
+
+        holder.teacherView.post(new Runnable() {
+            @Override
+            public void run() {
+                holder.teacherView.setText(teacher);
+                holder.classroomView.setText(room);
+                holder.eventsView.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void showCollapsed(GroupViewHolder holder) {
+        holder.indicatorView.animate().rotation(0);
+        holder.teacherView.setText("...");
+        holder.classroomView.setText("");
+
+        holder.eventsView.setVisibility(View.VISIBLE);
+    }
+
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         if (!mRealmScheduleHelper.isDataValid()) return null;
@@ -285,7 +306,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.teacherView.setText(teacher);
         holder.classroomView.setText(room);
 
-        holder.subjectView.setTextColor(ContextCompat.getColor(mContext, color));
+        holder.subjectView.setTextColor(color);
 
         //Set a bottom divider if this is the last child
         View divider = view.findViewById(R.id.divider);
@@ -293,16 +314,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             divider.setVisibility(View.VISIBLE);
         } else {
             divider.setVisibility(View.GONE);
-        }
-    }
-
-    private String filterSubject(String subject) {
-        if (subject.contains("מבחן מבחן")
-                || subject.contains("מבחן בוחן")
-                || subject.contains("מבחן מבחני")) {
-            return subject.replace("מבחן ", "");
-        } else {
-            return subject;
         }
     }
 
@@ -343,27 +354,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         drawable.setColor(color);
         view.setBackground(drawable);
         parent.addView(view);
-    }
-
-    private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
-        holder.indicatorView.animate().rotation(180);
-
-        holder.teacherView.post(new Runnable() {
-            @Override
-            public void run() {
-                holder.teacherView.setText(teacher);
-                holder.classroomView.setText(room);
-                holder.eventsView.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    private void showCollapsed(GroupViewHolder holder) {
-        holder.indicatorView.animate().rotation(0);
-        holder.teacherView.setText("...");
-        holder.classroomView.setText("");
-
-        holder.eventsView.setVisibility(View.VISIBLE);
     }
 
     public void switchData(ScheduleResult data) {
