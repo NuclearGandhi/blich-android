@@ -8,7 +8,6 @@
 package com.blackcracks.blich.data;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 import com.blackcracks.blich.R;
@@ -16,12 +15,17 @@ import com.blackcracks.blich.util.Constants;
 
 import java.util.Date;
 
-public class Event extends DatedLesson {
+import io.realm.RealmObject;
+
+public class Event extends RealmObject implements DatedLesson {
 
     private String name;
+    private Date date;
     private int beginHour;
     private int endHour;
 
+    private String subject;
+    private String teacher;
     private String room;
 
     public Event() {}
@@ -46,13 +50,23 @@ public class Event extends DatedLesson {
     }
 
     @Override
-    public int getColor(Context context) {
-        return ContextCompat.getColor(context, R.color.lesson_event);
+    public boolean isEqualToHour(int hour) {
+        return beginHour < hour && hour < endHour;
     }
 
     @Override
-    public boolean isEqualToHour(int hour) {
-        return beginHour < hour && hour < endHour;
+    public boolean isAReplacer() {
+        return !getTeacher().equals("") && !getSubject().equals("");
+    }
+
+    @Override
+    public boolean canReplaceLesson(Lesson toReplace) {
+        return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
+    }
+
+    @Override
+    public int getColor(Context context) {
+        return ContextCompat.getColor(context, R.color.lesson_event);
     }
 
     public String getName() {
@@ -61,6 +75,14 @@ public class Event extends DatedLesson {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public int getBeginHour() {
@@ -80,16 +102,27 @@ public class Event extends DatedLesson {
         this.endHour = endHour;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
+    }
+
     public String getRoom() {
         return room;
     }
 
     public void setRoom(String room) {
         this.room = room;
-    }
-
-    @Override
-    public int compareTo(@NonNull DatedLesson o) {
-        return 0;
     }
 }

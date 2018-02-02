@@ -110,8 +110,7 @@ public class BlichFirebaseJobService extends JobService {
 
         RealmUtils.buildFilteredQuery(
                 query,
-                getBaseContext(),
-                Change.class
+                getBaseContext()
         );
 
         query.sort("date");
@@ -184,7 +183,7 @@ public class BlichFirebaseJobService extends JobService {
             inboxStyle.addLine(getBoldText("היום:"));
             for (Change change :
                     todayNotificationChanges) {
-                inboxStyle.addLine(change.buildLabel());
+                inboxStyle.addLine(change.buildName());
             }
         }
 
@@ -193,7 +192,7 @@ public class BlichFirebaseJobService extends JobService {
             inboxStyle.addLine(getBoldText("מחר:"));
             for (Change change :
                     tomorrowNotificationChanges) {
-                inboxStyle.addLine(change.buildLabel());
+                inboxStyle.addLine(change.buildName());
             }
         }
 

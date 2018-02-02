@@ -10,58 +10,14 @@ package com.blackcracks.blich.data;
 import android.content.Context;
 import android.support.annotation.ColorInt;
 
-import java.util.Date;
+public interface DatedLesson {
 
-import io.realm.RealmObject;
+    String buildName();
+    String getType();
 
-public abstract class DatedLesson extends RealmObject implements Comparable<DatedLesson>{
+    boolean isEqualToHour(int hour);
+    boolean isAReplacer();
+    boolean canReplaceLesson(Lesson toReplace);
 
-    private Date date;
-    private String subject;
-    private String teacher;
-
-    public DatedLesson() {}
-
-    public DatedLesson(Date date, String subject, String teacher) {
-        setDate(date);
-        setSubject(subject);
-        setTeacher(teacher);
-    }
-
-    public abstract String buildName();
-    public abstract String getType();
-    public abstract boolean isEqualToHour(int hour);
-    public abstract @ColorInt int getColor(Context context);
-
-    public boolean isAReplacer() {
-        return !getTeacher().equals("") && !getSubject().equals("");
-    }
-
-    public boolean canReplaceLesson(Lesson toReplace) {
-        return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
-    }
+    @ColorInt int getColor(Context context);
 }

@@ -24,7 +24,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmMigration;
-import io.realm.RealmObject;
+import io.realm.RealmModel;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 
@@ -134,7 +134,7 @@ public class RealmUtils {
      *
      * @return {@link RealmQuery} object with filter rules
      */
-    public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
+    public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             Realm realm,
             Context context,
             Class<E> clazz,
@@ -153,7 +153,7 @@ public class RealmUtils {
         return buildFilteredQuery(query, context);
     }
 
-    public static <E extends RealmObject> RealmQuery<E> buildFilteredQuery(
+    public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
             Context context) {
 
@@ -193,7 +193,7 @@ public class RealmUtils {
     }
 
 
-    public static <E extends RealmObject> RealmQuery<E> buildBaseLessonQuery(
+    public static <E extends RealmModel> RealmQuery<E> buildBaseLessonQuery(
             io.realm.Realm realm,
             Class<E> clazz,
             int day) {
@@ -201,7 +201,7 @@ public class RealmUtils {
                 .equalTo("owners.day", day);
     }
 
-    public static <E extends RealmObject> RealmQuery<E> buildBaseQuery(
+    public static <E extends RealmModel> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
             int day) {
@@ -210,7 +210,7 @@ public class RealmUtils {
         return buildBaseQuery(realm, clazz, date[0], date[1]);
     }
 
-    public static <E extends RealmObject> RealmQuery<E> buildBaseQuery(
+    public static <E extends RealmModel> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
             Date minDate,

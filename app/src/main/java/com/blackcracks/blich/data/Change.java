@@ -8,7 +8,6 @@
 package com.blackcracks.blich.data;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 import com.blackcracks.blich.R;
@@ -16,10 +15,16 @@ import com.blackcracks.blich.util.Constants.Database;
 
 import java.util.Date;
 
-public class Change extends DatedLesson {
+import io.realm.RealmObject;
+
+public class Change extends RealmObject implements DatedLesson {
 
     private String changeType;
+    private Date date;
     private int hour;
+
+    private String subject;
+    private String teacher;
 
     private String newTeacher;
     private String newRoom;
@@ -29,7 +34,9 @@ public class Change extends DatedLesson {
     }
 
     public Change(Date date, String subject, String teacher, String changeType, int hour) {
-        super(date, subject, teacher);
+        setDate(date);
+        setSubject(subject);
+        setTeacher(teacher);
         setChangeType(changeType);
         setHour(hour);
     }
@@ -74,6 +81,16 @@ public class Change extends DatedLesson {
     }
 
     @Override
+    public boolean isAReplacer() {
+        return !getTeacher().equals("") && !getSubject().equals("");
+    }
+
+    @Override
+    public boolean canReplaceLesson(Lesson toReplace) {
+        return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
+    }
+
+    @Override
     public boolean isEqualToHour(int hour) {
         return this.hour == hour;
     }
@@ -90,12 +107,36 @@ public class Change extends DatedLesson {
         this.changeType = changeType;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
     public int getHour() {
         return hour;
     }
 
     public void setHour(int hour) {
         this.hour = hour;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
     }
 
     public String getNewTeacher() {
@@ -120,10 +161,5 @@ public class Change extends DatedLesson {
 
     public void setNewHour(int newHour) {
         this.newHour = newHour;
-    }
-
-    @Override
-    public int compareTo(@NonNull DatedLesson o) {
-        return 0;
     }
 }
