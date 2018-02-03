@@ -8,10 +8,11 @@
 package com.blackcracks.blich.data;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class GenericExam {
+public class GenericExam implements ExamItem {
 
     private Date date;
     private String name;
@@ -26,6 +27,30 @@ public class GenericExam {
         name = exam.getName();
         teachers = new ArrayList<>();
         teachers.add(exam.getTeacher());
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(List<String> teachers) {
+        this.teachers = teachers;
     }
 
     public boolean addExam(Exam exam) {
@@ -43,5 +68,19 @@ public class GenericExam {
             stringBuilder.append(teachers.get(i));
         }
         return stringBuilder.toString();
+    }
+
+    public boolean equalToByMonth(GenericExam e) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int month1 = calendar.get(Calendar.MONTH);
+        calendar.setTime(e.getDate());
+        int month2 = calendar.get(Calendar.MONTH);
+        return month1 == month2;
+    }
+
+    @Override
+    public int getType() {
+        return ExamItem.TYPE_EXAM;
     }
 }
