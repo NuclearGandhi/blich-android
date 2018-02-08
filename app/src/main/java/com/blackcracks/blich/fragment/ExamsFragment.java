@@ -2,16 +2,10 @@ package com.blackcracks.blich.fragment;
 
 
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
@@ -21,28 +15,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
-import com.prolificinteractive.materialcalendarview.DayViewDecorator;
-import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
-import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener{
+import io.realm.Realm;
+import io.realm.Sort;
+
+public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
+        android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
 
     private static final String[] EXAMS_COLUMNS = {
             ExamsEntry._ID,
@@ -52,12 +47,15 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     };
 
     private Context mContext;
+    private Realm mRealm;
 
     private View mRootView;
+
     private AppBarLayout mAppBarLayout;
     private ImageView mDropDown;
     private MaterialCalendarView mCalendarView;
     private ListView mListView;
+
     private ExamAdapter mAdapter;
 
     private final List<CalendarDay> mDates = new ArrayList<>();
@@ -67,6 +65,8 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mRealm = Realm.getDefaultInstance();
+
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
         mContext = getContext();
 
@@ -125,7 +125,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID, null, new ExamsLoader());
+        getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID,
+                null,
+                this);
     }
 
     @Override
@@ -169,107 +171,51 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         }
     }
 
-    private class ExamsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            Uri uri = ExamsEntry.CONTENT_URI;
-
-            String sortOrder = ExamsEntry.COL_DATE + " ASC";
-
-            return new CursorLoader(
-                    mContext,
-                    uri,
-                    EXAMS_COLUMNS,
-                    null, null,
-                    sortOrder);
-        }
-
-        @Override
-        public void onLoadFinished(Loader loader, Cursor data) {
-            new LoadDataToCalendar().execute(data);
-
-            if (data.getCount() != 0) {
-                TextView noData = mRootView.findViewById(R.id.schedule_no_data);
-                noData.setVisibility(View.GONE);
-            }
-        }
-
-        @Override
-        public void onLoaderReset(Loader loader) {
-            mAdapter.swapCursor(null);
-        }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRealm.close();
     }
 
-    private class LoadDataToCalendar extends AsyncTask<Cursor, Void, Date[]> {
+    @Override
+    public Loader<List<Exam>> onCreateLoader(int id, Bundle args) {
+        return new ExamsLoader(getContext(), mRealm);
+    }
 
-        private Cursor mCursor;
+    @Override
+    public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
+        mAdapter.swapCursor(data)
+    }
 
-        @Override
-        protected Date[] doInBackground(Cursor... params) {
-            if (mDates.size() != 0) mDates.clear();
-            mCursor = params[0];
+    @Override
+    public void onLoaderReset(Loader<List<Exam>> loader) {
+        mAdapter.swapCursor(null);
+    }
 
-            mCursor.moveToFirst();
-            for (int i = 0; i < mCursor.getCount(); i++) {
-                String teacher = mCursor.getString(mCursor.getColumnIndex(ExamsEntry.COL_TEACHER));
-                if (!teacher.equals("wut")) {
-                    long dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                    Calendar exam = Calendar.getInstance();
-                    exam.setTimeInMillis(dateInMillis);
-                    mDates.add(CalendarDay.from(exam));
-                }
-                mCursor.moveToNext();
-            }
+    private static class ExamsLoader extends Loader<List<Exam>> {
 
-            Date minDate, maxDate;
+        private Realm mRealm;
 
-            Calendar calendar = Calendar.getInstance();
-
-            if (mCursor.moveToPosition(1)) {
-                long dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                calendar.setTimeInMillis(dateInMillis);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-                minDate = calendar.getTime();
-
-                mCursor.moveToLast();
-                dateInMillis = mCursor.getLong(mCursor.getColumnIndex(ExamsEntry.COL_DATE));
-                calendar.setTimeInMillis(dateInMillis);
-                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-                maxDate = calendar.getTime();
-            } else {
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-                minDate = calendar.getTime();
-
-                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-                maxDate = calendar.getTime();
-            }
-            return new Date[]{minDate, maxDate};
+        public ExamsLoader(@NonNull Context context, Realm realm) {
+            super(context);
+            mRealm = realm;
         }
 
         @Override
-        protected void onPostExecute(Date[] dates) {
-            Date minDate = dates[0];
-            Date maxDate = dates[1];
-            mCalendarView.state().edit()
-                    .setMinimumDate(minDate)
-                    .setMaximumDate(maxDate)
-                    .commit();
+        protected void onStartLoading() {
+            super.onStartLoading();
 
-            mCalendarView.addDecorator(new DayViewDecorator() {
-                @Override
-                public boolean shouldDecorate(CalendarDay day) {
-                    return mDates.contains(day);
-                }
+            List<Exam> exams = mRealm.where(Exam.class)
+                    .sort("date", Sort.ASCENDING)
+                    .findAll();
 
-                @Override
-                public void decorate(DayViewFacade view) {
-                    view.addSpan(new DotSpan(4, Color.WHITE));
-                }
-            });
+            deliverResult(exams);
+        }
 
-            mCursor.moveToFirst();
-            mAdapter.swapCursor(mCursor);
+        @Override
+        protected void onStopLoading() {
+            super.onStopLoading();
+            cancelLoad();
         }
     }
 }
