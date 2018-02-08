@@ -18,7 +18,6 @@ import java.util.List;
 public class RealmExamHelper {
 
     private List<ExamItem> mExamItems = new ArrayList<>();
-    private List<GenericExam> mExams = new ArrayList<>();
     private boolean mIsDataValid;
 
     public RealmExamHelper(List<Exam> exams) {
@@ -28,10 +27,9 @@ public class RealmExamHelper {
     public void switchData(List<Exam> exams) {
         mIsDataValid = exams != null && exams.size() != 0;
         if (mIsDataValid) {
-            mExams.clear();
             mExamItems.clear();
-            buildExamsList(exams);
-            buildMonthDividers();
+            List<GenericExam> genericExams = buildExamsList(exams);
+            buildMonthDividers(genericExams);
         }
     }
 
@@ -39,7 +37,8 @@ public class RealmExamHelper {
         return mIsDataValid;
     }
 
-    private void buildExamsList(List<Exam> exams) {
+    private List<GenericExam> buildExamsList(List<Exam> exams) {
+        List<GenericExam> genericExams = new ArrayList<>();
         GenericExam genericExam = null;
         for (Exam exam :
                 exams) {
@@ -47,20 +46,22 @@ public class RealmExamHelper {
             else {
                 boolean didAdd = genericExam.addExam(exam);
                 if (!didAdd) {
-                    mExams.add(genericExam);
+                    genericExams.add(genericExam);
                     genericExam = null;
                 }
             }
         }
+
+        return genericExams;
     }
 
-    private void buildMonthDividers() {
+    private void buildMonthDividers(List<GenericExam> events) {
         mExamItems.add(
-                new MonthDivider(mExams.get(0).getDate()));
+                new MonthDivider(events.get(0).getDate()));
 
-        for (int i = 1; i < mExams.size(); i++) {
-            GenericExam exam = mExams.get(i);
-            if (!exam.equalToByMonth(mExams.get(i - 1))) {
+        for (int i = 1; i < events.size(); i++) {
+            GenericExam exam = events.get(i);
+            if (!exam.equalToByMonth(events.get(i - 1))) {
                 mExamItems.add(
                         new MonthDivider(exam.getDate()));
             }
