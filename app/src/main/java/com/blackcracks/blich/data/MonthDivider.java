@@ -24,7 +24,7 @@ public class MonthDivider implements ExamItem{
         calendar.setTime(date);
 
         Locale locale = new Locale("iw");
-        String year = calendar.getDisplayName(Calendar.YEAR, Calendar.LONG, locale);
+        int year = calendar.get(Calendar.YEAR);
         String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
         return month + " " + year;
     }
