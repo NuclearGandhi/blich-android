@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
@@ -108,7 +109,8 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         });
 
         mListView = mRootView.findViewById(R.id.list_view_exam);
-        mAdapter = new ExamAdapter(getContext(), null);
+        TextView statusMessage = mRootView.findViewById(R.id.exam_no_data_status);
+        mAdapter = new ExamAdapter(getContext(), null, statusMessage);
         mListView.setAdapter(mAdapter);
 
         ViewCompat.setNestedScrollingEnabled(mListView, true);

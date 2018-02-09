@@ -22,10 +22,12 @@ public class ExamAdapter extends BaseAdapter {
 
     private final Context mContext;
     private RealmExamHelper mExamHelper;
+    private TextView mStatusMessage;
 
-    public ExamAdapter(Context context, List<Exam> data) {
+    public ExamAdapter(Context context, List<Exam> data, TextView statusMessage) {
         mContext = context;
         mExamHelper = new RealmExamHelper(data);
+        mStatusMessage = statusMessage;
     }
 
     public void switchData(List<Exam> data) {
@@ -34,7 +36,11 @@ public class ExamAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mExamHelper.getCount();
+        int count = mExamHelper.getCount();
+        if (count == 0) mStatusMessage.setVisibility(View.VISIBLE);
+        else mStatusMessage.setVisibility(View.INVISIBLE);
+
+        return count;
     }
 
     @Override

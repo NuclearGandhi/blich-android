@@ -67,7 +67,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <TextView
-        android:id="@+id/schedule_no_data"
+        android:id="@+id/exam_no_data_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
