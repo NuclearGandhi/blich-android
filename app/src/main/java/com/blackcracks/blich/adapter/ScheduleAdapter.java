@@ -120,6 +120,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     private void bindGroupView(int groupPosition, View view) {
 
         final GroupViewHolder holder = (GroupViewHolder) view.getTag();
+        //Set initial values
+        holder.reset();
 
         //Get the overall data object
         Hour hour = (Hour) getGroup(groupPosition);
@@ -169,17 +171,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        //Set the color according to the lesson type
-        holder.subjectView.setTextColor(color);
-
-        //Set initial values
         holder.subjectView.setText(subject);
-        holder.teacherView.setText("...");
-        holder.classroomView.setText("");
-        holder.indicatorView.setRotationX(0);
-
-        holder.eventsView.removeAllViews();
-        holder.eventsView.setVisibility(View.VISIBLE);
+        holder.subjectView.setTextColor(color);
 
         //Add dots to signify that there are changes
         if (singleEvent == null) {
@@ -201,10 +194,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         Else, show the indicator view and add a click listener
          */
         if (getChildrenCount(groupPosition) == 0) {
-            holder.indicatorView.setVisibility(View.GONE);
+            if (teacher.equals("")) holder.teacherView.setVisibility(View.GONE);
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
-            view.setOnClickListener(null);
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
             final int finalGroupPos = groupPosition;
@@ -275,6 +267,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private void bindChildView(int groupPosition, int childPosition, View view) {
         ChildViewHolder holder = (ChildViewHolder) view.getTag();
+        holder.reset();
 
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition);
         DatedLesson datedLesson;
@@ -304,10 +297,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
+
+        if (teacher.equals("")) holder.teacherView.setVisibility(View.GONE);
         holder.teacherView.setText(teacher);
         holder.classroomView.setText(room);
-
-        holder.subjectView.setTextColor(color);
 
         //Set a bottom divider if this is the last child
         View divider = view.findViewById(R.id.divider);
@@ -380,6 +373,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             classroomView = view.findViewById(R.id.schedule_group_classroom);
             indicatorView = view.findViewById(R.id.schedule_group_indicator);
         }
+
+        void reset() {
+            subjectView.setText("");
+
+            teacherView.setVisibility(View.VISIBLE);
+            teacherView.setText("...");
+
+            classroomView.setText("");
+            indicatorView.setRotationX(0);
+            indicatorView.setVisibility(View.GONE);
+
+            eventsView.removeAllViews();
+            eventsView.setVisibility(View.VISIBLE);
+        }
     }
 
     private static class ChildViewHolder {
@@ -391,6 +398,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subjectView = view.findViewById(R.id.schedule_child_subject);
             classroomView = view.findViewById(R.id.schedule_child_classroom);
             teacherView = view.findViewById(R.id.schedule_child_teacher);
+        }
+
+        void reset() {
+            teacherView.setVisibility(View.VISIBLE);
         }
     }
 }
