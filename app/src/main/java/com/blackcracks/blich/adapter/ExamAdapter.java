@@ -32,6 +32,7 @@ public class ExamAdapter extends BaseAdapter {
 
     public void switchData(List<Exam> data) {
         mExamHelper.switchData(data);
+        notifyDataSetChanged();
     }
 
     @Override
