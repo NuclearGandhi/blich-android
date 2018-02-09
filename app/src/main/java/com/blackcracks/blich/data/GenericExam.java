@@ -65,7 +65,7 @@ public class GenericExam implements ExamItem {
     public String buildTeacherString() {
         StringBuilder stringBuilder = new StringBuilder(teachers.get(0));
         for (int i = 1; i < teachers.size(); i++) {
-            stringBuilder.append(teachers.get(i));
+            stringBuilder.append(", ").append(teachers.get(i));
         }
         return stringBuilder.toString();
     }
