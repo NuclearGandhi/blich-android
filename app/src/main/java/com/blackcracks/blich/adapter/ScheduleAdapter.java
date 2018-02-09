@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -133,7 +132,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final List<Lesson> lessons = hour.getLessons();
 
         Lesson firstLesson;
-        Event singleEvent = mRealmScheduleHelper.getSingleChildHour(hour);
+        DatedLesson singleChild = mRealmScheduleHelper.getSingleChildHour(hour);
         DatedLesson replacement = null;
 
         //The main data
@@ -149,8 +148,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         -Event (in addition to Lesson)
         -Exam (in addition to Lesson)
          */
-        if (singleEvent != null) { //Then display the event
-            subject = singleEvent.buildName();
+        if (singleChild != null) { //Then display the single lesson
+            subject = singleChild.buildName();
             teacher = "";
             room = "";
             color = ContextCompat.getColor(mContext, R.color.lesson_event);
@@ -175,7 +174,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.subjectView.setTextColor(color);
 
         //Add dots to signify that there are changes
-        if (singleEvent == null) {
+        if (singleChild == null) {
             List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
             removeDuplicateDaterLessons(datedLessons); //Remove duplicates
             datedLessons.remove(replacement); //Remove the displayed dated lesson

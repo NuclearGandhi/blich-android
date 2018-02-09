@@ -10,7 +10,6 @@ package com.blackcracks.blich.util;
 import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -72,13 +71,12 @@ public class RealmScheduleHelper {
     }
 
     public @Nullable
-    Event getSingleChildHour(Hour hour) {
+    DatedLesson getSingleChildHour(Hour hour) {
         for (DatedLesson lesson :
                 mDatedLessons) {
-            if (lesson instanceof Event &&
-                    lesson.isEqualToHour(hour.getHour()) &&
+            if (lesson.isEqualToHour(hour.getHour()) &&
                     !lesson.isAReplacer()) {
-                return (Event) lesson;
+                return lesson;
             }
         }
         return null;
@@ -95,12 +93,23 @@ public class RealmScheduleHelper {
 
     private int getNonReplacingLessonsCount(Hour hour) {
         int count = 0;
+        List<Lesson> lessons = hour.getLessons();
         for (DatedLesson datedLesson :
                 mDatedLessons) {
-            if (!datedLesson.isAReplacer() &&
-                    datedLesson.isEqualToHour(hour.getHour())) count++;
+            if (datedLesson.isEqualToHour(hour.getHour()) && (
+                    !datedLesson.isAReplacer() || !isLessonInList(datedLesson, lessons))){
+                count++;
+            }
         }
         return count;
+    }
+
+    private boolean isLessonInList(DatedLesson datedLesson, List<Lesson> lessons) {
+        for (Lesson lesson :
+                lessons) {
+            if (datedLesson.canReplaceLesson(lesson)) return true;
+        }
+        return false;
     }
 
     public int getHourCount() {
