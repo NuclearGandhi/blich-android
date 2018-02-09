@@ -85,10 +85,12 @@ public class ScheduleDayFragment extends Fragment implements
         mChangeListener = new RealmChangeListener<Realm>() {
             @Override
             public void onChange(Realm realm) {
-                if (isAdded()) getLoaderManager().restartLoader(
-                        SCHEDULE_LOADER_ID,
-                        Bundle.EMPTY,
-                        ScheduleDayFragment.this);
+                if (isAdded()) {
+                    getLoaderManager().restartLoader(
+                            SCHEDULE_LOADER_ID,
+                            Bundle.EMPTY,
+                            ScheduleDayFragment.this);
+                }
             }
         };
     }

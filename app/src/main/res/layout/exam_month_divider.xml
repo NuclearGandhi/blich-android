@@ -4,7 +4,8 @@
           android:layout_height="wrap_content"
           android:background="@color/colorAccent"
           android:paddingBottom="36dp"
-          android:paddingRight="24dp"
+          android:paddingStart="24dp"
+          android:paddingEnd="24dp"
           android:paddingTop="24dp"
           android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
           android:textSize="24sp"/>

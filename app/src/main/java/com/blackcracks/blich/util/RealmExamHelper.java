@@ -70,6 +70,10 @@ public class RealmExamHelper {
         }
     }
 
+    public ExamItem getItem(int position) {
+        return mExamItems.get(position);
+    }
+
     public int getCount() {
         if (mIsDataValid) return mExamItems.size();
         else return 0;

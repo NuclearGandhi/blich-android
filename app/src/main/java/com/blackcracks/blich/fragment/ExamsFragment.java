@@ -18,7 +18,6 @@ import android.widget.ListView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
-import com.blackcracks.blich.data.BlichContract.ExamsEntry;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.Constants;
@@ -34,26 +33,21 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.Sort;
 
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
 
-    private static final String[] EXAMS_COLUMNS = {
-            ExamsEntry._ID,
-            ExamsEntry.COL_DATE,
-            ExamsEntry.COL_SUBJECT,
-            ExamsEntry.COL_TEACHER
-    };
+    private static final int EXAM_LOADER_ID = 1;
 
-    private Context mContext;
     private Realm mRealm;
+    private RealmChangeListener<Realm> mChangeListener;
 
     private View mRootView;
 
     private AppBarLayout mAppBarLayout;
     private ImageView mDropDown;
-    private MaterialCalendarView mCalendarView;
     private ListView mListView;
 
     private ExamAdapter mAdapter;
@@ -66,9 +60,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRealm = Realm.getDefaultInstance();
+        setUpRefresher();
 
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
-        mContext = getContext();
 
         mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
         mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
@@ -89,13 +83,13 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
         toolbar.setOnClickListener(this);
 
-        mCalendarView = mRootView.findViewById(R.id.calendar_view);
-        mCalendarView.state().edit()
+        MaterialCalendarView calendarView = mRootView.findViewById(R.id.calendar_view);
+        calendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
-        mCalendarView.setCurrentDate(new Date());
-        mCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+        calendarView.setCurrentDate(new Date());
+        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 if (selected) {
@@ -114,12 +108,27 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         });
 
         mListView = mRootView.findViewById(R.id.list_view_exam);
-        mAdapter = new ExamAdapter(mContext, null);
+        mAdapter = new ExamAdapter(getContext(), null);
         mListView.setAdapter(mAdapter);
 
         ViewCompat.setNestedScrollingEnabled(mListView, true);
 
         return mRootView;
+    }
+
+
+    private void setUpRefresher() {
+        mChangeListener = new RealmChangeListener<Realm>() {
+            @Override
+            public void onChange(Realm realm) {
+                if (isAdded()) {
+                    getLoaderManager().restartLoader(
+                            EXAM_LOADER_ID,
+                            Bundle.EMPTY,
+                            ExamsFragment.this);
+                }
+            }
+        };
     }
 
     @Override
@@ -172,8 +181,15 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mRealm.addChangeListener(mChangeListener);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        mRealm.removeChangeListener(mChangeListener);
         mRealm.close();
     }
 
@@ -184,12 +200,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
-        mAdapter.swapCursor(data)
+        mAdapter.switchData(data);
     }
 
     @Override
     public void onLoaderReset(Loader<List<Exam>> loader) {
-        mAdapter.swapCursor(null);
+        mAdapter.switchData(null);
     }
 
     private static class ExamsLoader extends Loader<List<Exam>> {

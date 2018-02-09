@@ -1,30 +1,76 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract.ExamsEntry;
+import com.blackcracks.blich.data.Exam;
+import com.blackcracks.blich.data.ExamItem;
+import com.blackcracks.blich.data.GenericExam;
+import com.blackcracks.blich.data.MonthDivider;
+import com.blackcracks.blich.util.RealmExamHelper;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
-public class ExamAdapter extends CursorAdapter {
+public class ExamAdapter extends BaseAdapter {
 
     private final Context mContext;
+    private RealmExamHelper mExamHelper;
 
-    public ExamAdapter(Context context, Cursor cursor) {
-        super(context, cursor, 0);
+    public ExamAdapter(Context context, List<Exam> data) {
         mContext = context;
+        mExamHelper = new RealmExamHelper(data);
+    }
+
+    public void switchData(List<Exam> data) {
+        mExamHelper.switchData(data);
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    public int getCount() {
+        return mExamHelper.getCount();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return mExamHelper.getItem(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ExamItem item = (ExamItem) getItem(position);
+        View view = null;
+        switch (item.getType()) {
+            case ExamItem.TYPE_EXAM: {
+                GenericExam exam = (GenericExam) item;
+                if (convertView == null || convertView instanceof TextView) {
+                    view = newView(parent);
+                } else {
+                    view = convertView;
+                }
+                bindView(view, exam);
+                break;
+            }
+            case ExamItem.TYPE_MONTH:{
+                MonthDivider divider = (MonthDivider) item;
+                view = buildMonthDivider(parent, divider);
+            }
+        }
+        return view;
+    }
+
+    private View newView(ViewGroup parent) {
         View view =
                 LayoutInflater.from(mContext).inflate(R.layout.exam_item, parent, false);
 
@@ -34,47 +80,13 @@ public class ExamAdapter extends CursorAdapter {
         return view;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        Cursor cursor = getCursor();
-        cursor.moveToPosition(position);
-        String teachers = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_TEACHER));
-        long dateInMillis = cursor.getLong(cursor.getColumnIndex(ExamsEntry.COL_DATE));
-
-        if (teachers.equals("wut")) {
-
-            Calendar date = Calendar.getInstance();
-            date.setTimeInMillis(dateInMillis);
-
-            String month = date.getDisplayName(
-                    Calendar.MONTH,
-                    Calendar.LONG,
-                    new Locale("iw"));
-            int year = date.get(Calendar.YEAR);
-
-            TextView monthDivider = (TextView) LayoutInflater.from(mContext)
-                    .inflate(R.layout.exam_month_divider, parent, false);
-
-            String monthText = month + " " + year;
-            monthDivider.setText(monthText);
-            return monthDivider;
-        }
-
-        View view;
-        view = newView(mContext, cursor, parent);
-        bindView(view, mContext, cursor);
-        return view;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    private void bindView(View view, GenericExam exam) {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        String subject = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_SUBJECT));
-        long dateInMillis = cursor.getLong(cursor.getColumnIndex(ExamsEntry.COL_DATE));
-        String teacher = cursor.getString(cursor.getColumnIndex(ExamsEntry.COL_TEACHER));
+        String subject = exam.getName();
+        long dateInMillis = exam.getDate().getTime();
+        String teacher = exam.buildTeacherString();
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(dateInMillis);
@@ -88,6 +100,14 @@ public class ExamAdapter extends CursorAdapter {
         viewHolder.examDayOfWeek.setText(dayOfWeek);
         viewHolder.examSubject.setText(subject);
         viewHolder.examTeacher.setText(teacher);
+    }
+
+    private View buildMonthDivider(ViewGroup parent, MonthDivider divider) {
+        TextView view = (TextView) LayoutInflater.from(mContext).inflate(
+                R.layout.exam_month_divider, parent, false);
+        view.setText(divider.buildLabel());
+
+        return view;
     }
 
     private static class ViewHolder {
