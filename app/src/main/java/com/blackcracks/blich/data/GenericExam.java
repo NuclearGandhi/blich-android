@@ -54,9 +54,9 @@ public class GenericExam implements ExamItem {
     }
 
     public boolean addExam(Exam exam) {
-        if (date.equals(exam.getDate()) &&
-                name.equals(exam.getName())) {
-            teachers.add(exam.getTeacher());
+        if (date.equals(exam.getDate()) && name.equals(exam.getName())) {
+            String teacher = exam.getTeacher();
+            if (!teachers.contains(teacher)) teachers.add(teacher);
             return true;
         }
         return false;
