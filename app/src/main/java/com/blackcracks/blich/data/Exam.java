@@ -57,7 +57,7 @@ public class Exam extends RealmObject implements DatedLesson {
 
     @Override
     public boolean isEqualToHour(int hour) {
-        return beginHour < hour && hour < endHour;
+        return beginHour <= hour && hour <= endHour;
     }
 
     @Override

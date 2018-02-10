@@ -61,10 +61,12 @@ public class RealmScheduleHelper {
     }
 
     public @Nullable
-    DatedLesson getLessonReplacement(Lesson toReplace) {
+    DatedLesson getLessonReplacement(int hour, Lesson toReplace) {
         for (DatedLesson datedLesson :
                 mDatedLessons) {
-            if (datedLesson.canReplaceLesson(toReplace)) return datedLesson;
+            if (datedLesson.isEqualToHour(hour) && datedLesson.canReplaceLesson(toReplace)) {
+                return datedLesson;
+            }
         }
 
         return null;
@@ -86,7 +88,9 @@ public class RealmScheduleHelper {
         List<DatedLesson> lessons = new ArrayList<>();
         for (DatedLesson datedLesson:
                 mDatedLessons) {
-            if (datedLesson.isEqualToHour(hour.getHour())) lessons.add(datedLesson);
+            if (datedLesson.isEqualToHour(hour.getHour())) {
+                lessons.add(datedLesson);
+            }
         }
         return lessons;
     }

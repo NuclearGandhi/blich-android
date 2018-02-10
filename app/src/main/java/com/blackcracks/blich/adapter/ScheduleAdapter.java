@@ -124,9 +124,11 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         //Get the overall data object
         Hour hour = (Hour) getGroup(groupPosition);
+        int hourNum = hour.getHour();
 
         //Set the hour indicator text
-        holder.hourView.setText(hour.getHour() + "");
+        String hourText = hourNum + "";
+        holder.hourView.setText(hourText);
 
         //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
@@ -155,7 +157,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             color = ContextCompat.getColor(mContext, R.color.lesson_event);
         } else {
             firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
-            replacement = mRealmScheduleHelper.getLessonReplacement(firstLesson);
+            replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstLesson);
 
             if (replacement == null) { //Then display a normal lesson
                 subject = firstLesson.getSubject();
@@ -270,12 +272,16 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition);
         DatedLesson datedLesson;
+
+        Hour hour = (Hour) getGroup(groupPosition);
         if (lesson == null) {//This is not a replacer DatedLesson
-            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons((Hour) getGroup(groupPosition));
+            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour);
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
-            datedLesson = datedLessons.get(lastLessonPos - childPosition);
+            int index = lastLessonPos - childPosition;
+            if (index < 0) index = 0;
+            datedLesson = datedLessons.get(index);
         } else {
-            datedLesson = mRealmScheduleHelper.getLessonReplacement(lesson);
+            datedLesson = mRealmScheduleHelper.getLessonReplacement(hour.getHour(), lesson);
         }
         String subject;
         final String teacher;
@@ -328,7 +334,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             for (int i = 1; i < list.size(); i++) {
                 DatedLesson lesson = list.get(i);
                 DatedLesson prevLesson = list.get(i - 1);
-                if (lesson.getType().equals(prevLesson.getType())) list.remove(lesson);
+                if (lesson.getType().equals(prevLesson.getType())) {
+                    list.remove(lesson);
+                    i--;
+                }
             }
         }
     }
