@@ -28,31 +28,13 @@ public class RealmExamHelper {
         mIsDataValid = exams != null && exams.size() != 0;
         if (mIsDataValid) {
             mExamItems.clear();
-            List<GenericExam> genericExams = buildExamsList(exams);
+            List<GenericExam> genericExams = GenericExam.buildExamsList(exams);
             buildMonthDividers(genericExams);
         }
     }
 
     public boolean isDataValid() {
         return mIsDataValid;
-    }
-
-    private List<GenericExam> buildExamsList(List<Exam> exams) {
-        List<GenericExam> genericExams = new ArrayList<>();
-        GenericExam genericExam = null;
-        for (Exam exam :
-                exams) {
-            if (genericExam == null) genericExam = new GenericExam(exam);
-            else {
-                boolean didAdd = genericExam.addExam(exam);
-                if (!didAdd) {
-                    genericExams.add(genericExam);
-                    genericExam = null;
-                }
-            }
-        }
-
-        return genericExams;
     }
 
     private void buildMonthDividers(List<GenericExam> events) {
