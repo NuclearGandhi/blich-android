@@ -9,13 +9,11 @@ package com.blackcracks.blich.sync;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.v7.preference.PreferenceManager;
 
-import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
@@ -24,7 +22,6 @@ import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.util.ClassUtils;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -39,22 +36,16 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
-import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -79,23 +70,6 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
-
-    //BlichData
-    private static final String BLICH_BASE_URI =
-            "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/ApiHandler.ashx";
-
-    private static final String PARAM_SID = "sid";
-    private static final String PARAM_API_KEY = "token";
-    private static final String PARAM_COMMAND = "cmd";
-    private static final String PARAM_CLASS_ID = "clsid";
-
-
-    private static final int BLICH_ID = 540211;
-    private static final String COMMAND_CLASSES = "classes";
-    private static final String COMMAND_SCHEDULE = "schedule";
-    private static final String COMMAND_EXAMS = "exams";
-    private static final String COMMAND_EVENTS = "events";
-    private static final String COMMAND_CHANGES = "changes";
 
     //Exams
     private static final String EXAMS_BASE_URL =
@@ -123,7 +97,7 @@ public class BlichSyncTask {
                 .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
                 .apply();
 
-        loadDataIntoRealm(blichData);
+        BlichSyncUtils.loadDataIntoRealm(blichData);
 
         //Log the end of sync
         Bundle bundle = new Bundle();
@@ -138,45 +112,45 @@ public class BlichSyncTask {
         for(int i = 0; i < 4; i++) {
             String json;
 
-            String command = COMMAND_SCHEDULE;
+            String command = BlichSyncUtils.COMMAND_SCHEDULE;
             switch (i) {
                 case 0: {
-                    command = COMMAND_SCHEDULE;
+                    command = BlichSyncUtils.COMMAND_SCHEDULE;
                     break;
                 }
                 case 1: {
-                    command = COMMAND_CHANGES;
+                    command = BlichSyncUtils.COMMAND_CHANGES;
                     break;
                 }
                 case 2: {
-                    command = COMMAND_EVENTS;
+                    command = BlichSyncUtils.COMMAND_EVENTS;
                     break;
                 }
                 case 3: {
-                    command = COMMAND_EXAMS;
+                    command = BlichSyncUtils.COMMAND_EXAMS;
                     break;
                 }
             }
 
             try {
-                json = getResponseFromUrl(buildUrlFromCommand(context, command));
+                json = BlichSyncUtils.getResponseFromUrl(BlichSyncUtils.buildUrlFromCommand(context, command));
 
                 if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
 
                 switch (command) {
-                    case COMMAND_SCHEDULE: {
+                    case BlichSyncUtils.COMMAND_SCHEDULE: {
                         insertScheduleJsonIntoData(json, blichData);
                         break;
                     }
-                    case COMMAND_CHANGES: {
+                    case BlichSyncUtils.COMMAND_CHANGES: {
                         insertChangesJsonIntoData(json, blichData);
                         break;
                     }
-                    case COMMAND_EVENTS: {
+                    case BlichSyncUtils.COMMAND_EVENTS: {
                         insertEventsJsonIntoData(json, blichData);
                         break;
                     }
-                    case COMMAND_EXAMS: {
+                    case BlichSyncUtils.COMMAND_EXAMS: {
                         insertExamsJsonIntoData(json, blichData);
                         break;
                     }
@@ -187,7 +161,7 @@ public class BlichSyncTask {
             } catch (JSONException e) {
                 Timber.e(e);
                 return FETCH_STATUS_UNSUCCESSFUL;
-            } catch (BlichFetchException e) {
+            } catch (BlichSyncUtils.BlichFetchException e) {
                 return FETCH_STATUS_CLASS_NOT_CONFIGURED;
             }
         }
@@ -337,7 +311,7 @@ public class BlichSyncTask {
 
         //Get the exams html from Blich's site
         try {
-            classValue = getClassValue(context);
+            classValue = BlichSyncUtils.getClassValue(context);
             Uri baseUri = Uri.parse(EXAMS_BASE_URL).buildUpon()
                     .appendQueryParameter(CLASS_VALUE_PARAM, String.valueOf(classValue))
                     .build();
@@ -357,7 +331,7 @@ public class BlichSyncTask {
 
             html = stringBuilder.toString();
 
-        } catch (BlichFetchException e) {
+        } catch (BlichSyncUtils.BlichFetchException e) {
             Timber.e(e, "Error while trying to get user's class value");
         } catch (IOException e) {
             Timber.e(e);
@@ -427,122 +401,10 @@ public class BlichSyncTask {
         return FETCH_STATUS_SUCCESSFUL;
     }
 
-    private static void loadDataIntoRealm(BlichData blichData) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-
-        //Delete old data
-        RealmResults<Hour> hours = realm.where(Hour.class)
-                .findAll();
-        hours.deleteAllFromRealm();
-
-        RealmResults<Change> changes = realm.where(Change.class)
-                .findAll();
-        changes.deleteAllFromRealm();
-
-        RealmResults<Event> events = realm.where(Event.class)
-                .findAll();
-        events.deleteAllFromRealm();
-
-        RealmResults<Exam> exams = realm.where(Exam.class)
-                .findAll();
-        exams.deleteAllFromRealm();
-
-        //Insert new data
-        realm.insert(blichData);
-        realm.commitTransaction();
-        realm.close();
-    }
-
-    private static int getClassValue(Context context)
-            throws BlichFetchException {
-        String currentClass = ClassUtils.getCurrentClass(context);
-        String selection;
-        String[] selectionArgs;
-
-        if (currentClass.contains("'")) { //Normal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
-            selectionArgs = currentClass.split("'");
-        } else { //Abnormal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
-            selectionArgs = new String[]{currentClass};
-        }
-
-
-        Cursor cursor = context.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                selection,
-                selectionArgs,
-                null);
-
-        int classValue;
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                classValue = cursor.getInt(0);
-            } else {
-                throw new BlichFetchException("Can't get the user's class. " +
-                        "Did the user configure his class?");
-            }
-        } else {
-            throw new NullPointerException("Queried cursor is null");
-        }
-
-        cursor.close();
-        return classValue;
-    }
-
-    private static URL buildUrlFromCommand(Context context, String command)
-            throws BlichFetchException {
-        int classValue = getClassValue(context);
-
-        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
-                .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
-                .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
-                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
-                .appendQueryParameter(PARAM_COMMAND, command)
-                .build();
-
-        if (BuildConfig.DEBUG) Timber.d("Building URI: %s", scheduleUri.toString());
-
-        try {
-            return new URL(scheduleUri.toString());
-        } catch (MalformedURLException e) {
-            Timber.e(e);
-            return null;
-        }
-    }
-
-    private static String getResponseFromUrl(URL url) throws IOException {
-        HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
-
-        InputStream in = scheduleConnection.getInputStream();
-
-        Scanner scanner = new Scanner(in);
-        scanner.useDelimiter("\\A");
-
-        boolean hasInput = scanner.hasNext();
-        String response = null;
-        if (hasInput) {
-            response = scanner.next();
-        }
-        scanner.close();
-        scheduleConnection.disconnect();
-
-        return response;
-    }
-
     private static Date parseDate(String jsonDate) {
         int firstCut = jsonDate.indexOf("(") + 1;
         int lastCut = jsonDate.indexOf(")");
         long timeInMillis = Long.parseLong(jsonDate.substring(firstCut, lastCut));
         return new Date(timeInMillis);
-    }
-
-    public static class BlichFetchException extends Exception {
-        public BlichFetchException(String message) {
-            super(message);
-        }
     }
 }
