@@ -2,10 +2,10 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@color/colorAccent"
-          android:paddingBottom="36dp"
-          android:paddingStart="24dp"
+          android:background="@color/colorPrimaryDark"
+          android:paddingBottom="24dp"
           android:paddingEnd="24dp"
-          android:paddingTop="24dp"
+          android:paddingStart="24dp"
+          android:paddingTop="14dp"
           android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-          android:textSize="24sp"/>
+          android:textSize="22sp"/>
