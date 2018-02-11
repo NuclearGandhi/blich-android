@@ -22,7 +22,12 @@ public class GenericExam implements ExamItem {
         teachers = new ArrayList<>();
     }
 
-    public GenericExam(Exam exam) {}
+    public GenericExam(Exam exam) {
+        date = exam.getDate();
+        name = exam.getName();
+        teachers = new ArrayList<>();
+        teachers.add(exam.getTeacher());
+    }
 
     public static List<GenericExam> buildExamsList(List<Exam> exams) {
         List<GenericExam> genericExams = new ArrayList<>();
