@@ -23,7 +23,6 @@ import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -143,9 +142,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(Constants.EXAMS_LOADER_ID,
+        getLoaderManager().restartLoader(
+                EXAM_LOADER_ID,
                 null,
-                this);
+                this
+        );
     }
 
     @Override
