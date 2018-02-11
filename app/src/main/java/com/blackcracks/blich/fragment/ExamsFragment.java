@@ -41,6 +41,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.Sort;
+import timber.log.Timber;
 
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
@@ -210,8 +211,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
         mAdapter.switchData(data);
 
-        if (!data.isEmpty()) {
-            loadDataIntCalendar(data);
+        try {
+            if (!data.isEmpty()) {
+                loadDataIntCalendar(data);
+            }
+        } catch (IllegalStateException e) {
+            Timber.d("Realm instance has been closed");
         }
     }
 

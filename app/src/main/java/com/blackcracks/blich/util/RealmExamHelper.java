@@ -15,6 +15,8 @@ import com.blackcracks.blich.data.MonthDivider;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 public class RealmExamHelper {
 
     private List<ExamItem> mExamItems = new ArrayList<>();
@@ -25,7 +27,14 @@ public class RealmExamHelper {
     }
 
     public void switchData(List<Exam> exams) {
-        mIsDataValid = exams != null && exams.size() != 0;
+        //Check if the data is valid
+        try {
+            mIsDataValid = exams != null && !exams.isEmpty();
+        } catch (IllegalStateException e) { //In case Realm instance has been closed
+            mIsDataValid = false;
+            Timber.d("Realm has been closed");
+        }
+
         if (mIsDataValid) {
             mExamItems.clear();
             List<GenericExam> genericExams = GenericExam.buildExamsList(exams);
