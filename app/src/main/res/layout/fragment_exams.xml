@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:stateListAnimator="@drawable/anim_app_bar_elevation"
         app:expanded="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
