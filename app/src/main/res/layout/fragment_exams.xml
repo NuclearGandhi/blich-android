@@ -39,9 +39,9 @@
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="1.0"
                 app:mcv_arrowColor="@android:color/white"
-                app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat.Small"
                 app:mcv_selectionColor="@color/calendar_selected_day"
-                app:mcv_tileSize="48dp">
+                app:mcv_tileHeight="36dp">
             </com.prolificinteractive.materialcalendarview.MaterialCalendarView>
 
             <android.support.v7.widget.Toolbar
