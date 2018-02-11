@@ -2,6 +2,7 @@ package com.blackcracks.blich.fragment;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,13 +21,17 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.Exam;
+import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +54,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private AppBarLayout mAppBarLayout;
     private ImageView mDropDown;
+    private MaterialCalendarView mCalendarView;
     private ListView mListView;
 
     private ExamAdapter mAdapter;
@@ -84,13 +90,13 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
         toolbar.setOnClickListener(this);
 
-        MaterialCalendarView calendarView = mRootView.findViewById(R.id.calendar_view);
-        calendarView.state().edit()
+        mCalendarView = mRootView.findViewById(R.id.calendar_view);
+        mCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
-        calendarView.setCurrentDate(new Date());
-        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+        mCalendarView.setCurrentDate(new Date());
+        mCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 if (selected) {
@@ -203,11 +209,44 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
         mAdapter.switchData(data);
+
+        if (!data.isEmpty()) {
+            loadDataIntCalendar(data);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<List<Exam>> loader) {
         mAdapter.switchData(null);
+    }
+
+    private void loadDataIntCalendar(List<Exam> data) {
+        List<GenericExam> exams = GenericExam.buildExamsList(data);
+        for (GenericExam exam:
+                exams) {
+            mDates.add(CalendarDay.from(exam.getDate()));
+        }
+
+        CalendarDay minDate = mDates.get(0);
+        CalendarDay maxDate = mDates.get(mDates.size() - 1);
+        mCalendarView.state().edit()
+                .setMinimumDate(minDate)
+                .setMaximumDate(maxDate)
+                .commit();
+
+        DayViewDecorator decorator = new DayViewDecorator() {
+            @Override
+            public boolean shouldDecorate(CalendarDay day) {
+                return mDates.contains(day);
+            }
+
+            @Override
+            public void decorate(DayViewFacade view) {
+                view.addSpan(new DotSpan(5, Color.WHITE));
+            }
+        };
+
+        mCalendarView.addDecorator(decorator);
     }
 
     private static class ExamsLoader extends Loader<List<Exam>> {

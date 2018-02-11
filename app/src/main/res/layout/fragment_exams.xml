@@ -40,6 +40,7 @@
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="1.0"
                 app:mcv_arrowColor="@android:color/white"
+                app:mcv_showOtherDates="out_of_range"
                 app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat.Small"
                 app:mcv_selectionColor="@color/calendar_selected_day"
                 app:mcv_tileHeight="36dp">
