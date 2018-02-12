@@ -33,7 +33,7 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(10)
+                .schemaVersion(11)
                 .migration(new RealmMigration() {
 
                     @SuppressWarnings("ConstantConditions")
@@ -111,6 +111,13 @@ public class RealmUtils {
                                     .addField("teacher", String.class);
                             schema.get("BlichData")
                                     .addRealmListField("exams", schema.get("Exam"));
+                            oldVersion++;
+                        } if (oldVersion == 11) {
+                            schema.create("ClassGroup")
+                                    .addField("id", int.class)
+                                    .addField("name", String.class)
+                                    .addField("grade", int.class)
+                                    .addField("number", int.class);
                             oldVersion++;
                         }
                     }
