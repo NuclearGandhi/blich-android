@@ -23,6 +23,9 @@ import android.text.Spanned;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.Change;
+import com.blackcracks.blich.data.DatedLesson;
+import com.blackcracks.blich.data.Event;
+import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
@@ -82,7 +85,7 @@ public class BlichFirebaseJobService extends JobService {
         return true;
     }
 
-    private List<Change> fetchNotificationList() {
+    private List<DatedLesson> fetchNotificationList() {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -101,25 +104,52 @@ public class BlichFirebaseJobService extends JobService {
         Date maxDate = calendar.getTime();
 
         Realm realm = Realm.getDefaultInstance();
-        RealmQuery<Change> query = RealmUtils.buildBaseQuery(
+        RealmQuery<Change> changesQuery = RealmUtils.buildBaseQuery(
                 realm,
                 Change.class,
                 minDate,
-                maxDate
-        );
+                maxDate)
+                .sort("date");
 
         RealmUtils.buildFilteredQuery(
-                query,
-                getBaseContext()
-        );
+                changesQuery,
+                getBaseContext());
 
-        query.sort("date");
 
-        return query.findAll();
+        RealmQuery<Exam> examsQuery = RealmUtils.buildBaseQuery(
+                realm,
+                Exam.class,
+                minDate,
+                maxDate)
+                .sort("date");
+
+        RealmUtils.buildFilteredQuery(
+                examsQuery,
+                getBaseContext());
+
+
+        RealmQuery<Event> eventsQuery = RealmUtils.buildBaseQuery(
+                realm,
+                Event.class,
+                minDate,
+                maxDate)
+                .sort("date");
+
+        RealmUtils.buildFilteredQuery(
+                eventsQuery,
+                getBaseContext());
+
+
+        List<DatedLesson> results = new ArrayList<>();
+        results.addAll(changesQuery.findAll());
+        results.addAll(examsQuery.findAll());
+        results.addAll(eventsQuery.findAll());
+
+        return results;
     }
 
     private void notifyUser(Context context) {
-        List<Change> notificationList = fetchNotificationList();
+        List<DatedLesson> notificationList = fetchNotificationList();
         if (!notificationList.isEmpty()) {
 
             NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
@@ -161,38 +191,38 @@ public class BlichFirebaseJobService extends JobService {
         }
     }
 
-    private NotificationCompat.InboxStyle buildNotificationContent(List<Change> notificationList) {
+    private NotificationCompat.InboxStyle buildNotificationContent(List<DatedLesson> notificationList) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
 
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
 
-        List<Change> todayNotificationChanges = new ArrayList<>();
-        List<Change> tomorrowNotificationChanges = new ArrayList<>();
-        for (Change change:
+        List<DatedLesson> todayNotificationChanges = new ArrayList<>();
+        List<DatedLesson> tomorrowNotificationChanges = new ArrayList<>();
+        for (DatedLesson lesson:
                 notificationList) {
             Calendar date = Calendar.getInstance();
-            date.setTime(change.getDate());
+            date.setTime(lesson.getDate());
             int day = date.get(Calendar.DAY_OF_WEEK);
-            if (today == day) todayNotificationChanges.add(change);
-            else tomorrowNotificationChanges.add(change);
+            if (today == day) todayNotificationChanges.add(lesson);
+            else tomorrowNotificationChanges.add(lesson);
         }
 
         if (todayNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("היום:"));
-            for (Change change :
+            for (DatedLesson lesson :
                     todayNotificationChanges) {
-                inboxStyle.addLine(change.buildName());
+                inboxStyle.addLine(lesson.buildName());
             }
         }
 
 
         if (tomorrowNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("מחר:"));
-            for (Change change :
+            for (DatedLesson lesson :
                     tomorrowNotificationChanges) {
-                inboxStyle.addLine(change.buildName());
+                inboxStyle.addLine(lesson.buildName());
             }
         }
 

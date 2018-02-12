@@ -10,10 +10,14 @@ package com.blackcracks.blich.data;
 import android.content.Context;
 import android.support.annotation.ColorInt;
 
+import java.util.Date;
+
 public interface DatedLesson {
 
     String buildName();
     String getType();
+
+    Date getDate();
 
     boolean isEqualToHour(int hour);
     boolean isAReplacer();
