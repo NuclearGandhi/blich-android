@@ -15,6 +15,9 @@
     <string name="pref_class_picker_title">כיתה</string>
     <string name="pref_class_picker_default">ט\'3</string>
 
+    <string name="pref_user_class_group_key">class_group</string>
+    <string name="pref_user_class_group_title">כיתה</string>
+
     <string name="pref_notification_category_title">התראות</string>
 
     <string name="pref_notification_toggle_key">notification_toggle</string>

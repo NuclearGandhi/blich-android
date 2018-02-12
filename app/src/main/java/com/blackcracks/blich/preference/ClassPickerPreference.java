@@ -8,7 +8,7 @@ import com.blackcracks.blich.R;
 
 public class ClassPickerPreference extends DialogPreference {
 
-    private String mValue;
+    private int mValue;
 
     public ClassPickerPreference(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -17,21 +17,20 @@ public class ClassPickerPreference extends DialogPreference {
 
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        String defValue = (String) defaultValue;
+        int defValue = (int) defaultValue;
         if (restorePersistedValue) {
-            mValue = getPersistedString(defValue);
+            mValue = getPersistedInt(defValue);
         } else {
             mValue = defValue;
         }
-        mValue = mValue.replace("/", "");
     }
 
-    public void setValue(String value) {
+    public void setValue(int value) {
         mValue = value;
-        persistString(mValue);
+        persistInt(value);
     }
 
-    public String getValue() {
+    public int getValue() {
         return mValue;
     }
 }

@@ -2,12 +2,12 @@
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.blackcracks.blich.preference.ClassPickerPreference
-        android:defaultValue="@string/pref_class_picker_default"
+        android:defaultValue="@integer/pref_user_class_group_default"
         android:dialogTitle=""
-        android:key="@string/pref_class_picker_key"
+        android:key="@string/pref_user_class_group_key"
         android:negativeButtonText="@string/dialog_cancel"
         android:positiveButtonText="@string/dialog_okay"
-        android:title="@string/pref_class_picker_title"/>
+        android:title="@string/pref_user_class_group_title"/>
 
     <PreferenceCategory android:title="@string/pref_notification_category_title">
 
