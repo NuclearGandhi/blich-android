@@ -7,15 +7,12 @@
 
 package com.blackcracks.blich.sync;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.v7.preference.PreferenceManager;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
@@ -23,27 +20,16 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import io.realm.RealmList;
 import timber.log.Timber;
@@ -89,7 +75,6 @@ public class BlichSyncTask {
 
         BlichData blichData = new BlichData();
         int status = fetchData(context, blichData);
-        if (status == FETCH_STATUS_SUCCESSFUL) syncExams(context);
 
         //Save in preferences the latest update time
         long currentTime = Calendar.getInstance().getTimeInMillis();
@@ -298,107 +283,6 @@ public class BlichSyncTask {
         }
 
         blichData.setExams(exams);
-    }
-
-    private static @FetchStatus
-    int syncExams(Context context) {
-
-        int classValue;
-        BufferedReader reader = null;
-        String html = "";
-
-        final String CLASS_VALUE_PARAM = "cls";
-
-        //Get the exams html from Blich's site
-        try {
-            classValue = BlichSyncUtils.getClassValue(context);
-            Uri baseUri = Uri.parse(EXAMS_BASE_URL).buildUpon()
-                    .appendQueryParameter(CLASS_VALUE_PARAM, String.valueOf(classValue))
-                    .build();
-
-            URL url = new URL(baseUri.toString());
-            URLConnection urlConnection = url.openConnection();
-            urlConnection.setConnectTimeout(10000);
-            urlConnection.setDoOutput(true);
-
-            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-
-            html = stringBuilder.toString();
-
-        } catch (BlichSyncUtils.BlichFetchException e) {
-            Timber.e(e, "Error while trying to get user's class value");
-        } catch (IOException e) {
-            Timber.e(e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    Timber.e(e, "Error closing stream");
-                }
-            }
-        }
-
-        if (html.equals(""))
-            return FETCH_STATUS_EMPTY_HTML;
-
-
-        //Parse the html
-        Document document = Jsoup.parse(html);
-        Elements exams = document.getElementById(EXAMS_TABLE_ID).getElementsByTag("tr");
-
-        List<ContentValues> contentValues = new ArrayList<>();
-        int mPreviousMonth = 0;
-
-        //Parse the table rows in the html from the second row
-        //(first row is the header of each column)
-        for (int i = 1; i < exams.size(); i++) {
-
-            Element exam = exams.get(i);
-            Elements innerData = exam.getElementsByTag("td");
-            String date = innerData.get(0).text();
-            String subject = innerData.get(1).text();
-            String teachers = innerData.get(2).text();
-
-            Calendar calendar = Calendar.getInstance();
-            long dateInMillis = Utilities.getTimeInMillisFromDate(date);
-            calendar.setTimeInMillis(dateInMillis);
-
-            int currentMonth = calendar.get(Calendar.MONTH);
-
-            if (mPreviousMonth != currentMonth) {
-                ContentValues monthDivider = new ContentValues();
-                monthDivider.put(BlichContract.ExamsEntry.COL_TEACHER, "wut");
-                monthDivider.put(BlichContract.ExamsEntry.COL_DATE, dateInMillis);
-                monthDivider.put(BlichContract.ExamsEntry.COL_SUBJECT, "" + currentMonth);
-
-                contentValues.add(monthDivider);
-            }
-
-            mPreviousMonth = currentMonth;
-
-            ContentValues row = new ContentValues();
-            row.put(BlichContract.ExamsEntry.COL_DATE, dateInMillis);
-            row.put(BlichContract.ExamsEntry.COL_SUBJECT, subject);
-            row.put(BlichContract.ExamsEntry.COL_TEACHER, teachers);
-
-            contentValues.add(row);
-        }
-
-        //Delete the whole exams table
-        context.getContentResolver().delete(BlichContract.ExamsEntry.CONTENT_URI, null, null);
-        //Repopulate the table with updated data
-        context.getContentResolver().bulkInsert(
-                BlichContract.ExamsEntry.CONTENT_URI,
-                contentValues.toArray(new ContentValues[contentValues.size()]));
-
-        return FETCH_STATUS_SUCCESSFUL;
     }
 
     private static Date parseDate(String jsonDate) {
