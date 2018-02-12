@@ -5,14 +5,15 @@
                                              android:layout_width="match_parent"
                                              android:layout_height="wrap_content"
                                              android:background="?attr/selectableItemBackground"
-                                             android:paddingBottom="8dp">
+                                             android:paddingBottom="8dp"
+                                             android:paddingEnd="16dp"
+                                             android:paddingStart="16dp"
+                                             android:paddingTop="8dp">
 
     <TextView
         android:id="@+id/schedule_group_hour"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/circle_listview_item"
         android:gravity="center"
         android:textColor="@color/white_text"
@@ -27,14 +28,13 @@
         android:id="@+id/schedule_group_subject"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="24dp"
         android:textColor="@color/black_text"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toRightOf="@+id/schedule_group_classroom"
-        app:layout_constraintRight_toLeftOf="@+id/schedule_group_hour"
+        app:layout_constraintEnd_toStartOf="@+id/schedule_group_classroom"
+        app:layout_constraintStart_toEndOf="@+id/schedule_group_hour"
         app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
@@ -45,57 +45,58 @@
         android:id="@+id/schedule_group_teacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="8dp"
         android:textColor="@color/black_text"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="@+id/schedule_group_subject"
-        app:layout_constraintTop_toBottomOf="@+id/schedule_group_subject"
+        app:layout_constraintTop_toBottomOf="@+id/space"
         tools:layout_conversion_absoluteHeight="19dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_conversion_absoluteX="272dp"
         tools:layout_conversion_absoluteY="35dp"/>
 
 
-    <TextView
-        android:id="@+id/schedule_group_classroom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="0dp"
-        android:ellipsize="none"
-        android:textColor="@color/black_text"
-        android:textSize="16sp"
-        android:visibility="visible"
-        app:layout_constraintLeft_toRightOf="@+id/schedule_group_indicator"
-        app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"/>
-
     <ImageView
         android:id="@+id/schedule_group_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="0dp"
         android:rotation="0"
         android:src="@drawable/ic_expand_more_24dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"
+        app:layout_constraintTop_toTopOf="@+id/schedule_group_subject"
         tools:ignore="ContentDescription"/>
+
+    <TextView
+        android:id="@+id/schedule_group_classroom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="none"
+        android:textColor="@color/black_text"
+        android:textSize="16sp"
+        android:visibility="visible"
+        app:layout_constraintBaseline_toBaselineOf="@+id/schedule_group_subject"
+        app:layout_constraintEnd_toStartOf="@+id/schedule_group_indicator"/>
 
     <LinearLayout
         android:id="@+id/schedule_group_events"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:orientation="horizontal"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/schedule_group_indicator"
-        android:layout_marginLeft="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        >
+        app:layout_constraintEnd_toEndOf="@+id/schedule_group_indicator"
+        app:layout_constraintTop_toBottomOf="@+id/space">
 
     </LinearLayout>
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/schedule_group_subject"/>
 
 
 </android.support.constraint.ConstraintLayout>
