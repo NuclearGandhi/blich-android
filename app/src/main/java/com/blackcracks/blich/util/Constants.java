@@ -47,6 +47,12 @@ public class Constants {
 
         public static final String JSON_ARRAY_EXAMS = "Exams";
 
+        public static final String JSON_ARRAY_CLASSES = "Classes";
+        public static final String JSON_INT_ID = "Id";
+        public static final String JSON_STRING_NAME = "Name";
+        public static final String JSON_INT_GRADE = "Grade";
+        public static final String JSON_INT_NUMBER = "Number";
+
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
         public static final String TYPE_NEW_HOUR = "HourMove";
         public static final String TYPE_NEW_ROOM = "NewRoom";

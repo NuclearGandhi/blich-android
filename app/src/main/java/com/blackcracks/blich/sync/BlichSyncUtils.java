@@ -176,17 +176,29 @@ public class BlichSyncUtils {
             throws BlichFetchException {
         int classValue = getClassValue(context);
 
-        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
+        Uri scheduleUri = buildBaseUriFromCommand(command);
+        scheduleUri.buildUpon()
+                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue));
+
+        if (BuildConfig.DEBUG) {
+            Timber.d("Building URI: %s", scheduleUri.toString());
+        }
+
+        return buildURLFromUri(scheduleUri);
+    }
+
+    public static Uri buildBaseUriFromCommand(String command) {
+
+        return Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
                 .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
-                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
                 .appendQueryParameter(PARAM_COMMAND, command)
                 .build();
+    }
 
-        if (BuildConfig.DEBUG) Timber.d("Building URI: %s", scheduleUri.toString());
-
+    public static URL buildURLFromUri(Uri uri) {
         try {
-            return new URL(scheduleUri.toString());
+            return new URL(uri.toString());
         } catch (MalformedURLException e) {
             Timber.e(e);
             return null;
