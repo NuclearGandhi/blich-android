@@ -314,7 +314,7 @@ public class RealmUtils {
     public static int getId(Realm realm, String gradeName, int classNum) {
         int gradeNum = ClassGroup.gradeStringToNum(gradeName);
         ClassGroup classGroup = realm.where(ClassGroup.class)
-                .equalTo("grade", gradeName)
+                .equalTo("grade", gradeNum)
                 .and()
                 .equalTo("number", classNum)
                 .findFirst();

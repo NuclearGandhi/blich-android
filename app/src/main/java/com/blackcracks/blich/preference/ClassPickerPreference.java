@@ -5,6 +5,7 @@ import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.util.Constants.Preferences;
 
 public class ClassPickerPreference extends DialogPreference {
 
@@ -17,7 +18,7 @@ public class ClassPickerPreference extends DialogPreference {
 
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        int defValue = (int) defaultValue;
+        int defValue = (int) Preferences.getDefault(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY);
         if (restorePersistedValue) {
             mValue = getPersistedInt(defValue);
         } else {
