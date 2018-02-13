@@ -32,7 +32,10 @@ import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
+
+import io.realm.Realm;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -248,8 +251,12 @@ public class SettingsActivity extends AppCompatActivity {
                     Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY);
             ClassPickerPreference classPickerPreference =
                     (ClassPickerPreference) findPreference(classPickerKey);
-            String grade = classPickerPreference.getValue();
+
+            int classId = classPickerPreference.getValue();
+            Realm realm = Realm.getDefaultInstance();
+            String grade = RealmUtils.getGrade(realm, classId).getName();
             classPickerPreference.setSummary(grade);
+            realm.close();
         }
 
         //Filter Preference

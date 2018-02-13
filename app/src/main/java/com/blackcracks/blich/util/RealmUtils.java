@@ -11,6 +11,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.SparseIntArray;
 
+import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 
@@ -85,7 +86,8 @@ public class RealmUtils {
                                     .removeField("day")
                                     .addField("date", Date.class);
                             oldVersion++;
-                        } if (oldVersion == 7) {
+                        }
+                        if (oldVersion == 7) {
                             schema.create("Event")
                                     .addField("date", Date.class)
                                     .addField("name", String.class)
@@ -95,12 +97,14 @@ public class RealmUtils {
                             schema.get("BlichData")
                                     .addRealmListField("events", schema.get("Event"));
                             oldVersion++;
-                        } if (oldVersion == 8) {
+                        }
+                        if (oldVersion == 8) {
                             schema.get("Event")
                                     .addField("subject", String.class)
                                     .addField("teacher", String.class);
                             oldVersion++;
-                        } if (oldVersion == 9) {
+                        }
+                        if (oldVersion == 9) {
                             schema.create("Exam")
                                     .addField("date", Date.class)
                                     .addField("name", String.class)
@@ -112,7 +116,8 @@ public class RealmUtils {
                             schema.get("BlichData")
                                     .addRealmListField("exams", schema.get("Exam"));
                             oldVersion++;
-                        } if (oldVersion == 11) {
+                        }
+                        if (oldVersion == 10) {
                             schema.create("ClassGroup")
                                     .addField("id", int.class)
                                     .addField("name", String.class)
@@ -172,10 +177,10 @@ public class RealmUtils {
 
         query.and()
                 .beginGroup()
-                    .beginGroup()
-                        .equalTo("teacher", "")
-                        .and()
-                        .equalTo("subject", "")
+                .beginGroup()
+                .equalTo("teacher", "")
+                .and()
+                .equalTo("subject", "")
                 .endGroup();
 
         for (String teacherSubject :
@@ -227,7 +232,7 @@ public class RealmUtils {
                 .between("date", minDate, maxDate);
     }
 
-    private static Date[] buildDatesBasedOnDay (int day) {
+    private static Date[] buildDatesBasedOnDay(int day) {
         Calendar calendar = Calendar.getInstance();
 
         //If Saturday, go to next week
@@ -304,6 +309,33 @@ public class RealmUtils {
         }
 
         return results;
+    }
+
+    public static int getId(Realm realm, String gradeName, int classNum) {
+        int gradeNum = ClassGroup.gradeStringToNum(gradeName);
+        ClassGroup classGroup = realm.where(ClassGroup.class)
+                .equalTo("grade", gradeName)
+                .and()
+                .equalTo("number", classNum)
+                .findFirst();
+
+        return classGroup.getId();
+    }
+
+    public static int getId(Realm realm, String name) {
+         return realm.where(ClassGroup.class)
+                .equalTo("name", name)
+                .findFirst()
+                 .getId();
+
+    }
+
+    public static ClassGroup getGrade(Realm realm, int id) {
+        ClassGroup classGroup = realm.where(ClassGroup.class)
+                .equalTo("id", id)
+                .findFirst();
+
+        return classGroup;
     }
 
 }

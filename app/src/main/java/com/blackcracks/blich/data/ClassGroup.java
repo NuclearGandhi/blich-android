@@ -25,6 +25,26 @@ public class ClassGroup extends RealmObject{
         this.number = number;
     }
 
+    public static String gradeNumToString(int grade) {
+        switch (grade) {
+            case 9: return "ט";
+            case 10: return "י";
+            case 11: return "יא";
+            case 12: return "יב";
+        }
+        throw new IllegalArgumentException("Input must be between 9 and 12");
+    }
+
+    public static int gradeStringToNum(String grade) {
+        switch (grade) {
+            case "ט": return 9;
+            case "י": return 10;
+            case "יא":return 11;
+            case "יב": return 12;
+        }
+        throw new IllegalArgumentException("Input must be one of the following ט ,י ,יא ,יב");
+    }
+
     public boolean isNormal() {
         return grade != 0 && number != 0;
     }
