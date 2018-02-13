@@ -26,7 +26,7 @@ import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -111,22 +111,12 @@ public class BlichFirebaseJobService extends JobService {
                 maxDate)
                 .sort("date");
 
-        RealmUtils.buildFilteredQuery(
-                changesQuery,
-                getBaseContext());
-
-
         RealmQuery<Exam> examsQuery = RealmUtils.buildBaseQuery(
                 realm,
                 Exam.class,
                 minDate,
                 maxDate)
                 .sort("date");
-
-        RealmUtils.buildFilteredQuery(
-                examsQuery,
-                getBaseContext());
-
 
         RealmQuery<Event> eventsQuery = RealmUtils.buildBaseQuery(
                 realm,
@@ -135,10 +125,20 @@ public class BlichFirebaseJobService extends JobService {
                 maxDate)
                 .sort("date");
 
-        RealmUtils.buildFilteredQuery(
-                eventsQuery,
-                getBaseContext());
+        boolean isFilterOn = PreferencesUtils.getBoolean(getBaseContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        if (isFilterOn) {
+            RealmUtils.buildFilteredQuery(
+                    changesQuery,
+                    getBaseContext());
 
+            RealmUtils.buildFilteredQuery(
+                    examsQuery,
+                    getBaseContext());
+
+            RealmUtils.buildFilteredQuery(
+                    eventsQuery,
+                    getBaseContext());
+        }
 
         List<DatedLesson> results = new ArrayList<>();
         results.addAll(changesQuery.findAll());
@@ -154,9 +154,9 @@ public class BlichFirebaseJobService extends JobService {
 
             NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
 
-            int intKey = Constants.Preferences.PREF_NOTIFICATION_SOUND_KEY;
-            String prefKey = Constants.Preferences.getKey(context, intKey);
-            String prefDefault = (String) Constants.Preferences.getDefault(context, intKey);
+            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
+            String prefKey = Preferences.getKey(context, intKey);
+            String prefDefault = (String) Preferences.getDefault(context, intKey);
             Uri ringtone = Uri.parse(PreferencesUtils
                     .getString(context,
                             prefKey,
