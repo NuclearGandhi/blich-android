@@ -45,7 +45,7 @@
             android:visibility="gone"
             app:npBackgroundColor="@android:color/transparent"
             app:npDefaultValue="1"
-            app:npMinValue="1"
+            app:npMinValue="0"
             app:npMaxValue="1"
             app:npSeparatorColor="@color/colorAccent"
             app:npTextColor="@color/black_text"
