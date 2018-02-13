@@ -17,7 +17,7 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
-public class Change extends RealmObject implements DatedLesson {
+public class Change extends RealmObject implements DatedLesson, Cloneable {
 
     private String changeType;
     private Date date;
@@ -102,6 +102,22 @@ public class Change extends RealmObject implements DatedLesson {
             return buildName().equals(c.buildName());
         }
         return false;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Object clone = super.clone();
+        Change change = (Change) clone;
+        change.setDate(date);
+        change.setChangeType(changeType);
+        change.setHour(hour);
+        change.setSubject(subject);
+        change.setTeacher(teacher);
+        change.setNewRoom(newRoom);
+        change.setNewHour(newHour);
+        change.setNewTeacher(newTeacher);
+
+        return change;
     }
 
     private String buildLessonName() {

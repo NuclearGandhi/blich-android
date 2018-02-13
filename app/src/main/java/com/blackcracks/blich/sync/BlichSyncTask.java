@@ -212,6 +212,15 @@ public class BlichSyncTask {
             change.setNewTeacher(jsonChange.getString(Database.JSON_STRING_NEW_TEACHER));
             change.setNewRoom(jsonChange.getString(Database.JSON_STRING_NEW_ROOM));
 
+            if (change.getChangeType().equals(Database.TYPE_NEW_HOUR)) {
+                try {
+                    Change otherChange = (Change) change.clone();
+                    otherChange.setHour(change.getNewHour());
+                    changes.add(otherChange);
+                } catch (CloneNotSupportedException e) {
+                    Timber.e(e);
+                }
+            }
             changes.add(change);
         }
 
