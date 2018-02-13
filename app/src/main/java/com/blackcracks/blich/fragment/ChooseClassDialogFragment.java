@@ -8,9 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -20,20 +17,17 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichContract;
-import com.blackcracks.blich.data.BlichDatabaseHelper;
 import com.blackcracks.blich.sync.FetchClassService;
+import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
+import io.realm.Realm;
 
 /**
  * This DialogFragment is showed when the user launches the app for the first time to configure
@@ -43,10 +37,15 @@ import biz.kasual.materialnumberpicker.MaterialNumberPicker;
  */
 public class ChooseClassDialogFragment extends DialogFragment {
 
+    private static final String KEY_DATA_VALID = "data_valid";
     public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
 
+    private Realm mRealm;
+    private boolean mIsDataValid = false;
+    private String[] mDisplayedValues;
+
     private AlertDialog mDialog;
-    private MaterialNumberPicker mGradeNumberPicker;
+    private MaterialNumberPicker mClassIndexPicker;
     private MaterialNumberPicker mGradePicker;
     private FrameLayout mProgressBar;
     private BroadcastReceiver mFetchBroadcastReceiver;
@@ -55,7 +54,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mRealm = Realm.getDefaultInstance();
 
         //Create a {@link BroadcastReceiver} to listen when the data has finished downloading
         mFetchBroadcastReceiver = new BroadcastReceiver() {
@@ -64,12 +63,18 @@ public class ChooseClassDialogFragment extends DialogFragment {
                 boolean isSuccessful =
                         intent.getBooleanExtra(FetchClassService.IS_SUCCESSFUL_EXTRA, false);
                 if (isSuccessful) {
-                    new GetGradesTask().execute();
+                    setDataValid();
                 } else {
                     onFetchFailed();
                 }
             }
         };
+
+        if (savedInstanceState != null) {
+            mIsDataValid = savedInstanceState.getBoolean(KEY_DATA_VALID);
+        } else {
+            syncData();
+        }
     }
 
     //Setup the Dialog
@@ -88,7 +93,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(rootView);
 
-        mGradeNumberPicker =
+        mClassIndexPicker =
                 rootView.findViewById(R.id.dialog_choose_class_number_picker);
         mGradePicker =
                 rootView.findViewById(R.id.dialog_choose_class_name_picker);
@@ -99,19 +104,23 @@ public class ChooseClassDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         String[] displayedValues = mGradePicker.getDisplayedValues();
                         String gradeName = displayedValues[mGradePicker.getValue()];
-                        int gradeIndex = mGradeNumberPicker.getValue();
-                        String grade;
-                        if (gradeIndex == 0) {
-                            grade = gradeName;
+                        int classNum = mClassIndexPicker.getValue();
+                        int id;
+                        if (classNum == 0) {
+                            id = RealmUtils.getId(mRealm, gradeName);
                         } else {
-                            grade = gradeName + "'" + gradeIndex;
+                            id = RealmUtils.getId(mRealm, gradeName, classNum);
                         }
+
                         SharedPreferences sharedPreferences = PreferenceManager
                                 .getDefaultSharedPreferences(getContext());
+
                         sharedPreferences.edit()
-                                .putString(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY),
-                                        grade)
+                                .putInt(
+                                        Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY),
+                                        id)
                                 .apply();
+
                         sharedPreferences.edit()
                                 .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
                                 .apply();
@@ -126,9 +135,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        //Disable the "okay" button
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        getClassData();
+        setDataValid();
     }
 
     @Override
@@ -149,8 +156,15 @@ public class ChooseClassDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_DATA_VALID, mIsDataValid);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        mRealm.close();
         if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
     }
 
@@ -169,14 +183,14 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                getClassData();
+                                syncData();
                             }
                         })
                 .show();
     }
 
     //Start to fetch the data
-    private void getClassData() {
+    private void syncData() {
         boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
             Intent intent = new Intent(getContext(), FetchClassService.class);
@@ -186,94 +200,22 @@ public class ChooseClassDialogFragment extends DialogFragment {
         }
     }
 
-    public void setOnDestroyListener(OnDestroyListener listener) {
-        mOnDestroyListener = listener;
+    private void setDataValid() {
+
+        mIsDataValid = true;
+        mProgressBar.setVisibility(View.GONE);
+        mGradePicker.setVisibility(View.VISIBLE);
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+
+        mDisplayedValues = ClassGroupUtils.loadDataIntoPicker(
+                mRealm,
+                mGradePicker,
+                mClassIndexPicker,
+                ClassGroupUtils.getClassValue(getContext()));
     }
 
-    //Get the downloaded data from the Class table
-    private class GetGradesTask extends AsyncTask<Void, Void, Void> {
-
-        List<String> mNormalGradesNamesArray = new ArrayList<>();
-        List<String> mAbnormalGradesNamesArray = new ArrayList<>();
-        List<Integer> mGradesIndexArray = new ArrayList<>();
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            BlichDatabaseHelper databaseHelper = new BlichDatabaseHelper(getContext());
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-            Cursor cursor = db.query(
-                    BlichContract.ClassEntry.TABLE_NAME,
-                    new String[]{BlichContract.ClassEntry.COL_GRADE,
-                            "MAX(" + BlichContract.ClassEntry.COL_GRADE_INDEX + ")"},
-                    null,
-                    null,
-                    BlichContract.ClassEntry.COL_GRADE,
-                    null, null);
-
-            if (cursor.moveToFirst()) {
-                int gradeNameCursorIndex = cursor.getColumnIndex(BlichContract.ClassEntry.COL_GRADE);
-                int gradeIndexCursorIndex =
-                        cursor.getColumnIndex("MAX(" + BlichContract.ClassEntry.COL_GRADE_INDEX + ")");
-
-                mNormalGradesNamesArray = new ArrayList<>();
-                mAbnormalGradesNamesArray = new ArrayList<>();
-                mGradesIndexArray = new ArrayList<>();
-
-                if (cursor.getInt(gradeIndexCursorIndex) != 0) {
-                    mGradesIndexArray.add(cursor.getInt(gradeIndexCursorIndex));
-                    mNormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
-                } else {
-                    mAbnormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
-                }
-                while (cursor.moveToNext()) {
-                    if (cursor.getInt(gradeIndexCursorIndex) != 0) {
-                        mGradesIndexArray.add(cursor.getInt(gradeIndexCursorIndex));
-                        mNormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
-                    } else {
-                        mAbnormalGradesNamesArray.add(cursor.getString(gradeNameCursorIndex));
-                    }
-                }
-            }
-
-            cursor.close();
-            db.close();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void param) {
-
-
-            final List<String> displayedValues = mNormalGradesNamesArray;
-            displayedValues.addAll(mAbnormalGradesNamesArray);
-
-            int displayedValuesSize = displayedValues.size();
-
-            mGradePicker.setMaxValue(displayedValuesSize - 1);
-            mGradePicker.setDisplayedValues(displayedValues.toArray(new String[displayedValuesSize]));
-            NumberPicker.OnValueChangeListener onValueChangeListener =
-                    new NumberPicker.OnValueChangeListener() {
-                        @Override
-                        public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
-                            if (newVal > mGradesIndexArray.size() - 1) {
-                                mGradeNumberPicker.setVisibility(View.INVISIBLE);
-                                mGradeNumberPicker.setMinValue(0);
-                                mGradeNumberPicker.setValue(0);
-                            } else {
-                                mGradeNumberPicker.setVisibility(View.VISIBLE);
-                                mGradeNumberPicker.setMinValue(1);
-                                mGradeNumberPicker.setMaxValue(mGradesIndexArray.get(newVal));
-                            }
-                        }
-                    };
-            mGradePicker.setOnValueChangedListener(onValueChangeListener);
-            onValueChangeListener.onValueChange(mGradePicker, 1, 1);
-
-            mProgressBar.setVisibility(View.GONE);
-            mGradePicker.setVisibility(View.VISIBLE);
-            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-        }
+    public void setOnDestroyListener(OnDestroyListener listener) {
+        mOnDestroyListener = listener;
     }
 
     public interface OnDestroyListener {

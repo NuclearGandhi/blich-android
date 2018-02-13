@@ -18,6 +18,7 @@ import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
+import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.firebase.jobdispatcher.Constraint;
@@ -130,15 +131,9 @@ public class BlichSyncUtils {
         realm.close();
     }
 
-    private static int getClassValue(Context context)
-            throws BlichFetchException {
-        return PreferencesUtils.getInt(context,
-                Constants.Preferences.PREF_USER_CLASS_GROUP_KEY);
-    }
-
     static URL buildUrlFromCommand(Context context, String command)
             throws BlichFetchException {
-        int classValue = getClassValue(context);
+        int classValue = ClassGroupUtils.getClassValue(context);
 
         Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
