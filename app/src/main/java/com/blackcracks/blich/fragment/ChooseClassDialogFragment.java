@@ -109,7 +109,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         SharedPreferences sharedPreferences = PreferenceManager
                                 .getDefaultSharedPreferences(getContext());
                         sharedPreferences.edit()
-                                .putString(Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY),
+                                .putString(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY),
                                         grade)
                                 .apply();
                         sharedPreferences.edit()

@@ -195,7 +195,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY))) {
+            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY))) {
                 setClassPickerSummery();
                 Utilities.updateBlichData(getContext(), getView());
             }
@@ -248,7 +248,7 @@ public class SettingsActivity extends AppCompatActivity {
         //Class Picker Preference
         private void setClassPickerSummery() {
             String classPickerKey =
-                    Preferences.getKey(getContext(), Preferences.PREF_CLASS_PICKER_KEY);
+                    Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY);
             ClassPickerPreference classPickerPreference =
                     (ClassPickerPreference) findPreference(classPickerKey);
 

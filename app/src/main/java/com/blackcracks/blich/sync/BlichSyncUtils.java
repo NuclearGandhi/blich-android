@@ -9,18 +9,15 @@ package com.blackcracks.blich.sync;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.blackcracks.blich.BuildConfig;
-import com.blackcracks.blich.data.BlichContract;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.util.ClassUtils;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.firebase.jobdispatcher.Constraint;
@@ -106,7 +103,7 @@ public class BlichSyncUtils {
         context.startService(intentToSyncImmediately);
     }
 
-    public static void loadDataIntoRealm(BlichData blichData) {
+    static void loadDataIntoRealm(BlichData blichData) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
@@ -133,61 +130,27 @@ public class BlichSyncUtils {
         realm.close();
     }
 
-    public static int getClassValue(Context context)
+    private static int getClassValue(Context context)
             throws BlichFetchException {
-        String currentClass = ClassUtils.getCurrentClass(context);
-        String selection;
-        String[] selectionArgs;
-
-        if (currentClass.contains("'")) { //Normal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ? AND " +
-                    BlichContract.ClassEntry.COL_GRADE_INDEX + " = ?";
-            selectionArgs = currentClass.split("'");
-        } else { //Abnormal class syntax
-            selection = BlichContract.ClassEntry.COL_GRADE + " = ?";
-            selectionArgs = new String[]{currentClass};
-        }
-
-
-        Cursor cursor = context.getContentResolver().query(
-                BlichContract.ClassEntry.CONTENT_URI,
-                new String[]{BlichContract.ClassEntry.COL_CLASS_INDEX},
-                selection,
-                selectionArgs,
-                null);
-
-        int classValue;
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                classValue = cursor.getInt(0);
-            } else {
-                throw new BlichFetchException("Can't get the user's class. " +
-                        "Did the user configure his class?");
-            }
-        } else {
-            throw new NullPointerException("Queried cursor is null");
-        }
-
-        cursor.close();
-        return classValue;
+        return PreferencesUtils.getInt(context,
+                Constants.Preferences.PREF_USER_CLASS_GROUP_KEY);
     }
 
-    public static URL buildUrlFromCommand(Context context, String command)
+    static URL buildUrlFromCommand(Context context, String command)
             throws BlichFetchException {
         int classValue = getClassValue(context);
 
-        Uri scheduleUri = buildBaseUriFromCommand(command);
-        scheduleUri.buildUpon()
-                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue));
-
-        if (BuildConfig.DEBUG) {
-            Timber.d("Building URI: %s", scheduleUri.toString());
-        }
+        Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
+                .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
+                .appendQueryParameter(PARAM_API_KEY, BuildConfig.ShahafBlichApiKey)
+                .appendQueryParameter(PARAM_CLASS_ID, String.valueOf(classValue))
+                .appendQueryParameter(PARAM_COMMAND, command)
+                .build();
 
         return buildURLFromUri(scheduleUri);
     }
 
-    public static Uri buildBaseUriFromCommand(String command) {
+    static Uri buildBaseUriFromCommand(String command) {
 
         return Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
@@ -196,8 +159,12 @@ public class BlichSyncUtils {
                 .build();
     }
 
-    public static URL buildURLFromUri(Uri uri) {
+    static URL buildURLFromUri(Uri uri) {
         try {
+
+            if (BuildConfig.DEBUG) {
+                Timber.d("Building URI: %s", uri.toString());
+            }
             return new URL(uri.toString());
         } catch (MalformedURLException e) {
             Timber.e(e);
@@ -205,7 +172,7 @@ public class BlichSyncUtils {
         }
     }
 
-    public static String getResponseFromUrl(URL url) throws IOException {
+    static String getResponseFromUrl(URL url) throws IOException {
         HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
 
         InputStream in = scheduleConnection.getInputStream();

@@ -10,6 +10,8 @@ package com.blackcracks.blich.util;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import com.blackcracks.blich.util.Constants.Preferences;
+
 public class PreferencesUtils {
     //Preferences
     public static String getString(Context context,
@@ -24,8 +26,8 @@ public class PreferencesUtils {
 
     public static String getString(Context context,
                                    int prefKey) {
-        String key = Constants.Preferences.getKey(context, prefKey);
-        String defaultValue = (String) Constants.Preferences.getDefault(context, prefKey);
+        String key = Preferences.getKey(context, prefKey);
+        String defaultValue = (String) Preferences.getDefault(context, prefKey);
 
         return getString(context, key, defaultValue, false);
     }
@@ -36,8 +38,8 @@ public class PreferencesUtils {
     }
 
     public static boolean getBoolean(Context context, int prefKey) {
-        String key = Constants.Preferences.getKey(context, prefKey);
-        boolean defaultValue = (boolean) Constants.Preferences.getDefault(context, prefKey);
+        String key = Preferences.getKey(context, prefKey);
+        boolean defaultValue = (boolean) Preferences.getDefault(context, prefKey);
 
         return getBoolean(context, key, defaultValue);
     }
@@ -45,5 +47,12 @@ public class PreferencesUtils {
     public static int getInt(Context context, String key, int defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getInt(key, defaultValue);
+    }
+
+    public static int getInt(Context context, int prefKey) {
+        String key = Preferences.getKey(context, prefKey);
+        int defaultValue = (int) Preferences.getDefault(context, prefKey);
+
+        return getInt(context, key, defaultValue);
     }
 }

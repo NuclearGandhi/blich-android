@@ -67,12 +67,12 @@ public class Constants {
 
         //Preference keys
         @Retention(SOURCE)
-        @IntDef({PREF_CLASS_PICKER_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
+        @IntDef({PREF_USER_CLASS_GROUP_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
                 PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_IS_SYNCING_KEY})
         public @interface PrefIntKeys {
         }
 
-        public static final int PREF_CLASS_PICKER_KEY = 0;
+        public static final int PREF_USER_CLASS_GROUP_KEY = 0;
 
         public static final int PREF_NOTIFICATION_TOGGLE_KEY = 1;
         public static final int PREF_NOTIFICATION_SOUND_KEY = 2;
@@ -86,8 +86,8 @@ public class Constants {
 
             @StringRes int resKey = -1;
             switch (key) {
-                case PREF_CLASS_PICKER_KEY: {
-                    resKey = R.string.pref_class_picker_key;
+                case PREF_USER_CLASS_GROUP_KEY: {
+                    resKey = R.string.pref_user_class_group_key;
                     break;
                 }
                 case PREF_NOTIFICATION_TOGGLE_KEY: {
@@ -118,8 +118,8 @@ public class Constants {
 
         public static Object getDefault(Context context, @PrefIntKeys int key) {
             switch (key) {
-                case PREF_CLASS_PICKER_KEY: {
-                    return context.getString(R.string.pref_class_picker_default);
+                case PREF_USER_CLASS_GROUP_KEY: {
+                    return context.getResources().getInteger(R.integer.pref_user_class_group_default);
                 }
                 case PREF_NOTIFICATION_TOGGLE_KEY: {
                     return context.getResources().getBoolean(R.bool.pref_notification_toggle_default);
