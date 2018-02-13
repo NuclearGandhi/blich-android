@@ -17,12 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <provider
-            android:name=".data.BlichProvider"
-            android:authorities="@string/content_authority"
-            android:exported="false"
-            android:syncable="true">
-        </provider>
 
         <activity
             android:name=".activity.MainActivity"
@@ -46,19 +40,10 @@
             android:label="@string/activity_settings"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".activity.ArticleActivity"
-            android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme">
-        </activity>
 
         <service
             android:name=".sync.FetchClassService"
             android:exported="false"/>
-        <service
-            android:name=".sync.FetchNewsService"
-            android:exported="false">
-        </service>
         <service
             android:name=".widget.ScheduleRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS">

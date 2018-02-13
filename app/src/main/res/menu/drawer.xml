@@ -13,11 +13,6 @@
             android:id="@+id/exams"
             android:icon="@drawable/ic_clipboard_text"
             android:title="@string/drawer_exams_title"/>
-
-        <item
-            android:id="@+id/news"
-            android:icon="@drawable/ic_newspaper"
-            android:title="@string/drawer_news_title"/>
     </group>
     <group
         android:id="@+id/system"

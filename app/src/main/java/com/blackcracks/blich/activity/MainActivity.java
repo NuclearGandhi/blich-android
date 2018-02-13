@@ -23,7 +23,6 @@ import android.view.View;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
-import com.blackcracks.blich.fragment.NewsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.RealmUtils;
@@ -192,11 +191,6 @@ public class MainActivity extends AppCompatActivity {
                                 item.setChecked(true);
                                 return true;
                             }
-                            case R.id.news: {
-                                replaceFragment(new NewsFragment(), true);
-                                item.setChecked(true);
-                                return true;
-                            }
                             case R.id.about: {
                                 Intent intent = new Intent(MainActivity.this, AboutActivity.class);
                                 startActivity(intent);
@@ -230,10 +224,7 @@ public class MainActivity extends AppCompatActivity {
                             itemToCheck = R.id.schedule;
                         } else if (fragment instanceof ExamsFragment) {
                             itemToCheck = R.id.exams;
-                        } else if (fragment instanceof NewsFragment) {
-                            itemToCheck = R.id.news;
                         }
-
                         if (mFragment != fragment) logChangeFragment(mFragment.getClass());
                         mFragment = fragment;
 
