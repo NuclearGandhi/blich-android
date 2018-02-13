@@ -49,6 +49,7 @@ public class ClassGroupUtils {
         }
 
         gradePicker.setDisplayedValues(displayedValues);
+        gradePicker.setMaxValue(displayedValues.length);
 
         //Load values when grade changes
         NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
@@ -76,7 +77,6 @@ public class ClassGroupUtils {
             classIndexPicker.setValue(number);
         } else {
             gradeIndex = 4;
-            gradePicker.setValue(4);
         }
         gradePicker.setValue(gradeIndex);
         valueChangeListener.onValueChange(gradePicker, 1, gradeIndex);
