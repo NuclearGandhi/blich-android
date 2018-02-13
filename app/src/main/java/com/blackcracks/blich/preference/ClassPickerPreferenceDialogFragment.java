@@ -94,10 +94,10 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
     @Override
     public void onStart() {
         super.onStart();
-        if (!mIsDataValid) {
-            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        } else {
+        if (mIsDataValid) {
             setDataValid();
+        } else {
+            ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
         }
     }
 

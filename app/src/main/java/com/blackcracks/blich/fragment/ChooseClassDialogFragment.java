@@ -135,7 +135,11 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        setDataValid();
+        if (mIsDataValid) {
+            setDataValid();
+        } else {
+            mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        }
     }
 
     @Override

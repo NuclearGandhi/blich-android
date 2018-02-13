@@ -65,6 +65,7 @@ public class FetchClassService extends IntentService {
             e.printStackTrace();
         }
 
+        loadDataIntoRealm(data);
         return true;
     }
 

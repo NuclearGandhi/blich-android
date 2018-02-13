@@ -51,7 +51,7 @@ public class ClassGroupUtils {
         gradePicker.setDisplayedValues(displayedValues);
 
         //Load values when grade changes
-        gradePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+        NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 if (newVal < 4) { //Normal grade
@@ -61,21 +61,25 @@ public class ClassGroupUtils {
                     classIndexPicker.setVisibility(View.INVISIBLE);
                 }
             }
-        });
+        };
+        gradePicker.setOnValueChangedListener(valueChangeListener);
 
         ClassGroup classGroup = RealmUtils.getGrade(realm, currentUserClassGroupId);
 
         //Set current value
+        int gradeIndex;
         if (classGroup.isNormal()) {
             int grade = classGroup.getGrade();
             int number = classGroup.getNumber();
 
-            gradePicker.setValue(grade - 9);
-
+            gradeIndex = grade - 9;
             classIndexPicker.setValue(number);
         } else {
+            gradeIndex = 4;
             gradePicker.setValue(4);
         }
+        gradePicker.setValue(gradeIndex);
+        valueChangeListener.onValueChange(gradePicker, 1, gradeIndex);
 
         return displayedValues;
     }
