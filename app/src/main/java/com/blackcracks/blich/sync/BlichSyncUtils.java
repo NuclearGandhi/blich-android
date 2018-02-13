@@ -66,8 +66,7 @@ public class BlichSyncUtils {
 
     private static final String BLICH_SYNC_TAG = "blich_tag";
 
-    private static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context,
-                                                          FirebaseJobDispatcher dispatcher) {
+    private static void scheduleFirebaseJobDispatcherSync(FirebaseJobDispatcher dispatcher) {
 
         Job syncBlichJob = dispatcher.newJobBuilder()
                 .setService(BlichFirebaseJobService.class)
@@ -92,7 +91,7 @@ public class BlichSyncUtils {
         Driver driver = new GooglePlayDriver(context);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
         if (is_notifications_on) {
-            scheduleFirebaseJobDispatcherSync(context, dispatcher);
+            scheduleFirebaseJobDispatcherSync(dispatcher);
         } else {
             dispatcher.cancel(BLICH_SYNC_TAG);
         }
