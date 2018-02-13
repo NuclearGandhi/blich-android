@@ -275,11 +275,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         Hour hour = (Hour) getGroup(groupPosition);
         if (lesson == null) {//This is not a replacer DatedLesson
-            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour);
+            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getNonReplacingLessons(hour);
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
-            int index = lastLessonPos - childPosition;
-            if (index < 0) index = 0;
-            datedLesson = datedLessons.get(index);
+            int index = childPosition - lastLessonPos;
+            datedLesson = nonReplacingLessons.get(index);
         } else {
             datedLesson = mRealmScheduleHelper.getLessonReplacement(hour.getHour(), lesson);
         }

@@ -96,16 +96,20 @@ public class RealmScheduleHelper {
     }
 
     private int getNonReplacingLessonsCount(Hour hour) {
-        int count = 0;
+        return getNonReplacingLessons(hour).size();
+    }
+
+    public List<DatedLesson> getNonReplacingLessons(Hour hour) {
         List<Lesson> lessons = hour.getLessons();
+        List<DatedLesson> nonReplacingLessons = new ArrayList<>();
         for (DatedLesson datedLesson :
                 mDatedLessons) {
             if (datedLesson.isEqualToHour(hour.getHour()) && (
                     !datedLesson.isAReplacer() || !isLessonInList(datedLesson, lessons))){
-                count++;
+                nonReplacingLessons.add(datedLesson);
             }
         }
-        return count;
+        return nonReplacingLessons;
     }
 
     private boolean isLessonInList(DatedLesson datedLesson, List<Lesson> lessons) {
