@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -20,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        onUpdate();
 
         //Initialization stuff
         Utilities.setLocaleToHebrew(this);
@@ -244,5 +247,13 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
         mFirebaseAnalytic.logEvent(EVENT_OPEN_ACTIVITY, bundle);
+    }
+
+    private void onUpdate() {
+        if (BuildConfig.VERSION_CODE < 29) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .apply();
+        }
     }
 }
