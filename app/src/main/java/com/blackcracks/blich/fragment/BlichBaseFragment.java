@@ -61,10 +61,12 @@ public abstract class BlichBaseFragment extends Fragment implements
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                @BlichSyncTask.FetchStatus int status =
-                        intent.getIntExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS,
-                                BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
-                Utilities.onSyncFinished(getContext(), mRootView, status, mFragmentManager);
+                
+                @BlichSyncTask.FetchStatus int status = intent.getIntExtra(
+                        Constants.IntentConstants.EXTRA_FETCH_STATUS,
+                        BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
+
+                Utilities.onSyncFinished(context, mRootView, status, mFragmentManager);
             }
         };
 
