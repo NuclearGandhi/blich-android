@@ -21,12 +21,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -57,7 +58,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        onUpdate();
+
+        //If using old user settings
+        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .apply();
+        }
 
         //Initialization stuff
         Utilities.setLocaleToHebrew(this);
@@ -247,13 +254,5 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
         mFirebaseAnalytic.logEvent(EVENT_OPEN_ACTIVITY, bundle);
-    }
-
-    private void onUpdate() {
-        if (BuildConfig.VERSION_CODE < 29) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
-                    .apply();
-        }
     }
 }
