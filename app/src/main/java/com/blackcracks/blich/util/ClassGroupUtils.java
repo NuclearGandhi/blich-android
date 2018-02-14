@@ -49,7 +49,7 @@ public class ClassGroupUtils {
         }
 
         gradePicker.setDisplayedValues(displayedValues);
-        gradePicker.setMaxValue(displayedValues.length);
+        gradePicker.setMaxValue(displayedValues.length - 1);
 
         //Load values when grade changes
         NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
