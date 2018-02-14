@@ -19,10 +19,6 @@ import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-/**
- * Created by Administrator on 2/13/2018.
- */
-
 public class ClassGroupUtils {
 
     public static int getClassValue(Context context) {

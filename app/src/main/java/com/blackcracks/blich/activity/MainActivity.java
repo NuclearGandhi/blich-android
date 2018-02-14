@@ -58,15 +58,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //If using old user settings
-        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
-                    .apply();
-        }
-
         //Initialization stuff
+        migrateOldSettings();
         Utilities.setLocaleToHebrew(this);
         RealmUtils.setUpRealm(this);
         Timber.plant(new Timber.DebugTree());
@@ -254,5 +247,18 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
         mFirebaseAnalytic.logEvent(EVENT_OPEN_ACTIVITY, bundle);
+    }
+
+    private void migrateOldSettings() {
+        //If using old user settings
+        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .apply();
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putInt(Preferences.getKey(this, Preferences.PREF_USER_CLASS_GROUP_KEY), 1)
+                    .apply();
+        }
     }
 }
