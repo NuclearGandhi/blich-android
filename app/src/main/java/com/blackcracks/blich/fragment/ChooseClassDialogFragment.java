@@ -106,7 +106,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         String gradeName = displayedValues[mGradePicker.getValue()];
                         int classNum = mClassIndexPicker.getValue();
                         int id;
-                        if (classNum == 0) {
+                        if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {
                             id = RealmUtils.getId(mRealm, gradeName);
                         } else {
                             id = RealmUtils.getId(mRealm, gradeName, classNum);
