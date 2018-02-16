@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
@@ -258,6 +259,17 @@ public class MainActivity extends AppCompatActivity {
 
             PreferenceManager.getDefaultSharedPreferences(this).edit()
                     .putInt(Preferences.getKey(this, Preferences.PREF_USER_CLASS_GROUP_KEY), 1)
+                    .apply();
+        }
+    }
+
+    private void onUpdate() {
+        int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
+        int newVersion = BuildConfig.VERSION_CODE;
+        if (newVersion > oldVersion) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
+                            newVersion)
                     .apply();
         }
     }

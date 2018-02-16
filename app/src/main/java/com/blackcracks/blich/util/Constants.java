@@ -13,13 +13,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 public class Constants {
 
-    /**
-     * Starting from 14, because {@link com.blackcracks.blich.adapter.ScheduleAdapter} uses 0 - 13
-     */
-    public static final int EXAMS_LOADER_ID = 14;
-    public static final int SCHEDULE_LOADER_ID = 15;
-    public static final int NEWS_LOADER_ID = 16;
-
     public static class Database {
         public static final String JSON_ARRAY_HOURS = "Schedule";
         public static final String JSON_INT_CLASS_ID = "ClassId";
@@ -68,7 +61,7 @@ public class Constants {
         //Preference keys
         @Retention(SOURCE)
         @IntDef({PREF_USER_CLASS_GROUP_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
-                PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_IS_SYNCING_KEY})
+                PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_IS_SYNCING_KEY, PREF_APP_VERSION_KEY})
         public @interface PrefIntKeys {
         }
 
@@ -81,6 +74,7 @@ public class Constants {
         public static final int PREF_FILTER_SELECT_KEY = 4;
 
         public static final int PREF_IS_SYNCING_KEY = 100;
+        public static final int PREF_APP_VERSION_KEY = 101;
 
         public static String getKey(Context context, @PrefIntKeys int key) {
 
@@ -108,6 +102,11 @@ public class Constants {
                 }
                 case PREF_IS_SYNCING_KEY: {
                     resKey = R.string.pref_is_syncing_key;
+                    break;
+                }
+                case PREF_APP_VERSION_KEY: {
+                    resKey = R.string.pref_app_version_key;
+                    break;
                 }
             }
             return context.getString(resKey);
@@ -135,6 +134,9 @@ public class Constants {
                 }
                 case PREF_IS_SYNCING_KEY: {
                     return true;
+                }
+                case PREF_APP_VERSION_KEY: {
+                    return context.getResources().getInteger(R.integer.pref_user_class_group_default);
                 }
             }
             return null;
