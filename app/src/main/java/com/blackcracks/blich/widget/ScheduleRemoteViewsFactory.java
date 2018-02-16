@@ -2,7 +2,6 @@ package com.blackcracks.blich.widget;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseIntArray;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -12,18 +11,13 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.Sort;
 
 public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
@@ -48,46 +42,13 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     @Override
     public void onDataSetChanged() {
         mRealm = Realm.getDefaultInstance();
-
-        boolean isFilterOn = PreferencesUtils.getBoolean(
-                mContext,
-                Constants.Preferences.PREF_FILTER_TOGGLE_KEY
+        switchData(
+                ScheduleUtils.fetchScheduleResult(
+                        mRealm,
+                        mContext,
+                        mDay
+                )
         );
-
-        List<Hour> data;
-        if (isFilterOn) {
-            List<Lesson> lessons = RealmUtils.buildFilteredQuery(mRealm, mContext, Lesson.class, mDay)
-                    .findAll();
-
-            SparseIntArray hourArr = new SparseIntArray();
-            for (int i = 0; i < lessons.size(); i++) {
-                hourArr.append(i, lessons.get(i).getOwners().get(0).getHour());
-            }
-
-            lessons = mRealm.copyFromRealm(lessons);
-
-            data = RealmUtils.convertLessonListToHour(lessons, mDay, hourArr);
-
-            Comparator<Hour> hourComparator = new Comparator<Hour>() {
-                @Override
-                public int compare(Hour o1, Hour o2) {
-                    if (o1.getHour() > o2.getHour()) return 1;
-                    else if (o1.getHour() == o2.getHour()) return 0;
-                    else return -1;
-                }
-            };
-
-            Collections.sort(data, hourComparator);
-
-        } else {
-            data = mRealm.where(Hour.class)
-                    .equalTo("day", mDay)
-                    .sort("day", Sort.ASCENDING)
-                    .findAll();
-
-            data = mRealm.copyFromRealm(data);
-        }
-        switchData(data);
         mRealm.close();
     }
 
@@ -103,26 +64,43 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
     @Override
     public RemoteViews getViewAt(int position) {
 
-        int hour = mRealmHelper.getHour(position).getHour();
+        Hour hour = mRealmHelper.getHour(position);
+        int hourNum = mRealmHelper.getHour(position).getHour();
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_item);
         views.setTextViewText(
                 R.id.widget_schedule_hour,
-                Integer.toString(hour));
+                Integer.toString(hourNum));
 
         views.removeAllViews(R.id.widget_schedule_group);
 
+        for (int i = 0; i < mRealmHelper.getChildCount(position); i++) {
+            Lesson lesson = mRealmHelper.getLesson(position, i);
+            DatedLesson datedLesson;
 
-        for (int i = 0; i < mRealmHelper.getHour(position).getLessons().size(); i++) {
-            Lesson lesson = mRealmHelper.getHour(position).getLessons().get(i);
-            String subject = lesson.getSubject();
-            String lessonType = lesson.getChangeType();
+            if (lesson == null) {//This is not a replacer DatedLesson
+                List<DatedLesson> nonReplacingLessons = mRealmHelper.getNonReplacingLessons(hour);
+                int lastLessonPos = mRealmHelper.getLessonCount(position) - 1;
+                int index = i - lastLessonPos;
+                datedLesson = nonReplacingLessons.get(index);
+            } else {
+                datedLesson = mRealmHelper.getLessonReplacement(hour.getHour(), lesson);
+            }
 
-            int textColor = getColorFromType(lessonType);
+            String subject;
+            int color;
+
+            if (datedLesson != null) {
+                subject = datedLesson.buildName();
+                color = datedLesson.getColor(mContext);
+            } else {
+                subject = lesson.getSubject();
+                color = ContextCompat.getColor(mContext, R.color.black_text);
+            }
 
             RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
             info.setTextViewText(R.id.widget_schedule_subject, subject);
-            info.setTextColor(R.id.widget_schedule_subject, ContextCompat.getColor(mContext, textColor));
+            info.setTextColor(R.id.widget_schedule_subject, color);
 
             views.addView(R.id.widget_schedule_group, info);
         }
@@ -165,12 +143,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
         return true;
     }
 
-    private void switchData(List<Hour> data) {
-        ScheduleResult result = new ScheduleResult(
-                data,
-                new ArrayList<DatedLesson>()
-        );
-        mRealmHelper.switchData(result);
-
+    private void switchData(ScheduleResult data) {
+        mRealmHelper.switchData(data);
     }
 }

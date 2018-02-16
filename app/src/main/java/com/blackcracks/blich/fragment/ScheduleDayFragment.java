@@ -17,25 +17,12 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
-import com.blackcracks.blich.data.Change;
-import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Event;
-import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.Constants.Preferences;
-import com.blackcracks.blich.util.PreferencesUtils;
-import com.blackcracks.blich.util.RealmUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.blackcracks.blich.util.ScheduleUtils;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
@@ -168,85 +155,14 @@ public class ScheduleDayFragment extends Fragment implements
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-
             if (mRealm.isClosed()) return;
-
-            //Check if the user wants to filter the schedule
-            boolean isFilterOn = PreferencesUtils.getBoolean(
-                    getContext(),
-                    Preferences.PREF_FILTER_TOGGLE_KEY);
-
-            List<Hour> hours;
-            List<Change> changes;
-            List<Event> events;
-            List<Exam> exams;
-
-            if (isFilterOn) { //Filter
-                //Query using Inverse-Relationship and filter
-                RealmResults<Lesson> lessons = RealmUtils.buildFilteredQuery(
-                        mRealm,
-                        getContext(),
-                        Lesson.class,
-                        mDay)
-                        .findAll();
-
-                hours = RealmUtils.convertLessonListToHour(lessons, mDay);
-                Collections.sort(hours);
-
-                changes = RealmUtils.buildFilteredQuery(
-                        mRealm,
-                        getContext(),
-                        Change.class,
-                        mDay)
-                        .findAll();
-
-                events = RealmUtils.buildFilteredQuery(
-                        mRealm,
-                        getContext(),
-                        Event.class,
-                        mDay)
-                        .findAll();
-
-                exams = RealmUtils.buildFilteredQuery(
-                        mRealm,
-                        getContext(),
-                        Exam.class,
-                        mDay)
-                        .findAll();
-
-            } else {//No filter, Query all
-                RealmResults<Hour> hourList = mRealm.where(Hour.class)
-                        .equalTo("day", mDay)
-                        .findAll()
-                        .sort("hour", Sort.ASCENDING);
-
-                hours = new ArrayList<>(hourList);
-
-                changes = RealmUtils.buildBaseQuery(
-                        mRealm,
-                        Change.class,
-                        mDay)
-                        .findAll();
-
-                events = RealmUtils.buildBaseQuery(
-                        mRealm,
-                        Event.class,
-                        mDay)
-                        .findAll();
-
-                exams = RealmUtils.buildBaseQuery(
-                        mRealm,
-                        Exam.class,
-                        mDay)
-                        .findAll();
-            }
-
-            List<DatedLesson> datedLessons = new ArrayList<DatedLesson>(changes);
-            datedLessons.addAll(events);
-            datedLessons.addAll(exams);
-
-            ScheduleResult result = new ScheduleResult(hours, datedLessons);
-            deliverResult(result);
+            deliverResult(
+                    ScheduleUtils.fetchScheduleResult(
+                            mRealm,
+                            getContext(),
+                            mDay
+                    )
+            );
         }
 
         @Override
