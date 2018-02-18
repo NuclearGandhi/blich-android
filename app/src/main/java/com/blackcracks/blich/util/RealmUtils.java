@@ -9,7 +9,6 @@ package com.blackcracks.blich.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.SparseIntArray;
 
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.data.Hour;
@@ -285,12 +284,12 @@ public class RealmUtils {
         return results;
     }
 
-    public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day, SparseIntArray hourArr) {
+    public static List<Hour> convertLessonListToHourRAM(Realm realm, List<Lesson> lessons, int day) {
         //Translate the lesson list to hour list
         List<Hour> results = new ArrayList<>();
-        for (int i = 0; i < lessons.size(); i++) {
-            Lesson lesson = lessons.get(i);
-            int hourNum = hourArr.get(i);
+        for (Lesson lesson :
+                lessons) {
+            int hourNum = lesson.getOwners().get(0).getHour();
             Hour hour = null;
 
             for (Hour result :
@@ -298,6 +297,7 @@ public class RealmUtils {
                 if (result.getHour() == hourNum) hour = result;
             }
 
+            lesson = realm.copyFromRealm(lesson);
             if (hour == null) {
                 RealmList<Lesson> lessonList = new RealmList<>();
                 lessonList.add(lesson);

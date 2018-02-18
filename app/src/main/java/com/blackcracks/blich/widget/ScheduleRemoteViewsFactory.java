@@ -46,7 +46,8 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
                 ScheduleUtils.fetchScheduleResult(
                         mRealm,
                         mContext,
-                        mDay
+                        mDay,
+                        true
                 )
         );
         mRealm.close();

@@ -39,7 +39,7 @@ public class ScheduleUtils {
         return day;
     }
 
-    public static ScheduleResult fetchScheduleResult(Realm realm, Context context, int day) {
+    public static ScheduleResult fetchScheduleResult(Realm realm, Context context, int day, boolean loadToRAM) {
         //Check if the user wants to filter the schedule
         boolean isFilterOn = PreferencesUtils.getBoolean(
                 context,
@@ -52,14 +52,18 @@ public class ScheduleUtils {
 
         if (isFilterOn) { //Filter
             //Query using Inverse-Relationship and filter
-            RealmResults<Lesson> lessons = RealmUtils.buildFilteredQuery(
+            List<Lesson> lessons = RealmUtils.buildFilteredQuery(
                     realm,
                     context,
                     Lesson.class,
                     day)
                     .findAll();
 
-            hours = RealmUtils.convertLessonListToHour(lessons, day);
+            if (loadToRAM) {
+                hours = RealmUtils.convertLessonListToHourRAM(realm, lessons, day);
+            } else {
+                hours = RealmUtils.convertLessonListToHour(lessons, day);
+            }
             Collections.sort(hours);
 
             changes = RealmUtils.buildFilteredQuery(
@@ -89,7 +93,11 @@ public class ScheduleUtils {
                     .findAll()
                     .sort("hour", Sort.ASCENDING);
 
-            hours = new ArrayList<>(hourList);
+            if (loadToRAM) {
+                hours = realm.copyFromRealm(hourList);
+            } else {
+                hours = new ArrayList<>(hourList);
+            }
 
             changes = RealmUtils.buildBaseQuery(
                     realm,
@@ -108,6 +116,12 @@ public class ScheduleUtils {
                     Exam.class,
                     day)
                     .findAll();
+        }
+
+        if (loadToRAM) {
+            changes = realm.copyFromRealm(changes);
+            events = realm.copyFromRealm(events);
+            exams = realm.copyFromRealm(exams);
         }
 
         List<DatedLesson> datedLessons = new ArrayList<DatedLesson>(changes);

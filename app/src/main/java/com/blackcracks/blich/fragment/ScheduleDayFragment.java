@@ -160,7 +160,8 @@ public class ScheduleDayFragment extends Fragment implements
                     ScheduleUtils.fetchScheduleResult(
                             mRealm,
                             getContext(),
-                            mDay
+                            mDay,
+                            false
                     )
             );
         }
