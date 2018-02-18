@@ -22,6 +22,8 @@
         android:layout_marginBottom="8dp"
         android:id="@+id/widget_schedule_group"
         android:layout_width="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
