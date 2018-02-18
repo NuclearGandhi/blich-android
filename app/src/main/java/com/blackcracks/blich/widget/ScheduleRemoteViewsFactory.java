@@ -2,6 +2,8 @@ package com.blackcracks.blich.widget;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -10,7 +12,6 @@ import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
@@ -89,6 +90,7 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
             }
 
             String subject;
+            String teacher = "";
             int color;
 
             if (datedLesson != null) {
@@ -96,32 +98,24 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
                 color = datedLesson.getColor(mContext);
             } else {
                 subject = lesson.getSubject();
+                teacher = lesson.getTeacher();
                 color = ContextCompat.getColor(mContext, R.color.black_text);
             }
 
+            Spanned text;
+            if (!teacher.equals("")) {
+                text = Html.fromHtml("<b>" + subject + "</b> - " + teacher);
+            } else {
+                text = Html.fromHtml("<b>" + subject + "</b>");
+            }
             RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
-            info.setTextViewText(R.id.widget_schedule_subject, subject);
+            info.setTextViewText(R.id.widget_schedule_subject, text);
             info.setTextColor(R.id.widget_schedule_subject, color);
 
             views.addView(R.id.widget_schedule_group, info);
         }
 
         return views;
-    }
-
-    private int getColorFromType(String lessonType) {
-        switch (lessonType) {
-            case Constants.Database.TYPE_CANCELED:
-                return R.color.lesson_canceled;
-            case Constants.Database.TYPE_NEW_TEACHER:
-                return R.color.lesson_changed;
-            case Constants.Database.TYPE_EVENT:
-                return R.color.lesson_event;
-            case Constants.Database.TYPE_EXAM:
-                return R.color.lesson_exam;
-            default:
-                return R.color.black_text;
-        }
     }
 
     @Override
