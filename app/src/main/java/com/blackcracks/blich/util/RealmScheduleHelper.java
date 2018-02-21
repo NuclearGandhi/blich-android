@@ -15,6 +15,7 @@ import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import timber.log.Timber;
@@ -41,7 +42,32 @@ public class RealmScheduleHelper {
         if (mIsDataValid) {
             mHours = data.getHours();
             mDatedLessons = data.getDatedLessons();
+            buildEmptyHours();
         }
+    }
+
+    private void buildEmptyHours() {
+        for (DatedLesson datedLesson:
+             mDatedLessons) {
+            if (!datedLesson.isAReplacer()) {
+                for(int i = datedLesson.getBeginHour(); i <= datedLesson.getEndHour(); i++) {
+                    if (getHourByNum(i) == null) {
+                        Hour hour = new Hour();
+                        hour.setHour(i);
+                        mHours.add(hour);
+                    }
+                }
+            }
+        }
+        Collections.sort(mHours);
+    }
+
+    private @Nullable Hour getHourByNum(int hourNum) {
+        for (Hour hour :
+                mHours) {
+            if (hour.getHour() == hourNum) return hour;
+        }
+        return null;
     }
 
     public boolean isDataValid() {
@@ -76,8 +102,7 @@ public class RealmScheduleHelper {
     DatedLesson getSingleChildHour(Hour hour) {
         for (DatedLesson lesson :
                 mDatedLessons) {
-            if (lesson.isEqualToHour(hour.getHour()) &&
-                    !lesson.isAReplacer()) {
+            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer()) {
                 return lesson;
             }
         }
