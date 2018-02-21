@@ -120,6 +120,16 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         return change;
     }
 
+    @Override
+    public int getBeginHour() {
+        return getHour();
+    }
+
+    @Override
+    public int getEndHour() {
+        return getHour();
+    }
+
     private String buildLessonName() {
         return getSubject() + ", " + getTeacher();
     }

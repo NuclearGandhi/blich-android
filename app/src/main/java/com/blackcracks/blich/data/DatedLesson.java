@@ -23,5 +23,8 @@ public interface DatedLesson {
     boolean isAReplacer();
     boolean canReplaceLesson(Lesson toReplace);
 
+    int getBeginHour();
+    int getEndHour();
+
     @ColorInt int getColor(Context context);
 }
