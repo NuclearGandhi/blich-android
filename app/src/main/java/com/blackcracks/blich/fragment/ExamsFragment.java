@@ -30,12 +30,16 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -72,21 +76,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
-        mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
-            @Override
-            public void onStateChanged(@State int state) {
-                if (state == AppBarStateChangeListener.COLLAPSED) {
-                    ViewCompat.animate(mDropDown).rotation(0).start();
-                    mIsExpanded = false;
-                } else if (state == AppBarStateChangeListener.EXPANDED) {
-                    ViewCompat.animate(mDropDown).rotation(180).start();
-                    mIsExpanded = true;
-                }
-            }
-        });
-
-        Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
+        final Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
 
         mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
         toolbar.setOnClickListener(this);
@@ -96,7 +86,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
+        mCalendarView.setTopbarVisible(false);
         mCalendarView.setCurrentDate(new Date());
+
         mCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
@@ -111,6 +103,34 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                             mListView.setSelection(i);
                         }
                     }
+                }
+            }
+        });
+
+        final String fragmentName = getString(R.string.drawer_exams_title);
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM - yyyy", new Locale("iw"));
+
+        mCalendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
+            @Override
+            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+                updateTitle(dateFormat, toolbar);
+            }
+        });
+
+        mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(@State int state) {
+                if (state == AppBarStateChangeListener.COLLAPSED) {
+                    toolbar.setTitle(fragmentName);
+
+                    ViewCompat.animate(mDropDown).rotation(0).start();
+                    mIsExpanded = false;
+                } else if (state == AppBarStateChangeListener.EXPANDED) {
+                    updateTitle(dateFormat, toolbar);
+
+                    ViewCompat.animate(mDropDown).rotation(180).start();
+                    mIsExpanded = true;
                 }
             }
         });
@@ -254,6 +274,10 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         };
 
         mCalendarView.addDecorator(decorator);
+    }
+
+    private void updateTitle(DateFormat dateFormat, Toolbar toolbar) {
+        toolbar.setTitle(dateFormat.format(mCalendarView.getCurrentDate().getDate()));
     }
 
     private static class ExamsLoader extends Loader<List<Exam>> {
