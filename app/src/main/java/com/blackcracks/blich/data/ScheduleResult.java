@@ -27,6 +27,7 @@ public class ScheduleResult {
         return mDatedLessons;
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     public boolean isDataValid() {
         if (mHours == null || mDatedLessons == null) return false;
         if (mHours.size() == 0 && mDatedLessons.size() == 0) return false;

@@ -150,7 +150,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         this.date = date;
     }
 
-    public int getHour() {
+    private int getHour() {
         return hour;
     }
 
@@ -158,7 +158,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         this.hour = hour;
     }
 
-    public String getSubject() {
+    private String getSubject() {
         return subject;
     }
 
@@ -166,7 +166,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         this.subject = subject;
     }
 
-    public String getTeacher() {
+    private String getTeacher() {
         return teacher;
     }
 
@@ -174,7 +174,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         this.teacher = teacher;
     }
 
-    public String getNewTeacher() {
+    private String getNewTeacher() {
         return newTeacher;
     }
 
@@ -182,7 +182,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
         this.newTeacher = newTeacher;
     }
 
-    public String getNewRoom() {
+    private String getNewRoom() {
         return newRoom;
     }
 

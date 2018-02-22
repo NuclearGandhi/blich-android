@@ -145,19 +145,8 @@ public class Constants {
     }
 
     public static class IntentConstants {
-
         public static final String ACTION_SYNC_CALLBACK = "sync_callback";
-        public static final String ACTION_FETCH_NEWS_CALLBACK = "fetch_news_callback";
-
 
         public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";
-        public static final String EXTRA_NEWS_CATEGORY = "extra_category";
-
-        public static final String EXTRA_ARTICLE_TITLE = "article_title";
-        public static final String EXTRA_ARTICLE_BODY = "article_body";
-    }
-
-    public static class Widget {
-        public static final String EXTRA_WIDGET_ID = "widget_id";
     }
 }

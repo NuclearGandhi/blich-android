@@ -293,6 +293,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             room = "";
             color = datedLesson.getColor(mContext);
         } else {
+            //noinspection ConstantConditions
             subject = lesson.getSubject();
             teacher = lesson.getTeacher();
             room = lesson.getRoom();
@@ -352,6 +353,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
 
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.events_dot);
+        //noinspection ConstantConditions
         drawable.setColor(color);
         view.setBackground(drawable);
         parent.addView(view);

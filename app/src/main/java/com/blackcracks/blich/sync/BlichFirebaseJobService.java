@@ -186,6 +186,7 @@ public class BlichFirebaseJobService extends JobService {
 
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            //noinspection ConstantConditions
             notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
 
         }

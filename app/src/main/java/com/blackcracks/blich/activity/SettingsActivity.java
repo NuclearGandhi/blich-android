@@ -79,6 +79,7 @@ public class SettingsActivity extends AppCompatActivity {
         );
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -265,11 +266,11 @@ public class SettingsActivity extends AppCompatActivity {
                     (FilterPreference) findPreference(getString(R.string.pref_filter_select_key));
             if (filterPreference.getValue() != null) {
                 String[] teachersAndSubjects = filterPreference.getValue().split(";");
-                String summary = "";
+                StringBuilder summary = new StringBuilder();
                 for (int i = 0; i < teachersAndSubjects.length; i++) {
                     String[] arr = teachersAndSubjects[i].split(",");
-                    summary += arr[0];
-                    if (i != teachersAndSubjects.length - 1) summary += ", ";
+                    summary.append(arr[0]);
+                    if (i != teachersAndSubjects.length - 1) summary.append(", ");
                 }
                 filterPreference.setSummary(summary);
             }

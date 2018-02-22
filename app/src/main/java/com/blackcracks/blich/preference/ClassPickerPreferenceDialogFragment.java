@@ -26,12 +26,10 @@ import com.blackcracks.blich.util.Utilities;
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
 
+@SuppressWarnings("ConstantConditions")
 public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmentCompat{
 
     private static final String KEY_DATA_VALID = "data_valid";
-    private static final int CLASS_LOADER_ID = 1;
-
-    private String[] mDisplayedValues;
 
     private ClassPickerPreference mPreference;
 
@@ -183,7 +181,7 @@ public class ClassPickerPreferenceDialogFragment extends PreferenceDialogFragmen
         mGradePicker.setVisibility(View.VISIBLE);
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
 
-        mDisplayedValues = ClassGroupUtils.loadDataIntoPicker(
+        ClassGroupUtils.loadDataIntoPicker(
                 mRealm,
                 mGradePicker,
                 mClassIndexPicker,

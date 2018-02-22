@@ -118,7 +118,7 @@ public class Exam extends RealmObject implements DatedLesson {
         this.endHour = endHour;
     }
 
-    public String getSubject() {
+    private String getSubject() {
         return subject;
     }
 
@@ -134,7 +134,7 @@ public class Exam extends RealmObject implements DatedLesson {
         this.teacher = teacher;
     }
 
-    public String getRoom() {
+    private String getRoom() {
         return room;
     }
 

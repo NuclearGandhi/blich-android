@@ -26,7 +26,7 @@ public class ClassGroupUtils {
                 Constants.Preferences.PREF_USER_CLASS_GROUP_KEY);
     }
 
-    public static String[] loadDataIntoPicker(
+    public static void loadDataIntoPicker(
             Realm realm,
             MaterialNumberPicker gradePicker,
             final MaterialNumberPicker classIndexPicker,
@@ -76,12 +76,10 @@ public class ClassGroupUtils {
         }
         gradePicker.setValue(gradeIndex);
         valueChangeListener.onValueChange(gradePicker, 1, gradeIndex);
-
-        return displayedValues;
     }
 
 
-    public static int[] fetchMaxIndices(Realm realm) {
+    private static int[] fetchMaxIndices(Realm realm) {
         int[] classMaxIndex = new int[4];
         for (int i = 0; i < classMaxIndex.length; i++) {
             classMaxIndex[i] = maxIndexFromGrade(realm, i + 9);
@@ -90,7 +88,7 @@ public class ClassGroupUtils {
         return classMaxIndex;
     }
 
-    public static List<ClassGroup> fetchAbnormalClasses(Realm realm) {
+    private static List<ClassGroup> fetchAbnormalClasses(Realm realm) {
         return realm.where(ClassGroup.class)
                 .equalTo("grade", 0)
                 .and()
@@ -103,6 +101,7 @@ public class ClassGroupUtils {
                 .equalTo("grade", grade)
                 .findAll();
 
+        //noinspection ConstantConditions
         return results.max("number").intValue();
     }
 }

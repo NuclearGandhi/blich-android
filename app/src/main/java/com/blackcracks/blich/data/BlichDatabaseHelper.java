@@ -9,7 +9,7 @@ public class BlichDatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 12;
 
-    public static final String DATABASE_NAME = "blich.db";
+    private static final String DATABASE_NAME = "blich.db";
 
     private static final String SQL_DROP_SCHEDULE_TABLE = "DROP TABLE schedule;";
     private static final String SQL_DROP_LESSON_TABLE = "DROP TABLE lesson;";

@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.MenuRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
@@ -38,6 +39,7 @@ import com.blackcracks.blich.util.Utilities;
  * and a {@link android.support.v4.widget.SwipeRefreshLayout}.
  */
 
+@SuppressWarnings("ConstantConditions")
 public abstract class BlichBaseFragment extends Fragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -54,7 +56,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Nullable
     @Override
     @CallSuper
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         mRootView = inflater.inflate(getFragmentLayout(), container, false);
 
@@ -77,6 +79,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         return mRootView;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -105,11 +108,6 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(getMenuResource(), menu);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override

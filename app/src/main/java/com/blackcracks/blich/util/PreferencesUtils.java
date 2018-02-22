@@ -24,6 +24,7 @@ public class PreferencesUtils {
         else return returnString.replace("/", "");
     }
 
+    @SuppressWarnings("SameParameterValue")
     public static String getString(Context context,
                                    int prefKey) {
         String key = Preferences.getKey(context, prefKey);
@@ -32,7 +33,7 @@ public class PreferencesUtils {
         return getString(context, key, defaultValue, false);
     }
 
-    public static boolean getBoolean(Context context, String key, boolean defaultValue) {
+    private static boolean getBoolean(Context context, String key, boolean defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(key, defaultValue);
     }
@@ -44,7 +45,7 @@ public class PreferencesUtils {
         return getBoolean(context, key, defaultValue);
     }
 
-    public static int getInt(Context context, String key, int defaultValue) {
+    private static int getInt(Context context, String key, int defaultValue) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getInt(key, defaultValue);
     }

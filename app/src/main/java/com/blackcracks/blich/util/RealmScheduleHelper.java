@@ -26,6 +26,7 @@ public class RealmScheduleHelper {
 
     private boolean mIsDataValid;
 
+    @SuppressWarnings("SameParameterValue")
     public RealmScheduleHelper(ScheduleResult data) {
         switchData(data);
     }
@@ -70,6 +71,7 @@ public class RealmScheduleHelper {
         return null;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isDataValid() {
         return mIsDataValid;
     }

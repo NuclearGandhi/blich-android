@@ -28,6 +28,7 @@ import io.realm.RealmModel;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 
+@SuppressWarnings("ConstantConditions")
 public class RealmUtils {
 
     public static void setUpRealm(Context context) {
@@ -36,7 +37,7 @@ public class RealmUtils {
                 .schemaVersion(11)
                 .migration(new RealmMigration() {
 
-                    @SuppressWarnings("ConstantConditions")
+                    @SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
                     @Override
                     public void migrate(@NonNull DynamicRealm realm, long oldVersion, long newVersion) {
 
@@ -204,7 +205,7 @@ public class RealmUtils {
     }
 
 
-    public static <E extends RealmModel> RealmQuery<E> buildBaseLessonQuery(
+    private static <E extends RealmModel> RealmQuery<E> buildBaseLessonQuery(
             io.realm.Realm realm,
             Class<E> clazz,
             int day) {
@@ -331,11 +332,9 @@ public class RealmUtils {
     }
 
     public static ClassGroup getGrade(Realm realm, int id) {
-        ClassGroup classGroup = realm.where(ClassGroup.class)
+        return realm.where(ClassGroup.class)
                 .equalTo("id", id)
                 .findFirst();
-
-        return classGroup;
     }
 
 }

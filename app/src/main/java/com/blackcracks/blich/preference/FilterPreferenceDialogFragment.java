@@ -38,7 +38,7 @@ implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
     private FilterPreference mPreference;
     private TeacherFilterAdapter mAdapter;
 
-    public static final int TEACHER_LOADER_ID = 0;
+    private static final int TEACHER_LOADER_ID = 0;
 
     public static FilterPreferenceDialogFragment newInstance(Preference preference) {
         FilterPreferenceDialogFragment fragment = new FilterPreferenceDialogFragment();

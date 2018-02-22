@@ -33,6 +33,7 @@ public class TeacherFilterAdapter extends BaseAdapter {
     private RealmTeacherHelper mRealmTeacherHelper;
     private List<TeacherSubject> mTeacherSubjects;
 
+    @SuppressWarnings("SameParameterValue")
     public TeacherFilterAdapter(
             Context context,
             @Nullable List<TeacherSubject> data,

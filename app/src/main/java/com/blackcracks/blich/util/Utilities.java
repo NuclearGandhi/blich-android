@@ -1,7 +1,6 @@
 package com.blackcracks.blich.util;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -28,10 +27,6 @@ import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.widget.BlichWidgetProvider;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import timber.log.Timber;
@@ -42,6 +37,7 @@ public class Utilities {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        //noinspection ConstantConditions
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
@@ -50,38 +46,6 @@ public class Utilities {
     public static boolean isFirstLaunch(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true);
-    }
-
-    public static boolean isAppOnForeground(Context context) {
-        ActivityManager activityManager = (ActivityManager) context
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses =
-                activityManager.getRunningAppProcesses();
-        if (appProcesses == null) {
-            return false;
-        }
-        final String packageName = context.getPackageName();
-        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
-                    appProcess.processName.equals(packageName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static long getTimeInMillisFromDate(String date) {
-
-        Locale locale = new Locale("iw");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", locale);
-        Date examDate = null;
-        try {
-            examDate = dateFormat.parse(date);
-        } catch (ParseException e) {
-            Timber.d(e, e.getMessage());
-        }
-
-        return examDate.getTime();
     }
 
     public static void initializeBlichDataUpdater(Context context, View view) {
@@ -95,7 +59,7 @@ public class Utilities {
     //Call BlichSyncTask to begin a sync
     public static void updateBlichData(Context context, View view) {
 
-        boolean isConnected = false;
+        boolean isConnected;
         boolean isFetching = PreferencesUtils.getBoolean(
                 context,
                 Preferences.PREF_IS_SYNCING_KEY

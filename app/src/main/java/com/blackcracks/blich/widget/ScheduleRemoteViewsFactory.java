@@ -20,10 +20,10 @@ import java.util.List;
 
 import io.realm.Realm;
 
-public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+@SuppressWarnings("ConstantConditions")
+class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private Context mContext;
-    private Realm mRealm;
 
     private int mDay;
     private RealmScheduleHelper mRealmHelper;
@@ -42,16 +42,16 @@ public class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteView
 
     @Override
     public void onDataSetChanged() {
-        mRealm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         switchData(
                 ScheduleUtils.fetchScheduleResult(
-                        mRealm,
+                        realm,
                         mContext,
                         mDay,
                         true
                 )
         );
-        mRealm.close();
+        realm.close();
     }
 
     @Override

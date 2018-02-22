@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--TODO fix margins-->
 <View xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="12dp"
       android:layout_height="12dp"
-      android:layout_marginLeft="6dp">
+      android:layout_marginEnd="6dp">
 
 </View>

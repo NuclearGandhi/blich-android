@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +28,7 @@ import io.realm.RealmChangeListener;
 /**
  * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
  */
+@SuppressWarnings("ConstantConditions")
 public class ScheduleDayFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<ScheduleResult>,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -38,7 +40,7 @@ public class ScheduleDayFragment extends Fragment implements
     private ScheduleAdapter mAdapter;
 
     private Realm mRealm;
-    private RealmChangeListener mChangeListener;
+    private RealmChangeListener<Realm> mChangeListener;
     private int mDay;
 
     @Override
@@ -48,7 +50,7 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRealm = Realm.getDefaultInstance();
         setUpRefresher();
@@ -71,7 +73,7 @@ public class ScheduleDayFragment extends Fragment implements
     private void setUpRefresher() {
         mChangeListener = new RealmChangeListener<Realm>() {
             @Override
-            public void onChange(Realm realm) {
+            public void onChange(@NonNull Realm realm) {
                 if (isAdded()) {
                     getLoaderManager().restartLoader(
                             SCHEDULE_LOADER_ID,

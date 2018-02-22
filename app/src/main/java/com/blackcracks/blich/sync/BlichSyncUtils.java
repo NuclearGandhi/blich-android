@@ -130,8 +130,7 @@ public class BlichSyncUtils {
         realm.close();
     }
 
-    static URL buildUrlFromCommand(Context context, String command)
-            throws BlichFetchException {
+    static URL buildUrlFromCommand(Context context, String command) {
         int classValue = ClassGroupUtils.getClassValue(context);
 
         Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
@@ -144,6 +143,7 @@ public class BlichSyncUtils {
         return buildURLFromUri(scheduleUri);
     }
 
+    @SuppressWarnings("SameParameterValue")
     static Uri buildBaseUriFromCommand(String command) {
 
         return Uri.parse(BLICH_BASE_URI).buildUpon()

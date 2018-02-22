@@ -22,7 +22,7 @@ public class GenericExam implements ExamItem {
         teachers = new ArrayList<>();
     }
 
-    public GenericExam(Exam exam) {
+    private GenericExam(Exam exam) {
         date = exam.getDate();
         name = exam.getName();
         teachers = new ArrayList<>();
@@ -71,7 +71,7 @@ public class GenericExam implements ExamItem {
         this.teachers = teachers;
     }
 
-    public boolean addExam(Exam exam) {
+    private boolean addExam(Exam exam) {
         if (date.equals(exam.getDate()) && name.equals(exam.getName())) {
             String teacher = exam.getTeacher();
             if (!teachers.contains(teacher)) teachers.add(teacher);

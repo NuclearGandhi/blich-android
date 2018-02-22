@@ -1,6 +1,7 @@
 package com.blackcracks.blich.fragment;
 
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.blackcracks.blich.util.Utilities;
  * The ScheduleFragment class is responsible for getting and displaying the schedule
  * of the user
  */
+@SuppressWarnings("ConstantConditions")
 public class ScheduleFragment extends BlichBaseFragment {
 
     private View mRootView;
@@ -77,6 +79,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         return R.menu.fragment_schedule;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);

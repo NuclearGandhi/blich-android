@@ -9,8 +9,8 @@ package com.blackcracks.blich.data;
 
 public interface ExamItem {
 
-    public static final int TYPE_EXAM = 0;
-    public static final int TYPE_MONTH = 1;
+    int TYPE_EXAM = 0;
+    int TYPE_MONTH = 1;
 
     int getType();
 }

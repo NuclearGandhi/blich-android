@@ -20,7 +20,10 @@ public interface DatedLesson {
     Date getDate();
 
     boolean isEqualToHour(int hour);
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isAReplacer();
+
     boolean canReplaceLesson(Lesson toReplace);
 
     int getBeginHour();

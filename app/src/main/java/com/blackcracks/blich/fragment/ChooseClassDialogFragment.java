@@ -35,6 +35,7 @@ import io.realm.Realm;
  * A similar dialog is shown when the user wants to change these settings:
  * {@link com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment}
  */
+@SuppressWarnings("ConstantConditions")
 public class ChooseClassDialogFragment extends DialogFragment {
 
     private static final String KEY_DATA_VALID = "data_valid";
@@ -42,7 +43,6 @@ public class ChooseClassDialogFragment extends DialogFragment {
 
     private Realm mRealm;
     private boolean mIsDataValid = false;
-    private String[] mDisplayedValues;
 
     private AlertDialog mDialog;
     private MaterialNumberPicker mClassIndexPicker;
@@ -211,7 +211,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
         mGradePicker.setVisibility(View.VISIBLE);
         mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
 
-        mDisplayedValues = ClassGroupUtils.loadDataIntoPicker(
+        ClassGroupUtils.loadDataIntoPicker(
                 mRealm,
                 mGradePicker,
                 mClassIndexPicker,

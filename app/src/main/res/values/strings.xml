@@ -4,16 +4,10 @@
     <string name="activity_settings">הגדרות</string>
     <string name="activity_about">אודות</string>
 
-    <string name="about_support_email">לחץ כדי לשלוח מייל</string>
-
-    <string name="content_authority">com.blackcracks.blich</string>
+    <string name="about_email_click">לחץ כדי לשלוח מייל</string>
 
     <string name="action_button_refresh">עדכן</string>
     <string name="action_button_filter_toggle">סינון</string>
-
-    <string name="pref_class_picker_key">class_picker</string>
-    <string name="pref_class_picker_title">כיתה</string>
-    <string name="pref_class_picker_default">ט\'3</string>
 
     <string name="pref_user_class_group_key">class_group</string>
     <string name="pref_user_class_group_title">כיתה</string>
@@ -62,7 +56,6 @@
 
     <string name="drawer_schedule_title">מערכת שעות</string>
     <string name="drawer_exams_title">מבחנים</string>
-    <string name="drawer_news_title">חדשות בליך</string>
     <string name="drawer_settings_title">הגדרות</string>
 
     <string name="drawer_open_desc">פתוח</string>
@@ -75,13 +68,18 @@
 
     <string name="notification_update_title">מערכת שעות</string>
 
-    <string name="contentdes_article_image">תמונה</string>
     <string name="contentdes_drawer_logo">לוגו</string>
 
     <string name="blank_page_message_no_data">אין מידע</string>
-    <string name="news_no_data">משוך למטה כדי לעדכן</string>
     <string name="schedule_no_data">אין מידע לגבי מבחנים קרובים</string>
 
     <string name="toast_filter_not_setup">אנא בחר מורים בהגדרות כדי לאפשר סינון</string>
+    <string name="about_principle">מנהלת בית הספר</string>
+    <string name="about_principle_name">זהבית גולדמן</string>
+    <string name="about_it">מנהלי רשתות</string>
+    <string name="about_it_name">עמי ארנוזון ועמוס שאול</string>
+    <string name="about_dev">צוות פיתוח</string>
+    <string name="about_dev_name">אתגר שמואלי ועידו פנג בנטוב</string>
+    <string name="about_email">מייל לתמיכה</string>
 
 </resources>

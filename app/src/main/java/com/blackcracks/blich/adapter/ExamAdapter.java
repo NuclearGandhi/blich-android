@@ -24,6 +24,7 @@ public class ExamAdapter extends BaseAdapter {
     private RealmExamHelper mExamHelper;
     private TextView mStatusMessage;
 
+    @SuppressWarnings("SameParameterValue")
     public ExamAdapter(Context context, List<Exam> data, TextView statusMessage) {
         mContext = context;
         mExamHelper = new RealmExamHelper(data);

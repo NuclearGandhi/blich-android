@@ -56,13 +56,6 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_EMPTY_HTML = 3;
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
-
-    //Exams
-    private static final String EXAMS_BASE_URL =
-            "http://blich.iscool.co.il/DesktopModules/IS.TimeTable/MainHtmlExams.aspx?pid=17&mid=6264&layer=0";
-
-    private static final String EXAMS_TABLE_ID = "ChangesList";
-
     /**
      * Start the fetch.
      * If there is a problem while fetching, send the status in the broadcast.
@@ -146,8 +139,6 @@ public class BlichSyncTask {
             } catch (JSONException e) {
                 Timber.e(e);
                 return FETCH_STATUS_UNSUCCESSFUL;
-            } catch (BlichSyncUtils.BlichFetchException e) {
-                return FETCH_STATUS_CLASS_NOT_CONFIGURED;
             }
         }
 

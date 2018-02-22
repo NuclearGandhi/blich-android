@@ -111,7 +111,7 @@ public class Event extends RealmObject implements DatedLesson {
         this.endHour = endHour;
     }
 
-    public String getSubject() {
+    private String getSubject() {
         return subject;
     }
 
@@ -119,7 +119,7 @@ public class Event extends RealmObject implements DatedLesson {
         this.subject = subject;
     }
 
-    public String getTeacher() {
+    private String getTeacher() {
         return teacher;
     }
 

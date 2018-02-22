@@ -42,6 +42,7 @@ import io.realm.RealmChangeListener;
 import io.realm.Sort;
 import timber.log.Timber;
 
+@SuppressWarnings("ConstantConditions")
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
 
@@ -74,7 +75,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
         mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
             @Override
-            public void onStateChanged(AppBarLayout appBarLayout, @State int state) {
+            public void onStateChanged(@State int state) {
                 if (state == AppBarStateChangeListener.COLLAPSED) {
                     ViewCompat.animate(mDropDown).rotation(0).start();
                     mIsExpanded = false;
@@ -128,7 +129,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private void setUpRefresher() {
         mChangeListener = new RealmChangeListener<Realm>() {
             @Override
-            public void onChange(Realm realm) {
+            public void onChange(@NonNull Realm realm) {
                 if (isAdded()) {
                     getLoaderManager().restartLoader(
                             EXAM_LOADER_ID,
