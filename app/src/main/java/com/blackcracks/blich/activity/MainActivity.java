@@ -61,11 +61,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //Initialization stuff
         migrateOldSettings();
-        Utilities.setLocaleToHebrew(this);
-        RealmUtils.setUpRealm(this);
-        Timber.plant(new Timber.DebugTree());
         setupFirstLaunch(savedInstanceState);
+        onUpdate();
+        RealmUtils.setUpRealm(this);
 
+        Utilities.setLocaleToHebrew(this);
+        Timber.plant(new Timber.DebugTree());
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 
         //Link to the layout
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
+
+            @SuppressWarnings("ConstantConditions")
             NotificationChannel channel = notificationManager.getNotificationChannel(
                     getString(R.string.notification_channel_schedule_id)
             );
@@ -100,10 +103,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Save the fragment when the activity is destroyed
-     * @param outState
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -149,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         NotificationManager notificationManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
+        //noinspection ConstantConditions
         notificationManager.createNotificationChannel(scheduleChannel);
     }
 
