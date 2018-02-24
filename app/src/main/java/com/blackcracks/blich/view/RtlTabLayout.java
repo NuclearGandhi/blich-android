@@ -13,7 +13,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-//TODO remove this view
 public class RtlTabLayout extends TabLayout {
     public RtlTabLayout(Context context) {
         super(context);
@@ -35,9 +34,9 @@ public class RtlTabLayout extends TabLayout {
             if (getTabCount() == 0)
                 return;
             ViewGroup tabStrip = (ViewGroup) getChildAt(0);
+            int minWidth = getMeasuredWidthAndState() / getTabCount();
             for (int i = 0; i < tabStrip.getChildCount(); i++) {
                 View child = tabStrip.getChildAt(i);
-                int minWidth = (int) (getMeasuredWidth() / (float) getTabCount());
                 child.setMinimumWidth(minWidth);
             }
         } catch (Exception e) {
