@@ -9,6 +9,7 @@ package com.blackcracks.blich.adapter;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,14 +21,21 @@ import android.widget.CompoundButton;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.TeacherSubject;
 
+import java.lang.annotation.Retention;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * An {@link android.widget.Adapter} to display all the current teachers and their corresponding subject.
  */
 public class TeacherFilterAdapter extends BaseAdapter {
+
+    @Retention(SOURCE)
+    @IntDef({SELECT_NONE, SELECT_ALL})
+    private @interface SelectMode{}
 
     public static final int SELECT_ALL = 0;
     public static final int SELECT_NONE = 1;
@@ -130,9 +138,11 @@ public class TeacherFilterAdapter extends BaseAdapter {
     }
 
     /**
-     * @param select must be one of {@link #SELECT_ALL}, {@link #SELECT_NONE}.
+     * Select or deselect teachers in the list.
+     *
+     * @param select a {@link SelectMode}.
      */
-    public void selectTeachers(int select) {
+    public void selectTeachers(@SelectMode int select) {
         switch(select) {
             case SELECT_ALL: {
                 mTeacherSubjects.clear();
@@ -145,7 +155,8 @@ public class TeacherFilterAdapter extends BaseAdapter {
                 notifyDataSetChanged();
                 break;
             }
-            //Todo add default to catch when an illegal argument has been passed.
+            default:
+                throw new IllegalArgumentException("Unrecognized select mode.");
         }
     }
 
