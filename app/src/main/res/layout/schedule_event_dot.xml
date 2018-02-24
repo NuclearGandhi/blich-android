@@ -9,7 +9,7 @@
 <View xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="12dp"
       android:layout_height="12dp"
+      android:layout_marginStart="6dp"
       android:paddingEnd="3dp"
-      android:paddingStart="3dp">
-
+    >
 </View>
