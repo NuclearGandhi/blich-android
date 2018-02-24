@@ -20,6 +20,9 @@ import java.util.List;
 
 import timber.log.Timber;
 
+/**
+ * A helper class to easily extract information from given data.
+ */
 public class RealmScheduleHelper {
     private List<Hour> mHours;
     private List<DatedLesson> mDatedLessons;
@@ -31,6 +34,11 @@ public class RealmScheduleHelper {
         switchData(data);
     }
 
+    /**
+     * Switch to the given data
+     *
+     * @param data data to switch to.
+     */
     public void switchData(ScheduleResult data) {
         //Check if the data is valid
         try {
@@ -47,6 +55,10 @@ public class RealmScheduleHelper {
         }
     }
 
+    /**
+     * Add empty hours to the hour list, so non replacing dated lessons can
+     * be shown.
+     */
     private void buildEmptyHours() {
         for (DatedLesson datedLesson:
              mDatedLessons) {
@@ -88,6 +100,13 @@ public class RealmScheduleHelper {
         return null;
     }
 
+    /**
+     * Get a {@link DatedLesson} replacement for the lesson, if it exists.
+     *
+     * @param toReplace a {@link Lesson} to replace.
+     * @return replaced {@link DatedLesson}.
+     *         {@code null} if none exist.
+     */
     public @Nullable
     DatedLesson getLessonReplacement(int hour, Lesson toReplace) {
         for (DatedLesson datedLesson :
@@ -100,17 +119,11 @@ public class RealmScheduleHelper {
         return null;
     }
 
-    public @Nullable
-    DatedLesson getSingleChildHour(Hour hour) {
-        for (DatedLesson lesson :
-                mDatedLessons) {
-            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer()) {
-                return lesson;
-            }
-        }
-        return null;
-    }
-
+    /**
+     * Get all the {@link DatedLesson}s in the specified hour.
+     *
+     * @return a list of {@link DatedLesson}s.
+     */
     public List<DatedLesson> getDatedLessons(Hour hour) {
         List<DatedLesson> lessons = new ArrayList<>();
         for (DatedLesson datedLesson:
@@ -122,24 +135,61 @@ public class RealmScheduleHelper {
         return lessons;
     }
 
-    private int getNonReplacingLessonsCount(Hour hour) {
-        return getNonReplacingLessons(hour).size();
+    /**
+     * Get a single replacing {@link DatedLesson} in the specified hour.
+     *
+     * @return non replacing {@link DatedLesson}.
+     *         {@code null} if none exist.
+     */
+    public @Nullable
+    DatedLesson getNonReplacingLesson(Hour hour) {
+        for (DatedLesson lesson :
+                mDatedLessons) {
+            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer()) {
+                return lesson;
+            }
+        }
+        return null;
     }
-
-    public List<DatedLesson> getNonReplacingLessons(Hour hour) {
+    
+    /**
+     * Get all the non replacing lessons, and lessons that come in addition to
+     * (see {@link #canReplaceInList(DatedLesson, List)}) the specified hour.
+     *
+     * @return a list of {@link DatedLesson}s.
+     */
+    public List<DatedLesson> getAdditionalLessons(Hour hour) {
         List<Lesson> lessons = hour.getLessons();
         List<DatedLesson> nonReplacingLessons = new ArrayList<>();
         for (DatedLesson datedLesson :
                 mDatedLessons) {
             if (datedLesson.isEqualToHour(hour.getHour()) && (
-                    !datedLesson.isAReplacer() || !isLessonInList(datedLesson, lessons))){
+                    !datedLesson.isAReplacer() || !canReplaceInList(datedLesson, lessons))){
                 nonReplacingLessons.add(datedLesson);
             }
         }
         return nonReplacingLessons;
     }
+    
+    /**
+     * Get the count additional lessons in the specified hour.
+     *
+     * @param hour a period.
+     * @return count of additional lessons.
+     */
+    private int getAdditionalLessonsCount(Hour hour) {
+        return getAdditionalLessons(hour).size();
+    }
 
-    private boolean isLessonInList(DatedLesson datedLesson, List<Lesson> lessons) {
+    /**
+     * Check if the given {@link DatedLesson} can replace any {@link Lesson} in the
+     * given list.
+     *
+     * @param datedLesson a {@link DatedLesson}.
+     * @param lessons a list of {@link Lesson}s.
+     * @return {@code true} the {@code datedLesson} can replace.
+     */
+    private boolean canReplaceInList(DatedLesson datedLesson, List<Lesson> lessons) {
         for (Lesson lesson :
                 lessons) {
             if (datedLesson.canReplaceLesson(lesson)) return true;
@@ -147,6 +197,11 @@ public class RealmScheduleHelper {
         return false;
     }
 
+    /**
+     * Get the count of hours.
+     *
+     * @return hours count.
+     */
     public int getHourCount() {
         if (mIsDataValid) {
             return mHours.size();
@@ -155,18 +210,30 @@ public class RealmScheduleHelper {
         }
     }
 
+    /**
+     * Get the count of children for the hour in the specified position.
+     *
+     * @param position position of hour.
+     * @return count of children.
+     */
     public int getChildCount(int position) {
         if (mIsDataValid) {
             Hour hour = getHour(position);
-            if (getSingleChildHour(hour) != null) {
+            if (getNonReplacingLesson(hour) != null) {
                 return 0;
             }
-            return hour.getLessons().size() + getNonReplacingLessonsCount(hour);
+            return hour.getLessons().size() + getAdditionalLessonsCount(hour);
         } else {
             return 0;
         }
     }
 
+    /**
+     * Get the count of normal lesson in the hour in the specified position.
+     *
+     * @param position position  of hour.
+     * @return count of lessons.
+     */
     public int getLessonCount(int position) {
         if (mIsDataValid) {
             return getHour(position).getLessons().size();

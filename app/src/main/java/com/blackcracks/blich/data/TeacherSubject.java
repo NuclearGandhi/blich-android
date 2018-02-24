@@ -7,6 +7,9 @@
 
 package com.blackcracks.blich.data;
 
+/**
+ * A class to hold a teacher-subject pair.
+ */
 public class TeacherSubject {
     private String teacher;
     private String subject;

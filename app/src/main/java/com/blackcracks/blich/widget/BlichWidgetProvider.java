@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.widget;
 
 import android.app.PendingIntent;
@@ -34,6 +41,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         views.setOnClickPendingIntent(R.id.widget_schedule_title, pendingIntent);
 
+        //Get the wanted day and display it on the toolbar.
         int day = ScheduleUtils.getWantedDayOfTheWeek();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, day);
@@ -47,6 +55,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
                         locale));
         views.setTextColor(R.id.widget_schedule_title, Color.WHITE);
 
+        //Connect between the list and the adapter.
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);
 

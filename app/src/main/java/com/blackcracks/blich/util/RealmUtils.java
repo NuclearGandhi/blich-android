@@ -28,6 +28,9 @@ import io.realm.RealmModel;
 import io.realm.RealmQuery;
 import io.realm.RealmSchema;
 
+/**
+ * A class containing utility methods to setup {@link Realm} and create queries.
+ */
 @SuppressWarnings("ConstantConditions")
 public class RealmUtils {
 
@@ -142,9 +145,12 @@ public class RealmUtils {
     }
 
     /**
-     * Get a query object that contains all the filter rules
+     * Get a query object that contains all the filter rules.
      *
-     * @return {@link RealmQuery} object with filter rules
+     * @param realm a {@link Realm} instance.
+     * @param clazz type of class.
+     * @param day day of the week.
+     * @return a {@link RealmQuery}.
      */
     public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             Realm realm,
@@ -165,6 +171,12 @@ public class RealmUtils {
         return buildFilteredQuery(query, context);
     }
 
+    /**
+     * Build a query on top of a query, containing all the filter rules.
+     *
+     * @param query a query to build upon.
+     * @return a {@link RealmQuery}.
+     */
     public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
             Context context) {
@@ -205,6 +217,14 @@ public class RealmUtils {
     }
 
 
+    /**
+     * Build a base query for lessons.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param clazz type of class.
+     * @param day day of the week.
+     * @return a {@link RealmQuery}.
+     */
     private static <E extends RealmModel> RealmQuery<E> buildBaseLessonQuery(
             io.realm.Realm realm,
             Class<E> clazz,
@@ -213,6 +233,14 @@ public class RealmUtils {
                 .equalTo("owners.day", day);
     }
 
+    /**
+     * Build a base query from day.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param clazz type of class.
+     * @param day day of the week.
+     * @return a {@link RealmQuery}.
+     */
     public static <E extends RealmModel> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
@@ -222,6 +250,15 @@ public class RealmUtils {
         return buildBaseQuery(realm, clazz, date[0], date[1]);
     }
 
+    /**
+     * Build a base query from dates.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param clazz type of class.
+     * @param minDate the minimum date.
+     * @param maxDate the maximum date.
+     * @return a {@link RealmQuery}.
+     */
     public static <E extends RealmModel> RealmQuery<E> buildBaseQuery(
             Realm realm,
             Class<E> clazz,
@@ -232,9 +269,12 @@ public class RealmUtils {
                 .between("date", minDate, maxDate);
     }
 
+    /**
+     * @param day day of the week.
+     * @return minimum and maximum dates for the day.
+     */
     private static Date[] buildDatesBasedOnDay(int day) {
         Calendar calendar = Calendar.getInstance();
-
         //If Saturday, go to next week
         int today = calendar.get(Calendar.DAY_OF_WEEK);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -259,6 +299,13 @@ public class RealmUtils {
         return date;
     }
 
+    /**
+     * Convert lessons to hour list.
+     *
+     * @param lessons a list of {@link Lesson}.
+     * @param day day of the week.
+     * @return list of {@link Hour}
+     */
     public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {
         //Translate the lesson list to hour list
         List<Hour> results = new ArrayList<>();
@@ -285,6 +332,13 @@ public class RealmUtils {
         return results;
     }
 
+    /**
+     * Convert lesson to hour list. Load the returned {@link Hour} list to RAM.
+     *
+     * @param lessons a list of {@link Lesson}.
+     * @param day day of the week.
+     * @return list of {@link Hour}
+     */
     public static List<Hour> convertLessonListToHourRAM(Realm realm, List<Lesson> lessons, int day) {
         //Translate the lesson list to hour list
         List<Hour> results = new ArrayList<>();
@@ -312,6 +366,14 @@ public class RealmUtils {
         return results;
     }
 
+    /**
+     * Get the id based on the grade and class number.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param gradeName a grade name.
+     * @param classNum the grade/class index.
+     * @return {@link ClassGroup} id.
+     */
     public static int getId(Realm realm, String gradeName, int classNum) {
         int gradeNum = ClassGroup.gradeStringToNum(gradeName);
         ClassGroup classGroup = realm.where(ClassGroup.class)
@@ -323,6 +385,13 @@ public class RealmUtils {
         return classGroup.getId();
     }
 
+    /**
+     * Get the id based on the grade.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param name a grade name.
+     * @return {@link ClassGroup} id.
+     */
     public static int getId(Realm realm, String name) {
          return realm.where(ClassGroup.class)
                 .equalTo("name", name)
@@ -331,6 +400,11 @@ public class RealmUtils {
 
     }
 
+    /**
+     * @param realm a {@link Realm} instance.
+     * @param id the id of the {@link ClassGroup}.
+     * @return a {@link ClassGroup}.
+     */
     public static ClassGroup getGrade(Realm realm, int id) {
         return realm.where(ClassGroup.class)
                 .equalTo("id", id)

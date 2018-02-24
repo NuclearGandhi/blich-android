@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.widget;
 
 import android.content.Context;
@@ -74,6 +81,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 R.id.widget_schedule_hour,
                 Integer.toString(hourNum));
 
+        //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
 
         for (int i = 0; i < mRealmHelper.getChildCount(position); i++) {
@@ -81,7 +89,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             DatedLesson datedLesson;
 
             if (lesson == null) {//This is not a replacer DatedLesson
-                List<DatedLesson> nonReplacingLessons = mRealmHelper.getNonReplacingLessons(hour);
+                List<DatedLesson> nonReplacingLessons = mRealmHelper.getAdditionalLessons(hour);
                 int lastLessonPos = mRealmHelper.getLessonCount(position) - 1;
                 int index = i - lastLessonPos;
                 datedLesson = nonReplacingLessons.get(index);
@@ -89,6 +97,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 datedLesson = mRealmHelper.getLessonReplacement(hour.getHour(), lesson);
             }
 
+            //Data holders
             String subject;
             String teacher = "";
             int color;
@@ -138,6 +147,11 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         return true;
     }
 
+    /**
+     * Switch the data being displayed in the widget.
+     *
+     * @param data data to switch to.
+     */
     private void switchData(ScheduleResult data) {
         mRealmHelper.switchData(data);
     }

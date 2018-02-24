@@ -1,5 +1,11 @@
-package com.blackcracks.blich.fragment;
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
 
+package com.blackcracks.blich.fragment;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -46,6 +52,9 @@ import io.realm.RealmChangeListener;
 import io.realm.Sort;
 import timber.log.Timber;
 
+/**
+ * A {@link android.support.v4.app.Fragment} containing a calendar and a list of upcoming exams.
+ */
 @SuppressWarnings("ConstantConditions")
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
@@ -69,7 +78,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private boolean mIsExpanded = true;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRealm = Realm.getDefaultInstance();
         setUpRefresher();
@@ -280,6 +289,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         toolbar.setTitle(dateFormat.format(mCalendarView.getCurrentDate().getDate()));
     }
 
+    /**
+     * A {@link Loader} to fetch {@link List<Exam>} from {@link Realm} database.
+     */
     private static class ExamsLoader extends Loader<List<Exam>> {
 
         private Realm mRealm;

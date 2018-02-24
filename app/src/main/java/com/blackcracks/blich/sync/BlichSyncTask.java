@@ -36,6 +36,9 @@ import timber.log.Timber;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * A class to handle the sync, meaning getting all the necessary data for the database.
+ */
 public class BlichSyncTask {
 
     private static final String EVENT_BEGIN_SYNC = "begin_sync";
@@ -47,6 +50,7 @@ public class BlichSyncTask {
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
             FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,
             FETCH_STATUS_CLASS_NOT_CONFIGURED})
+    //TODO rename.
     public @interface FetchStatus {
     }
 
@@ -57,8 +61,9 @@ public class BlichSyncTask {
     public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
 
     /**
-     * Start the fetch.
-     * If there is a problem while fetching, send the status in the broadcast.
+     * Begin syncing the data.
+     *
+     * @return a {@link FetchStatus} returned by the sync.
      */
     public static @FetchStatus
     int syncBlich(Context context) {
@@ -85,8 +90,15 @@ public class BlichSyncTask {
         return status;
     }
 
+    /**
+     * Fetch the required data from the server.
+     *
+     * @param blichData Data object to insert the fetched data into.
+     * @return a {@link FetchStatus}.
+     */
     private static @FetchStatus
     int fetchData(Context context, BlichData blichData) {
+        //Call four different requests from the server.
         for(int i = 0; i < 4; i++) {
             String json;
 
@@ -115,6 +127,7 @@ public class BlichSyncTask {
 
                 if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
 
+                //Insert data accordingly
                 switch (command) {
                     case BlichSyncUtils.COMMAND_SCHEDULE: {
                         insertScheduleJsonIntoData(json, blichData);
@@ -285,6 +298,12 @@ public class BlichSyncTask {
         blichData.setExams(exams);
     }
 
+    /**
+     * The date given in the json is required to be filtered before insertion to database.
+     *
+     * @param jsonDate unfiltered date in the form of a {@link String}.
+     * @return a {@link Date}.
+     */
     private static Date parseDate(String jsonDate) {
         int firstCut = jsonDate.indexOf("(") + 1;
         int lastCut = jsonDate.indexOf(")");

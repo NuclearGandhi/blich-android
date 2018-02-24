@@ -30,6 +30,9 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+/**
+ * A dialog for {@link FilterPreference}. Prompts the user with a teacher list to filter.
+ */
 public class FilterPreferenceDialogFragment extends PreferenceDialogFragmentCompat
 implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
 
@@ -87,7 +90,7 @@ implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
         selectAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_ALL);
+                mAdapter.selectTeachers(TeacherFilterAdapter.SELECT_ALL);
             }
         });
 
@@ -95,7 +98,7 @@ implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
         selectNone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAdapter.selectLessons(TeacherFilterAdapter.SELECT_NONE);
+                mAdapter.selectTeachers(TeacherFilterAdapter.SELECT_NONE);
             }
         });
     }
@@ -131,6 +134,9 @@ implements LoaderManager.LoaderCallbacks<List<TeacherSubject>>{
         mAdapter.switchData(null);
     }
 
+    /**
+     * A {@link Loader<TeacherSubject>} to fetch teachers from {@link Realm} database.
+     */
     private static class TeacherLoader extends Loader<List<TeacherSubject>> {
 
         private Realm mRealm;

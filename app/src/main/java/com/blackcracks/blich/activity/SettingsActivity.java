@@ -37,6 +37,9 @@ import com.blackcracks.blich.util.Utilities;
 
 import io.realm.Realm;
 
+/**
+ * An {@link AppCompatActivity} containing the preference fragment, handling its lifecycle.
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_KEY = "fragment_settings";
@@ -72,6 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        //Save fragment
         getSupportFragmentManager().putFragment(
                 outState,
                 FRAGMENT_KEY,
@@ -79,6 +84,9 @@ public class SettingsActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * {@link Fragment} handling all the the preferences.
+     */
     @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -201,7 +209,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Utilities.updateBlichData(getContext(), getView());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
-                BlichSyncUtils.initialize(getContext());
+                BlichSyncUtils.initializeJobService(getContext());
         }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
                 setFilterSelectSummery();
@@ -209,12 +217,10 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void initPrefSummery() {
-
             setClassPickerSummery();
             setFilterSelectSummery();
             setNotificationSoundPreference();
         }
-
 
         //Notification Sound Preference
         private void setNotificationSoundPreference() {

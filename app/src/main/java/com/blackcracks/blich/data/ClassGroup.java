@@ -9,6 +9,9 @@ package com.blackcracks.blich.data;
 
 import io.realm.RealmObject;
 
+/**
+ * A data class holding information about a class-group.
+ */
 public class ClassGroup extends RealmObject{
 
     private int id;

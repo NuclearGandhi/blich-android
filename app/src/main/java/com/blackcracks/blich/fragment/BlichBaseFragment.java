@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.fragment;
 
 import android.content.BroadcastReceiver;
@@ -38,7 +45,6 @@ import com.blackcracks.blich.util.Utilities;
  * Every fragment the extends this class, must have a {@link android.support.v7.widget.Toolbar}
  * and a {@link android.support.v4.widget.SwipeRefreshLayout}.
  */
-
 @SuppressWarnings("ConstantConditions")
 public abstract class BlichBaseFragment extends Fragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -60,10 +66,15 @@ public abstract class BlichBaseFragment extends Fragment implements
 
         mRootView = inflater.inflate(getFragmentLayout(), container, false);
 
+        mSwipeRefreshLayout =
+                mRootView.findViewById(R.id.swiperefresh_schedule);
+        mSwipeRefreshLayout.setEnabled(false);
+
+        //Create a BroadcastReceiver to listen when a sync has finished.
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                
+
                 @BlichSyncTask.FetchStatus int status = intent.getIntExtra(
                         Constants.IntentConstants.EXTRA_FETCH_STATUS,
                         BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
@@ -71,10 +82,6 @@ public abstract class BlichBaseFragment extends Fragment implements
                 Utilities.onSyncFinished(context, mRootView, status, mFragmentManager);
             }
         };
-
-        mSwipeRefreshLayout =
-                mRootView.findViewById(R.id.swiperefresh_schedule);
-        mSwipeRefreshLayout.setEnabled(false);
 
         return mRootView;
     }

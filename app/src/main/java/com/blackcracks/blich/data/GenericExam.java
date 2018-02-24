@@ -12,6 +12,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * A class to pack several similar {@link Exam} together.
+ */
 public class GenericExam implements ExamItem {
 
     private Date date;
@@ -29,6 +32,12 @@ public class GenericExam implements ExamItem {
         teachers.add(exam.getTeacher());
     }
 
+    /**
+     * Convert a {@link List<Exam>} to a {@link List<GenericExam>}.
+     *
+     * @param exams Exams to convert.
+     * @return built GenericExams.
+     */
     public static List<GenericExam> buildExamsList(List<Exam> exams) {
         List<GenericExam> genericExams = new ArrayList<>();
         GenericExam genericExam = null;
@@ -71,6 +80,12 @@ public class GenericExam implements ExamItem {
         this.teachers = teachers;
     }
 
+    /**
+     * If possible, add exam's teacher to the list.
+     *
+     * @param exam {@link Exam} to add.
+     * @return {@code true} the {@link Exam} has been added.
+     */
     private boolean addExam(Exam exam) {
         if (date.equals(exam.getDate()) && name.equals(exam.getName())) {
             String teacher = exam.getTeacher();
@@ -80,6 +95,11 @@ public class GenericExam implements ExamItem {
         return false;
     }
 
+    /**
+     * Build a string containing all the teachers separated by commas.
+     *
+     * @return a {@link String}.
+     */
     public String buildTeacherString() {
         StringBuilder stringBuilder = new StringBuilder(teachers.get(0));
         for (int i = 1; i < teachers.size(); i++) {
@@ -88,6 +108,12 @@ public class GenericExam implements ExamItem {
         return stringBuilder.toString();
     }
 
+    /**
+     * Check if both exams' month are equal.
+     *
+     * @param e other {@link GenericExam} to compare to.
+     * @return {@code true} the months' are equal.
+     */
     public boolean equalToByMonth(GenericExam e) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -98,7 +124,7 @@ public class GenericExam implements ExamItem {
     }
 
     @Override
-    public int getType() {
+    public @Type int getType() {
         return ExamItem.TYPE_EXAM;
     }
 }

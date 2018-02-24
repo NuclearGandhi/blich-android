@@ -17,6 +17,9 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
+/**
+ * A data class holding information about a change in schedule.
+ */
 public class Change extends RealmObject implements DatedLesson, Cloneable {
 
     private String changeType;

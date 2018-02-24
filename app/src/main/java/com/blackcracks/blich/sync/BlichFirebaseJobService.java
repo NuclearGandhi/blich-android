@@ -41,6 +41,10 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 
+/**
+ * A {@link JobService} that runs every few hours to update the database and notify
+ * the user of any changes.
+ */
 public class BlichFirebaseJobService extends JobService {
 
     private static final int NOTIFICATION_UPDATE_ID = 1;
@@ -85,6 +89,56 @@ public class BlichFirebaseJobService extends JobService {
         return true;
     }
 
+    private void notifyUser(Context context) {
+        List<DatedLesson> notificationList = fetchNotificationList();
+        if (!notificationList.isEmpty()) {
+
+            NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
+
+            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
+            String prefKey = Preferences.getKey(context, intKey);
+            String prefDefault = (String) Preferences.getDefault(context, intKey);
+            Uri ringtone = Uri.parse(PreferencesUtils
+                    .getString(context,
+                            prefKey,
+                            prefDefault,
+                            true));
+
+            //TODO Add notification description
+            Intent intent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Notification notification = new NotificationCompat.Builder(
+                    context,
+                    context.getString(R.string.notification_channel_schedule_id))
+                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
+                    .setContentTitle(context.getResources().getString(
+                            R.string.notification_update_title))
+                    .setSound(ringtone)
+                    .setDefaults(Notification.DEFAULT_VIBRATE)
+                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    .setStyle(inboxStyle)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            //noinspection ConstantConditions
+            notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
+
+        }
+    }
+
+    /**
+     * Fetch all the changes in the schedule.
+     *
+     * @return a list of {@link DatedLesson}s.
+     */
     private List<DatedLesson> fetchNotificationList() {
         Calendar calendar = Calendar.getInstance();
 
@@ -148,50 +202,12 @@ public class BlichFirebaseJobService extends JobService {
         return results;
     }
 
-    private void notifyUser(Context context) {
-        List<DatedLesson> notificationList = fetchNotificationList();
-        if (!notificationList.isEmpty()) {
-
-            NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
-
-            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
-            String prefKey = Preferences.getKey(context, intKey);
-            String prefDefault = (String) Preferences.getDefault(context, intKey);
-            Uri ringtone = Uri.parse(PreferencesUtils
-                    .getString(context,
-                            prefKey,
-                            prefDefault,
-                            true));
-
-            Intent intent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Notification notification = new NotificationCompat.Builder(
-                    context,
-                    context.getString(R.string.notification_channel_schedule_id))
-                    .setSmallIcon(R.drawable.ic_timetable_white_24dp)
-                    .setContentTitle(context.getResources().getString(
-                            R.string.notification_update_title))
-                    .setSound(ringtone)
-                    .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                    .setStyle(inboxStyle)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .build();
-
-            NotificationManager notificationManager =
-                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            //noinspection ConstantConditions
-            notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
-
-        }
-    }
-
+    /**
+     * Load the notification body with the changes.
+     *
+     * @param notificationList {@link DatedLesson}s to build content from.
+     * @return notification body.
+     */
     private NotificationCompat.InboxStyle buildNotificationContent(List<DatedLesson> notificationList) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
@@ -239,6 +255,12 @@ public class BlichFirebaseJobService extends JobService {
         return inboxStyle;
     }
 
+    /**
+     * Convert the given text to a bold {@link Spanned}.
+     *
+     * @param text Text to apply the effect on.
+     * @return The bold text
+     */
     private Spanned getBoldText(String text) {
         return Html.fromHtml("<b> " + text + "</b>");
     }

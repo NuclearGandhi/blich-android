@@ -11,6 +11,9 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Required;
 
+/**
+ * The overall schedule data object, used to easily insert data into realm.
+ */
 public class BlichData extends RealmObject {
 
     private int classId;

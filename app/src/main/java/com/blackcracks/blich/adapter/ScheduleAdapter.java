@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
@@ -27,37 +34,46 @@ import java.util.List;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter {
 
-    private ExpandableListView mExpandableListView;
     private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
+
+    private ExpandableListView mExpandableListView;
     private TextView mStatusTextView;
+
     private SparseBooleanArray mExpandedArray;
 
+    /**
+     * @param expandableListView the corresponding view for the adapter.
+     * @param statusTextView {@link TextView} for when the data is invalid.
+     */
     public ScheduleAdapter(ExpandableListView expandableListView,
                            Context context,
                            TextView statusTextView) {
-        mContext = context;
-        mStatusTextView = statusTextView;
-        mExpandableListView = expandableListView;
-
         mRealmScheduleHelper = new RealmScheduleHelper(null);
+        mContext = context;
+
+        mExpandableListView = expandableListView;
+        mStatusTextView = statusTextView;
+
         mExpandedArray = new SparseBooleanArray();
     }
 
     @Override
     public int getGroupCount() {
         int count = mRealmScheduleHelper.getHourCount();
-        if (count == 0) {
-            mStatusTextView.setVisibility(View.VISIBLE);
-        } else {
-            mStatusTextView.setVisibility(View.GONE);
-        }
+        //Set the status TextView according to the validity of the data.
+        if (count == 0) mStatusTextView.setVisibility(View.VISIBLE);
+        else mStatusTextView.setVisibility(View.GONE);
+
         return count;
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
         int count = mRealmScheduleHelper.getChildCount(groupPosition);
+        /*The number of group children is smaller by one than the number of lessons. This is because
+        one lesson is already displayed in the group view.
+         */
         if (count != 0) count--;
         return count;
     }
@@ -134,7 +150,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final List<Lesson> lessons = hour.getLessons();
 
         Lesson firstLesson;
-        DatedLesson singleChild = mRealmScheduleHelper.getSingleChildHour(hour);
+        DatedLesson singleChild = mRealmScheduleHelper.getNonReplacingLesson(hour);
         DatedLesson replacement = null;
 
         //The main data
@@ -180,7 +196,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
             removeDuplicateDaterLessons(datedLessons); //Remove duplicates
             datedLessons.remove(replacement); //Remove the displayed dated lesson
-            loadDatedLessonsToEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
+            makeEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
         }
 
         //Display the correct state of the group
@@ -226,6 +242,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
         holder.indicatorView.animate().rotation(180);
 
+        //Run on a different thread due to a bug where the view won't update itself if modified from this thread
         holder.teacherView.post(new Runnable() {
             @Override
             public void run() {
@@ -274,8 +291,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         DatedLesson datedLesson;
 
         Hour hour = (Hour) getGroup(groupPosition);
-        if (lesson == null) {//This is not a replacer DatedLesson
-            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getNonReplacingLessons(hour);
+        if (lesson == null) {//This is not a replacer DatedLesson, therefore get the non replacing lesson
+            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(hour);
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
             int index = childPosition - lastLessonPos;
             datedLesson = nonReplacingLessons.get(index);
@@ -287,12 +304,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final String room;
         int color;
 
-        if (datedLesson != null) {
+        if (datedLesson != null) {//Apply DatedLesson
             subject = datedLesson.buildName();
             teacher = "";
             room = "";
             color = datedLesson.getColor(mContext);
-        } else {
+        } else {//Normal lesson
             //noinspection ConstantConditions
             subject = lesson.getSubject();
             teacher = lesson.getTeacher();
@@ -316,6 +333,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    //TODO move to utility class
     private void removeDuplicateDaterLessons(List<DatedLesson> list) {
         if (list.size() != 0 || list.size() != 1) {
             //Get all the changes, and remove all duplicate types
@@ -342,13 +360,25 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
     }
 
-    private void loadDatedLessonsToEventDots(ViewGroup parent, List<DatedLesson> list) {
+    /**
+     * Add event dots to the parent view.
+     *
+     * @param parent the view to put the dots in.
+     * @param list list of {@link DatedLesson}s to make event dots from.
+     */
+    private void makeEventDots(ViewGroup parent, List<DatedLesson> list) {
         for (DatedLesson lesson :
                 list) {
             makeEventDot(parent, lesson.getColor(mContext));
         }
     }
 
+    /**
+     * Add a new dot to the parent view.
+     *
+     * @param parent a parent {@link ViewGroup}
+     * @param color the color of the desired dot.
+     */
     private void makeEventDot(ViewGroup parent, @ColorInt int color) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
 
@@ -359,12 +389,20 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         parent.addView(view);
     }
 
+    /**
+     * Switch the schedule to be displayed. Calls {@link BaseExpandableListAdapter#notifyDataSetChanged()}.
+     *
+     * @param data data to switch to.
+     */
     public void switchData(ScheduleResult data) {
         mRealmScheduleHelper.switchData(data);
         mExpandedArray.clear();
         notifyDataSetChanged();
     }
 
+    /**
+     * A class to hold all references to each group's child views.
+     */
     private static class GroupViewHolder {
 
         final LinearLayout eventsView;
@@ -398,6 +436,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    /**
+     * A class to hold all references to each child's child views.
+     */
     private static class ChildViewHolder {
         private final TextView subjectView;
         private final TextView classroomView;

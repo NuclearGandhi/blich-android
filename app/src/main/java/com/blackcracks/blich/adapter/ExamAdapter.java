@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
@@ -18,12 +25,19 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * {@link android.widget.Adapter} having two views: month dividers and exams.
+ */
 public class ExamAdapter extends BaseAdapter {
 
     private final Context mContext;
     private RealmExamHelper mExamHelper;
     private TextView mStatusMessage;
 
+    /**
+     * @param data exams to be displayed.
+     * @param statusMessage {@link TextView} for when the data is invalid.
+     */
     @SuppressWarnings("SameParameterValue")
     public ExamAdapter(Context context, List<Exam> data, TextView statusMessage) {
         mContext = context;
@@ -31,6 +45,11 @@ public class ExamAdapter extends BaseAdapter {
         mStatusMessage = statusMessage;
     }
 
+    /**
+     * Switch the exams to be displayed. Calls {@link BaseAdapter#notifyDataSetChanged()}.
+     *
+     * @param data exams to switch to.
+     */
     public void switchData(List<Exam> data) {
         mExamHelper.switchData(data);
         notifyDataSetChanged();
@@ -39,8 +58,9 @@ public class ExamAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         int count = mExamHelper.getCount();
+        //Set the status TextView according to the validity of the data.
         if (count == 0) mStatusMessage.setVisibility(View.VISIBLE);
-        else mStatusMessage.setVisibility(View.INVISIBLE);
+        else mStatusMessage.setVisibility(View.GONE);
 
         return count;
     }
@@ -59,6 +79,8 @@ public class ExamAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ExamItem item = (ExamItem) getItem(position);
         View view = null;
+
+        //Check the type of the item
         switch (item.getType()) {
             case ExamItem.TYPE_EXAM: {
                 GenericExam exam = (GenericExam) item;
@@ -82,7 +104,6 @@ public class ExamAdapter extends BaseAdapter {
         View view =
                 LayoutInflater.from(mContext).inflate(R.layout.exam_item, parent, false);
 
-
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
         return view;
@@ -96,6 +117,7 @@ public class ExamAdapter extends BaseAdapter {
         long dateInMillis = exam.getDate().getTime();
         String teacher = exam.buildTeacherString();
 
+        //Get readable date from epoch in millis.
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(dateInMillis);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -118,6 +140,9 @@ public class ExamAdapter extends BaseAdapter {
         return view;
     }
 
+    /**
+     * A class to hold all references to each exam item's child views.
+     */
     private static class ViewHolder {
 
         final TextView examDay;

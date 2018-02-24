@@ -9,6 +9,9 @@ package com.blackcracks.blich.data;
 
 import java.util.List;
 
+/**
+ * A class to hold schedule result from realm.
+ */
 public class ScheduleResult {
 
     private List<Hour> mHours;
@@ -27,6 +30,11 @@ public class ScheduleResult {
         return mDatedLessons;
     }
 
+    /**
+     * Check if the data in {@link ScheduleResult} is valid.
+     *
+     * @return {@code true} the data is valid.
+     */
     @SuppressWarnings("RedundantIfStatement")
     public boolean isDataValid() {
         if (mHours == null || mDatedLessons == null) return false;

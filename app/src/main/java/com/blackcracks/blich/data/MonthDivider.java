@@ -11,6 +11,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * A divider to be used in {@link com.blackcracks.blich.adapter.ExamAdapter}.
+ */
 public class MonthDivider implements ExamItem{
 
     private Date date;
@@ -19,6 +22,11 @@ public class MonthDivider implements ExamItem{
         this.date = date;
     }
 
+    /**
+     * Build a label to be displayed to the user.
+     *
+     * @return a label.
+     */
     public String buildLabel() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -30,7 +38,7 @@ public class MonthDivider implements ExamItem{
     }
 
     @Override
-    public int getType() {
+    public @Type int getType() {
         return ExamItem.TYPE_MONTH;
     }
 }

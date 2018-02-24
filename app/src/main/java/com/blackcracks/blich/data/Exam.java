@@ -17,6 +17,9 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
+/**
+ * A data class holding information about exams.
+ */
 public class Exam extends RealmObject implements DatedLesson {
 
     private String name;

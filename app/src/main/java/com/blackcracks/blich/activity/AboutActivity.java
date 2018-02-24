@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.activity;
 
 import android.content.Intent;
@@ -8,6 +15,10 @@ import android.view.View;
 
 import com.blackcracks.blich.R;
 
+/**
+ * Credits for the school, tech support and developers.
+ * Provides support email.
+ */
 public class AboutActivity extends AppCompatActivity {
 
     private static final String[] DEV_EMAIL = {"nukegandhi@gmail.com"};
@@ -18,6 +29,11 @@ public class AboutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_about);
     }
 
+    /**
+     * Open an email message directed to the support email.
+     *
+     * @param view clicked {@link View}
+     */
     public void onEmailClick(View view) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setType("*/*");

@@ -12,8 +12,11 @@ import android.preference.PreferenceManager;
 
 import com.blackcracks.blich.util.Constants.Preferences;
 
+/**
+ * Utilities methods to easily obtain preference values.
+ */
 public class PreferencesUtils {
-    //Preferences
+
     public static String getString(Context context,
                                    String key,
                                    String defaultValue,

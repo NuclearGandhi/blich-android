@@ -26,8 +26,16 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+/**
+ * A class containing utility methods for schedule.
+ */
 public class ScheduleUtils {
 
+    /**
+     * Get the wanted day of the week based on current time.
+     *
+     * @return day of the week.
+     */
     public static int getWantedDayOfTheWeek() {
 
         int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
@@ -39,7 +47,19 @@ public class ScheduleUtils {
         return day;
     }
 
-    public static ScheduleResult fetchScheduleResult(Realm realm, Context context, int day, boolean loadToRAM) {
+    /**
+     * Fetch from {@link Realm} schedule and pack it into a {@link ScheduleResult}.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param day day of the week.
+     * @param loadToRAM {@code true} copy the data from realm.
+     * @return the {@link ScheduleResult}.
+     */
+    public static ScheduleResult fetchScheduleResult(
+            Realm realm,
+            Context context,
+            int day,
+            boolean loadToRAM) {
         //Check if the user wants to filter the schedule
         boolean isFilterOn = PreferencesUtils.getBoolean(
                 context,

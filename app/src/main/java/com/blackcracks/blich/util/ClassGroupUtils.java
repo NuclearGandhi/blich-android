@@ -19,13 +19,29 @@ import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+/**
+ * A utility class for {@link ClassGroup}s.
+ */
 public class ClassGroupUtils {
 
+    /**
+     * Get the user's {@link ClassGroup} id.
+     *
+     * @return a {@link ClassGroup} id.
+     */
     public static int getClassValue(Context context) {
         return PreferencesUtils.getInt(context,
                 Constants.Preferences.PREF_USER_CLASS_GROUP_KEY);
     }
 
+    /**
+     * Insert data from {@link ClassGroup}s into {@link MaterialNumberPicker}s.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param gradePicker a picker for grades.
+     * @param classIndexPicker a picker for class indices.
+     * @param currentUserClassGroupId the current user's {@link ClassGroup} id.
+     */
     public static void loadDataIntoPicker(
             Realm realm,
             MaterialNumberPicker gradePicker,
@@ -79,6 +95,11 @@ public class ClassGroupUtils {
     }
 
 
+    /**
+     * Get all the max grade indices for each grade.
+     *
+     * @return int array of max grade indices.
+     */
     private static int[] fetchMaxIndices(Realm realm) {
         int[] classMaxIndex = new int[4];
         for (int i = 0; i < classMaxIndex.length; i++) {
@@ -88,14 +109,12 @@ public class ClassGroupUtils {
         return classMaxIndex;
     }
 
-    private static List<ClassGroup> fetchAbnormalClasses(Realm realm) {
-        return realm.where(ClassGroup.class)
-                .equalTo("grade", 0)
-                .and()
-                .equalTo("number", 0)
-                .findAll();
-    }
-
+    /**
+     * Get max index for specified grade
+     *
+     * @param grade a grade.
+     * @return the max index.
+     */
     private static int maxIndexFromGrade(Realm realm, int grade) {
         RealmResults<ClassGroup> results = realm.where(ClassGroup.class)
                 .equalTo("grade", grade)
@@ -103,5 +122,18 @@ public class ClassGroupUtils {
 
         //noinspection ConstantConditions
         return results.max("number").intValue();
+    }
+
+    /**
+     * Fetch all the abnormal {@link ClassGroup}s in the database.
+     *
+     * @return a list of {@link ClassGroup}s.
+     */
+    private static List<ClassGroup> fetchAbnormalClasses(Realm realm) {
+        return realm.where(ClassGroup.class)
+                .equalTo("grade", 0)
+                .and()
+                .equalTo("number", 0)
+                .findAll();
     }
 }

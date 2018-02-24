@@ -13,6 +13,9 @@ import android.util.AttributeSet;
 
 import com.blackcracks.blich.R;
 
+/**
+ * A preference to store the user's chosen teachers to filter.
+ */
 public class FilterPreference extends DialogPreference {
 
     private String mValue;
@@ -32,6 +35,11 @@ public class FilterPreference extends DialogPreference {
         mValue = value;
     }
 
+    /**
+     * Set the preference's value.
+     *
+     * @param value the value to set.
+     */
     public void setValue(String value) {
         mValue = value;
         persistString(value);

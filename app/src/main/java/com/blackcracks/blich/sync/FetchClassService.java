@@ -27,7 +27,7 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
- * This class is used to fetch the current classes there are at Blich, from Blich's website
+ * An {@link IntentService} to fetch the current class groups that are at Blich.
  */
 public class FetchClassService extends IntentService {
 
@@ -47,6 +47,11 @@ public class FetchClassService extends IntentService {
                 .sendBroadcast(broadcast);
     }
 
+    /**
+     * Begin class group fetching.
+     *
+     * @return If the fetch is successful
+     */
     private boolean fetchClass() {
         URL url = BlichSyncUtils.buildURLFromUri(
                 BlichSyncUtils.buildBaseUriFromCommand(BlichSyncUtils.COMMAND_CLASSES));
@@ -69,6 +74,12 @@ public class FetchClassService extends IntentService {
         return true;
     }
 
+    /**
+     * Insert data into a list.
+     *
+     * @param json JSON to parse.
+     * @param data List to insert data into.
+     */
     private void insertClassesJsonIntoData(String json, List<ClassGroup> data) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
@@ -87,6 +98,11 @@ public class FetchClassService extends IntentService {
         }
     }
 
+    /**
+     * Insert data in {@link Realm}.
+     *
+     * @param data Data to be inserted
+     */
     private void loadDataIntoRealm(RealmList<ClassGroup> data) {
         Realm realm = Realm.getDefaultInstance();
 

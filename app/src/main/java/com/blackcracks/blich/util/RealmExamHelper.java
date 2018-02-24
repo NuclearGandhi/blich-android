@@ -17,6 +17,9 @@ import java.util.List;
 
 import timber.log.Timber;
 
+/**
+ * A helper class to easily extract information from given data.
+ */
 public class RealmExamHelper {
 
     private List<ExamItem> mExamItems = new ArrayList<>();
@@ -26,6 +29,11 @@ public class RealmExamHelper {
         switchData(exams);
     }
 
+    /**
+     * Switch to the given data
+     *
+     * @param exams data to switch to.
+     */
     public void switchData(List<Exam> exams) {
         //Check if the data is valid
         try {
@@ -46,13 +54,18 @@ public class RealmExamHelper {
         return mIsDataValid;
     }
 
-    private void buildMonthDividers(List<GenericExam> events) {
+    /**
+     * Add month dividers to the data list.
+     *
+     * @param exams the list of {@link GenericExam}s.
+     */
+    private void buildMonthDividers(List<GenericExam> exams) {
         mExamItems.add(
-                new MonthDivider(events.get(0).getDate()));
+                new MonthDivider(exams.get(0).getDate()));
 
-        for (int i = 1; i < events.size(); i++) {
-            GenericExam exam = events.get(i);
-            if (!exam.equalToByMonth(events.get(i - 1))) {
+        for (int i = 1; i < exams.size(); i++) {
+            GenericExam exam = exams.get(i);
+            if (!exam.equalToByMonth(exams.get(i - 1))) {
                 mExamItems.add(
                         new MonthDivider(exam.getDate()));
             }
@@ -61,10 +74,21 @@ public class RealmExamHelper {
         }
     }
 
+    /**
+     * Get the item in the given position.
+     *
+     * @param position position of wanted item.
+     * @return an {@link ExamItem}.
+     */
     public ExamItem getItem(int position) {
         return mExamItems.get(position);
     }
 
+    /**
+     * Get the count of items.
+     *
+     * @return item count.
+     */
     public int getCount() {
         if (mIsDataValid) return mExamItems.size();
         else return 0;

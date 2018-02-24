@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.util;
 
 import android.content.Context;
@@ -56,9 +63,11 @@ public class Constants {
 
     }
 
+    /**
+     * Preference constants and methods to easily obtain preferences keys and default values.
+     */
     public static class Preferences {
 
-        //Preference keys
         @Retention(SOURCE)
         @IntDef({PREF_USER_CLASS_GROUP_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
                 PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_IS_SYNCING_KEY, PREF_APP_VERSION_KEY})
@@ -76,6 +85,16 @@ public class Constants {
         public static final int PREF_IS_SYNCING_KEY = 100;
         public static final int PREF_APP_VERSION_KEY = 101;
 
+
+        private static final String PREF_NOTIFICATION_SOUND_DEFAULT =
+                Settings.System.DEFAULT_NOTIFICATION_URI.toString();
+
+        /**
+         * Get a preference key
+         *
+         * @param key a {@link PrefIntKeys}.
+         * @return the corresponding preference string key.
+         */
         public static String getKey(Context context, @PrefIntKeys int key) {
 
             @StringRes int resKey = -1;
@@ -112,9 +131,12 @@ public class Constants {
             return context.getString(resKey);
         }
 
-        private static final String PREF_NOTIFICATION_SOUND_DEFAULT =
-                Settings.System.DEFAULT_NOTIFICATION_URI.toString();
-
+        /**
+         * Get the default value for the given {@link PrefIntKeys}.
+         *
+         * @param key a {@link PrefIntKeys}.
+         * @return the corresponding default value.
+         */
         public static Object getDefault(Context context, @PrefIntKeys int key) {
             switch (key) {
                 case PREF_USER_CLASS_GROUP_KEY: {
@@ -145,6 +167,7 @@ public class Constants {
     }
 
     public static class IntentConstants {
+
         public static final String ACTION_SYNC_CALLBACK = "sync_callback";
 
         public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";

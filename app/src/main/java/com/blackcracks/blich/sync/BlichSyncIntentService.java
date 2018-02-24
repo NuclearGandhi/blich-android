@@ -18,6 +18,9 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Utilities;
 
+/**
+ * An {@link IntentService} to run {@link BlichSyncTask#syncBlich(Context)} in the background.
+ */
 public class BlichSyncIntentService extends IntentService {
 
     public BlichSyncIntentService() {
@@ -26,11 +29,17 @@ public class BlichSyncIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        //Begin sync and send its results.
         int status = BlichSyncTask.syncBlich(getApplicationContext());
         sendBroadcast(getApplicationContext(), status);
         Utilities.updateWidget(getApplicationContext());
     }
 
+    /**
+     * Send a broadcast to all listeners that the sync has finished.
+     *
+     * @param status a {@link com.blackcracks.blich.sync.BlichSyncTask.FetchStatus} returned the from sync.
+     */
     private static void sendBroadcast(Context context, @BlichSyncTask.FetchStatus int status) {
         Intent intent = new Intent(Constants.IntentConstants.ACTION_SYNC_CALLBACK);
         intent.putExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS, status);

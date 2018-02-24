@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.util;
 
 import android.annotation.SuppressLint;
@@ -31,8 +38,16 @@ import java.util.Locale;
 
 import timber.log.Timber;
 
+/**
+ * A class containing general utility methods.
+ */
 public class Utilities {
 
+    /**
+     * Check for network connectivity.
+     *
+     * @return {@code true} there is network connection.
+     */
     public static boolean isThereNetworkConnection(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -43,11 +58,21 @@ public class Utilities {
                 activeNetwork.isConnectedOrConnecting();
     }
 
+    /**
+     * Check if this is the first time the user launched the app.
+     *
+     * @return {@code true} this is first launch.
+     */
     public static boolean isFirstLaunch(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true);
     }
 
+    /**
+     * Initialize the updater.
+     *
+     * @param view a {@link View} for the case of displaying dialogs.
+     */
     public static void initializeBlichDataUpdater(Context context, View view) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
@@ -56,7 +81,11 @@ public class Utilities {
         updateBlichData(context, view);
     }
 
-    //Call BlichSyncTask to begin a sync
+    /**
+     * Begin sync.
+     *
+     * @param view a {@link View} for the case of displaying dialogs.
+     */
     public static void updateBlichData(Context context, View view) {
 
         boolean isConnected;
@@ -82,7 +111,14 @@ public class Utilities {
         }
     }
 
-    //Callback from BlichSyncTask's sync
+    /**
+     * Callback for when sync finished.
+     *
+     * @param view a {@link View} for the case of displaying dialogs.
+     * @param status a {@link com.blackcracks.blich.sync.BlichSyncTask.FetchStatus} returned from
+     *               the sync.
+     * @param fragmentManager a {@link FragmentManager} for displaying dialogs.
+     */
     @SuppressLint("SwitchIntDef")
     public static void onSyncFinished(final Context context,
                                       final View view,
@@ -108,7 +144,7 @@ public class Utilities {
                     @Override
                     public void onDestroy(Context context) {
                         //Start the periodic syncing of
-                        BlichSyncUtils.initialize(context);
+                        BlichSyncUtils.initializeJobService(context);
                         Utilities.initializeBlichDataUpdater(context, view);
                     }
                 });
@@ -165,6 +201,9 @@ public class Utilities {
         }
     }
 
+    /**
+     * Change {@link Locale} to Hebrew, right to left.
+     */
     public static void setLocaleToHebrew(Context context) {
         //Change locale to hebrew
         Locale locale = new Locale("iw");
@@ -175,7 +214,9 @@ public class Utilities {
 
     }
 
-
+    /**
+     * Update the widget on the home screen.
+     */
     public static void updateWidget(Context context) {
         ComponentName widget = new ComponentName(context, BlichWidgetProvider.class);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule);

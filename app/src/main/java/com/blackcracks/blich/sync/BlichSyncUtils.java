@@ -41,6 +41,9 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
 
+/**
+ * A utility class for syncing.
+ */
 public class BlichSyncUtils {
 
     //BlichData
@@ -54,6 +57,7 @@ public class BlichSyncUtils {
 
 
     private static final int BLICH_ID = 540211;
+    //TODO turn into a @StringDef.
     static final String COMMAND_CLASSES = "classes";
     static final String COMMAND_SCHEDULE = "schedule";
     static final String COMMAND_EXAMS = "exams";
@@ -66,6 +70,25 @@ public class BlichSyncUtils {
 
     private static final String BLICH_SYNC_TAG = "blich_tag";
 
+    /**
+     * Start or cancel the periodic sync.
+     */
+    synchronized public static void initializeJobService(@NonNull Context context) {
+        boolean is_notifications_on = PreferencesUtils.getBoolean(context,
+                Constants.Preferences.PREF_NOTIFICATION_TOGGLE_KEY);
+
+        Driver driver = new GooglePlayDriver(context);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+        if (is_notifications_on) {
+            scheduleFirebaseJobDispatcherSync(dispatcher);
+        } else {
+            dispatcher.cancel(BLICH_SYNC_TAG);
+        }
+    }
+
+    /**
+     * Configure and start the {@link com.firebase.jobdispatcher.JobService}.
+     */
     private static void scheduleFirebaseJobDispatcherSync(FirebaseJobDispatcher dispatcher) {
 
         Job syncBlichJob = dispatcher.newJobBuilder()
@@ -84,25 +107,19 @@ public class BlichSyncUtils {
         dispatcher.schedule(syncBlichJob);
     }
 
-    synchronized public static void initialize(@NonNull Context context) {
-        boolean is_notifications_on = PreferencesUtils.getBoolean(context,
-                Constants.Preferences.PREF_NOTIFICATION_TOGGLE_KEY);
-
-        Driver driver = new GooglePlayDriver(context);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
-        if (is_notifications_on) {
-            scheduleFirebaseJobDispatcherSync(dispatcher);
-        } else {
-            dispatcher.cancel(BLICH_SYNC_TAG);
-        }
-    }
-
-
-    public static void startImmediateSync(@NonNull final Context context) {
+    /**
+     * Begin sync immediately.
+     */
+    public static void startImmediateSync(@NonNull Context context) {
         Intent intentToSyncImmediately = new Intent(context, BlichSyncIntentService.class);
         context.startService(intentToSyncImmediately);
     }
 
+    /**
+     * Insert the given data into realm. Deletes all the old data.
+     *
+     * @param blichData data to insert.
+     */
     static void loadDataIntoRealm(BlichData blichData) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -130,6 +147,12 @@ public class BlichSyncUtils {
         realm.close();
     }
 
+    /**
+     * Build a URL to Shahaf's servers.
+     *
+     * @param command the type of data desired.
+     * @return a {@link URL}.
+     */
     static URL buildUrlFromCommand(Context context, String command) {
         int classValue = ClassGroupUtils.getClassValue(context);
 
@@ -143,6 +166,12 @@ public class BlichSyncUtils {
         return buildURLFromUri(scheduleUri);
     }
 
+    /**
+     * Build a URI without {@link #PARAM_CLASS_ID} parameter.
+     *
+     * @param command the type of data desired.
+     * @return a {@link Uri}.
+     */
     @SuppressWarnings("SameParameterValue")
     static Uri buildBaseUriFromCommand(String command) {
 
@@ -153,6 +182,12 @@ public class BlichSyncUtils {
                 .build();
     }
 
+    /**
+     * Convert a URI into a URL.
+     *
+     * @param uri the {@link Uri} to convert.
+     * @return a {@link URL}.
+     */
     static URL buildURLFromUri(Uri uri) {
         try {
 
@@ -166,6 +201,12 @@ public class BlichSyncUtils {
         }
     }
 
+    /**
+     * Connect to the given url, and return its response.
+     *
+     * @param url {@link URL} to connect to.
+     * @return server response.
+     */
     static String getResponseFromUrl(URL url) throws IOException {
         HttpURLConnection scheduleConnection = (HttpURLConnection) url.openConnection();
 
@@ -183,11 +224,5 @@ public class BlichSyncUtils {
         scheduleConnection.disconnect();
 
         return response;
-    }
-
-    public static class BlichFetchException extends Exception {
-        public BlichFetchException(String message) {
-            super(message);
-        }
     }
 }

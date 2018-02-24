@@ -14,6 +14,9 @@ import java.util.List;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
+/**
+ * A data class holding information about a single hour in the schedule.
+ */
 public class Hour extends RealmObject implements Comparable<Hour> {
 
     private int day;

@@ -1,9 +1,19 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * Old {@link SQLiteDatabase} helper, used to handle cache. Switched to {@link io.realm.Realm} instead.
+ */
 @Deprecated
 public class BlichDatabaseHelper extends SQLiteOpenHelper {
 

@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+//TODO remove this view
 public class RtlTabLayout extends TabLayout {
     public RtlTabLayout(Context context) {
         super(context);

@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.activity;
 
 import android.annotation.SuppressLint;
@@ -35,10 +42,17 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import timber.log.Timber;
 
+/**
+ * The launch {@link AppCompatActivity}.
+ * <p> It instantiates and handles all the necessary settings for the app to work.
+ * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
+ * Handles {@link Fragment} switching and saving it when destroyed.</p>
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
 
+    //Firebase events constants
     private static final String EVENT_CHANGE_FRAGMENT = "change_fragment";
     private static final String EVENT_PARAM_FRAGMENT = "fragment";
 
@@ -107,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(IS_FIRST_INSTANCE_KEY, false);
+        //Save fragment
         getSupportFragmentManager().putFragment(outState,
                 FRAGMENT_TAG,
                 mFragment);
@@ -116,7 +131,12 @@ public class MainActivity extends AppCompatActivity {
         return mDrawerLayout;
     }
 
-    //replace the fragment
+    /**
+     * Replace a fragment.
+     *
+     * @param fragment the {@link Fragment} to switch to
+     * @param addToBackStack {@code true} add the fragment to back stack.
+     */
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
@@ -163,13 +183,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDestroy(Context context) {
                     //Start the periodic sync
-                    BlichSyncUtils.initialize(context);
+                    BlichSyncUtils.initializeJobService(context);
                     Utilities.initializeBlichDataUpdater(context, mRootView);
                 }
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                BlichSyncUtils.initialize(this);
+                BlichSyncUtils.initializeJobService(this);
                 Utilities.initializeBlichDataUpdater(this, mRootView);
             }
         }
@@ -177,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDrawer() {
         mNavigationView = findViewById(R.id.nav_view);
-        mNavigationView.getMenu().getItem(0).setChecked(true);
+        mNavigationView.getMenu().findItem(R.id.schedule).setChecked(true);
         mNavigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -229,7 +249,9 @@ public class MainActivity extends AppCompatActivity {
                         } else if (fragment instanceof ExamsFragment) {
                             itemToCheck = R.id.exams;
                         }
-                        if (mFragment != fragment) logChangeFragment(mFragment.getClass());
+                        if (mFragment != fragment) {
+                            logChangeFragment(mFragment.getClass());
+                        }
                         mFragment = fragment;
 
                         mNavigationView.setCheckedItem(itemToCheck);
@@ -238,12 +260,22 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Log change in fragment event to Firebase.
+     *
+     * @param fragment a {@link Fragment} name.
+     */
     private void logChangeFragment(Class fragment) {
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_FRAGMENT, fragment.getSimpleName());
         mFirebaseAnalytic.logEvent(EVENT_CHANGE_FRAGMENT, bundle);
     }
 
+    /**
+     * Log open activity event to Firebase
+     *
+     * @param activity an {@link android.app.Activity} name.
+     */
     private void logOpenActivity(Class activity) {
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
@@ -263,6 +295,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handle app updating.
+     */
     private void onUpdate() {
         int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
         int newVersion = BuildConfig.VERSION_CODE;

@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.fragment;
 
 import android.annotation.SuppressLint;
@@ -30,10 +37,10 @@ import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
 
 /**
- * This DialogFragment is showed when the user launches the app for the first time to configure
+ * This {@link DialogFragment} is showed when the user launches the app for the first time to configure
  * some settings.
- * A similar dialog is shown when the user wants to change these settings:
- * {@link com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment}
+ *
+ * @see ChooseClassDialogFragment
  */
 @SuppressWarnings("ConstantConditions")
 public class ChooseClassDialogFragment extends DialogFragment {
@@ -77,7 +84,6 @@ public class ChooseClassDialogFragment extends DialogFragment {
         }
     }
 
-    //Setup the Dialog
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -106,7 +112,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                         String gradeName = displayedValues[mGradePicker.getValue()];
                         int classNum = mClassIndexPicker.getValue();
                         int id;
-                        if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {
+                        if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {//If an abnormal class group
                             id = RealmUtils.getId(mRealm, gradeName);
                         } else {
                             id = RealmUtils.getId(mRealm, gradeName, classNum);
@@ -172,7 +178,9 @@ public class ChooseClassDialogFragment extends DialogFragment {
         if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
     }
 
-    //If the fetching failed, show a Dialog
+    /**
+     * When fetch fails, start a dialog.
+     */
     private void onFetchFailed() {
         @SuppressLint("InflateParams")
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
@@ -193,7 +201,9 @@ public class ChooseClassDialogFragment extends DialogFragment {
                 .show();
     }
 
-    //Start to fetch the data
+    /**
+     * Start to fetch the data.
+     */
     private void syncData() {
         boolean isConnected = Utilities.isThereNetworkConnection(getContext());
         if (isConnected) {
@@ -204,6 +214,9 @@ public class ChooseClassDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Do all the necessary actions when data is valid.
+     */
     private void setDataValid() {
 
         mIsDataValid = true;

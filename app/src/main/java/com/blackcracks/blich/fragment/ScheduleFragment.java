@@ -1,5 +1,11 @@
-package com.blackcracks.blich.fragment;
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
 
+package com.blackcracks.blich.fragment;
 
 import android.annotation.SuppressLint;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -7,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
@@ -29,8 +36,8 @@ import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.Utilities;
 
 /**
- * The ScheduleFragment class is responsible for getting and displaying the schedule
- * of the user
+ * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
+ * for the user.
  */
 @SuppressWarnings("ConstantConditions")
 public class ScheduleFragment extends BlichBaseFragment {
@@ -39,7 +46,7 @@ public class ScheduleFragment extends BlichBaseFragment {
     private ImageButton mFilterActionButton;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 

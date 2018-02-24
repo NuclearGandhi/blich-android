@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) Ido Fang Bentov - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
+ */
+
 package com.blackcracks.blich.fragment;
 
 import android.content.Context;
@@ -26,7 +33,8 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 
 /**
- * The ScheduleDayFragment is the fragment in each one of the pages of the ScheduleFragment
+ * {@link ScheduleDayFragment} is the fragment in each one of the pages of {@link ScheduleFragment}.
+ * It contains a list of hour for the specified day of the week.
  */
 @SuppressWarnings("ConstantConditions")
 public class ScheduleDayFragment extends Fragment implements
@@ -139,6 +147,9 @@ public class ScheduleDayFragment extends Fragment implements
         }
     }
 
+    /**
+     * A {@link Loader<ScheduleResult>} to fetch schedule from {@link Realm} database
+     */
     private static class ScheduleLoader extends Loader<ScheduleResult> {
 
         private int mDay;
