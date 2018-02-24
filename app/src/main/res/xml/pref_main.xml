@@ -6,7 +6,8 @@
   ~ Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
   -->
 
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                                                xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.blackcracks.blich.preference.ClassPickerPreference
         android:defaultValue="@integer/pref_user_class_group_default"
@@ -15,6 +16,25 @@
         android:negativeButtonText="@string/dialog_cancel"
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_user_class_group_title"/>
+
+    <PreferenceCategory android:title="@string/pref_theme_category_title">
+
+        <android.support.v7.preference.ListPreference
+            android:title="@string/pref_theme_type_title"
+            android:key="@string/pref_theme_type_key"
+            android:defaultValue="@string/pref_theme_type_default"
+            android:entries="@array/pref_theme_type_entries"
+            android:entryValues="@array/pref_theme_type_entry_values"/>
+
+        <org.polaric.colorful.ColorPickerPreference
+            android:title="@string/pref_primary_color_title"
+            app:primary_color="true"/>
+
+        <org.polaric.colorful.ColorPickerPreference
+            android:title="@string/pref_accent_color_title"
+            app:accent_color="true"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_notification_category_title">
 

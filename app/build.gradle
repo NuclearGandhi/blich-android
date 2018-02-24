@@ -25,10 +25,11 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.blackcracks.blich"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 30
         versionName "v1.6.0beta3"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -68,6 +69,7 @@ dependencies {
     implementation 'biz.kasual:materialnumberpicker:1.2.1'
     implementation 'com.github.NuclearGandhi:material-calendarview:v1.4.4'
     implementation 'com.jakewharton.timber:timber:4.6.0'
+    implementation 'com.github.garretyoder:Colorful:1.1'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support:support-annotations:27.0.2'
     androidTestCompile 'com.android.support.test:runner:1.0.1'

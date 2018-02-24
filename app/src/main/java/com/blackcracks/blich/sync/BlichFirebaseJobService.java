@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -120,7 +119,6 @@ public class BlichFirebaseJobService extends JobService {
                             R.string.notification_update_title))
                     .setSound(ringtone)
                     .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     .setStyle(inboxStyle)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)

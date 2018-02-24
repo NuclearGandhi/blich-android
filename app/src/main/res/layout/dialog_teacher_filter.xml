@@ -42,12 +42,13 @@
     <Button
         android:id="@+id/btn_select_none"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         android:background="?selectableItemBackgroundBorderless"
         android:foreground="@drawable/ic_select_none_black_24dp"
+        android:foregroundTint="?android:textColorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/dialog_teacher_filter_title"
         app:layout_constraintEnd_toStartOf="@+id/btn_select_all"
         app:layout_constraintTop_toTopOf="@+id/dialog_teacher_filter_title"/>
@@ -55,11 +56,12 @@
     <Button
         android:id="@+id/btn_select_all"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginEnd="32dp"
         android:background="?selectableItemBackgroundBorderless"
         android:foreground="@drawable/ic_select_all_black_24dp"
+        android:foregroundTint="?android:textColorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/btn_select_none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btn_select_none"/>

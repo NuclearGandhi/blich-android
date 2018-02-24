@@ -15,4 +15,14 @@
         <item>חמישי</item>
         <item>שישי</item>
     </string-array>
+
+    <string-array name="pref_theme_type_entries">
+        <item>בהיר</item>
+        <item>כהה</item>
+    </string-array>
+
+    <string-array name="pref_theme_type_entry_values">
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
 </resources>

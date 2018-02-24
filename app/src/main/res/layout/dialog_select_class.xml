@@ -7,11 +7,11 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layoutDirection="rtl"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layoutDirection="rtl"
+              android:orientation="vertical">
 
     <TextView
         android:id="@+id/dialog_choose_class_title"
@@ -23,7 +23,7 @@
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
         android:paddingTop="24dp"
-        android:text="@string/dialog_choose_class_title" />
+        android:text="@string/dialog_choose_class_title"/>
 
     <TextView
         android:id="@+id/dialog_choose_class_content"
@@ -33,7 +33,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginStart="24dp"
         android:gravity="start"
-        android:text="@string/dialog_choose_class_content" />
+        android:text="@string/dialog_choose_class_content"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -52,12 +52,12 @@
             android:visibility="gone"
             app:npBackgroundColor="@android:color/transparent"
             app:npDefaultValue="1"
-            app:npMinValue="0"
             app:npMaxValue="1"
-            app:npSeparatorColor="@color/colorAccent"
-            app:npTextColor="@color/black_text"
+            app:npMinValue="0"
+            app:npSeparatorColor="?android:colorAccent"
+            app:npTextColor="?android:textColorPrimary"
             app:npTextSize="20sp"
-            app:npWrapValue="false" />
+            app:npWrapValue="false"/>
 
         <biz.kasual.materialnumberpicker.MaterialNumberPicker
             android:id="@+id/dialog_choose_class_number_picker"
@@ -68,10 +68,10 @@
             app:npDefaultValue="1"
             app:npMaxValue="1"
             app:npMinValue="1"
-            app:npSeparatorColor="@color/colorAccent"
-            app:npTextColor="@color/black_text"
+            app:npSeparatorColor="?android:colorAccent"
+            app:npTextColor="?android:textColorPrimary"
             app:npTextSize="20sp"
-            app:npWrapValue="true" />
+            app:npWrapValue="true"/>
 
         <FrameLayout
             android:id="@+id/picker_progressbar"
@@ -83,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:indeterminate="true" />
+                android:indeterminate="true"/>
         </FrameLayout>
     </LinearLayout>
 

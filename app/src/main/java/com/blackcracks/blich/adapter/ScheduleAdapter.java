@@ -26,6 +26,7 @@ import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.util.ColorUtils;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
 
@@ -178,7 +179,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 subject = firstLesson.getSubject();
                 teacher = firstLesson.getTeacher();
                 room = firstLesson.getRoom();
-                color = ContextCompat.getColor(mContext, R.color.black_text);
+                color = ColorUtils.getPrimaryTextColor(mContext);
             } else { //Then display a modified lesson
                 subject = replacement.buildName();
                 teacher = "";
@@ -313,7 +314,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subject = lesson.getSubject();
             teacher = lesson.getTeacher();
             room = lesson.getRoom();
-            color = ContextCompat.getColor(mContext, R.color.black_text);
+            color = ColorUtils.getPrimaryTextColor(mContext);
         }
 
         holder.subjectView.setText(subject);
