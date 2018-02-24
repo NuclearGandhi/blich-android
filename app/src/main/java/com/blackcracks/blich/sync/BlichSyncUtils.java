@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringDef;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.data.BlichData;
@@ -31,6 +32,7 @@ import com.firebase.jobdispatcher.Trigger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Retention;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * A utility class for syncing.
@@ -55,9 +59,12 @@ public class BlichSyncUtils {
     private static final String PARAM_COMMAND = "cmd";
     private static final String PARAM_CLASS_ID = "clsid";
 
-
     private static final int BLICH_ID = 540211;
-    //TODO turn into a @StringDef.
+
+    @Retention(SOURCE)
+    @StringDef({COMMAND_CHANGES, COMMAND_EVENTS, COMMAND_EXAMS, COMMAND_SCHEDULE, COMMAND_CLASSES})
+    @interface FetchCommand{}
+
     static final String COMMAND_CLASSES = "classes";
     static final String COMMAND_SCHEDULE = "schedule";
     static final String COMMAND_EXAMS = "exams";
@@ -150,10 +157,10 @@ public class BlichSyncUtils {
     /**
      * Build a URL to Shahaf's servers.
      *
-     * @param command the type of data desired.
+     * @param command a {@link FetchCommand}.
      * @return a {@link URL}.
      */
-    static URL buildUrlFromCommand(Context context, String command) {
+    static URL buildUrlFromCommand(Context context, @FetchCommand String command) {
         int classValue = ClassGroupUtils.getClassValue(context);
 
         Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
@@ -169,11 +176,11 @@ public class BlichSyncUtils {
     /**
      * Build a URI without {@link #PARAM_CLASS_ID} parameter.
      *
-     * @param command the type of data desired.
+     * @param command a {@link FetchCommand}.
      * @return a {@link Uri}.
      */
     @SuppressWarnings("SameParameterValue")
-    static Uri buildBaseUriFromCommand(String command) {
+    static Uri buildBaseUriFromCommand(@FetchCommand String command) {
 
         return Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))
