@@ -25,35 +25,11 @@ public class GenericExam implements ExamItem {
         teachers = new ArrayList<>();
     }
 
-    private GenericExam(Exam exam) {
+    public GenericExam(Exam exam) {
         date = exam.getDate();
         name = exam.getName();
         teachers = new ArrayList<>();
         teachers.add(exam.getTeacher());
-    }
-
-    /**
-     * Convert a {@link List<Exam>} to a {@link List<GenericExam>}.
-     *
-     * @param exams Exams to convert.
-     * @return built GenericExams.
-     */
-    public static List<GenericExam> buildExamsList(List<Exam> exams) {
-        List<GenericExam> genericExams = new ArrayList<>();
-        GenericExam genericExam = null;
-        for (Exam exam :
-                exams) {
-            if (genericExam == null) genericExam = new GenericExam(exam);
-            else {
-                boolean didAdd = genericExam.addExam(exam);
-                if (!didAdd) {
-                    genericExams.add(genericExam);
-                    genericExam = null;
-                }
-            }
-        }
-
-        return genericExams;
     }
 
     public Date getDate() {
@@ -86,7 +62,7 @@ public class GenericExam implements ExamItem {
      * @param exam {@link Exam} to add.
      * @return {@code true} the {@link Exam} has been added.
      */
-    private boolean addExam(Exam exam) {
+    public boolean addExam(Exam exam) {
         if (date.equals(exam.getDate()) && name.equals(exam.getName())) {
             String teacher = exam.getTeacher();
             if (!teachers.contains(teacher)) teachers.add(teacher);

@@ -29,6 +29,7 @@ import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
+import com.blackcracks.blich.util.ExamUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -257,7 +258,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     }
 
     private void loadDataIntCalendar(List<Exam> data) {
-        List<GenericExam> exams = GenericExam.buildExamsList(data);
+        List<GenericExam> exams = ExamUtils.buildExamsList(data);
         for (GenericExam exam:
                 exams) {
             mDates.add(CalendarDay.from(exam.getDate()));

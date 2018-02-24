@@ -20,6 +20,7 @@ import com.blackcracks.blich.data.ScheduleResult;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
@@ -149,5 +150,31 @@ public class ScheduleUtils {
         datedLessons.addAll(exams);
 
         return new ScheduleResult(hours, datedLessons);
+    }
+
+    public static void removeDuplicateDaterLessons(List<DatedLesson> list) {
+        if (list.size() != 0 || list.size() != 1) {
+            //Get all the changes, and remove all duplicate types
+            //Build the comparator
+            Comparator<DatedLesson> typeComparator = new Comparator<DatedLesson>() {
+                @Override
+                public int compare(DatedLesson o1, DatedLesson o2) {
+                    return o1.getType().compareTo(o2.getType());
+                }
+            };
+
+            //Sort
+            Collections.sort(list, typeComparator);
+
+            //Delete
+            for (int i = 1; i < list.size(); i++) {
+                DatedLesson lesson = list.get(i);
+                DatedLesson prevLesson = list.get(i - 1);
+                if (lesson.getType().equals(prevLesson.getType())) {
+                    list.remove(lesson);
+                    i--;
+                }
+            }
+        }
     }
 }

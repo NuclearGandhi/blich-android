@@ -45,7 +45,7 @@ public class RealmExamHelper {
 
         if (mIsDataValid) {
             mExamItems.clear();
-            List<GenericExam> genericExams = GenericExam.buildExamsList(exams);
+            List<GenericExam> genericExams = ExamUtils.buildExamsList(exams);
             buildMonthDividers(genericExams);
         }
     }

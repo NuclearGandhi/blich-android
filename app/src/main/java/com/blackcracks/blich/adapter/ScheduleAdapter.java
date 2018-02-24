@@ -27,9 +27,8 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.RealmScheduleHelper;
+import com.blackcracks.blich.util.ScheduleUtils;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ScheduleAdapter extends BaseExpandableListAdapter {
@@ -194,7 +193,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         //Add dots to signify that there are changes
         if (singleChild == null) {
             List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
-            removeDuplicateDaterLessons(datedLessons); //Remove duplicates
+            ScheduleUtils.removeDuplicateDaterLessons(datedLessons); //Remove duplicates
             datedLessons.remove(replacement); //Remove the displayed dated lesson
             makeEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
         }
@@ -330,33 +329,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             divider.setVisibility(View.VISIBLE);
         } else {
             divider.setVisibility(View.GONE);
-        }
-    }
-
-    //TODO move to utility class
-    private void removeDuplicateDaterLessons(List<DatedLesson> list) {
-        if (list.size() != 0 || list.size() != 1) {
-            //Get all the changes, and remove all duplicate types
-            //Build the comparator
-            Comparator<DatedLesson> typeComparator = new Comparator<DatedLesson>() {
-                @Override
-                public int compare(DatedLesson o1, DatedLesson o2) {
-                    return o1.getType().compareTo(o2.getType());
-                }
-            };
-
-            //Sort
-            Collections.sort(list, typeComparator);
-
-            //Delete
-            for (int i = 1; i < list.size(); i++) {
-                DatedLesson lesson = list.get(i);
-                DatedLesson prevLesson = list.get(i - 1);
-                if (lesson.getType().equals(prevLesson.getType())) {
-                    list.remove(lesson);
-                    i--;
-                }
-            }
         }
     }
 
