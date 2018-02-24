@@ -93,7 +93,10 @@ public class BlichFirebaseJobService extends JobService {
         List<DatedLesson> notificationList = fetchNotificationList();
         if (!notificationList.isEmpty()) {
 
-            NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                    context,
+                    context.getString(R.string.notification_channel_schedule_id));
+            NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList, builder);
 
             int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
             String prefKey = Preferences.getKey(context, intKey);
@@ -104,7 +107,6 @@ public class BlichFirebaseJobService extends JobService {
                             prefDefault,
                             true));
 
-            //TODO Add notification description
             Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context,
@@ -112,9 +114,7 @@ public class BlichFirebaseJobService extends JobService {
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Notification notification = new NotificationCompat.Builder(
-                    context,
-                    context.getString(R.string.notification_channel_schedule_id))
+            Notification notification = builder
                     .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                     .setContentTitle(context.getResources().getString(
                             R.string.notification_update_title))
@@ -208,7 +208,8 @@ public class BlichFirebaseJobService extends JobService {
      * @param notificationList {@link DatedLesson}s to build content from.
      * @return notification body.
      */
-    private NotificationCompat.InboxStyle buildNotificationContent(List<DatedLesson> notificationList) {
+    private NotificationCompat.InboxStyle buildNotificationContent(List<DatedLesson> notificationList,
+                                                                    NotificationCompat.Builder builder) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
 
@@ -252,6 +253,7 @@ public class BlichFirebaseJobService extends JobService {
         else summery = "ישנם " + changesNum + " שינויים חדשים";
         inboxStyle.setSummaryText(summery);
 
+        builder.setContentText(summery);
         return inboxStyle;
     }
 
