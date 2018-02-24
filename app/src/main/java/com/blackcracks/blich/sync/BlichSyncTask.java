@@ -50,7 +50,6 @@ public class BlichSyncTask {
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
             FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,
             FETCH_STATUS_CLASS_NOT_CONFIGURED})
-    //TODO rename.
     public @interface FetchStatus {
     }
 
