@@ -40,9 +40,6 @@ import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.polaric.colorful.CActivity;
-import org.polaric.colorful.Colorful;
-
 import timber.log.Timber;
 
 /**
@@ -51,7 +48,7 @@ import timber.log.Timber;
  * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
-public class MainActivity extends CActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
 
@@ -177,12 +174,6 @@ public class MainActivity extends CActivity {
     }
 
     private void setupTheme() {
-        Colorful.defaults()
-                .primaryColor(Colorful.ThemeColor.BLUE)
-                .accentColor(Colorful.ThemeColor.TEAL)
-                .translucent(false)
-                .dark(false);
-        Colorful.init(this);
     }
 
     private void setupFirstLaunch(Bundle savedInstanceState) {

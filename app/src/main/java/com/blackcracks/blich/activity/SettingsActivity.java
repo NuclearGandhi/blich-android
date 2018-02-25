@@ -19,8 +19,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.ListPreferenceDialogFragmentCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -37,15 +35,12 @@ import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 
-import org.polaric.colorful.CActivity;
-import org.polaric.colorful.Colorful;
-
 import io.realm.Realm;
 
 /**
  * An {@link AppCompatActivity} containing the preference fragment, handling its lifecycle.
  */
-public class SettingsActivity extends CActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private static final String FRAGMENT_KEY = "fragment_settings";
 
@@ -138,8 +133,6 @@ public class SettingsActivity extends CActivity {
                 fragment = ClassPickerPreferenceDialogFragment.newInstance(preference);
             } else if (preference instanceof FilterPreference) {
                 fragment = FilterPreferenceDialogFragment.newInstance(preference);
-            } else if (preference instanceof ListPreference) {
-                fragment = ListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
             }
             if (fragment != null) {
                 fragment.setTargetFragment(this, 0);
@@ -224,15 +217,11 @@ public class SettingsActivity extends CActivity {
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
                 setFilterSelectSummery();
             }
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_THEME_TYPE_KEY))) {
-                setThemeTypeSummery();
-            }
         }
 
         private void initPrefSummery() {
             setClassPickerSummery();
             setFilterSelectSummery();
-            setThemeTypeSummery();
             setNotificationSoundPreference();
         }
 
@@ -294,20 +283,6 @@ public class SettingsActivity extends CActivity {
                 }
                 filterPreference.setSummary(summary);
             }
-        }
-
-        //Theme type preference
-        private void setThemeTypeSummery() {
-            ListPreference preference = (ListPreference)
-                    findPreference(getString(R.string.pref_theme_type_key));
-
-            boolean isDark = preference.getValue().equals("Dark");
-
-            Colorful.config(getContext())
-                    .dark(isDark)
-                    .apply();
-
-            preference.setSummary(preference.getValue());
         }
     }
 }

@@ -10,17 +10,16 @@ package com.blackcracks.blich.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.blackcracks.blich.R;
-
-import org.polaric.colorful.CActivity;
 
 /**
  * Credits for the school, tech support and developers.
  * Provides support email.
  */
-public class AboutActivity extends CActivity {
+public class AboutActivity extends AppCompatActivity {
 
     private static final String[] DEV_EMAIL = {"nukegandhi@gmail.com"};
 

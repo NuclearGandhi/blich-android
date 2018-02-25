@@ -8,8 +8,6 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
-import android.support.annotation.ColorRes;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +20,6 @@ import com.blackcracks.blich.data.ExamItem;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.data.MonthDivider;
 import com.blackcracks.blich.util.RealmExamHelper;
-
-import org.polaric.colorful.Colorful;
 
 import java.util.Calendar;
 import java.util.List;
@@ -141,10 +137,6 @@ public class ExamAdapter extends BaseAdapter {
         TextView view = (TextView) LayoutInflater.from(mContext).inflate(
                 R.layout.exam_month_divider, parent, false);
         view.setText(divider.buildLabel());
-
-        //Set the dark primary color.
-        @ColorRes int background = Colorful.getThemeDelegate().getPrimaryColor().getDarkColorRes();
-        view.setBackgroundColor(ContextCompat.getColor(mContext, background));
 
         return view;
     }
