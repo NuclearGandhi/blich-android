@@ -6,7 +6,8 @@
   ~ Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
   -->
 
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                                                xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
     <com.blackcracks.blich.preference.ClassPickerPreference
@@ -17,13 +18,36 @@
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_user_class_group_title"/>
 
-    <PreferenceCategory android:title="@string/pref_theme_category_title">
+    <com.afollestad.appthemeengine.prefs.ATEPreferenceCategory
+        android:title="@string/pref_theme_category_title"
+        app:ateKey_prefCategory_textColor="?ateKey_prefCategory_textColor">
 
-    </PreferenceCategory>
+        <com.afollestad.appthemeengine.prefs.ATESwitchPreference
+            android:defaultValue="false"
+            android:key="dark_theme"
+            android:persistent="true"
+            android:summary="@string/pref_theme_background_summary"
+            android:title="@string/pref_theme_background_title"
+            android:widgetLayout="@layout/ate_preference_checkbox"
+            app:ateKey_pref_switch="?ateKey_pref_switch"/>
+
+        <com.afollestad.appthemeengine.prefs.ATEColorPreference
+            android:key="primary_key"
+            android:persistent="false"
+            android:title="@string/pref_theme_primary_title"
+            app:ateKey_pref_color="?ateKey_pref_color"/>
+
+        <com.afollestad.appthemeengine.prefs.ATEColorPreference
+            android:key="accent_color"
+            android:persistent="false"
+            android:title="@string/pref_theme_accent_title"
+            app:ateKey_pref_color="?ateKey_pref_color"/>
+
+    </com.afollestad.appthemeengine.prefs.ATEPreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_notification_category_title">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:disableDependentsState="false"
             android:key="@string/pref_notification_toggle_key"
@@ -39,7 +63,7 @@
 
     <PreferenceCategory android:title="@string/pref_filter_category_title">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="@bool/pref_filter_toggle_default"
             android:disableDependentsState="false"
             android:key="@string/pref_filter_toggle_key"
@@ -55,4 +79,4 @@
             android:title="@string/pref_filter_select_title"/>
 
     </PreferenceCategory>
-</android.support.v7.preference.PreferenceScreen>
+</PreferenceScreen>

@@ -28,6 +28,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.afollestad.appthemeengine.ATE;
+import com.afollestad.appthemeengine.ATEActivity;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
@@ -48,7 +50,7 @@ import timber.log.Timber;
  * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ATEActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
 
@@ -72,9 +74,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("InflateParams")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        setupTheme();
         super.onCreate(savedInstanceState);
         //Initialization stuff
+        setupTheme();
         migrateOldSettings();
         setupFirstLaunch(savedInstanceState);
         onUpdate();
@@ -174,6 +176,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTheme() {
+        ATE.config(this, null)
+                .primaryColorRes(R.color.defaultPrimaryColor)
+                .accentColorRes(R.color.defaultAccentColor)
+                .apply(this);
     }
 
     private void setupFirstLaunch(Bundle savedInstanceState) {
