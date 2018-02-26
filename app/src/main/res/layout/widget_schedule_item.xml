@@ -19,7 +19,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/circle_listview_item"
+        android:background="@drawable/oval_accent"
         android:gravity="center"
         android:textColor="@color/white_text"
         android:textSize="16sp"/>

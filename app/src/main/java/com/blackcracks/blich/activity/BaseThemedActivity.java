@@ -12,7 +12,7 @@ import com.afollestad.appthemeengine.ATEActivity;
 /**
  * @author Aidan Follestad (afollestad)
  */
-public class BaseThemedActivity extends ATEActivity {
+public abstract class BaseThemedActivity extends ATEActivity {
 
     @Override
     public final String getATEKey() {

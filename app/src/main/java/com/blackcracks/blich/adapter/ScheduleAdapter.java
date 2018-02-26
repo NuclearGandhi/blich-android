@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
@@ -145,6 +146,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         //Set the hour indicator text
         String hourText = hourNum + "";
         holder.hourView.setText(hourText);
+        if (((MainActivity) mContext).getATEKey().equals("dark_theme")) holder.hourView.setBackground(null);
 
         //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
