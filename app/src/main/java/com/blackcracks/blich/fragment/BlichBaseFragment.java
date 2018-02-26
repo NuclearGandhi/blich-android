@@ -141,9 +141,8 @@ public abstract class BlichBaseFragment extends Fragment implements
                 .registerReceiver(mSyncBroadcastReceiver,
                         new IntentFilter(Constants.IntentConstants.ACTION_SYNC_CALLBACK));
 
-        mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(
-                getContext(),
-                Constants.Preferences.PREF_IS_SYNCING_KEY
+        mSwipeRefreshLayout.setRefreshing(
+                PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_IS_SYNCING_KEY
         ));
     }
 
@@ -158,10 +157,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_is_syncing_key))) {
-            mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(
-                    getContext(),
-                    Constants.Preferences.PREF_IS_SYNCING_KEY
-            ));
+            mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_IS_SYNCING_KEY));
         }
     }
 

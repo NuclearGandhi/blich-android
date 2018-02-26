@@ -136,6 +136,8 @@ public class ClassPickerDialog extends DialogFragment {
                         sharedPreferences.edit()
                                 .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
                                 .apply();
+
+                        mOnDestroyListener.onDestroy(getContext());
                     }
                 });
 
@@ -183,7 +185,6 @@ public class ClassPickerDialog extends DialogFragment {
     public void onDestroy() {
         super.onDestroy();
         mRealm.close();
-        if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
     }
 
     /**

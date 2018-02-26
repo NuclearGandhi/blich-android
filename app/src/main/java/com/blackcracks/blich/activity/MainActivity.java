@@ -54,6 +54,7 @@ public class MainActivity extends BaseThemedActivity implements
         ATECollapsingTbCustomizer{
 
     private static final String FRAGMENT_TAG = "fragment";
+    private static final String DIALOG_TAG = "class_picker";
 
     //Firebase events constants
     private static final String EVENT_CHANGE_FRAGMENT = "change_fragment";
@@ -211,12 +212,12 @@ public class MainActivity extends BaseThemedActivity implements
 
         //Open a class picker dialog in case this is the first time the user opened the app
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
-        if (isFirstLaunch) {
+        if (isFirstLaunch && getSupportFragmentManager().findFragmentByTag(DIALOG_TAG) == null) {
             ClassPickerDialog dialogFragment = new ClassPickerDialog.Builder()
                     .setDismissible(false)
                     .setDisplayNegativeButton(false)
                     .build();
-            dialogFragment.show(getSupportFragmentManager(), "choose_class");
+            dialogFragment.show(getSupportFragmentManager(), DIALOG_TAG);
             dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy(Context context) {
