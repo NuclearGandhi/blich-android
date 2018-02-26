@@ -20,8 +20,10 @@ import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
@@ -54,6 +57,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private NavigationView mNavigationView;
     private DrawerArrowDrawable mHamburgerDrawable;
 
     private BroadcastReceiver mSyncBroadcastReceiver;
@@ -113,6 +117,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
         mHamburgerDrawable = drawerToggle.getDrawerArrowDrawable();
+        mNavigationView = drawerLayout.findViewById(R.id.nav_view);
 
         mFragmentManager = activity.getSupportFragmentManager();
     }
@@ -164,6 +169,15 @@ public abstract class BlichBaseFragment extends Fragment implements
     protected void invalidateATE() {
         String ateKey = ((MainActivity) getActivity()).getATEKey();
         mHamburgerDrawable.setColor(Config.getToolbarTitleColor(getContext(), null, ateKey));
+
+        ImageView view = mNavigationView.getHeaderView(0).findViewById(R.id.header_image);
+        int toolbarColor = Config.toolbarColor(getContext(), ateKey, null);
+        boolean isToolbarLight = Config.isLightToolbar(getContext(), null, ateKey, toolbarColor);
+        if (isToolbarLight) {
+            view.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.logo_grey));
+        } else {
+            view.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.logo_white));
+        }
     }
 
     protected abstract @LayoutRes

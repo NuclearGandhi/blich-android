@@ -12,11 +12,11 @@
                 android:gravity="center">
 
     <ImageView
+        android:id="@+id/header_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/blue_400"
+        android:tag="background|primary_color"
         android:contentDescription="@string/contentdes_drawer_logo"
-        android:scaleType="fitCenter"
-        android:src="@drawable/logo_header"/>
+        android:scaleType="fitCenter"/>
 
 </RelativeLayout>
