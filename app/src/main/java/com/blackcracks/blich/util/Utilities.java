@@ -29,7 +29,7 @@ import android.widget.TextView;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.BaseThemedActivity;
-import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
+import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
@@ -66,7 +66,7 @@ public class Utilities {
      */
     public static boolean isFirstLaunch(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true);
+                .getBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true);
     }
 
     public static void initializeSync(Context context) {
@@ -130,9 +130,9 @@ public class Utilities {
         } else if (status == BlichSyncTask.FETCH_STATUS_CLASS_NOT_CONFIGURED) {
 
             if (fragmentManager != null) {
-                ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
+                ClassPickerDialog dialogFragment = new ClassPickerDialog();
                 dialogFragment.show(fragmentManager, "choose_class");
-                dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
+                dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
                     @Override
                     public void onDestroy(Context context) {
                         //Start the periodic syncing of

@@ -33,7 +33,7 @@ import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
+import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.util.Constants.Preferences;
@@ -212,9 +212,12 @@ public class MainActivity extends BaseThemedActivity implements
         //Open a class picker dialog in case this is the first time the user opened the app
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
         if (isFirstLaunch) {
-            ChooseClassDialogFragment dialogFragment = new ChooseClassDialogFragment();
+            ClassPickerDialog dialogFragment = new ClassPickerDialog.Builder()
+                    .setDismissible(false)
+                    .setDisplayNegativeButton(false)
+                    .build();
             dialogFragment.show(getSupportFragmentManager(), "choose_class");
-            dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
+            dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy(Context context) {
                     Utilities.initializeSync(context);
@@ -318,7 +321,7 @@ public class MainActivity extends BaseThemedActivity implements
         //If using old user settings
         if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
             PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .putBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true)
                     .apply();
 
             PreferenceManager.getDefaultSharedPreferences(this).edit()

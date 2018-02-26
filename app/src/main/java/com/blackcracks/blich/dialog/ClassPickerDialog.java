@@ -5,7 +5,7 @@
  * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
  */
 
-package com.blackcracks.blich.fragment;
+package com.blackcracks.blich.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -40,13 +40,15 @@ import io.realm.Realm;
  * This {@link DialogFragment} is showed when the user launches the app for the first time to configure
  * some settings.
  *
- * @see ChooseClassDialogFragment
+ * @see ClassPickerDialog
  */
 @SuppressWarnings("ConstantConditions")
-public class ChooseClassDialogFragment extends DialogFragment {
+public class ClassPickerDialog extends DialogFragment {
 
     private static final String KEY_DATA_VALID = "data_valid";
     public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
+
+    private Builder mBuilder;
 
     private Realm mRealm;
     private boolean mIsDataValid = false;
@@ -61,6 +63,11 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+        if (args.isEmpty()) throw new IllegalArgumentException("Dialog must be created using Builder");
+        mBuilder = new Builder(args);
+
         mRealm = Realm.getDefaultInstance();
 
         //Create a {@link BroadcastReceiver} to listen when the data has finished downloading
@@ -87,8 +94,6 @@ public class ChooseClassDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-        setCancelable(false);
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         @SuppressLint("InflateParams")
@@ -96,6 +101,7 @@ public class ChooseClassDialogFragment extends DialogFragment {
                 R.layout.dialog_select_class,
                 null);
 
+        setCancelable(mBuilder.isDismissible);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(rootView);
 
@@ -132,6 +138,8 @@ public class ChooseClassDialogFragment extends DialogFragment {
                                 .apply();
                     }
                 });
+
+        if (mBuilder.doDisplayNegativeButton) builder.setNegativeButton(R.string.dialog_cancel, null);
 
         mProgressBar = rootView.findViewById(R.id.picker_progressbar);
         mDialog = builder.create();
@@ -237,5 +245,41 @@ public class ChooseClassDialogFragment extends DialogFragment {
 
     public interface OnDestroyListener {
         void onDestroy(Context context);
+    }
+
+    public static class Builder {
+
+        static final String KEY_DISMISSIBLE = "dismissible";
+        static final String KEY_DISPLAY_NEGATIVE_BUTTON = "display_negative_button";
+
+        boolean isDismissible = true;
+        boolean doDisplayNegativeButton = true;
+
+        public Builder() {}
+
+        private Builder(Bundle args) {
+            isDismissible = args.getBoolean(KEY_DISMISSIBLE);
+            doDisplayNegativeButton = args.getBoolean(KEY_DISPLAY_NEGATIVE_BUTTON);
+        }
+
+        public Builder setDismissible(boolean dismissible) {
+            isDismissible = dismissible;
+            return this;
+        }
+
+        public Builder setDisplayNegativeButton(boolean display) {
+            doDisplayNegativeButton = display;
+            return this;
+        }
+
+        public ClassPickerDialog build() {
+            Bundle args = new Bundle();
+            args.putBoolean(KEY_DISMISSIBLE, isDismissible);
+            args.putBoolean(KEY_DISPLAY_NEGATIVE_BUTTON, doDisplayNegativeButton);
+
+            ClassPickerDialog fragment = new ClassPickerDialog();
+            fragment.setArguments(args);
+            return fragment;
+        }
     }
 }

@@ -33,8 +33,8 @@ import com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceFragmentCompat
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
-import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
@@ -61,7 +61,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         Utilities.setLocaleToHebrew(this);
 
         mRootView = LayoutInflater.from(this).inflate(
-                R.layout.activity_settings, null , false);
+                R.layout.activity_settings, null, false);
         setContentView(mRootView);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -129,9 +129,10 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
      */
     @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends ATEPreferenceFragmentCompat
-            implements SharedPreferences.OnSharedPreferenceChangeListener{
+            implements SharedPreferences.OnSharedPreferenceChangeListener {
 
         private static final int RINGTONE_PICKER_REQUEST = 100;
+        private static final String DIALOG_TAG = "dialog";
 
         String mAteKey;
 
@@ -177,7 +178,11 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             PreferenceDialogFragmentCompat fragment = null;
 
             if (preference instanceof ClassPickerPreference) {
-                fragment = ClassPickerPreferenceDialogFragment.newInstance(preference);
+                new ClassPickerDialog.Builder()
+                        .setDismissible(true)
+                        .setDisplayNegativeButton(true)
+                        .build()
+                        .show(getFragmentManager(), DIALOG_TAG);
             } else if (preference instanceof FilterPreference) {
                 fragment = FilterPreferenceDialogFragment.newInstance(preference);
             }
