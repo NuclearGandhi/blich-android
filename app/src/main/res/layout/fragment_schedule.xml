@@ -16,23 +16,22 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
+        android:id="@+id/app_bar_layout"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:tag="background|primary_color">
+        android:theme="@style/AppTheme.Dark.ActionBar">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways" />
+            app:layout_scrollFlags="scroll|enterAlways"/>
 
         <com.blackcracks.blich.view.RtlTabLayout
             android:id="@+id/tablayout_schedule_days"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layoutDirection="ltr"
-            app:tabIndicatorColor="@android:color/white"
-            app:tabTextAppearance="@style/TextAppearance.AppCompat.TabTitle" />
+            app:tabIndicatorColor="@android:color/white"/>
 
     </android.support.design.widget.AppBarLayout>
 

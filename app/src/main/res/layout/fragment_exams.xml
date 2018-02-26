@@ -20,15 +20,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/AppTheme.Dark.ActionBar"
         app:expanded="false">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
             android:focusable="true"
             android:minHeight="?attr/actionBarSize"
+            android:tag="background|primary_color"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:statusBarScrim="?attr/colorPrimaryDark"
@@ -43,11 +45,10 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="?attr/actionBarSize"
+                android:tag="background|primary_color"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="1.0"
-                app:mcv_arrowColor="@android:color/white"
                 app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat.Small"
-                app:mcv_selectionColor="@color/calendar_selected_day"
                 app:mcv_showOtherDates="out_of_range"
                 app:mcv_tileHeight="36dp">
             </com.prolificinteractive.materialcalendarview.MaterialCalendarView>
@@ -58,13 +59,13 @@
                 android:layout_height="?attr/actionBarSize"
                 android:clickable="true"
                 android:focusable="true"
+                android:tag="background|primary_color"
                 app:layout_collapseMode="pin">
 
                 <ImageView
                     android:id="@+id/drop_down_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:tint="?android:textColorPrimary"
                     android:rotation="180"
                     android:src="@drawable/ic_arrow_drop_24dp"
                     tools:ignore="ContentDescription"/>

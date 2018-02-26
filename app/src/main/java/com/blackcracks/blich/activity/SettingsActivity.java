@@ -29,6 +29,7 @@ import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference;
 import com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceFragmentCompat;
+import com.afollestad.appthemeengine.util.ATEUtil;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
@@ -287,7 +288,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
             ATEColorPreference accentColorPref = (ATEColorPreference) findPreference("accent_color");
             int accentColor = Config.accentColor(getActivity(), mAteKey);
-            accentColorPref.setColor(accentColor, accentColor);
+            int darkenedAccentColor = ATEUtil.darkenColor(accentColor);
+            accentColorPref.setColor(accentColor, darkenedAccentColor);
             accentColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

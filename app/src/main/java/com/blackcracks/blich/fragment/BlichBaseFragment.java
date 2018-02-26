@@ -113,6 +113,12 @@ public abstract class BlichBaseFragment extends Fragment implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        invalidateATE();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(getMenuResource(), menu);
     }
@@ -157,4 +163,6 @@ public abstract class BlichBaseFragment extends Fragment implements
 
     protected abstract @MenuRes
     int getMenuResource();
+
+    protected abstract void invalidateATE();
 }

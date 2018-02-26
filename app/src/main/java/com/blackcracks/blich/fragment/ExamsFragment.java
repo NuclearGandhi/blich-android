@@ -9,6 +9,7 @@ package com.blackcracks.blich.fragment;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.afollestad.appthemeengine.ATE;
+import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.Exam;
@@ -87,9 +90,14 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
         final Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
+        toolbar.setOnClickListener(this);
 
         mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
-        toolbar.setOnClickListener(this);
+        Drawable drawable = mDropDown.getDrawable();
+        drawable.setTint(Config.getToolbarTitleColor(
+                getContext(),
+                toolbar,
+                null));
 
         mCalendarView = mRootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
@@ -206,6 +214,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     @Override
     protected int getMenuResource() {
         return R.menu.fragment_exams;
+    }
+
+    @Override
+    protected void invalidateATE() {
+        ATE.themeView(mAppBarLayout, null);
     }
 
     @Override

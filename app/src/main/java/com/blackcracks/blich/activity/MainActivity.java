@@ -29,6 +29,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.afollestad.appthemeengine.ATE;
+import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
@@ -49,7 +51,8 @@ import timber.log.Timber;
  * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
-public class MainActivity extends BaseThemedActivity {
+public class MainActivity extends BaseThemedActivity implements
+        ATECollapsingTbCustomizer{
 
     private static final String FRAGMENT_TAG = "fragment";
 
@@ -333,5 +336,15 @@ public class MainActivity extends BaseThemedActivity {
                             newVersion)
                     .apply();
         }
+    }
+
+    @Override
+    public int getCollapsedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
+    }
+
+    @Override
+    public int getExpandedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
     }
 }

@@ -18,6 +18,7 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,7 +29,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.afollestad.appthemeengine.ATE;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
@@ -45,12 +48,17 @@ public class ScheduleFragment extends BlichBaseFragment {
     private View mRootView;
     private ImageButton mFilterActionButton;
 
+    Toolbar mToolbar;
+    TabLayout mTabLayout;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        TabLayout tabLayout = mRootView.findViewById(R.id.tablayout_schedule_days);
+        mToolbar = mRootView.findViewById(R.id.toolbar);
+        mTabLayout = mRootView.findViewById(R.id.tablayout_schedule_days);
+
         ViewPager viewPager = mRootView.findViewById(R.id.viewpager_schedule);
         SchedulePagerAdapter pagerAdapter = new SchedulePagerAdapter(
                 getChildFragmentManager(),
@@ -62,10 +70,10 @@ public class ScheduleFragment extends BlichBaseFragment {
             viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);
 
         }
-        if (tabLayout != null) {
-            tabLayout.setupWithViewPager(viewPager);
-            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-            tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        if (mTabLayout != null) {
+            mTabLayout.setupWithViewPager(viewPager);
+            mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+            mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         }
 
         return mRootView;
@@ -84,6 +92,13 @@ public class ScheduleFragment extends BlichBaseFragment {
     @Override
     protected int getMenuResource() {
         return R.menu.fragment_schedule;
+    }
+
+    @Override
+    protected void invalidateATE() {
+        String ateKey = ((MainActivity) getActivity()).getATEKey();
+        ATE.themeView(mToolbar, ateKey);
+        ATE.themeView(mTabLayout, ateKey);
     }
 
     @SuppressLint("InflateParams")
