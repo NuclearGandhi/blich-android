@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.GenericExam;
@@ -74,6 +76,8 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private ImageView mDropDown;
     private MaterialCalendarView mCalendarView;
     private ListView mListView;
+    Toolbar mToolbar;
+    CollapsingToolbarLayout mCollapsingTb;
 
     private ExamAdapter mAdapter;
 
@@ -89,15 +93,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
         mRootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        final Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
-        toolbar.setOnClickListener(this);
+        mToolbar = mRootView.findViewById(R.id.toolbar);
+        mToolbar.setOnClickListener(this);
+        mCollapsingTb = mRootView.findViewById(R.id.collapsingToolbar);
 
         mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
-        Drawable drawable = mDropDown.getDrawable();
-        drawable.setTint(Config.getToolbarTitleColor(
-                getContext(),
-                toolbar,
-                null));
 
         mCalendarView = mRootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
@@ -131,7 +131,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mCalendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
             @Override
             public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-                updateTitle(dateFormat, toolbar);
+                updateTitle(dateFormat, mToolbar);
             }
         });
 
@@ -140,12 +140,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             @Override
             public void onStateChanged(@State int state) {
                 if (state == AppBarStateChangeListener.COLLAPSED) {
-                    toolbar.setTitle(fragmentName);
+                    mToolbar.setTitle(fragmentName);
 
                     ViewCompat.animate(mDropDown).rotation(0).start();
                     mIsExpanded = false;
                 } else if (state == AppBarStateChangeListener.EXPANDED) {
-                    updateTitle(dateFormat, toolbar);
+                    updateTitle(dateFormat, mToolbar);
 
                     ViewCompat.animate(mDropDown).rotation(180).start();
                     mIsExpanded = true;
@@ -218,7 +218,17 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     protected void invalidateATE() {
-        ATE.themeView(mAppBarLayout, null);
+        String ateKey = ((MainActivity) getActivity()).getATEKey();
+
+        ATE.themeView(mToolbar, ateKey);
+        mCollapsingTb.setExpandedTitleColor(Config.getToolbarTitleColor(getContext(), mToolbar, ateKey));
+        ATE.themeView(mCalendarView, ateKey);
+
+        Drawable drawable = mDropDown.getDrawable();
+        drawable.setTint(Config.getToolbarTitleColor(
+                getContext(),
+                mToolbar,
+                ateKey));
     }
 
     @Override
