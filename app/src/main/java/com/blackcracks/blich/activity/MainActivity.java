@@ -29,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.afollestad.appthemeengine.ATE;
-import com.afollestad.appthemeengine.ATEActivity;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
@@ -50,7 +49,7 @@ import timber.log.Timber;
  * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
-public class MainActivity extends ATEActivity {
+public class MainActivity extends BaseThemedActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
 
@@ -176,10 +175,27 @@ public class MainActivity extends ATEActivity {
     }
 
     private void setupTheme() {
-        ATE.config(this, null)
-                .primaryColorRes(R.color.defaultPrimaryColor)
-                .accentColorRes(R.color.defaultAccentColor)
-                .apply(this);
+        // Default config
+        if (!ATE.config(this, "light_theme").isConfigured(4)) {
+            ATE.config(this, "light_theme")
+                    .activityTheme(R.style.AppTheme)
+                    .primaryColorRes(R.color.defaultLightPrimaryColor)
+                    .accentColorRes(R.color.defaultLightAccentColor)
+                    .coloredNavigationBar(false)
+                    .navigationViewSelectedIconRes(R.color.defaultLightAccentColor)
+                    .navigationViewSelectedTextRes(R.color.defaultLightAccentColor)
+                    .commit();
+        }
+        if (!ATE.config(this, "dark_theme").isConfigured(4)) {
+            ATE.config(this, "dark_theme")
+                    .activityTheme(R.style.AppTheme_Dark)
+                    .primaryColorRes(R.color.defaultDarkPrimaryColor)
+                    .accentColorRes(R.color.defaultDarkAccentColor)
+                    .coloredNavigationBar(false)
+                    .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
+                    .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
+                    .commit();
+        }
     }
 
     private void setupFirstLaunch(Bundle savedInstanceState) {

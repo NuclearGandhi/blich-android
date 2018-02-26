@@ -88,7 +88,7 @@ public class Utilities {
      */
     public static void updateBlichData(Context context, View view) {
 
-        boolean isConnected;
+        boolean isConnected = false;
         boolean isFetching = PreferencesUtils.getBoolean(
                 context,
                 Preferences.PREF_IS_SYNCING_KEY

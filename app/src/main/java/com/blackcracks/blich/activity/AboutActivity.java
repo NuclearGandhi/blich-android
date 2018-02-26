@@ -12,14 +12,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import com.afollestad.appthemeengine.ATEActivity;
 import com.blackcracks.blich.R;
 
 /**
  * Credits for the school, tech support and developers.
  * Provides support email.
  */
-public class AboutActivity extends ATEActivity {
+public class AboutActivity extends BaseThemedActivity {
 
     private static final String[] DEV_EMAIL = {"nukegandhi@gmail.com"};
 

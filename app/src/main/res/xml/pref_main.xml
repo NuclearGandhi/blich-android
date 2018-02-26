@@ -6,7 +6,7 @@
   ~ Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
@@ -18,36 +18,35 @@
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_user_class_group_title"/>
 
-    <com.afollestad.appthemeengine.prefs.ATEPreferenceCategory
+    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
         android:title="@string/pref_theme_category_title"
-        app:ateKey_prefCategory_textColor="?ateKey_prefCategory_textColor">
+        app:ateKey_prefCategory_textColor="?ate_key">
 
-        <com.afollestad.appthemeengine.prefs.ATESwitchPreference
+        <com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference
             android:defaultValue="false"
-            android:key="dark_theme"
+            android:key="@string/pref_theme_background_key"
             android:persistent="true"
-            android:summary="@string/pref_theme_background_summary"
             android:title="@string/pref_theme_background_title"
             android:widgetLayout="@layout/ate_preference_checkbox"
-            app:ateKey_pref_switch="?ateKey_pref_switch"/>
+            app:ateKey_pref_switch="?ate_key"/>
 
-        <com.afollestad.appthemeengine.prefs.ATEColorPreference
-            android:key="primary_key"
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_primary_key"
             android:persistent="false"
             android:title="@string/pref_theme_primary_title"
-            app:ateKey_pref_color="?ateKey_pref_color"/>
+            app:ateKey_pref_color="?ate_key"/>
 
-        <com.afollestad.appthemeengine.prefs.ATEColorPreference
-            android:key="accent_color"
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_accent_key"
             android:persistent="false"
             android:title="@string/pref_theme_accent_title"
-            app:ateKey_pref_color="?ateKey_pref_color"/>
+            app:ateKey_pref_color="?ate_key" />
 
-    </com.afollestad.appthemeengine.prefs.ATEPreferenceCategory>
+    </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_notification_category_title">
+    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_notification_category_title">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:disableDependentsState="false"
             android:key="@string/pref_notification_toggle_key"
@@ -59,11 +58,11 @@
             android:key="@string/pref_notification_sound_key"
             android:title="@string/pref_notification_sound_title"/>
 
-    </PreferenceCategory>
+    </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_filter_category_title">
+    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_filter_category_title">
 
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_filter_toggle_default"
             android:disableDependentsState="false"
             android:key="@string/pref_filter_toggle_key"
@@ -78,5 +77,5 @@
             android:positiveButtonText="@string/dialog_okay"
             android:title="@string/pref_filter_select_title"/>
 
-    </PreferenceCategory>
-</PreferenceScreen>
+    </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

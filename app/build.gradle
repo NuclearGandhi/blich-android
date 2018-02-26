@@ -71,9 +71,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.6.0'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
-    compile('com.github.garretyoder:app-theme-engine:1.5@aar') {
-        transitive = true
-    }
+    implementation 'com.github.NuclearGandhi:app-theme-engine:1.5.2'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support:support-annotations:27.0.2'
     androidTestCompile 'com.android.support.test:runner:1.0.1'

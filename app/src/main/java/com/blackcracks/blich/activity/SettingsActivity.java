@@ -15,15 +15,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
+import com.afollestad.appthemeengine.ATE;
+import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference;
+import com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceFragmentCompat;
+import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.ClassPickerPreferenceDialogFragment;
@@ -40,7 +46,7 @@ import io.realm.Realm;
 /**
  * An {@link AppCompatActivity} containing the preference fragment, handling its lifecycle.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseThemedActivity implements ColorChooserDialog.ColorCallback {
 
     private static final String FRAGMENT_KEY = "fragment_settings";
 
@@ -51,7 +57,6 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         Utilities.setLocaleToHebrew(this);
-
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -85,14 +90,39 @@ public class SettingsActivity extends AppCompatActivity {
         );
     }
 
+    @Override
+    public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
+        final Config config = ATE.config(this, getATEKey());
+        switch (dialog.getTitle()) {
+            case R.string.pref_theme_primary_title:
+                config.primaryColor(selectedColor);
+                break;
+            case R.string.pref_theme_accent_title:
+                config.accentColor(selectedColor);
+                // We've overridden the navigation view selected colors in the default config,
+                // which means we are responsible for keeping those colors up to date.
+                config.navigationViewSelectedIcon(selectedColor);
+                config.navigationViewSelectedText(selectedColor);
+                break;
+        }
+        config.commit();
+        recreate(); // recreation needed to reach the checkboxes in the preferences layout
+    }
+
+    @Override
+    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
+    }
+
     /**
      * {@link Fragment} handling all the the preferences.
      */
     @SuppressWarnings("ConstantConditions")
-    public static class SettingsFragment extends PreferenceFragmentCompat
-            implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static class SettingsFragment extends ATEPreferenceFragmentCompat
+            implements SharedPreferences.OnSharedPreferenceChangeListener{
 
         private static final int RINGTONE_PICKER_REQUEST = 100;
+
+        String mAteKey;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -100,6 +130,12 @@ public class SettingsActivity extends AppCompatActivity {
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
             initPrefSummery();
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            invalidateSettings();
         }
 
         @SuppressWarnings("ConstantConditions")
@@ -217,6 +253,51 @@ public class SettingsActivity extends AppCompatActivity {
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
                 setFilterSelectSummery();
             }
+        }
+
+        private void invalidateSettings() {
+            mAteKey = ((SettingsActivity) getActivity()).getATEKey();
+
+            findPreference("dark_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    // Marks both theme configs as changed so MainActivity restarts itself on return
+                    Config.markChanged(getActivity(), "light_theme");
+                    Config.markChanged(getActivity(), "dark_theme");
+                    // The dark_theme preference value gets saved by Android in the default PreferenceManager.
+                    // It's used in getATEKey() of both the Activities.
+                    getActivity().recreate();
+                    return true;
+                }
+            });
+
+            ATEColorPreference primaryColorPref = (ATEColorPreference) findPreference("primary_color");
+            int primaryColor = Config.primaryColor(getActivity(), mAteKey);
+            int darkPrimaryColor = Config.primaryColorDark(getActivity(), mAteKey);
+            primaryColorPref.setColor(primaryColor, darkPrimaryColor);
+            primaryColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new ColorChooserDialog.Builder(getActivity(), R.string.pref_theme_primary_title)
+                            .preselect(Config.primaryColor(getActivity(), mAteKey))
+                            .show(getFragmentManager());
+                    return true;
+                }
+            });
+
+            ATEColorPreference accentColorPref = (ATEColorPreference) findPreference("accent_color");
+            int accentColor = Config.accentColor(getActivity(), mAteKey);
+            accentColorPref.setColor(accentColor, accentColor);
+            accentColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new ColorChooserDialog.Builder(getActivity(), R.string.pref_theme_accent_title)
+                            .accentMode(true)
+                            .preselect(Config.accentColor(getActivity(), mAteKey))
+                            .show(getFragmentManager());
+                    return true;
+                }
+            });
         }
 
         private void initPrefSummery() {

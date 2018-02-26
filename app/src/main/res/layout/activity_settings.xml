@@ -26,8 +26,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:title="@string/activity_settings"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:title="@string/activity_settings" />
 
     </android.support.design.widget.AppBarLayout>
 

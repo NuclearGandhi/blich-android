@@ -21,11 +21,13 @@
 
     <string name="pref_theme_category_title">עיצוב</string>
 
-    <string name="pref_theme_background_title">מצב כהה</string>
-    <string name="pref_theme_background_summary">ישם מצב כהה בכל האפליקציה</string>
+    <string name="pref_theme_background_key">dark_theme</string>
+    <string name="pref_theme_background_title">רקע שחור</string>
 
+    <string name="pref_theme_primary_key">primary_color</string>
     <string name="pref_theme_primary_title">צבע עיקרי</string>
 
+    <string name="pref_theme_accent_key">accent_color</string>
     <string name="pref_theme_accent_title">צבע משני</string>
     
     <string name="pref_notification_category_title">התראות</string>

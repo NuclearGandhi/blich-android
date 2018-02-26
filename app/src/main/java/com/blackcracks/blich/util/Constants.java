@@ -70,7 +70,7 @@ public class Constants {
 
         @Retention(SOURCE)
         @IntDef({PREF_USER_CLASS_GROUP_KEY, PREF_NOTIFICATION_TOGGLE_KEY, PREF_NOTIFICATION_SOUND_KEY,
-                PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY,
+                PREF_FILTER_TOGGLE_KEY, PREF_FILTER_SELECT_KEY, PREF_THEME_BACKGROUND_KEY,
                 PREF_IS_SYNCING_KEY, PREF_APP_VERSION_KEY})
         @interface PrefIntKeys {}
 
@@ -81,6 +81,8 @@ public class Constants {
 
         public static final int PREF_FILTER_TOGGLE_KEY = 3;
         public static final int PREF_FILTER_SELECT_KEY = 4;
+
+        public static final int PREF_THEME_BACKGROUND_KEY = 5;
 
         public static final int PREF_IS_SYNCING_KEY = 100;
         public static final int PREF_APP_VERSION_KEY = 101;
@@ -119,6 +121,10 @@ public class Constants {
                     resKey = R.string.pref_filter_select_key;
                     break;
                 }
+                case PREF_THEME_BACKGROUND_KEY: {
+                    resKey = R.string.pref_theme_background_key;
+                    break;
+                }
                 case PREF_IS_SYNCING_KEY: {
                     resKey = R.string.pref_is_syncing_key;
                     break;
@@ -153,6 +159,9 @@ public class Constants {
                 }
                 case PREF_FILTER_SELECT_KEY: {
                     return "";
+                }
+                case PREF_THEME_BACKGROUND_KEY: {
+                    return false;
                 }
                 case PREF_IS_SYNCING_KEY: {
                     return true;

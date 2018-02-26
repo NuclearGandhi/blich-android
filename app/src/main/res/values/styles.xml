@@ -7,23 +7,43 @@
 
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme.ActionBar" parent="Theme.AppCompat.Light">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:textSize">16sp</item>
+
+        <item name="ate_key">light_theme</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:textSize">16sp</item>
+
+        <item name="ate_key">light_theme</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" >
+    <style name="AppTheme.Dark.ActionBar" parent="Theme.AppCompat">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:textSize">16sp</item>
+
+        <item name="ate_key">dark_theme</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:textSize">16sp</item>
+
+        <item name="ate_key">dark_theme</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="AppTheme.Dark.ActionBar">
+    </style>
 
     <style name="TextAppearance.AppCompat.TabTitle">
+        <item name="android:textColor">@color/white_text</item>
         <item name="android:textSize">16sp</item>
     </style>
 </resources>
