@@ -163,7 +163,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         return mRootView;
     }
 
-
     private void setUpRefresher() {
         mChangeListener = new RealmChangeListener<Realm>() {
             @Override
@@ -229,6 +228,16 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 getContext(),
                 mToolbar,
                 ateKey));
+
+        int toolbarColor = Config.toolbarColor(getContext(), ateKey, mToolbar);
+        boolean isToolbarLight = Config.isLightToolbar(getContext(), mToolbar, ateKey, toolbarColor);
+        if (isToolbarLight) {
+            mCalendarView.setDateTextAppearance(R.style.TextAppearance_Toolbar_Light);
+            mCalendarView.setWeekDayTextAppearance(R.style.TextAppearance_Toolbar_Light);
+        } else {
+            mCalendarView.setDateTextAppearance(R.style.TextAppearance_Toolbar_Dark);
+            mCalendarView.setWeekDayTextAppearance(R.style.TextAppearance_Toolbar_Dark);
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ package com.blackcracks.blich.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -103,6 +104,16 @@ public class ScheduleFragment extends BlichBaseFragment {
         ATE.themeView(mTabLayout, ateKey);
 
         if (mFilterActionButton != null) tintFilterAction(ateKey);
+
+        int toolbarColor = Config.toolbarColor(getContext(), ateKey, mToolbar);
+        boolean isToolbarLight = Config.isLightToolbar(getContext(), mToolbar, ateKey, toolbarColor);
+        if (isToolbarLight) {
+            mTabLayout.setTabTextColors(ContextCompat.getColorStateList(getContext(), R.color.text_color_light));
+            mTabLayout.setSelectedTabIndicatorColor(Config.accentColor(getContext(), ateKey));
+        } else {
+            mTabLayout.setTabTextColors(ContextCompat.getColorStateList(getContext(), R.color.text_color_dark));
+            mTabLayout.setSelectedTabIndicatorColor(Color.WHITE);
+        }
     }
 
     @SuppressLint("InflateParams")

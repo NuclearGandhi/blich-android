@@ -42,8 +42,11 @@
     <style name="AppTheme.AppBarOverlay" parent="AppTheme.Dark.ActionBar">
     </style>
 
-    <style name="TextAppearance.AppCompat.TabTitle">
-        <item name="android:textColor">@color/white_text</item>
-        <item name="android:textSize">16sp</item>
+    <style name="TextAppearance.Toolbar.Dark" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/text_color_dark</item>
+    </style>
+
+    <style name="TextAppearance.Toolbar.Light" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/text_color_light</item>
     </style>
 </resources>

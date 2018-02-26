@@ -185,6 +185,7 @@ public class MainActivity extends BaseThemedActivity implements
                     .primaryColorRes(R.color.defaultLightPrimaryColor)
                     .accentColorRes(R.color.defaultLightAccentColor)
                     .coloredNavigationBar(false)
+                    .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultLightAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultLightAccentColor)
                     .commit();
@@ -195,6 +196,7 @@ public class MainActivity extends BaseThemedActivity implements
                     .primaryColorRes(R.color.defaultDarkPrimaryColor)
                     .accentColorRes(R.color.defaultDarkAccentColor)
                     .coloredNavigationBar(false)
+                    .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
                     .commit();
