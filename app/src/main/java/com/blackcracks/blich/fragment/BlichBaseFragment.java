@@ -87,7 +87,7 @@ public abstract class BlichBaseFragment extends Fragment implements
                         Constants.IntentConstants.EXTRA_FETCH_STATUS,
                         BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
 
-                Utilities.onSyncFinished(context, mRootView, status, mFragmentManager);
+                Utilities.onSyncFinished(context, status, mFragmentManager);
             }
         };
 

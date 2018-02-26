@@ -36,7 +36,6 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
@@ -132,6 +131,11 @@ public class MainActivity extends BaseThemedActivity implements
                 mFragment);
     }
 
+    @Override
+    public View getRootView() {
+        return mRootView;
+    }
+
     public DrawerLayout getDrawerLayout() {
         return mDrawerLayout;
     }
@@ -213,15 +217,12 @@ public class MainActivity extends BaseThemedActivity implements
             dialogFragment.setOnDestroyListener(new ChooseClassDialogFragment.OnDestroyListener() {
                 @Override
                 public void onDestroy(Context context) {
-                    //Start the periodic sync
-                    BlichSyncUtils.initializeJobService(context);
-                    Utilities.initializeBlichDataUpdater(context, mRootView);
+                    Utilities.initializeSync(context);
                 }
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                BlichSyncUtils.initializeJobService(this);
-                Utilities.initializeBlichDataUpdater(this, mRootView);
+                Utilities.initializeSync(this);
             }
         }
     }

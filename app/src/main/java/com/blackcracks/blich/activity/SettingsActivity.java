@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.afollestad.appthemeengine.ATE;
@@ -51,13 +52,17 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
     private static final String FRAGMENT_KEY = "fragment_settings";
 
+    private View mRootView;
     private Fragment mFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
         Utilities.setLocaleToHebrew(this);
+
+        mRootView = LayoutInflater.from(this).inflate(
+                R.layout.activity_settings, null , false);
+        setContentView(mRootView);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,6 +94,11 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 FRAGMENT_KEY,
                 mFragment
         );
+    }
+
+    @Override
+    public View getRootView() {
+        return mRootView;
     }
 
     @Override
@@ -246,7 +256,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY))) {
                 setClassPickerSummery();
-                Utilities.updateBlichData(getContext(), getView());
+                Utilities.syncDatabase(getContext());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
                 BlichSyncUtils.initializeJobService(getContext());

@@ -192,7 +192,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                Utilities.updateBlichData(getContext(), mRootView);
+                Utilities.syncDatabase(getContext());
                 return true;
             }
             default:

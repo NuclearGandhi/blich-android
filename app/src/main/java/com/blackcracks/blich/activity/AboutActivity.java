@@ -10,6 +10,7 @@ package com.blackcracks.blich.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.blackcracks.blich.R;
@@ -22,10 +23,15 @@ public class AboutActivity extends BaseThemedActivity {
 
     private static final String[] DEV_EMAIL = {"nukegandhi@gmail.com"};
 
+    private View mRootView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
+
+        mRootView = LayoutInflater.from(this).inflate(
+                R.layout.activity_about, null , false);
+        setContentView(mRootView);
     }
 
     /**
@@ -41,5 +47,10 @@ public class AboutActivity extends BaseThemedActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+    }
+
+    @Override
+    public View getRootView() {
+        return mRootView;
     }
 }

@@ -172,7 +172,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                Utilities.updateBlichData(getContext(), mRootView);
+                Utilities.syncDatabase(getContext());
                 return true;
             }
             default:

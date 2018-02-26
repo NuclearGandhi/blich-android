@@ -6,6 +6,7 @@ package com.blackcracks.blich.activity;/*
  */
 
 import android.preference.PreferenceManager;
+import android.view.View;
 
 import com.afollestad.appthemeengine.ATEActivity;
 
@@ -19,4 +20,6 @@ public abstract class BaseThemedActivity extends ATEActivity {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false) ?
                 "dark_theme" : "light_theme";
     }
+
+    public abstract View getRootView();
 }

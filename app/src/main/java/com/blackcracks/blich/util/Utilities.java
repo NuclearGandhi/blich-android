@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.activity.BaseThemedActivity;
 import com.blackcracks.blich.fragment.ChooseClassDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.sync.BlichSyncUtils;
@@ -68,25 +69,18 @@ public class Utilities {
                 .getBoolean(ChooseClassDialogFragment.PREF_IS_FIRST_LAUNCH_KEY, true);
     }
 
-    /**
-     * Initialize the updater.
-     *
-     * @param view a {@link View} for the case of displaying dialogs.
-     */
-    public static void initializeBlichDataUpdater(Context context, View view) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
-                .apply();
-
-        updateBlichData(context, view);
+    public static void initializeSync(Context context) {
+        BlichSyncUtils.initializeJobService(context);
+        syncDatabase(context);
     }
 
     /**
      * Begin sync.
-     *
-     * @param view a {@link View} for the case of displaying dialogs.
      */
-    public static void updateBlichData(Context context, View view) {
+    public static void syncDatabase(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
+                .apply();
 
         boolean isConnected = false;
         boolean isFetching = PreferencesUtils.getBoolean(
@@ -101,11 +95,11 @@ public class Utilities {
             if (isConnected) {
                 BlichSyncUtils.startImmediateSync(context);
             } else {
-                onSyncFinished(context, view, BlichSyncTask.FETCH_STATUS_NO_CONNECTION, null);
+                onSyncFinished(context, BlichSyncTask.FETCH_STATUS_NO_CONNECTION, null);
             }
         }
         if (BuildConfig.DEBUG) {
-            Timber.d("updateBlichData() called" +
+            Timber.d("syncDatabase() called" +
                     ", isFetching = " + isFetching +
                     ", isConnected = " + isConnected);
         }
@@ -114,14 +108,12 @@ public class Utilities {
     /**
      * Callback for when sync finished.
      *
-     * @param view a {@link View} for the case of displaying dialogs.
      * @param status a {@link com.blackcracks.blich.sync.BlichSyncTask.FetchStatus} returned from
      *               the sync.
      * @param fragmentManager a {@link FragmentManager} for displaying dialogs.
      */
     @SuppressLint("SwitchIntDef")
     public static void onSyncFinished(final Context context,
-                                      final View view,
                                       @BlichSyncTask.FetchStatus int status,
                                       @Nullable FragmentManager fragmentManager) {
 
@@ -130,7 +122,7 @@ public class Utilities {
                 .apply();
 
         if (status == BlichSyncTask.FETCH_STATUS_SUCCESSFUL) {
-            Snackbar.make(view,
+            Snackbar.make(((BaseThemedActivity) context).getRootView(),
                     R.string.snackbar_fetch_successful,
                     Snackbar.LENGTH_LONG)
                     .show();
@@ -145,7 +137,7 @@ public class Utilities {
                     public void onDestroy(Context context) {
                         //Start the periodic syncing of
                         BlichSyncUtils.initializeJobService(context);
-                        Utilities.initializeBlichDataUpdater(context, view);
+                        Utilities.syncDatabase(context);
                     }
                 });
             } else {
@@ -187,7 +179,7 @@ public class Utilities {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    updateBlichData(context, view);
+                                    syncDatabase(context);
                                 }
                             })
                     .setNegativeButton(R.string.dialog_cancel,
