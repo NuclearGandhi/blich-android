@@ -99,6 +99,7 @@ public class ScheduleFragment extends BlichBaseFragment {
 
     @Override
     protected void invalidateATE() {
+        super.invalidateATE();
         String ateKey = ((MainActivity) getActivity()).getATEKey();
         ATE.themeView(mToolbar, ateKey);
         ATE.themeView(mTabLayout, ateKey);

@@ -217,6 +217,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     protected void invalidateATE() {
+        super.invalidateATE();
         String ateKey = ((MainActivity) getActivity()).getATEKey();
 
         ATE.themeView(mToolbar, ateKey);

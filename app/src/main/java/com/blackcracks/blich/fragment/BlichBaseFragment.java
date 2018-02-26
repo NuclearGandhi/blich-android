@@ -26,6 +26,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +34,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.sync.BlichSyncTask;
@@ -51,6 +53,8 @@ public abstract class BlichBaseFragment extends Fragment implements
 
     private View mRootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private DrawerArrowDrawable mHamburgerDrawable;
 
     private BroadcastReceiver mSyncBroadcastReceiver;
     private FragmentManager mFragmentManager;
@@ -108,6 +112,7 @@ public abstract class BlichBaseFragment extends Fragment implements
         };
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+        mHamburgerDrawable = drawerToggle.getDrawerArrowDrawable();
 
         mFragmentManager = activity.getSupportFragmentManager();
     }
@@ -155,6 +160,12 @@ public abstract class BlichBaseFragment extends Fragment implements
         }
     }
 
+    @CallSuper
+    protected void invalidateATE() {
+        String ateKey = ((MainActivity) getActivity()).getATEKey();
+        mHamburgerDrawable.setColor(Config.getToolbarTitleColor(getContext(), null, ateKey));
+    }
+
     protected abstract @LayoutRes
     int getFragmentLayout();
 
@@ -163,6 +174,4 @@ public abstract class BlichBaseFragment extends Fragment implements
 
     protected abstract @MenuRes
     int getMenuResource();
-
-    protected abstract void invalidateATE();
 }
