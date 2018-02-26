@@ -21,12 +21,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.util.ColorUtils;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
 
@@ -179,7 +179,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 subject = firstLesson.getSubject();
                 teacher = firstLesson.getTeacher();
                 room = firstLesson.getRoom();
-                color = ColorUtils.getPrimaryTextColor(mContext);
+                color = Config.textColorPrimary(mContext, null);
             } else { //Then display a modified lesson
                 subject = replacement.buildName();
                 teacher = "";
@@ -314,7 +314,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subject = lesson.getSubject();
             teacher = lesson.getTeacher();
             room = lesson.getRoom();
-            color = ColorUtils.getPrimaryTextColor(mContext);
+            color = Config.textColorPrimary(mContext, null);
         }
 
         holder.subjectView.setText(subject);
