@@ -124,7 +124,7 @@ public class BlichSyncTask {
             try {
                 json = BlichSyncUtils.getResponseFromUrl(BlichSyncUtils.buildUrlFromCommand(context, command));
 
-                if (json.equals("")) return FETCH_STATUS_EMPTY_HTML;
+                if (json == null || json.equals("")) return FETCH_STATUS_UNSUCCESSFUL;
 
                 //Insert data accordingly
                 switch (command) {
