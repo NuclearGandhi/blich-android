@@ -8,6 +8,7 @@
 package com.blackcracks.blich.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.afollestad.appthemeengine.ATE;
+import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
@@ -99,6 +101,8 @@ public class ScheduleFragment extends BlichBaseFragment {
         String ateKey = ((MainActivity) getActivity()).getATEKey();
         ATE.themeView(mToolbar, ateKey);
         ATE.themeView(mTabLayout, ateKey);
+
+        if (mFilterActionButton != null) tintFilterAction(ateKey);
     }
 
     @SuppressLint("InflateParams")
@@ -112,6 +116,8 @@ public class ScheduleFragment extends BlichBaseFragment {
         mFilterActionButton = (ImageButton) LayoutInflater.from(getContext())
                 .inflate(R.layout.menu_filter_list, null, false);
         filter.setActionView(mFilterActionButton);
+
+        tintFilterAction(((MainActivity) getActivity()).getATEKey());
 
         //Get the filter toggle state
         boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
@@ -219,6 +225,10 @@ public class ScheduleFragment extends BlichBaseFragment {
                         ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
             }
         }
+    }
+
+    private void tintFilterAction(String ateKey) {
+        mFilterActionButton.setImageTintList(ColorStateList.valueOf(Config.getToolbarTitleColor(getContext(), mToolbar, ateKey)));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
