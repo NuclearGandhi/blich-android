@@ -47,7 +47,6 @@
     <string name="pref_filter_select_title">בחירת מורים</string>
     <string name="pref_filter_select_key">filter_select</string>
 
-    <string name="pref_fetch_status_key">fetch_status</string>
     <string name="pref_is_syncing_key">is_syncing</string>
     <string name="pref_latest_update_key">latest_update</string>
 

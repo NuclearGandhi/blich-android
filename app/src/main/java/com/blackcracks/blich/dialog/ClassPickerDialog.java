@@ -70,13 +70,20 @@ public class ClassPickerDialog extends DialogFragment {
 
         mRealm = Realm.getDefaultInstance();
 
-        //Create a {@link BroadcastReceiver} to listen when the data has finished downloading
+        final SyncUtils.OnSyncRetryListener onSyncRetryListener = new SyncUtils.OnSyncRetryListener() {
+            @Override
+            public void onRetry() {
+                syncData();
+            }
+        };
+
+        //Create a BroadcastReceiver to listen when the data has finished downloading
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int status = intent.getIntExtra(SyncClassGroupsService.FETCH_STATUS_EXTRA, SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
                 if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) setDataValid();
-                SyncUtils.syncFinishedCallback(getContext(), status, mBuilder.isDismissible);
+                SyncUtils.syncFinishedCallback(getContext(), status, mBuilder.isDismissible, onSyncRetryListener);
             }
         };
 

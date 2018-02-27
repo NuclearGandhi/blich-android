@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
+import com.blackcracks.blich.sync.BlichSyncIntentService;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.SyncUtils;
@@ -75,16 +76,23 @@ public abstract class BlichBaseFragment extends Fragment implements
                 mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setEnabled(false);
 
+        final SyncUtils.OnSyncRetryListener onSyncRetryListener = new SyncUtils.OnSyncRetryListener() {
+            @Override
+            public void onRetry() {
+                SyncUtils.syncDatabase(getContext());
+            }
+        };
+
         //Create a BroadcastReceiver to listen when a sync has finished.
         mSyncBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 
                 @SyncUtils.FetchStatus int status = intent.getIntExtra(
-                        Constants.IntentConstants.EXTRA_FETCH_STATUS,
+                        BlichSyncIntentService.EXTRA_FETCH_STATUS,
                         SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
 
-                SyncUtils.syncFinishedCallback(getContext(), status, true);
+                SyncUtils.syncFinishedCallback(context, status, true, onSyncRetryListener);
             }
         };
 
@@ -118,12 +126,6 @@ public abstract class BlichBaseFragment extends Fragment implements
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        invalidateATE();
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(getMenuResource(), menu);
     }
@@ -131,10 +133,6 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
-        LocalBroadcastManager.getInstance(getContext())
-                .registerReceiver(mSyncBroadcastReceiver,
-                        new IntentFilter(Constants.IntentConstants.ACTION_SYNC_CALLBACK));
 
         mSwipeRefreshLayout.setRefreshing(
                 PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_IS_SYNCING_KEY
@@ -142,8 +140,19 @@ public abstract class BlichBaseFragment extends Fragment implements
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onResume() {
+        super.onResume();
+        invalidateATE();
+
+        PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
+        LocalBroadcastManager.getInstance(getContext())
+                .registerReceiver(mSyncBroadcastReceiver,
+                        new IntentFilter(BlichSyncIntentService.ACTION_SYNC_FINISHED_CALLBACK));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
         LocalBroadcastManager.getInstance(getContext())
                 .unregisterReceiver(mSyncBroadcastReceiver);
         PreferenceManager.getDefaultSharedPreferences(getContext()).unregisterOnSharedPreferenceChangeListener(this);

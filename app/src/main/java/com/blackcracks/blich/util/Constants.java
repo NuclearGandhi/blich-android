@@ -174,11 +174,4 @@ public class Constants {
         }
 
     }
-
-    public static class IntentConstants {
-
-        public static final String ACTION_SYNC_CALLBACK = "sync_callback";
-
-        public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";
-    }
 }

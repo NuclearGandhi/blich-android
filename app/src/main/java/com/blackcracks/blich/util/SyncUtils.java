@@ -69,7 +69,8 @@ public class SyncUtils {
      */
     public static void syncFinishedCallback(Context context,
                                             @FetchStatus int status,
-                                            boolean dialogDismissible) {
+                                            boolean dialogDismissible,
+                                            final OnSyncRetryListener onRetryListener) {
 
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
@@ -110,7 +111,7 @@ public class SyncUtils {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        syncDatabase(dialog.getContext());
+                        onRetryListener.onRetry();
                     }
                 });
 
@@ -121,5 +122,9 @@ public class SyncUtils {
         }
 
         dialogBuilder.show();
+    }
+
+    public interface OnSyncRetryListener {
+        void onRetry();
     }
 }

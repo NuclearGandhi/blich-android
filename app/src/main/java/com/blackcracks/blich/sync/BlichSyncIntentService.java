@@ -10,12 +10,9 @@ package com.blackcracks.blich.sync;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.blackcracks.blich.R;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
 
@@ -23,6 +20,9 @@ import com.blackcracks.blich.util.Utilities;
  * An {@link IntentService} to run {@link BlichSyncTask#syncBlich(Context)} in the background.
  */
 public class BlichSyncIntentService extends IntentService {
+
+    public static final String ACTION_SYNC_FINISHED_CALLBACK = "sync_callback";
+    public static final String EXTRA_FETCH_STATUS = "extra_fetch_status";
 
     public BlichSyncIntentService() {
         super(BlichSyncIntentService.class.getSimpleName());
@@ -47,13 +47,9 @@ public class BlichSyncIntentService extends IntentService {
      * @param status a {@link SyncUtils.FetchStatus} returned the from sync.
      */
     private static void sendBroadcast(Context context, @SyncUtils.FetchStatus int status) {
-        Intent intent = new Intent(Constants.IntentConstants.ACTION_SYNC_CALLBACK);
-        intent.putExtra(Constants.IntentConstants.EXTRA_FETCH_STATUS, status);
+        Intent intent = new Intent(ACTION_SYNC_FINISHED_CALLBACK);
+        intent.putExtra(EXTRA_FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(context)
                 .sendBroadcast(intent);
-
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putInt(context.getString(R.string.pref_fetch_status_key), status)
-                .apply();
     }
 }

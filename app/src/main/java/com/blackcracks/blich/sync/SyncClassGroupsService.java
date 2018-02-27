@@ -34,7 +34,7 @@ import io.realm.RealmResults;
  */
 public class SyncClassGroupsService extends IntentService {
 
-    public static final String ACTION_FINISHED_CLASS_GROUP_SYNC = "finish_fetch";
+    public static final String ACTION_FINISHED_CLASS_GROUP_SYNC = "finished_fetch";
     public static final String FETCH_STATUS_EXTRA = "fetch_status";
 
     public SyncClassGroupsService() {
