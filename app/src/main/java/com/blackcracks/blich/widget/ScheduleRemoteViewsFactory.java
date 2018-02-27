@@ -22,6 +22,7 @@ import com.blackcracks.blich.data.ScheduleResult;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.List;
 
@@ -73,6 +74,8 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     @Override
     public RemoteViews getViewAt(int position) {
 
+        String ateKey = Utilities.getATEKey(mContext);
+
         Hour hour = mRealmHelper.getHour(position);
         int hourNum = mRealmHelper.getHour(position).getHour();
 
@@ -80,6 +83,15 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         views.setTextViewText(
                 R.id.widget_schedule_hour,
                 Integer.toString(hourNum));
+
+        int primaryTextColor;
+        if (ateKey.equals("light_theme")) {
+            primaryTextColor = ContextCompat.getColor(mContext, R.color.black_text);
+        } else {
+            primaryTextColor = ContextCompat.getColor(mContext, R.color.white_text);
+        }
+        views.setTextColor(R.id.widget_schedule_hour,
+                primaryTextColor);
 
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
@@ -108,7 +120,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             } else {
                 subject = lesson.getSubject();
                 teacher = lesson.getTeacher();
-                color = ContextCompat.getColor(mContext, R.color.black_text);
+                color = primaryTextColor;
             }
 
             Spanned text;

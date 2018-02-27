@@ -12,12 +12,14 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.widget.RemoteViews;
 
+import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.util.ScheduleUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -34,6 +36,8 @@ public class BlichWidgetProvider extends AppWidgetProvider {
     }
 
     private void updateWidget(Context context, AppWidgetManager appWidgetManager , int appWidgetId) {
+
+        String ateKey = Utilities.getATEKey(context);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule);
 
@@ -53,8 +57,17 @@ public class BlichWidgetProvider extends AppWidgetProvider {
                         Calendar.DAY_OF_WEEK,
                         Calendar.LONG,
                         locale));
-        views.setTextColor(R.id.widget_schedule_title, Color.WHITE);
 
+        int toolbarColor = Config.toolbarColor(context, ateKey, null);
+        views.setInt(R.id.widget_schedule_title, "setBackgroundColor", toolbarColor);
+        views.setTextColor(
+                R.id.widget_schedule_title,
+                Config.getToolbarTitleColor(context, null, ateKey, toolbarColor));
+
+        if (ateKey.equals("dark_theme")) {
+            int color = ContextCompat.getColor(context, R.color.grey_850);
+            views.setInt(R.id.widget_listview, "setBackgroundColor", color);
+        }
         //Connect between the list and the adapter.
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);

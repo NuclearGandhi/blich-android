@@ -133,11 +133,6 @@ public class MainActivity extends BaseThemedActivity implements
                 mFragment);
     }
 
-    @Override
-    public View getRootView() {
-        return mRootView;
-    }
-
     public DrawerLayout getDrawerLayout() {
         return mDrawerLayout;
     }

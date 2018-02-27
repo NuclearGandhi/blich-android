@@ -5,10 +5,8 @@ package com.blackcracks.blich.activity;/*
  * Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
  */
 
-import android.preference.PreferenceManager;
-import android.view.View;
-
 import com.afollestad.appthemeengine.ATEActivity;
+import com.blackcracks.blich.util.Utilities;
 
 /**
  * @author Aidan Follestad (afollestad)
@@ -17,9 +15,6 @@ public abstract class BaseThemedActivity extends ATEActivity {
 
     @Override
     public final String getATEKey() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false) ?
-                "dark_theme" : "light_theme";
+        return Utilities.getATEKey(this);
     }
-
-    public abstract View getRootView();
 }

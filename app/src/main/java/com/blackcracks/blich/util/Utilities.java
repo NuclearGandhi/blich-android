@@ -75,4 +75,9 @@ public class Utilities {
         widgetManager.updateAppWidget(widget, views);
     }
 
+    public static String getATEKey(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("dark_theme", false) ?
+                "dark_theme" : "light_theme";
+    }
+
 }

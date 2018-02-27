@@ -14,24 +14,22 @@
 
     <TextView
         android:id="@+id/widget_schedule_hour"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/oval_accent"
         android:gravity="center"
-        android:textColor="@color/white_text"
-        android:textSize="16sp"/>
+        android:textStyle="bold"/>
 
     <LinearLayout
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:id="@+id/widget_schedule_group"
         android:layout_width="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="8dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:paddingEnd="8dp"
+        android:paddingStart="16dp"/>
 
 </LinearLayout>

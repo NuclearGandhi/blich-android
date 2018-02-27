@@ -7,8 +7,6 @@
   -->
 
 <resources>
-    <color name="blue_400">#42a5f5</color>
-
     <color name="defaultLightPrimaryColor">#2196F3</color>
     <color name="defaultLightAccentColor">#00BFA5</color>
 
@@ -23,7 +21,5 @@
     <color name="lesson_exam">#FF8F00</color>
     <color name="lesson_event">#388E3C</color>
 
-    <color name="calendar_selected_day">#42A5F5</color>
-
-    <color name="widget_background">#FFFFFF</color>
+    <color name="grey_850">#ff303030</color>
 </resources>

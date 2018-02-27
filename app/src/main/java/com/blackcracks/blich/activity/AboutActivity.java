@@ -48,9 +48,4 @@ public class AboutActivity extends BaseThemedActivity {
             startActivity(intent);
         }
     }
-
-    @Override
-    public View getRootView() {
-        return mRootView;
-    }
 }

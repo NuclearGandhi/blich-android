@@ -98,11 +98,6 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     }
 
     @Override
-    public View getRootView() {
-        return mRootView;
-    }
-
-    @Override
     public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColor) {
         final Config config = ATE.config(this, getATEKey());
         switch (dialog.getTitle()) {
