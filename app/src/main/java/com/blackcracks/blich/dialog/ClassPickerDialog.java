@@ -24,14 +24,13 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.sync.FetchClassService;
+import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.SyncUtils;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
@@ -65,7 +64,8 @@ public class ClassPickerDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
-        if (args.isEmpty()) throw new IllegalArgumentException("Dialog must be created using Builder");
+        if (args.isEmpty())
+            throw new IllegalArgumentException("Dialog must be created using Builder");
         mBuilder = new Builder(args);
 
         mRealm = Realm.getDefaultInstance();
@@ -74,13 +74,9 @@ public class ClassPickerDialog extends DialogFragment {
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                boolean isSuccessful =
-                        intent.getBooleanExtra(FetchClassService.IS_SUCCESSFUL_EXTRA, false);
-                if (isSuccessful) {
-                    setDataValid();
-                } else {
-                    onFetchFailed();
-                }
+                int status = intent.getIntExtra(SyncClassGroupsService.FETCH_STATUS_EXTRA, SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
+                if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) setDataValid();
+                SyncUtils.syncFinishedCallback(getContext(), status, mBuilder.isDismissible);
             }
         };
 
@@ -96,8 +92,7 @@ public class ClassPickerDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        @SuppressLint("InflateParams")
-        final View rootView = inflater.inflate(
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(
                 R.layout.dialog_select_class,
                 null);
 
@@ -137,11 +132,14 @@ public class ClassPickerDialog extends DialogFragment {
                                 .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
                                 .apply();
 
-                        mOnDestroyListener.onDestroy(getContext());
+                        if (mOnDestroyListener != null) {
+                            mOnDestroyListener.onDestroy(getContext());
+                        }
                     }
                 });
 
-        if (mBuilder.doDisplayNegativeButton) builder.setNegativeButton(R.string.dialog_cancel, null);
+        if (mBuilder.doDisplayNegativeButton)
+            builder.setNegativeButton(R.string.dialog_cancel, null);
 
         mProgressBar = rootView.findViewById(R.id.picker_progressbar);
         mDialog = builder.create();
@@ -164,7 +162,7 @@ public class ClassPickerDialog extends DialogFragment {
         super.onResume();
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mFetchBroadcastReceiver,
-                new IntentFilter(FetchClassService.ACTION_FINISHED_FETCH));
+                        new IntentFilter(SyncClassGroupsService.ACTION_FINISHED_CLASS_GROUP_SYNC));
     }
 
     @Override
@@ -188,39 +186,11 @@ public class ClassPickerDialog extends DialogFragment {
     }
 
     /**
-     * When fetch fails, start a dialog.
-     */
-    private void onFetchFailed() {
-        @SuppressLint("InflateParams")
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fetch_failed,
-                null);
-
-        TextView message = view.findViewById(R.id.dialog_message);
-        message.setText(R.string.dialog_fetch_class_no_connection_message);
-        new AlertDialog.Builder(getContext())
-                .setCancelable(false)
-                .setView(view)
-                .setPositiveButton(R.string.dialog_try_again,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                syncData();
-                            }
-                        })
-                .show();
-    }
-
-    /**
      * Start to fetch the data.
      */
     private void syncData() {
-        boolean isConnected = Utilities.isThereNetworkConnection(getContext());
-        if (isConnected) {
-            Intent intent = new Intent(getContext(), FetchClassService.class);
-            getActivity().startService(intent);
-        } else {
-            onFetchFailed();
-        }
+        Intent intent = new Intent(getContext(), SyncClassGroupsService.class);
+        getActivity().startService(intent);
     }
 
     /**
@@ -256,7 +226,8 @@ public class ClassPickerDialog extends DialogFragment {
         boolean isDismissible = true;
         boolean doDisplayNegativeButton = true;
 
-        public Builder() {}
+        public Builder() {
+        }
 
         private Builder(Bundle args) {
             isDismissible = args.getBoolean(KEY_DISMISSIBLE);

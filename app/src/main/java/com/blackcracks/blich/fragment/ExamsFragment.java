@@ -35,7 +35,7 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.ExamUtils;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.SyncUtils;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
@@ -192,7 +192,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                Utilities.syncDatabase(getContext());
+                SyncUtils.syncDatabase(getContext());
                 return true;
             }
             default:

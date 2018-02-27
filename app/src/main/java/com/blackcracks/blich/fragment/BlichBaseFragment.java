@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
@@ -40,10 +39,9 @@ import android.widget.ImageView;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.sync.BlichSyncTask;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferencesUtils;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.SyncUtils;
 
 /**
  * A base fragment for most of the fragments in the app.
@@ -61,7 +59,6 @@ public abstract class BlichBaseFragment extends Fragment implements
     private DrawerArrowDrawable mHamburgerDrawable;
 
     private BroadcastReceiver mSyncBroadcastReceiver;
-    private FragmentManager mFragmentManager;
 
     public BlichBaseFragment() {
         setHasOptionsMenu(true);
@@ -83,11 +80,11 @@ public abstract class BlichBaseFragment extends Fragment implements
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                @BlichSyncTask.FetchStatus int status = intent.getIntExtra(
+                @SyncUtils.FetchStatus int status = intent.getIntExtra(
                         Constants.IntentConstants.EXTRA_FETCH_STATUS,
-                        BlichSyncTask.FETCH_STATUS_UNSUCCESSFUL);
+                        SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
 
-                Utilities.onSyncFinished(getContext(), status, mFragmentManager);
+                SyncUtils.syncFinishedCallback(getContext(), status, true);
             }
         };
 
@@ -118,8 +115,6 @@ public abstract class BlichBaseFragment extends Fragment implements
         drawerToggle.syncState();
         mHamburgerDrawable = drawerToggle.getDrawerArrowDrawable();
         mNavigationView = drawerLayout.findViewById(R.id.nav_view);
-
-        mFragmentManager = activity.getSupportFragmentManager();
     }
 
     @Override

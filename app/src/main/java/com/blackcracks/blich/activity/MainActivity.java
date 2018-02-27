@@ -39,6 +39,7 @@ import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
+import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -221,12 +222,12 @@ public class MainActivity extends BaseThemedActivity implements
             dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy(Context context) {
-                    Utilities.initializeSync(context);
+                    SyncUtils.initializeSync(context);
                 }
             });
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                Utilities.initializeSync(this);
+                SyncUtils.initializeSync(this);
             }
         }
     }

@@ -59,14 +59,13 @@
     <string name="dialog_try_again">נסה שוב</string>
     <string name="dialog_cancel">ביטול</string>
 
-    <string name="snackbar_fetch_successful">הנתונים עודכנו</string>
     <string name="dialog_fetch_no_connection_title">אין חיבור לאינטרנט</string>
     <string name="dialog_fetch_no_connection_message">אין אפשרות לעדכן את הנתונים כיוון שאין חיבור לאינטרנט.</string>
     <string name="dialog_fetch_empty_html_title">אין גישה לאתר</string>
     <string name="dialog_fetch_empty_html_message">אירעה שגיאה בהשגת המידע מאתר בליך.</string>
     <string name="dialog_fetch_unsuccessful_title">שגיאה</string>
     <string name="dialog_fetch_unsuccessful_message">אירעה שגיאה בהשגת המידע מאתר בליך.</string>
-    <string name="dialog_fetch_class_no_connection_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
+    <string name="dialog_fetch_class_unsuccessful_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
 
 
     <string name="dialog_teacher_filter_title">סינון</string>

@@ -9,7 +9,6 @@ package com.blackcracks.blich.sync;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
 import android.support.v7.preference.PreferenceManager;
 
 import com.blackcracks.blich.R;
@@ -20,6 +19,7 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.SyncUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONArray;
@@ -27,14 +27,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.annotation.Retention;
 import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.RealmList;
 import timber.log.Timber;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * A class to handle the sync, meaning getting all the necessary data for the database.
@@ -46,25 +43,12 @@ public class BlichSyncTask {
 
     private static final String LOG_PARAM_STATUS_SYNC = "status";
 
-    @Retention(SOURCE)
-    @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
-            FETCH_STATUS_NO_CONNECTION, FETCH_STATUS_EMPTY_HTML,
-            FETCH_STATUS_CLASS_NOT_CONFIGURED})
-    public @interface FetchStatus {
-    }
-
-    public static final int FETCH_STATUS_SUCCESSFUL = 0;
-    public static final int FETCH_STATUS_UNSUCCESSFUL = 1;
-    public static final int FETCH_STATUS_NO_CONNECTION = 2;
-    public static final int FETCH_STATUS_EMPTY_HTML = 3;
-    public static final int FETCH_STATUS_CLASS_NOT_CONFIGURED = 4;
-
     /**
      * Begin syncing the data.
      *
-     * @return a {@link FetchStatus} returned by the sync.
+     * @return a {@link SyncUtils.FetchStatus} returned by the sync.
      */
-    public static @FetchStatus
+    public static @SyncUtils.FetchStatus
     int syncBlich(Context context) {
         //Log the beginning of sync
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
@@ -93,9 +77,9 @@ public class BlichSyncTask {
      * Fetch the required data from the server.
      *
      * @param blichData Data object to insert the fetched data into.
-     * @return a {@link FetchStatus}.
+     * @return a {@link SyncUtils.FetchStatus}.
      */
-    private static @FetchStatus
+    private static @SyncUtils.FetchStatus
     int fetchData(Context context, BlichData blichData) {
         //Call four different requests from the server.
         for(int i = 0; i < 4; i++) {
@@ -124,7 +108,7 @@ public class BlichSyncTask {
             try {
                 json = BlichSyncUtils.getResponseFromUrl(BlichSyncUtils.buildUrlFromCommand(context, command));
 
-                if (json == null || json.equals("")) return FETCH_STATUS_UNSUCCESSFUL;
+                if (json == null || json.equals("")) return SyncUtils.FETCH_STATUS_UNSUCCESSFUL;
 
                 //Insert data accordingly
                 switch (command) {
@@ -145,16 +129,13 @@ public class BlichSyncTask {
                         break;
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | JSONException e) {
                 Timber.e(e);
-                return FETCH_STATUS_UNSUCCESSFUL;
-            } catch (JSONException e) {
-                Timber.e(e);
-                return FETCH_STATUS_UNSUCCESSFUL;
+                return SyncUtils.FETCH_STATUS_UNSUCCESSFUL;
             }
         }
 
-        return FETCH_STATUS_SUCCESSFUL;
+        return SyncUtils.FETCH_STATUS_SUCCESSFUL;
     }
 
     private static void insertScheduleJsonIntoData(String json, BlichData blichData) throws JSONException {

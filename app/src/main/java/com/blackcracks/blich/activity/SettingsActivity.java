@@ -41,6 +41,7 @@ import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
+import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import io.realm.Realm;
@@ -261,7 +262,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY))) {
                 setClassPickerSummery();
-                Utilities.syncDatabase(getContext());
+                SyncUtils.syncDatabase(getContext());
             }
             if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
                 BlichSyncUtils.initializeJobService(getContext());

@@ -39,7 +39,7 @@ import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
-import com.blackcracks.blich.util.Utilities;
+import com.blackcracks.blich.util.SyncUtils;
 
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
@@ -172,7 +172,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                Utilities.syncDatabase(getContext());
+                SyncUtils.syncDatabase(getContext());
                 return true;
             }
             default:

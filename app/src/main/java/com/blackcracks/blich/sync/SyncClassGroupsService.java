@@ -13,6 +13,9 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncUtils.FetchStatus;
+import com.blackcracks.blich.util.Utilities;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,22 +32,30 @@ import io.realm.RealmResults;
 /**
  * An {@link IntentService} to fetch the current class groups that are at Blich.
  */
-public class FetchClassService extends IntentService {
+public class SyncClassGroupsService extends IntentService {
 
-    public static final String ACTION_FINISHED_FETCH = "finish_fetch";
-    public static final String IS_SUCCESSFUL_EXTRA = "is_successful";
+    public static final String ACTION_FINISHED_CLASS_GROUP_SYNC = "finish_fetch";
+    public static final String FETCH_STATUS_EXTRA = "fetch_status";
 
-    public FetchClassService() {
-        super("FetchClassService");
+    public SyncClassGroupsService() {
+        super("SyncClassGroupsService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        boolean isSuccessful = fetchClass();
-        Intent broadcast = new Intent(ACTION_FINISHED_FETCH);
-        broadcast.putExtra(IS_SUCCESSFUL_EXTRA, isSuccessful);
+        @FetchStatus int status = beginSync();
+        Intent broadcast = new Intent(ACTION_FINISHED_CLASS_GROUP_SYNC);
+        broadcast.putExtra(FETCH_STATUS_EXTRA, status);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(broadcast);
+    }
+
+    private @FetchStatus int beginSync() {
+        if (Utilities.isThereNetworkConnection(getApplicationContext())) {
+            return fetchClass();
+        } else {
+            return SyncUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
+        }
     }
 
     /**
@@ -52,7 +63,7 @@ public class FetchClassService extends IntentService {
      *
      * @return If the fetch is successful
      */
-    private boolean fetchClass() {
+    private @FetchStatus int fetchClass() {
         URL url = BlichSyncUtils.buildURLFromUri(
                 BlichSyncUtils.buildBaseUriFromCommand(BlichSyncUtils.COMMAND_CLASSES));
 
@@ -61,17 +72,15 @@ public class FetchClassService extends IntentService {
         try {
             String json = BlichSyncUtils.getResponseFromUrl(url);
 
-            if (json.equals("")) return false;
+            if (json == null || json.equals("")) return SyncUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
             insertClassesJsonIntoData(json, data);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
         loadDataIntoRealm(data);
-        return true;
+        return SyncUtils.FETCH_STATUS_SUCCESSFUL;
     }
 
     /**
