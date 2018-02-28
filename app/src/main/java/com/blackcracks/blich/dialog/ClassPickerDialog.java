@@ -51,6 +51,7 @@ public class ClassPickerDialog extends DialogFragment {
 
     private Realm mRealm;
     private boolean mIsDataValid = false;
+    private boolean mIsClassConfigured = false;
 
     private MaterialDialog mDialog;
     private MaterialNumberPicker mClassIndexPicker;
@@ -127,6 +128,7 @@ public class ClassPickerDialog extends DialogFragment {
                 }
 
                 savePreferences(id);
+                mIsClassConfigured = true;
             }
         });
 
@@ -173,7 +175,7 @@ public class ClassPickerDialog extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
+        if (mIsClassConfigured && mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
         mRealm.close();
     }
 

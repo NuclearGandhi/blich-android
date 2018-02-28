@@ -29,7 +29,7 @@
 
     <string name="pref_theme_accent_key">accent_color</string>
     <string name="pref_theme_accent_title">צבע משני</string>
-    
+
     <string name="pref_notification_category_title">התראות</string>
 
     <string name="pref_notification_toggle_key">notification_toggle</string>
@@ -37,7 +37,7 @@
 
     <string name="pref_notification_sound_key">notification_sound</string>
     <string name="pref_notification_sound_title">צליל</string>
-    
+
 
     <string name="pref_filter_category_title">סינון</string>
 
@@ -57,6 +57,8 @@
     <string name="dialog_okay">אישור</string>
     <string name="dialog_try_again">נסה שוב</string>
     <string name="dialog_cancel">ביטול</string>
+
+    <string name="dialog_changelog_title">שינויים וחידושים</string>
 
     <string name="dialog_fetch_no_connection_title">אין חיבור לאינטרנט</string>
     <string name="dialog_fetch_no_connection_message">אין אפשרות לעדכן את הנתונים כיוון שאין חיבור לאינטרנט.</string>

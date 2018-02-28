@@ -33,6 +33,7 @@ import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
@@ -52,10 +53,11 @@ import timber.log.Timber;
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
 public class MainActivity extends BaseThemedActivity implements
-        ATECollapsingTbCustomizer{
+        ATECollapsingTbCustomizer {
 
     private static final String FRAGMENT_TAG = "fragment";
-    private static final String DIALOG_TAG = "class_picker";
+    private static final String DIALOG_CLASS_PICKER_TAG = "class_picker";
+    private static final String DIALOG_CHANGELOG_TAG = "changelog";
 
     //Firebase events constants
     private static final String EVENT_CHANGE_FRAGMENT = "change_fragment";
@@ -91,7 +93,7 @@ public class MainActivity extends BaseThemedActivity implements
 
         //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
-                R.layout.activity_main, null , false);
+                R.layout.activity_main, null, false);
         setContentView(mRootView);
 
         //Restore state if it exists
@@ -140,7 +142,7 @@ public class MainActivity extends BaseThemedActivity implements
     /**
      * Replace a fragment.
      *
-     * @param fragment the {@link Fragment} to switch to
+     * @param fragment       the {@link Fragment} to switch to
      * @param addToBackStack {@code true} add the fragment to back stack.
      */
     private void replaceFragment(Fragment fragment, boolean addToBackStack) {
@@ -208,18 +210,26 @@ public class MainActivity extends BaseThemedActivity implements
 
         //Open a class picker dialog in case this is the first time the user opened the app
         boolean isFirstLaunch = Utilities.isFirstLaunch(this);
-        if (isFirstLaunch && getSupportFragmentManager().findFragmentByTag(DIALOG_TAG) == null) {
-            ClassPickerDialog dialogFragment = new ClassPickerDialog.Builder()
-                    .setDismissible(false)
-                    .setDisplayNegativeButton(false)
-                    .build();
-            dialogFragment.show(getSupportFragmentManager(), DIALOG_TAG);
-            dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
-                @Override
-                public void onDestroy(Context context) {
-                    SyncUtils.initializeSync(context);
-                }
-            });
+        if (isFirstLaunch) {
+            ClassPickerDialog dialogFragment = null;
+            if (savedInstanceState != null) dialogFragment = (ClassPickerDialog)
+                    getSupportFragmentManager().getFragment(savedInstanceState, DIALOG_CLASS_PICKER_TAG);
+
+            if (dialogFragment == null) {
+                dialogFragment = new ClassPickerDialog.Builder()
+                        .setDismissible(false)
+                        .setDisplayNegativeButton(false)
+                        .build();
+
+                dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
+                    @Override
+                    public void onDestroy(Context context) {
+                        SyncUtils.initializeSync(context);
+                        showChangelogDialog();
+                    }
+                });
+            }
+            dialogFragment.show(getSupportFragmentManager(), DIALOG_CLASS_PICKER_TAG);
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 SyncUtils.initializeSync(this);
@@ -334,11 +344,20 @@ public class MainActivity extends BaseThemedActivity implements
         int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
         int newVersion = BuildConfig.VERSION_CODE;
         if (newVersion > oldVersion) {
+            if (!Utilities.isFirstLaunch(this)) {
+                showChangelogDialog();
+            }
+
             PreferenceManager.getDefaultSharedPreferences(this).edit()
                     .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
                             newVersion)
                     .apply();
         }
+    }
+
+    private void showChangelogDialog() {
+        new ChangelogDialog()
+                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
     }
 
     @Override

@@ -21,5 +21,6 @@
     <color name="lesson_exam">#FF8F00</color>
     <color name="lesson_event">#388E3C</color>
 
-    <color name="grey_850">#ff303030</color>
+    <color name="grey_800">#424242</color>
+    <color name="grey_850">#303030</color>
 </resources>
