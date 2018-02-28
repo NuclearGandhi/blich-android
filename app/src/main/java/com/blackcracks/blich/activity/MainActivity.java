@@ -43,6 +43,7 @@ import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 
 import timber.log.Timber;
 
@@ -86,6 +87,7 @@ public class MainActivity extends BaseThemedActivity implements
         setupFirstLaunch(savedInstanceState);
         onUpdate();
         RealmUtils.setUpRealm(this);
+        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
         Utilities.setLocaleToHebrew(this);
         Timber.plant(new Timber.DebugTree());
