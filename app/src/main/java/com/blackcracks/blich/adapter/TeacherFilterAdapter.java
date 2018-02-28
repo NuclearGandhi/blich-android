@@ -109,6 +109,9 @@ public class TeacherFilterAdapter extends BaseAdapter {
             holder.checkBox.setText(Html.fromHtml(text));
         }
 
+        //Remove the listener, otherwise it will get called in the following command
+        checkBox.setOnCheckedChangeListener(null);
+
         //Check the checkbox if it has been previously selected
         if (mTeacherSubjects.contains(teacherSubject))
             checkBox.setChecked(true);
