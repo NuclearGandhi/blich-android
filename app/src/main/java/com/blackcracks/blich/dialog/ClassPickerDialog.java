@@ -11,7 +11,6 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -20,15 +19,16 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
-import com.blackcracks.blich.util.Constants.Preferences;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 
@@ -52,7 +52,7 @@ public class ClassPickerDialog extends DialogFragment {
     private Realm mRealm;
     private boolean mIsDataValid = false;
 
-    private AlertDialog mDialog;
+    private MaterialDialog mDialog;
     private MaterialNumberPicker mClassIndexPicker;
     private MaterialNumberPicker mGradePicker;
     private FrameLayout mProgressBar;
@@ -104,52 +104,36 @@ public class ClassPickerDialog extends DialogFragment {
                 null);
 
         setCancelable(mBuilder.isDismissible);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(rootView);
+        MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getContext());
+        dialogBuilder.customView(rootView, false);
 
         mClassIndexPicker =
                 rootView.findViewById(R.id.dialog_choose_class_number_picker);
         mGradePicker =
                 rootView.findViewById(R.id.dialog_choose_class_name_picker);
 
-        builder.setPositiveButton(R.string.dialog_okay,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String[] displayedValues = mGradePicker.getDisplayedValues();
-                        String gradeName = displayedValues[mGradePicker.getValue()];
-                        int classNum = mClassIndexPicker.getValue();
-                        int id;
-                        if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {//If an abnormal class group
-                            id = RealmUtils.getId(mRealm, gradeName);
-                        } else {
-                            id = RealmUtils.getId(mRealm, gradeName, classNum);
-                        }
+        dialogBuilder.positiveText(R.string.dialog_okay);
+        dialogBuilder.onPositive(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                String[] displayedValues = mGradePicker.getDisplayedValues();
+                String gradeName = displayedValues[mGradePicker.getValue()];
+                int classNum = mClassIndexPicker.getValue();
+                int id;
+                if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {//If an abnormal class group
+                    id = RealmUtils.getId(mRealm, gradeName);
+                } else {
+                    id = RealmUtils.getId(mRealm, gradeName, classNum);
+                }
 
-                        SharedPreferences sharedPreferences = PreferenceManager
-                                .getDefaultSharedPreferences(getContext());
+                savePreferences(id);
+            }
+        });
 
-                        sharedPreferences.edit()
-                                .putInt(
-                                        Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY),
-                                        id)
-                                .apply();
-
-                        sharedPreferences.edit()
-                                .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
-                                .apply();
-
-                        if (mOnDestroyListener != null) {
-                            mOnDestroyListener.onDestroy(getContext());
-                        }
-                    }
-                });
-
-        if (mBuilder.doDisplayNegativeButton)
-            builder.setNegativeButton(R.string.dialog_cancel, null);
+        if (mBuilder.doDisplayNegativeButton) dialogBuilder.negativeText(R.string.dialog_cancel);
 
         mProgressBar = rootView.findViewById(R.id.picker_progressbar);
-        mDialog = builder.create();
+        mDialog = dialogBuilder.build();
         return mDialog;
     }
 
@@ -159,7 +143,7 @@ public class ClassPickerDialog extends DialogFragment {
         if (mIsDataValid) {
             setDataValid();
         } else {
-            mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            mDialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
         }
     }
 
@@ -189,6 +173,7 @@ public class ClassPickerDialog extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
         mRealm.close();
     }
 
@@ -208,7 +193,7 @@ public class ClassPickerDialog extends DialogFragment {
         mIsDataValid = true;
         mProgressBar.setVisibility(View.GONE);
         mGradePicker.setVisibility(View.VISIBLE);
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+        mDialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
 
         ClassGroupUtils.loadDataIntoPicker(
                 mRealm,
@@ -217,10 +202,26 @@ public class ClassPickerDialog extends DialogFragment {
                 ClassGroupUtils.getClassValue(getContext()));
     }
 
+    private void savePreferences(int id) {
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getContext());
+
+        sharedPreferences.edit()
+                .putInt(
+                        Constants.Preferences.getKey(getContext(), Constants.Preferences.PREF_USER_CLASS_GROUP_KEY),
+                        id)
+                .apply();
+
+        sharedPreferences.edit()
+                .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
+                .apply();
+    }
+
     public void setOnDestroyListener(OnDestroyListener listener) {
         mOnDestroyListener = listener;
     }
 
+    //TODO rename
     public interface OnDestroyListener {
         void onDestroy(Context context);
     }
