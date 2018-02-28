@@ -9,4 +9,6 @@
 /.idea/runConfigurations.xml
 /build
 /captures
+/app/build
 /app/lint.xml
+/app/google-services.json
