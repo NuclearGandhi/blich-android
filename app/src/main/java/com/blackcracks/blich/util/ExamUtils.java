@@ -24,20 +24,15 @@ public class ExamUtils {
      * @return built GenericExams.
      */
     public static List<GenericExam> buildExamsList(List<Exam> exams) {
-        List<GenericExam> genericExams = new ArrayList<>();
-        GenericExam genericExam = null;
-        for (Exam exam :
-                exams) {
-            if (genericExam == null) genericExam = new GenericExam(exam);
-            else {
-                boolean didAdd = genericExam.addExam(exam);
-                if (!didAdd) {
-                    genericExams.add(genericExam);
-                    genericExam = null;
-                }
+        List<GenericExam> toReturn = new ArrayList<>();
+        for(Exam exam : exams) {
+            boolean didAdd = false;
+            for (int i = 0; i < toReturn.size() && !didAdd; i++) {
+                didAdd = toReturn.get(i).addExam(exam);
             }
+            if (!didAdd) toReturn.add(new GenericExam(exam));
         }
 
-        return genericExams;
+        return toReturn;
     }
 }

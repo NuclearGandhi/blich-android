@@ -62,6 +62,7 @@ public class RealmExamHelper {
     private void buildMonthDividers(List<GenericExam> exams) {
         mExamItems.add(
                 new MonthDivider(exams.get(0).getDate()));
+        mExamItems.add(exams.get(0));
 
         for (int i = 1; i < exams.size(); i++) {
             GenericExam exam = exams.get(i);

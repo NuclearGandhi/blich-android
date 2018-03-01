@@ -89,7 +89,9 @@ public class Exam extends RealmObject implements DatedLesson {
     public void setName(String name) {
         if (name.contains("מבחן") ||
                 name.contains("בוחן") ||
-                name.contains("מבחני")) {
+                name.contains("מבחני") ||
+                name.contains("מתכונת") ||
+                name.contains("בגרות")) {
             this.name = name;
         } else {
             this.name = "מבחן ב" + name;
