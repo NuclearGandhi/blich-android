@@ -215,23 +215,28 @@ public class MainActivity extends BaseThemedActivity implements
         if (isFirstLaunch) {
             ClassPickerDialog dialogFragment = null;
             if (savedInstanceState != null) dialogFragment = (ClassPickerDialog)
-                    getSupportFragmentManager().getFragment(savedInstanceState, DIALOG_CLASS_PICKER_TAG);
+                    getSupportFragmentManager().findFragmentByTag(DIALOG_CLASS_PICKER_TAG);
 
             if (dialogFragment == null) {
                 dialogFragment = new ClassPickerDialog.Builder()
                         .setDismissible(false)
                         .setDisplayNegativeButton(false)
                         .build();
-
-                dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
-                    @Override
-                    public void onDestroy(Context context) {
-                        SyncUtils.initializeSync(context);
-                        showChangelogDialog();
-                    }
-                });
             }
-            dialogFragment.show(getSupportFragmentManager(), DIALOG_CLASS_PICKER_TAG);
+
+
+            dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
+                @Override
+                public void onDestroy(Context context) {
+                    SyncUtils.initializeSync(context);
+                    showChangelogDialog();
+                }
+            });
+
+            if (!dialogFragment.isAdded()) {
+                dialogFragment.show(getSupportFragmentManager(), DIALOG_CLASS_PICKER_TAG);
+            }
+
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 SyncUtils.initializeSync(this);
