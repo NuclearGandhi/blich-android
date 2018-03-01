@@ -70,11 +70,12 @@ public class ChangelogDialog extends DialogFragment {
             String ateKey = Utilities.getATEKey(getContext());
             String darkDialogHex = colorToHex(ContextCompat.getColor(getContext(), R.color.grey_800));
             String lightDialogHex = colorToHex(Color.WHITE);
+
             final String backgroundColor = ateKey.equals("dark_theme") ? darkDialogHex : lightDialogHex;
             final String textColor = colorToHex(Config.textColorPrimary(getContext(), ateKey));
             webView.loadData(buf.toString()
-                    .replace("{background-color}", backgroundColor)
-                    .replace("{text-color}", textColor)
+                    .replace("{#background-color}", backgroundColor)
+                    .replace("{#text-color}", textColor)
                     , "text/html", "UTF-8");
         } catch (Throwable e) {
             webView.loadData("<h1>Unable to load</h1><p>" + e.getLocalizedMessage() + "</p>", "text/html", "UTF-8");
