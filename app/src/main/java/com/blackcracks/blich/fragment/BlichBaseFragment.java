@@ -92,7 +92,7 @@ public abstract class BlichBaseFragment extends Fragment implements
                         BlichSyncIntentService.EXTRA_FETCH_STATUS,
                         SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
 
-                SyncUtils.syncFinishedCallback(context, status, true, onSyncRetryListener);
+                SyncUtils.syncFinishedCallback(getActivity(), status, true, onSyncRetryListener);
             }
         };
 

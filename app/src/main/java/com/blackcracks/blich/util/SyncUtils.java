@@ -12,6 +12,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -67,7 +69,7 @@ public class SyncUtils {
      * @param status          a {@link FetchStatus} returned from
      *                        the sync.
      */
-    public static void syncFinishedCallback(Context context,
+    public static void syncFinishedCallback(FragmentActivity context,
                                             @FetchStatus int status,
                                             boolean dialogDismissible,
                                             final OnSyncRetryListener onRetryListener) {
@@ -121,7 +123,10 @@ public class SyncUtils {
             dialogBuilder.cancelable(false);
         }
 
-        dialogBuilder.show();
+        MaterialDialog dialog = dialogBuilder.build();
+        dialog.getView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+
+        dialog.show();
     }
 
     public interface OnSyncRetryListener {

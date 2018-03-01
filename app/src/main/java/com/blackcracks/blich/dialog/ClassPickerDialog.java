@@ -84,7 +84,7 @@ public class ClassPickerDialog extends DialogFragment {
             public void onReceive(Context context, Intent intent) {
                 int status = intent.getIntExtra(SyncClassGroupsService.FETCH_STATUS_EXTRA, SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
                 if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) setDataValid();
-                SyncUtils.syncFinishedCallback(getContext(), status, mBuilder.isDismissible, onSyncRetryListener);
+                SyncUtils.syncFinishedCallback(getActivity(), status, mBuilder.isDismissible, onSyncRetryListener);
             }
         };
 
