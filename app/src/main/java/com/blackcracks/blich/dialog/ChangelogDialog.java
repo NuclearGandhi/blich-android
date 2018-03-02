@@ -29,7 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * @author Aidan Follestad (afollestad)
+ * A dialog to display the latest features and improvements added to the app.
+ * Copied from <a href="https://github.com/kabouzeid/Phonograph"</a>
  */
 public class ChangelogDialog extends DialogFragment {
 
@@ -57,7 +58,7 @@ public class ChangelogDialog extends DialogFragment {
 
         final WebView webView = customView.findViewById(R.id.web_view);
         try {
-            // Load from phonograph-changelog.html in the assets folder
+            // Load from change_log.html in the assets folder
             StringBuilder buf = new StringBuilder();
             InputStream html = getActivity().getAssets().open("change_log.html");
             BufferedReader in = new BufferedReader(new InputStreamReader(html, "UTF-8"));
@@ -71,8 +72,11 @@ public class ChangelogDialog extends DialogFragment {
             String darkDialogHex = colorToHex(ContextCompat.getColor(getContext(), R.color.grey_800));
             String lightDialogHex = colorToHex(Color.WHITE);
 
+            //Get the theme-related colors
             final String backgroundColor = ateKey.equals("dark_theme") ? darkDialogHex : lightDialogHex;
             final String textColor = colorToHex(Config.textColorPrimary(getContext(), ateKey));
+
+            //Load the html
             webView.loadData(buf.toString()
                     .replace("{#background-color}", backgroundColor)
                     .replace("{#text-color}", textColor)

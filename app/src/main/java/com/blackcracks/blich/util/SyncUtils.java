@@ -24,6 +24,9 @@ import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * A class containing utility methods to initialize sync and handle UI responses to it.
+ */
 public class SyncUtils {
 
     @Retention(SOURCE)
@@ -38,13 +41,16 @@ public class SyncUtils {
 
     public static final int FETCH_STATUS_CLASS_UNSUCCESSFUL = 101;
 
+    /**
+     * Initialize all the sync related settings and calls.
+     */
     public static void initializeSync(Context context) {
         BlichSyncUtils.initializeJobService(context);
         syncDatabase(context);
     }
 
     /**
-     * Begin sync.
+     * Call an immediate sync. Cancel if sync is already taking place.
      */
     public static void syncDatabase(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
@@ -129,7 +135,13 @@ public class SyncUtils {
         dialog.show();
     }
 
+    /**
+     * A listener for when sync callback fails.
+     */
     public interface OnSyncRetryListener {
+        /**
+         * Called whenever a sync failed and it was requested to retry.
+         */
         void onRetry();
     }
 }
