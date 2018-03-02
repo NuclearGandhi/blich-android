@@ -1,3 +1,8 @@
+/*
+ * Written by Ido Fang Bentov
+ * Copyright (C) Blich - All Rights Reserved
+ */
+
 package com.blackcracks.blich.activity;/*
  * Copyright (C) Ido Fang Bentov - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
