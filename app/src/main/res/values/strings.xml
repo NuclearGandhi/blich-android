@@ -97,7 +97,9 @@
     <string name="about_it">מנהלי רשתות</string>
     <string name="about_it_name">עמי ארנוזון ועמוס שאול</string>
     <string name="about_dev">צוות פיתוח</string>
-    <string name="about_dev_name">אתגר שמואלי ועידו פנג בנטוב</string>
+
+    <string name="about_dev_android_name"><b>אנדרואיד: </b>עידו פנג בנטוב</string>
+    <string name="about_dev_ios_name"><b>אייפון: </b>בן רז ואתגר שמואלי</string>
     <string name="about_email">מייל לתמיכה</string>
 
 </resources>

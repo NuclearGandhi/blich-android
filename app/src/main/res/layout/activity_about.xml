@@ -6,16 +6,17 @@
   ~ Written by Ido Fang Bentov <dodobentov@gmail.com>, 2017
   -->
 
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="128dp"
     tools:context="com.blackcracks.blich.activity.AboutActivity">
 
     <TextView
-        android:id="@+id/principle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
@@ -24,26 +25,15 @@
         android:layout_marginTop="0dp"
         android:text="@string/about_principle"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.19999999"/>
+        android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/principle_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="8dp"
-        android:text="@string/about_principle_name"
-        app:layout_constraintHorizontal_bias="0.521"
-        app:layout_constraintLeft_toLeftOf="@+id/principle"
-        app:layout_constraintRight_toRightOf="@+id/principle"
-        app:layout_constraintTop_toBottomOf="@+id/principle"/>
+        android:text="@string/about_principle_name"/>
 
     <TextView
         android:id="@+id/tech_support"
@@ -54,23 +44,15 @@
         android:layout_marginTop="32dp"
         android:text="@string/about_it"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.545"
-        app:layout_constraintLeft_toLeftOf="@+id/principle_name"
-        app:layout_constraintRight_toRightOf="@+id/principle_name"
-        app:layout_constraintTop_toBottomOf="@+id/principle_name"/>
+        android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/text_support_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="8dp"
-        android:text="@string/about_it_name"
-        app:layout_constraintLeft_toLeftOf="@+id/tech_support"
-        app:layout_constraintRight_toRightOf="@+id/tech_support"
-        app:layout_constraintTop_toBottomOf="@+id/tech_support"/>
+        android:text="@string/about_it_name"/>
 
     <TextView
         android:id="@+id/developers"
@@ -81,27 +63,25 @@
         android:layout_marginTop="32dp"
         android:text="@string/about_dev"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintLeft_toLeftOf="@+id/text_support_name"
-        app:layout_constraintRight_toRightOf="@+id/text_support_name"
-        app:layout_constraintTop_toBottomOf="@+id/text_support_name"/>
+        android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/developers_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="8dp"
-        android:text="@string/about_dev_name"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintLeft_toLeftOf="@+id/developers"
-        app:layout_constraintRight_toRightOf="@+id/developers"
-        app:layout_constraintTop_toBottomOf="@+id/developers"/>
+        android:text="@string/about_dev_android_name"/>
 
     <TextView
-        android:id="@+id/support_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/about_dev_ios_name"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
@@ -109,11 +89,7 @@
         android:layout_marginTop="56dp"
         android:text="@string/about_email"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.513"
-        app:layout_constraintLeft_toLeftOf="@+id/developers_name"
-        app:layout_constraintRight_toRightOf="@+id/developers_name"
-        app:layout_constraintTop_toBottomOf="@+id/developers_name"/>
+        android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/support_email_name"
@@ -129,10 +105,6 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:text="@string/about_email_click"
-        android:textColor="?android:attr/textColorLink"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toLeftOf="@+id/support_email"
-        app:layout_constraintRight_toRightOf="@+id/support_email"
-        app:layout_constraintTop_toBottomOf="@+id/support_email"/>
+        android:textColor="?android:attr/textColorLink"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
