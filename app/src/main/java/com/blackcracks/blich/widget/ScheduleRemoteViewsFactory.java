@@ -100,7 +100,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
             if (lesson == null) {//This is not a replacer DatedLesson
                 List<DatedLesson> nonReplacingLessons = mRealmHelper.getAdditionalLessons(hour);
-                int lastLessonPos = mRealmHelper.getLessonCount(position) - 1;
+                int lastLessonPos = mRealmHelper.getLessonCount(position);
                 int index = i - lastLessonPos;
                 datedLesson = nonReplacingLessons.get(index);
             } else {
