@@ -29,6 +29,7 @@ import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
@@ -126,6 +127,7 @@ public class ClassPickerDialog extends DialogFragment {
                 }
 
                 savePreferences(id);
+                FirebaseAnalytics.getInstance(getContext()).setUserProperty("class_group_id", "" + id);
                 mIsClassConfigured = true;
             }
         });

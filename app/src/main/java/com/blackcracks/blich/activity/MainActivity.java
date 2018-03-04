@@ -35,6 +35,7 @@ import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
+import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
@@ -357,6 +358,11 @@ public class MainActivity extends BaseThemedActivity implements
                     .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
                             newVersion)
                     .apply();
+
+            if (oldVersion < 36) {
+                int id = ClassGroupUtils.getClassValue(this);
+                mFirebaseAnalytic.setUserProperty("class_group_id", "" + id);
+            }
         }
     }
 
