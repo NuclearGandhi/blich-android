@@ -5,6 +5,7 @@
 
 package com.blackcracks.blich.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
@@ -154,8 +155,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         @Override
-        public void onResume() {
-            super.onResume();
+        public void onStart() {
+            super.onStart();
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
         }
@@ -168,15 +169,23 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         @Override
-        public void onDisplayPreferenceDialog(Preference preference) {
+        public void onDisplayPreferenceDialog(final Preference preference) {
             PreferenceDialogFragmentCompat fragment = null;
 
             if (preference instanceof ClassPickerPreference) {
-                new ClassPickerDialog.Builder()
+                ClassPickerDialog dialog =  new ClassPickerDialog.Builder()
                         .setDismissible(true)
                         .setDisplayNegativeButton(true)
-                        .build()
-                        .show(getFragmentManager(), DIALOG_TAG);
+                        .build();
+
+                dialog.setOnPositiveClickListener(new ClassPickerDialog.OnPositiveClickListener() {
+                    @Override
+                    public void onDestroy(Context context, int id) {
+                        ((ClassPickerPreference) preference).setValue(id);
+                    }
+                });
+
+                dialog.show(getFragmentManager(), DIALOG_TAG);
             } else if (preference instanceof FilterPreference) {
                 fragment = FilterPreferenceDialogFragment.newInstance(preference);
             }

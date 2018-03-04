@@ -11,9 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,7 +24,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -51,13 +48,14 @@ public class ClassPickerDialog extends DialogFragment {
     private Realm mRealm;
     private boolean mIsDataValid = false;
     private boolean mIsClassConfigured = false;
+    private int mId = -1;
 
     private MaterialDialog mDialog;
     private MaterialNumberPicker mClassIndexPicker;
     private MaterialNumberPicker mGradePicker;
     private FrameLayout mProgressBar;
     private BroadcastReceiver mFetchBroadcastReceiver;
-    private OnDestroyListener mOnDestroyListener;
+    private OnPositiveClickListener mOnDestroyListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,7 +124,7 @@ public class ClassPickerDialog extends DialogFragment {
                     id = RealmUtils.getId(mRealm, gradeName, classNum);
                 }
 
-                savePreferences(id);
+                mId = id;
                 FirebaseAnalytics.getInstance(getContext()).setUserProperty("class_group_id", "" + id);
                 mIsClassConfigured = true;
             }
@@ -175,7 +173,9 @@ public class ClassPickerDialog extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mIsClassConfigured && mOnDestroyListener != null) mOnDestroyListener.onDestroy(getContext());
+        if (mIsClassConfigured && mOnDestroyListener != null) {
+            mOnDestroyListener.onDestroy(getContext(), mId);
+        }
         mRealm.close();
     }
 
@@ -204,28 +204,12 @@ public class ClassPickerDialog extends DialogFragment {
                 ClassGroupUtils.getClassValue(getContext()));
     }
 
-    private void savePreferences(int id) {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(getContext());
-
-        sharedPreferences.edit()
-                .putInt(
-                        Constants.Preferences.getKey(getContext(), Constants.Preferences.PREF_USER_CLASS_GROUP_KEY),
-                        id)
-                .apply();
-
-        sharedPreferences.edit()
-                .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
-                .apply();
-    }
-
-    public void setOnDestroyListener(OnDestroyListener listener) {
+    public void setOnPositiveClickListener(OnPositiveClickListener listener) {
         mOnDestroyListener = listener;
     }
 
-    //TODO rename
-    public interface OnDestroyListener {
-        void onDestroy(Context context);
+    public interface OnPositiveClickListener {
+        void onDestroy(Context context, int id);
     }
 
     public static class Builder {

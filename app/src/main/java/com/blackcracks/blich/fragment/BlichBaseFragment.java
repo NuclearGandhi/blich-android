@@ -38,7 +38,7 @@ import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.sync.BlichSyncIntentService;
-import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.SyncUtils;
 
@@ -129,19 +129,13 @@ public abstract class BlichBaseFragment extends Fragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        mSwipeRefreshLayout.setRefreshing(
-                PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_IS_SYNCING_KEY
-        ));
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         invalidateATE();
 
+        boolean isRefreshing = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_IS_SYNCING_KEY);
+        mSwipeRefreshLayout.setRefreshing(
+                PreferencesUtils.getBoolean(getContext(), Preferences.PREF_IS_SYNCING_KEY));
         PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mSyncBroadcastReceiver,
@@ -158,8 +152,8 @@ public abstract class BlichBaseFragment extends Fragment implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_is_syncing_key))) {
-            mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_IS_SYNCING_KEY));
+        if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_IS_SYNCING_KEY))) {
+            mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(getContext(), Preferences.PREF_IS_SYNCING_KEY));
         }
     }
 

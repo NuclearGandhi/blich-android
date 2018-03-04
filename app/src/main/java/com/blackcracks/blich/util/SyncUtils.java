@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.util.Constants.Preferences;
 
 import java.lang.annotation.Retention;
 
@@ -51,20 +52,10 @@ public class SyncUtils {
      * Call an immediate sync. Cancel if sync is already taking place.
      */
     public static void syncDatabase(Context context) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
-                .apply();
-
-        boolean isFetching = PreferencesUtils.getBoolean(
-                context,
-                Constants.Preferences.PREF_IS_SYNCING_KEY
-        );
-        if (!isFetching) {
             PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(context.getString(R.string.pref_is_syncing_key), true)
+                    .putBoolean(Preferences.getKey(context, Preferences.PREF_IS_SYNCING_KEY), true)
                     .apply();
             BlichSyncUtils.startImmediateSync(context);
-        }
     }
 
     /**
@@ -77,10 +68,6 @@ public class SyncUtils {
                                             @FetchStatus int status,
                                             boolean dialogDismissible,
                                             final OnSyncRetryListener onRetryListener) {
-
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(context.getString(R.string.pref_is_syncing_key), false)
-                .apply();
 
         @StringRes int titleString;
         @StringRes int messageString;

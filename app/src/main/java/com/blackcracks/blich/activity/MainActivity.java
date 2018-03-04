@@ -46,6 +46,8 @@ import com.google.firebase.crash.FirebaseCrash;
 
 import timber.log.Timber;
 
+import static com.blackcracks.blich.dialog.ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY;
+
 /**
  * The launch {@link AppCompatActivity}.
  * <p> It instantiates and handles all the necessary settings for the app to work.
@@ -82,15 +84,18 @@ public class MainActivity extends BaseThemedActivity implements
         super.onCreate(savedInstanceState);
         //Initialization stuff
         setupTheme();
-        migrateOldSettings();
-        setupFirstLaunch(savedInstanceState);
-        onUpdate();
-        RealmUtils.setUpRealm(this);
+
+        mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
         Utilities.setLocaleToHebrew(this);
         Timber.plant(new Timber.DebugTree());
-        mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
+        RealmUtils.setUpRealm(this);
+
+        migrateOldSettings();
+        setupFirstLaunch(savedInstanceState);
+
+        onUpdate();
 
         //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
@@ -224,9 +229,13 @@ public class MainActivity extends BaseThemedActivity implements
             }
 
 
-            dialogFragment.setOnDestroyListener(new ClassPickerDialog.OnDestroyListener() {
+            dialogFragment.setOnPositiveClickListener(new ClassPickerDialog.OnPositiveClickListener() {
                 @Override
-                public void onDestroy(Context context) {
+                public void onDestroy(Context context, int id) {
+                    PreferenceManager.getDefaultSharedPreferences(context).edit()
+                            .putInt(Preferences.getKey(context, Preferences.PREF_USER_CLASS_GROUP_KEY), id)
+                            .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
+                            .apply();
                     SyncUtils.initializeSync(context);
                     showChangelogDialog();
                 }
@@ -334,7 +343,7 @@ public class MainActivity extends BaseThemedActivity implements
         //If using old user settings
         if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
             PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, true)
                     .apply();
 
             PreferenceManager.getDefaultSharedPreferences(this).edit()

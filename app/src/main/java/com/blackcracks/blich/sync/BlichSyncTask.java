@@ -7,9 +7,8 @@ package com.blackcracks.blich.sync;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceManager;
+import android.preference.PreferenceManager;
 
-import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
@@ -17,6 +16,7 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.SyncUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -25,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.RealmList;
@@ -55,10 +54,8 @@ public class BlichSyncTask {
         BlichData blichData = new BlichData();
         int status = fetchData(context, blichData);
 
-        //Save in preferences the latest update time
-        long currentTime = Calendar.getInstance().getTimeInMillis();
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putLong(context.getString(R.string.pref_latest_update_key), currentTime)
+                .putBoolean(Preferences.getKey(context, Preferences.PREF_IS_SYNCING_KEY), false)
                 .apply();
 
         BlichSyncUtils.loadDataIntoRealm(blichData);
