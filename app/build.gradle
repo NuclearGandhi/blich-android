@@ -25,8 +25,8 @@ android {
         applicationId "com.blackcracks.blich"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 36
-        versionName "v1.6.1rc1"
+        versionCode 37
+        versionName "v1.6.1rc2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
