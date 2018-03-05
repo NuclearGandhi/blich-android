@@ -358,7 +358,7 @@ public class MainActivity extends BaseThemedActivity implements
     private void onUpdate() {
         int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
         int newVersion = BuildConfig.VERSION_CODE;
-        if (newVersion > oldVersion) {
+        if (newVersion > oldVersion && (newVersion != 37)) {
             if (!Utilities.isFirstLaunch(this)) {
                 showChangelogDialog();
             }
