@@ -179,15 +179,18 @@ public class BlichFirebaseJobService extends JobService {
         if (isFilterOn) {
             RealmUtils.buildFilteredQuery(
                     changesQuery,
-                    getBaseContext());
+                    getBaseContext(),
+                    Change.class);
 
             RealmUtils.buildFilteredQuery(
                     examsQuery,
-                    getBaseContext());
+                    getBaseContext(),
+                    Exam.class);
 
             RealmUtils.buildFilteredQuery(
                     eventsQuery,
-                    getBaseContext());
+                    getBaseContext(),
+                    Event.class);
         }
 
         List<DatedLesson> results = new ArrayList<>();

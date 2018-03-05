@@ -166,18 +166,20 @@ public class RealmUtils {
                 break;
         }
 
-        return buildFilteredQuery(query, context);
+        return buildFilteredQuery(query, context, clazz);
     }
 
     /**
      * Build a query on top of a query, containing all the filter rules.
      *
      * @param query a query to build upon.
+     * @param clazz
      * @return a {@link RealmQuery}.
      */
     public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
-            Context context) {
+            Context context,
+            Class<E> clazz) {
 
 
         String teacherFilter = PreferencesUtils.getString(
@@ -185,13 +187,8 @@ public class RealmUtils {
                 Constants.Preferences.PREF_FILTER_SELECT_KEY);
         String[] teacherSubjects = teacherFilter.split(";");
 
-        query.and()
-                .beginGroup()
-                .beginGroup()
-                .equalTo("teacher", "")
-                .and()
-                .equalTo("subject", "")
-                .endGroup();
+        query.and().beginGroup();
+        addTeacherSubjectFilter(query, clazz, "", "");
 
         for (String teacherSubject :
                 teacherSubjects) {
@@ -201,17 +198,32 @@ public class RealmUtils {
             String teacher = arr[0];
             String subject = arr[1];
 
-            query.or()
-                    .beginGroup()
-                    .equalTo("teacher", teacher)
-                    .and()
-                    .equalTo("subject", subject)
-                    .endGroup();
+            addTeacherSubjectFilter(query, clazz, teacher, subject);
         }
 
         query.endGroup();
 
         return query;
+    }
+
+    private static <E extends RealmModel> void addTeacherSubjectFilter(
+            RealmQuery<E> query,
+            Class<E> clazz,
+            String teacher,
+            String subject) {
+        query.or()
+                .beginGroup()
+                .equalTo("teacher", teacher)
+                .and()
+                .equalTo("subject", subject)
+                .endGroup();
+
+        if (clazz.getSimpleName().equals("Change")) {
+            query.or()
+                    .beginGroup()
+                    .equalTo("newTeacher", teacher)
+                    .endGroup();
+        }
     }
 
 
