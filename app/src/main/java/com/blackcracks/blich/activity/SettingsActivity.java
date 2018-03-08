@@ -32,6 +32,7 @@ import com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceFragmentCompat
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.FilterPreference;
@@ -365,7 +366,9 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
             int classId = classPickerPreference.getValue();
             Realm realm = Realm.getDefaultInstance();
-            String grade = RealmUtils.getGrade(realm, classId).getName();
+
+            ClassGroup classGroup = RealmUtils.getGrade(realm, classId);
+            String grade = classGroup != null ? classGroup.getName() : "לא הוגדר";
             classPickerPreference.setSummary(grade);
             realm.close();
         }

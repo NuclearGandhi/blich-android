@@ -7,6 +7,7 @@ package com.blackcracks.blich.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.data.Hour;
@@ -415,7 +416,7 @@ public class RealmUtils {
      * @param id the id of the {@link ClassGroup}.
      * @return a {@link ClassGroup}.
      */
-    public static ClassGroup getGrade(Realm realm, int id) {
+    public static @Nullable ClassGroup getGrade(Realm realm, int id) {
         return realm.where(ClassGroup.class)
                 .equalTo("id", id)
                 .findFirst();
