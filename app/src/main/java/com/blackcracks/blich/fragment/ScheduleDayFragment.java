@@ -97,16 +97,16 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mRealm.addChangeListener(mChangeListener);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getContext())
                 .registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mRealm.addChangeListener(mChangeListener);
     }
 
     @Override
@@ -117,10 +117,24 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        mRealm.removeChangeListener(mChangeListener);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        mRealm.removeChangeListener(mChangeListener);
         mRealm.close();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (getContext() == null) return; //In some cases this method is called when the fragment has been detached
+
+        if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY))) {
+            getLoaderManager().restartLoader(SCHEDULE_LOADER_ID, Bundle.EMPTY, this);
+        }
     }
 
     @Override
@@ -136,13 +150,6 @@ public class ScheduleDayFragment extends Fragment implements
     @Override
     public void onLoaderReset(Loader<ScheduleResult> loader) {
         mAdapter.switchData(null);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY))) {
-            getLoaderManager().restartLoader(SCHEDULE_LOADER_ID, Bundle.EMPTY, this);
-        }
     }
 
     /**
