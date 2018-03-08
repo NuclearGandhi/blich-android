@@ -15,8 +15,8 @@ import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.SyncUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -54,13 +54,15 @@ public class BlichSyncTask {
         BlichData blichData = new BlichData();
         int status = fetchData(context, blichData);
 
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(Preferences.getKey(context, Preferences.PREF_IS_SYNCING_KEY), false)
-                .apply();
-
-        BlichSyncUtils.loadDataIntoRealm(blichData);
+        if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
+            BlichSyncUtils.loadDataIntoRealm(blichData);
+        }
 
         //Log the end of sync
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putBoolean(Constants.Preferences.getKey(context, Constants.Preferences.PREF_IS_SYNCING_KEY), false)
+                .apply();
+
         Bundle bundle = new Bundle();
         bundle.putInt(LOG_PARAM_STATUS_SYNC, status);
         firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
