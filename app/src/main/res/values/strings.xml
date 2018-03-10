@@ -11,7 +11,7 @@
 
     <string name="about_email_click">לחץ כדי לשלוח מייל</string>
 
-    <string name="action_button_refresh">עדכן</string>
+    <string name="action_button_refresh">רפרוש</string>
     <string name="action_button_filter_toggle">סינון</string>
 
     <string name="pref_user_class_group_key">class_group</string>
