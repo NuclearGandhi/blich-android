@@ -8,6 +8,7 @@ package com.blackcracks.blich.util;
 import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.data.DatedLesson;
+import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
@@ -143,7 +144,7 @@ public class RealmScheduleHelper {
     DatedLesson getNonReplacingLesson(Hour hour) {
         for (DatedLesson lesson :
                 mDatedLessons) {
-            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer()) {
+            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer() && lesson instanceof Event) {
                 return lesson;
             }
         }
