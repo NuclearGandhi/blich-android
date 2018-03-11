@@ -12,14 +12,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 
 import com.blackcracks.blich.BuildConfig;
+import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.util.ClassGroupUtils;
-import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -79,8 +78,7 @@ public class BlichSyncUtils {
      * Start or cancel the periodic sync.
      */
     synchronized public static void initializeJobService(@NonNull Context context) {
-        boolean is_notifications_on = PreferencesUtils.getBoolean(context,
-                Constants.Preferences.PREF_NOTIFICATION_TOGGLE_KEY);
+        boolean is_notifications_on = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
 
         Driver driver = new GooglePlayDriver(context);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
@@ -159,7 +157,7 @@ public class BlichSyncUtils {
      * @return a {@link URL}.
      */
     static URL buildUrlFromCommand(Context context, @FetchCommand String command) {
-        int classValue = ClassGroupUtils.getClassValue(context);
+        int classValue = PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key);
 
         Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))

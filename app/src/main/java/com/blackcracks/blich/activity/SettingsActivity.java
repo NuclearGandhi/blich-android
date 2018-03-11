@@ -38,8 +38,7 @@ import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
-import com.blackcracks.blich.util.Constants.Preferences;
-import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 
@@ -200,17 +199,14 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             String key = preference.getKey();
             if (key == null) return true;
             //Handle the notification sound preference
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY))) {
+            if (key.equals(getString(R.string.pref_notification_sound_key))) {
                 Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
 
-                String existingValue = PreferencesUtils.getString(getContext(),
-                        key,
-                        (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY),
-                        true);
+                String existingValue = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
                 if (existingValue != null) {
                     if (existingValue.length() == 0) {
                         // Select "Silent"
@@ -236,7 +232,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             //Handle the notification sound preference
             if (requestCode == RINGTONE_PICKER_REQUEST && data != null) {
 
-                String key = Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
+                String key = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
                 Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                 if (uri != null) {
 
@@ -261,14 +257,14 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY))) {
+            if (key.equals(getString(R.string.pref_user_class_group_key))) {
                 setClassPickerSummery();
                 SyncUtils.syncDatabase(getContext());
             }
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_TOGGLE_KEY))) {
+            if (key.equals(getString(R.string.pref_notification_toggle_key))) {
                 BlichSyncUtils.initializeJobService(getContext());
             }
-            if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_SELECT_KEY))) {
+            if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();
             }
         }
@@ -327,16 +323,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         //Notification Sound Preference
         private void setNotificationSoundPreference() {
-            String notificationSoundKey =
-                    Preferences.getKey(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
-
-            String notificationSoundDefault =
-                    (String) Preferences.getDefault(getContext(), Preferences.PREF_NOTIFICATION_SOUND_KEY);
-
-            String uri = PreferencesUtils.getString(getContext(),
-                    notificationSoundKey,
-                    notificationSoundDefault,
-                    true);
+            String notificationSoundKey = getString(R.string.pref_notification_sound_key);
+            String uri = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
             if (!uri.equals("")) {
                 PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
                         .putString(notificationSoundKey, uri)
@@ -357,8 +345,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         //Class Picker Preference
         private void setClassPickerSummery() {
-            String classPickerKey =
-                    Preferences.getKey(getContext(), Preferences.PREF_USER_CLASS_GROUP_KEY);
+            String classPickerKey = getString(R.string.pref_user_class_group_key);
             ClassPickerPreference classPickerPreference =
                     (ClassPickerPreference) findPreference(classPickerKey);
 

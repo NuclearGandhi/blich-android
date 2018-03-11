@@ -7,6 +7,7 @@ package com.blackcracks.blich.util;
 
 import android.content.Context;
 
+import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Event;
@@ -60,9 +61,7 @@ public class ScheduleUtils {
             int day,
             boolean loadToRAM) {
         //Check if the user wants to filter the schedule
-        boolean isFilterOn = PreferencesUtils.getBoolean(
-                context,
-                Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
         List<Hour> hours;
         List<Change> changes;

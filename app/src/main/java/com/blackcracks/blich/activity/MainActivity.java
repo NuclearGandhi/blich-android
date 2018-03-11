@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -35,8 +34,7 @@ import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.util.Constants.Preferences;
-import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -44,8 +42,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
 import timber.log.Timber;
-
-import static com.blackcracks.blich.dialog.ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY;
 
 /**
  * The launch {@link AppCompatActivity}.
@@ -70,12 +66,14 @@ public class MainActivity extends BaseThemedActivity implements
     //Key to store whether this is the first time MainActivity is created in the app process
     private static final String IS_FIRST_INSTANCE_KEY = "is_first";
 
+    private FirebaseAnalytics mFirebaseAnalytic;
+    private PreferenceUtils mPreferenceUtils;
+
     private View mRootView;
 
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    private FirebaseAnalytics mFirebaseAnalytic;
 
     @SuppressLint("InflateParams")
     @Override
@@ -87,6 +85,7 @@ public class MainActivity extends BaseThemedActivity implements
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
+        mPreferenceUtils = PreferenceUtils.getInstance(this);
         Timber.plant(new Timber.DebugTree());
         RealmUtils.setUpRealm(this);
 
@@ -157,21 +156,16 @@ public class MainActivity extends BaseThemedActivity implements
 
     private void migrateOldSettings() {
         //If using old user settings
-        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, true)
-                    .apply();
-
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putInt(Preferences.getKey(this, Preferences.PREF_USER_CLASS_GROUP_KEY), 1)
-                    .apply();
+        if (mPreferenceUtils.getInt(R.string.pref_user_class_group_key) == -1) {
+            mPreferenceUtils.putBoolean(R.string.pref_is_first_launch, true);
+            mPreferenceUtils.putInt(R.string.pref_user_class_group_key, 1);
         }
     }
 
     private void setupFirstLaunch(Bundle savedInstanceState) {
 
         //Open a class picker dialog in case this is the first time the user opened the app
-        boolean isFirstLaunch = Utilities.isFirstLaunch(this);
+        boolean isFirstLaunch = mPreferenceUtils.getBoolean(R.string.pref_is_first_launch);
         if (isFirstLaunch) {
             ClassPickerDialog dialogFragment = null;
             if (savedInstanceState != null) dialogFragment = (ClassPickerDialog)
@@ -188,10 +182,8 @@ public class MainActivity extends BaseThemedActivity implements
             dialogFragment.setOnPositiveClickListener(new ClassPickerDialog.OnPositiveClickListener() {
                 @Override
                 public void onDestroy(Context context, int id) {
-                    PreferenceManager.getDefaultSharedPreferences(context).edit()
-                            .putInt(Preferences.getKey(context, Preferences.PREF_USER_CLASS_GROUP_KEY), id)
-                            .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, false)
-                            .apply();
+                    mPreferenceUtils.putInt(R.string.pref_user_class_group_key, id);
+                    mPreferenceUtils.putBoolean(R.string.pref_is_first_launch, false);
                     SyncUtils.initializeSync(context);
                     showChangelogDialog();
                 }
@@ -217,18 +209,15 @@ public class MainActivity extends BaseThemedActivity implements
      * Handle app updating.
      */
     private void onUpdate() {
-        int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
+        int oldVersion = mPreferenceUtils.getInt(R.string.pref_app_version_key);
         int newVersion = BuildConfig.VERSION_CODE;
         if (newVersion > oldVersion) {
-            if (!Utilities.isFirstLaunch(this)) {
+            if (!mPreferenceUtils.getBoolean(R.string.pref_is_first_launch)) {
                 Utilities.setClassGroupProperties(this);
                 //showChangelogDialog(); //Disable temporarily
             }
 
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
-                            newVersion)
-                    .apply();
+            mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
         }
     }
 

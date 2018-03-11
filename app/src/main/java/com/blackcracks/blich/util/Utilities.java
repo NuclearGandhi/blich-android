@@ -15,7 +15,6 @@ import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.ClassGroup;
-import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.widget.BlichWidgetProvider;
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -46,16 +45,6 @@ public class Utilities {
     }
 
     /**
-     * Check if this is the first time the user launched the app.
-     *
-     * @return {@code true} this is first launch.
-     */
-    public static boolean isFirstLaunch(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true);
-    }
-
-    /**
      * Get the current theme
      *
      * @return A key representing a theme
@@ -71,7 +60,7 @@ public class Utilities {
      */
     public static void setClassGroupProperties(Context context) {
         Realm realm = Realm.getDefaultInstance();
-        int id = ClassGroupUtils.getClassValue(context);
+        int id = PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key);
         ClassGroup classGroup = RealmUtils.getGrade(realm, id);
         setClassGroupProperties(context, classGroup.getId(), classGroup.getGrade());
     }
@@ -88,12 +77,6 @@ public class Utilities {
 
         Crashlytics.setInt(PROPERTY_CLASS_GROUP_ID, id);
         Crashlytics.setInt(PROPERTY_CLASS_GROUP_GRADE, grade);
-    }
-
-    public static boolean isBlankFilterList(Context context) {
-        //Test if the user had setup filtering in the settings
-        String filterSelect = PreferencesUtils.getString(context, Constants.Preferences.PREF_FILTER_SELECT_KEY);
-        return filterSelect.equals("");
     }
 
     /**

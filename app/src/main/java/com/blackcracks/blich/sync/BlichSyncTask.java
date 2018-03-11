@@ -7,16 +7,16 @@ package com.blackcracks.blich.sync;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
+import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -59,9 +59,7 @@ public class BlichSyncTask {
         }
 
         //Log the end of sync
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .putBoolean(Constants.Preferences.getKey(context, Constants.Preferences.PREF_IS_SYNCING_KEY), false)
-                .apply();
+        PreferenceUtils.getInstance().putBoolean(R.string.pref_is_syncing_key, false);
 
         Bundle bundle = new Bundle();
         bundle.putInt(LOG_PARAM_STATUS_SYNC, status);

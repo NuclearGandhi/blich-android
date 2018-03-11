@@ -9,6 +9,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
@@ -183,9 +184,7 @@ public class RealmUtils {
             Class<E> clazz) {
 
 
-        String teacherFilter = PreferencesUtils.getString(
-                context,
-                Constants.Preferences.PREF_FILTER_SELECT_KEY);
+        String teacherFilter = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key);
         String[] teacherSubjects = teacherFilter.split(";");
 
         query.and().beginGroup();

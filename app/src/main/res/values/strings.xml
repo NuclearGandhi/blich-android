@@ -14,41 +14,21 @@
     <string name="action_button_refresh">רפרוש</string>
     <string name="action_button_filter_toggle">סינון</string>
 
-    <string name="pref_user_class_group_key">class_group</string>
     <string name="pref_user_class_group_title">כיתה</string>
 
     <string name="pref_theme_category_title">עיצוב</string>
-
-    <string name="pref_theme_background_key">dark_theme</string>
     <string name="pref_theme_background_title">רקע שחור</string>
-
-    <string name="pref_theme_primary_key">primary_color</string>
     <string name="pref_theme_primary_title">צבע עיקרי</string>
-
-    <string name="pref_theme_accent_key">accent_color</string>
     <string name="pref_theme_accent_title">צבע משני</string>
 
     <string name="pref_notification_category_title">התראות</string>
-
-    <string name="pref_notification_toggle_key">notification_toggle</string>
     <string name="pref_notification_toggle_title">התראות</string>
 
-    <string name="pref_notification_sound_key">notification_sound</string>
     <string name="pref_notification_sound_title">צליל</string>
 
-
     <string name="pref_filter_category_title">סינון</string>
-
     <string name="pref_filter_toggle_title">סינון</string>
-    <string name="pref_filter_toggle_key">filter_key</string>
-
     <string name="pref_filter_select_title">בחירת מורים</string>
-    <string name="pref_filter_select_key">filter_select</string>
-
-    <string name="pref_is_syncing_key">is_syncing</string>
-    <string name="pref_latest_update_key">latest_update</string>
-
-    <string name="pref_app_version_key">app_version</string>
 
     <string name="dialog_choose_class_title">מהי כיתתך?</string>
     <string name="dialog_choose_class_content">כיתה:</string>

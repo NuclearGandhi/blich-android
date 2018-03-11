@@ -23,8 +23,7 @@ import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.util.Constants.Preferences;
-import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.JobParameters;
@@ -95,14 +94,7 @@ public class BlichFirebaseJobService extends JobService {
                     context.getString(R.string.notification_channel_schedule_id));
             NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList, builder);
 
-            int intKey = Preferences.PREF_NOTIFICATION_SOUND_KEY;
-            String prefKey = Preferences.getKey(context, intKey);
-            String prefDefault = (String) Preferences.getDefault(context, intKey);
-            Uri ringtone = Uri.parse(PreferencesUtils
-                    .getString(context,
-                            prefKey,
-                            prefDefault,
-                            true));
+            Uri ringtone = Uri.parse(PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key));
 
             Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -175,7 +167,7 @@ public class BlichFirebaseJobService extends JobService {
                 maxDate)
                 .sort("date");
 
-        boolean isFilterOn = PreferencesUtils.getBoolean(getBaseContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
         if (isFilterOn) {
             RealmUtils.buildFilteredQuery(
                     changesQuery,

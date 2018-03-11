@@ -24,7 +24,6 @@ import android.widget.TextView;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.ScheduleUtils;
 
 import io.realm.Realm;
@@ -132,7 +131,7 @@ public class ScheduleDayFragment extends Fragment implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (getContext() == null) return; //In some cases this method is called when the fragment has been detached
 
-        if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY))) {
+        if (key.equals(getString(R.string.pref_filter_toggle_key))) {
             getLoaderManager().restartLoader(SCHEDULE_LOADER_ID, Bundle.EMPTY, this);
         }
     }

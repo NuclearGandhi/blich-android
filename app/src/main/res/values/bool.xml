@@ -5,6 +5,7 @@
   -->
 
 <resources>
+    <bool name="pref_theme_background_default">false</bool>
     <bool name="pref_notification_toggle_default">true</bool>
     <bool name="pref_filter_toggle_default">false</bool>
 </resources>

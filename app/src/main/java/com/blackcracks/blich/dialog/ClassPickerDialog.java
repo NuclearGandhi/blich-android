@@ -24,6 +24,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -41,7 +42,6 @@ import io.realm.Realm;
 public class ClassPickerDialog extends DialogFragment {
 
     private static final String KEY_DATA_VALID = "data_valid";
-    public static final String PREF_IS_FIRST_LAUNCH_KEY = "first_launch";
 
     private Builder mBuilder;
 
@@ -204,7 +204,7 @@ public class ClassPickerDialog extends DialogFragment {
                 mRealm,
                 mGradePicker,
                 mClassIndexPicker,
-                ClassGroupUtils.getClassValue(getContext()));
+                PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key));
     }
 
     public void setOnPositiveClickListener(OnPositiveClickListener listener) {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Written by Ido Fang Bentov
+  ~ Copyright (C) Blich - All Rights Reserved
+  -->
+
+<resources>
+    <string name="pref_is_first_launch">first_launch</string>
+    <string name="pref_is_syncing_key">is_syncing</string>
+    <string name="pref_app_version_key">app_version</string>
+
+    <string name="pref_user_class_group_key">class_group</string>
+
+    <string name="pref_theme_background_key">dark_theme</string>
+    <string name="pref_theme_primary_key">primary_color</string>
+    <string name="pref_theme_accent_key">accent_color</string>
+
+    <string name="pref_notification_toggle_key">notification_toggle</string>
+    <string name="pref_notification_sound_key">notification_sound</string>
+
+    <string name="pref_filter_toggle_key">filter_key</string>
+    <string name="pref_filter_select_key">filter_select</string>
+</resources>

@@ -6,7 +6,6 @@
 package com.blackcracks.blich.util;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -17,7 +16,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.sync.BlichSyncUtils;
-import com.blackcracks.blich.util.Constants.Preferences;
 
 import java.lang.annotation.Retention;
 
@@ -52,9 +50,7 @@ public class SyncUtils {
      * Call an immediate sync. Cancel if sync is already taking place.
      */
     public static void syncDatabase(Context context) {
-            PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(Preferences.getKey(context, Preferences.PREF_IS_SYNCING_KEY), true)
-                    .apply();
+            PreferenceUtils.getInstance().putBoolean(R.string.pref_is_syncing_key, true);
             BlichSyncUtils.startImmediateSync(context);
     }
 

@@ -5,7 +5,6 @@
 
 package com.blackcracks.blich.util;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.NumberPicker;
 
@@ -21,17 +20,6 @@ import io.realm.RealmResults;
  * A utility class for {@link ClassGroup}s.
  */
 public class ClassGroupUtils {
-
-    /**
-     * Get the user's {@link ClassGroup} id.
-     *
-     * @return a {@link ClassGroup} id.
-     */
-    public static int getClassValue(Context context) {
-        return PreferencesUtils.getInt(context,
-                Constants.Preferences.PREF_USER_CLASS_GROUP_KEY);
-    }
-
     /**
      * Insert data from {@link ClassGroup}s into {@link MaterialNumberPicker}s.
      *

@@ -34,12 +34,9 @@ import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
-import com.blackcracks.blich.util.Constants;
-import com.blackcracks.blich.util.Constants.Preferences;
-import com.blackcracks.blich.util.PreferencesUtils;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.SyncUtils;
-import com.blackcracks.blich.util.Utilities;
 
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
@@ -132,7 +129,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         tintFilterAction(((MainActivity) getActivity()).getATEKey());
 
         //Get the filter toggle state
-        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
         //Set the correct image according to the filter toggle state
         if (!isFilterOn) {
@@ -189,7 +186,7 @@ public class ScheduleFragment extends BlichBaseFragment {
 
     private void updateFilterAction() {
         //Set the correct image according to the filter toggle state
-        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
         if (mFilterActionButton != null) {
             int drawableId;
@@ -203,10 +200,10 @@ public class ScheduleFragment extends BlichBaseFragment {
 
     private void toggleFilterAction() {
         //Get the filter toggle state
-        String prefKey = Preferences.getKey(getContext(), Preferences.PREF_FILTER_TOGGLE_KEY);
-        boolean isFilterOn = PreferencesUtils.getBoolean(getContext(), Constants.Preferences.PREF_FILTER_TOGGLE_KEY);
+        String prefKey = getString(R.string.pref_filter_toggle_key);
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
-        if (Utilities.isBlankFilterList(getContext()) && !isFilterOn) {
+        if (!PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("") && !isFilterOn) {
             Toast.makeText(getContext(), R.string.toast_filter_not_setup, Toast.LENGTH_LONG)
                     .show();
 
