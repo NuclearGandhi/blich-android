@@ -220,8 +220,9 @@ public class MainActivity extends BaseThemedActivity implements
         int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
         int newVersion = BuildConfig.VERSION_CODE;
         if (newVersion > oldVersion) {
-            if (!Utilities.isFirstLaunch(this)) {//Disable temporarily
-                //showChangelogDialog();
+            if (!Utilities.isFirstLaunch(this)) {
+                Utilities.setClassGroupProperties(this);
+                //showChangelogDialog(); //Disable temporarily
             }
 
             PreferenceManager.getDefaultSharedPreferences(this).edit()
