@@ -8,7 +8,6 @@ package com.blackcracks.blich.util;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -17,8 +16,6 @@ import android.widget.RemoteViews;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.widget.BlichWidgetProvider;
-
-import java.util.Locale;
 
 /**
  * A class containing general utility methods.
@@ -50,17 +47,9 @@ public class Utilities {
                 .getBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true);
     }
 
-    /**
-     * Change {@link Locale} to Hebrew, right to left.
-     */
-    public static void setLocaleToHebrew(Context context) {
-        //Change locale to hebrew
-        Locale locale = new Locale("iw");
-        Locale.setDefault(locale);
-        Configuration config = context.getResources().getConfiguration();
-        config.setLocale(locale);
-        context.getApplicationContext().createConfigurationContext(config);
-
+    public static String getATEKey(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("dark_theme", false) ?
+                "dark_theme" : "light_theme";
     }
 
     /**
@@ -72,10 +61,4 @@ public class Utilities {
         AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
         widgetManager.updateAppWidget(widget, views);
     }
-
-    public static String getATEKey(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("dark_theme", false) ?
-                "dark_theme" : "light_theme";
-    }
-
 }

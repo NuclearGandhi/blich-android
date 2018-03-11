@@ -88,7 +88,6 @@ public class MainActivity extends BaseThemedActivity implements
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
-        Utilities.setLocaleToHebrew(this);
         Timber.plant(new Timber.DebugTree());
         RealmUtils.setUpRealm(this);
 

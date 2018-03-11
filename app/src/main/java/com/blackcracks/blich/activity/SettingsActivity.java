@@ -42,7 +42,6 @@ import com.blackcracks.blich.util.Constants.Preferences;
 import com.blackcracks.blich.util.PreferencesUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
-import com.blackcracks.blich.util.Utilities;
 
 import io.realm.Realm;
 
@@ -59,7 +58,6 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Utilities.setLocaleToHebrew(this);
 
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_settings, null, false);
