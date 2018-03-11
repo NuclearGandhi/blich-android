@@ -189,7 +189,7 @@ public class RealmUtils {
         String[] teacherSubjects = teacherFilter.split(";");
 
         query.and().beginGroup();
-        addTeacherSubjectFilter(query, clazz, "", "");
+        addTeacherSubjectFilter(query, clazz, "", "", true);
 
         for (String teacherSubject :
                 teacherSubjects) {
@@ -199,7 +199,7 @@ public class RealmUtils {
             String teacher = arr[0];
             String subject = arr[1];
 
-            addTeacherSubjectFilter(query, clazz, teacher, subject);
+            addTeacherSubjectFilter(query, clazz, teacher, subject, false);
         }
 
         query.endGroup();
@@ -211,8 +211,10 @@ public class RealmUtils {
             RealmQuery<E> query,
             Class<E> clazz,
             String teacher,
-            String subject) {
-        query.or()
+            String subject,
+            boolean isFirst) {
+        if (!isFirst) query.or();
+        query
                 .beginGroup()
                 .equalTo("teacher", teacher)
                 .and()
