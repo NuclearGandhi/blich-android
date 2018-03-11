@@ -221,23 +221,34 @@ public class RealmScheduleHelper {
             if (getNonReplacingLesson(hour) != null) {
                 return 0;
             }
-            return hour.getLessons().size() + getAdditionalLessonsCount(hour);
+            return getLessonCount(hour) + getAdditionalLessonsCount(hour);
         } else {
             return 0;
         }
     }
 
     /**
-     * Get the count of normal lesson in the hour in the specified position.
+     * Get the count of normal lessons in the given hour.
      *
-     * @param position position  of hour.
-     * @return count of lessons.
+     * @param hour  an {@link Hour}.
+     * @return  count of lessons.
      */
-    public int getLessonCount(int position) {
-        if (mIsDataValid) {
-            return getHour(position).getLessons().size();
-        } else {
+    public int getLessonCount(Hour hour) {
+        if (!mIsDataValid) return 0;
+        List<Lesson> lessons = hour.getLessons();
+        if (lessons == null){
             return 0;
         }
+        return lessons.size();
+    }
+
+    /**
+     * Get the count of normal lesson in the hour in the specified position.
+     *
+     * @param position  position of hour.
+     * @return  count of lessons.
+     */
+    public int getLessonCount(int position) {
+        return getLessonCount(getHour(position));
     }
 }
