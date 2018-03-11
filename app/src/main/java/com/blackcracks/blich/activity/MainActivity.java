@@ -131,61 +131,6 @@ public class MainActivity extends BaseThemedActivity implements
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(IS_FIRST_INSTANCE_KEY, false);
-        //Save fragment
-        getSupportFragmentManager().putFragment(outState,
-                FRAGMENT_TAG,
-                mFragment);
-    }
-
-    public DrawerLayout getDrawerLayout() {
-        return mDrawerLayout;
-    }
-
-    /**
-     * Replace a fragment.
-     *
-     * @param fragment       the {@link Fragment} to switch to
-     * @param addToBackStack {@code true} add the fragment to back stack.
-     */
-    private void replaceFragment(Fragment fragment, boolean addToBackStack) {
-        @SuppressLint("CommitTransaction")
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment, fragment, FRAGMENT_TAG);
-
-        if (addToBackStack) {
-            transaction.addToBackStack(null);
-        }
-        transaction.commit();
-
-        if (fragment != mFragment) logChangeFragment(mFragment.getClass());
-        mFragment = fragment;
-    }
-
-    @RequiresApi(api = 26)
-    private void createNotificationChannels() {
-
-        NotificationChannel scheduleChannel = new NotificationChannel(
-                getString(R.string.notification_channel_schedule_id),
-                getString(R.string.notification_channel_schedule_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-        );
-
-        scheduleChannel.setDescription(
-                getString(R.string.notification_channel_schedule_description)
-        );
-        scheduleChannel.enableLights(true);
-        scheduleChannel.setLightColor(Color.CYAN);
-
-        NotificationManager notificationManager = (NotificationManager)
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        //noinspection ConstantConditions
-        notificationManager.createNotificationChannel(scheduleChannel);
-    }
-
     private void setupTheme() {
         // Default config
         if (!ATE.config(this, "light_theme").isConfigured(4)) {
@@ -209,6 +154,19 @@ public class MainActivity extends BaseThemedActivity implements
                     .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
                     .commit();
+        }
+    }
+
+    private void migrateOldSettings() {
+        //If using old user settings
+        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, true)
+                    .apply();
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putInt(Preferences.getKey(this, Preferences.PREF_USER_CLASS_GROUP_KEY), 1)
+                    .apply();
         }
     }
 
@@ -248,6 +206,34 @@ public class MainActivity extends BaseThemedActivity implements
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
                 SyncUtils.initializeSync(this);
+            }
+        }
+    }
+
+    private void showChangelogDialog() {
+        new ChangelogDialog()
+                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
+    }
+
+    /**
+     * Handle app updating.
+     */
+    private void onUpdate() {
+        int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
+        int newVersion = BuildConfig.VERSION_CODE;
+        if (newVersion > oldVersion) {
+            if (!Utilities.isFirstLaunch(this)) {//Disable temporarily
+                //showChangelogDialog();
+            }
+
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
+                            newVersion)
+                    .apply();
+
+            if (oldVersion < 36) {
+                int id = ClassGroupUtils.getClassValue(this);
+                mFirebaseAnalytic.setUserProperty("class_group_id", "" + id);
             }
         }
     }
@@ -317,6 +303,71 @@ public class MainActivity extends BaseThemedActivity implements
         );
     }
 
+    @RequiresApi(api = 26)
+    private void createNotificationChannels() {
+
+        NotificationChannel scheduleChannel = new NotificationChannel(
+                getString(R.string.notification_channel_schedule_id),
+                getString(R.string.notification_channel_schedule_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+
+        scheduleChannel.setDescription(
+                getString(R.string.notification_channel_schedule_description)
+        );
+        scheduleChannel.enableLights(true);
+        scheduleChannel.setLightColor(Color.CYAN);
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        //noinspection ConstantConditions
+        notificationManager.createNotificationChannel(scheduleChannel);
+    }
+
+    /**
+     * Replace a fragment.
+     *
+     * @param fragment       the {@link Fragment} to switch to
+     * @param addToBackStack {@code true} add the fragment to back stack.
+     */
+    private void replaceFragment(Fragment fragment, boolean addToBackStack) {
+        @SuppressLint("CommitTransaction")
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment, fragment, FRAGMENT_TAG);
+
+        if (addToBackStack) {
+            transaction.addToBackStack(null);
+        }
+        transaction.commit();
+
+        if (fragment != mFragment) logChangeFragment(mFragment.getClass());
+        mFragment = fragment;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(IS_FIRST_INSTANCE_KEY, false);
+        //Save fragment
+        getSupportFragmentManager().putFragment(outState,
+                FRAGMENT_TAG,
+                mFragment);
+    }
+
+    @Override
+    public int getCollapsedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
+    }
+
+    @Override
+    public int getExpandedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
+    }
+
+    public DrawerLayout getDrawerLayout() {
+        return mDrawerLayout;
+    }
+
     /**
      * Log change in fragment event to Firebase.
      *
@@ -337,56 +388,5 @@ public class MainActivity extends BaseThemedActivity implements
         Bundle bundle = new Bundle();
         bundle.putString(EVENT_PARAM_ACTIVITY, activity.getSimpleName());
         mFirebaseAnalytic.logEvent(EVENT_OPEN_ACTIVITY, bundle);
-    }
-
-    private void migrateOldSettings() {
-        //If using old user settings
-        if (PreferencesUtils.getInt(this, Preferences.PREF_USER_CLASS_GROUP_KEY) == -1) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putBoolean(PREF_IS_FIRST_LAUNCH_KEY, true)
-                    .apply();
-
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putInt(Preferences.getKey(this, Preferences.PREF_USER_CLASS_GROUP_KEY), 1)
-                    .apply();
-        }
-    }
-
-    /**
-     * Handle app updating.
-     */
-    private void onUpdate() {
-        int oldVersion = PreferencesUtils.getInt(this, Preferences.PREF_APP_VERSION_KEY);
-        int newVersion = BuildConfig.VERSION_CODE;
-        if (newVersion > oldVersion) {
-            if (!Utilities.isFirstLaunch(this)) {//Disable temporarily
-                //showChangelogDialog();
-            }
-
-            PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putInt(Preferences.getKey(this, Preferences.PREF_APP_VERSION_KEY),
-                            newVersion)
-                    .apply();
-
-            if (oldVersion < 36) {
-                int id = ClassGroupUtils.getClassValue(this);
-                mFirebaseAnalytic.setUserProperty("class_group_id", "" + id);
-            }
-        }
-    }
-
-    private void showChangelogDialog() {
-        new ChangelogDialog()
-                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
-    }
-
-    @Override
-    public int getCollapsedTintColor() {
-        return Config.getToolbarTitleColor(this, null, getATEKey());
-    }
-
-    @Override
-    public int getExpandedTintColor() {
-        return Config.getToolbarTitleColor(this, null, getATEKey());
     }
 }
