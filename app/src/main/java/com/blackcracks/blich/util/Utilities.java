@@ -90,6 +90,12 @@ public class Utilities {
         Crashlytics.setInt(PROPERTY_CLASS_GROUP_GRADE, grade);
     }
 
+    public static boolean isBlankFilterList(Context context) {
+        //Test if the user had setup filtering in the settings
+        String filterSelect = PreferencesUtils.getString(context, Constants.Preferences.PREF_FILTER_SELECT_KEY);
+        return filterSelect.equals("");
+    }
+
     /**
      * Update the widget on the home screen.
      */

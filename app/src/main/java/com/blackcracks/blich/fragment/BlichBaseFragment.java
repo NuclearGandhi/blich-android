@@ -151,6 +151,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     }
 
     @Override
+    @CallSuper
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(Preferences.getKey(getContext(), Preferences.PREF_IS_SYNCING_KEY))) {
             mSwipeRefreshLayout.setRefreshing(PreferencesUtils.getBoolean(getContext(), Preferences.PREF_IS_SYNCING_KEY));
