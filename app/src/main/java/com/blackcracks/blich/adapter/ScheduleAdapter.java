@@ -149,7 +149,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
 
-        Lesson firstLesson;
+        Lesson firstLesson = null;
         DatedLesson singleChild = mRealmScheduleHelper.getNonReplacingLesson(hour);
         DatedLesson replacement = null;
 
@@ -172,8 +172,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             room = "";
             color = ContextCompat.getColor(mContext, R.color.lesson_event);
         } else {
-            firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
-            replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstLesson);
+            if (lessons == null) {
+                replacement = mRealmScheduleHelper.getAdditionalLessons(hour).get(0);
+            } else {
+                firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
+                replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstLesson);
+            }
 
             if (replacement == null) { //Then display a normal lesson
                 subject = firstLesson.getSubject();
