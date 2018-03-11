@@ -16,6 +16,7 @@ import android.widget.RemoteViews;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.widget.BlichWidgetProvider;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 /**
  * A class containing general utility methods.
@@ -47,9 +48,20 @@ public class Utilities {
                 .getBoolean(ClassPickerDialog.PREF_IS_FIRST_LAUNCH_KEY, true);
     }
 
+    /**
+     * Get the current theme
+     *
+     * @return A key representing a theme
+     */
     public static String getATEKey(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("dark_theme", false) ?
                 "dark_theme" : "light_theme";
+    }
+
+    public static void setClassGroupProperties(Context context, int id, int grade) {
+        FirebaseAnalytics.getInstance(context).setUserProperty("class_group_id", "" + id);
+        FirebaseAnalytics.getInstance(context).setUserProperty("class_group_grade", "" + grade);
+
     }
 
     /**

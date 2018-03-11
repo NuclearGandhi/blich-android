@@ -26,7 +26,7 @@ import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
-import com.google.firebase.analytics.FirebaseAnalytics;
+import com.blackcracks.blich.util.Utilities;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
@@ -118,14 +118,17 @@ public class ClassPickerDialog extends DialogFragment {
                 String gradeName = displayedValues[mGradePicker.getValue()];
                 int classNum = mClassIndexPicker.getValue();
                 int id;
+                int grade;
                 if (mClassIndexPicker.getVisibility() == View.INVISIBLE) {//If an abnormal class group
                     id = RealmUtils.getId(mRealm, gradeName);
+                    grade = 0;
                 } else {
                     id = RealmUtils.getId(mRealm, gradeName, classNum);
+                    grade = RealmUtils.getGrade(mRealm, id).getGrade();
                 }
 
                 mId = id;
-                FirebaseAnalytics.getInstance(getContext()).setUserProperty("class_group_id", "" + id);
+                Utilities.setClassGroupProperties(getContext(), id, grade);
                 mIsClassConfigured = true;
             }
         });
