@@ -296,10 +296,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             mDates.add(CalendarDay.from(exam.getDate()));
         }
 
-        CalendarDay minDate = mDates.get(0);
         CalendarDay maxDate = mDates.get(mDates.size() - 1);
         mCalendarView.state().edit()
-                .setMinimumDate(minDate)
+                .setMinimumDate(new Date())
                 .setMaximumDate(maxDate)
                 .commit();
 
