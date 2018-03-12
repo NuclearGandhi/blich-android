@@ -188,7 +188,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 subject = replacement.buildName();
                 teacher = "";
                 room = "";
-                color = replacement.getColor(mContext);
+                color = replacement.getColor();
             }
         }
 
@@ -312,7 +312,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subject = datedLesson.buildName();
             teacher = "";
             room = "";
-            color = datedLesson.getColor(mContext);
+            color = datedLesson.getColor();
         } else {//Normal lesson
             //noinspection ConstantConditions
             subject = lesson.getSubject();
@@ -346,7 +346,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     private void makeEventDots(ViewGroup parent, List<DatedLesson> list) {
         for (DatedLesson lesson :
                 list) {
-            makeEventDot(parent, lesson.getColor(mContext));
+            makeEventDot(parent, lesson.getColor());
         }
     }
 

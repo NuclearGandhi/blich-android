@@ -16,11 +16,16 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +46,7 @@ import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.Utilities;
 
 import io.realm.Realm;
 
@@ -108,6 +114,22 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 config.navigationViewSelectedIcon(selectedColor);
                 config.navigationViewSelectedText(selectedColor);
                 break;
+            case R.string.pref_theme_lesson_canceled_title: {
+                PreferenceUtils.getInstance().putInt(R.string.pref_theme_lesson_canceled_key, selectedColor);
+                break;
+            }
+            case R.string.pref_theme_lesson_changed_title: {
+                PreferenceUtils.getInstance().putInt(R.string.pref_theme_lesson_changed_key, selectedColor);
+                break;
+            }
+            case R.string.pref_theme_lesson_event_title: {
+                PreferenceUtils.getInstance().putInt(R.string.pref_theme_lesson_event_key, selectedColor);
+                break;
+            }
+            case R.string.pref_theme_lesson_exam_title: {
+                PreferenceUtils.getInstance().putInt(R.string.pref_theme_lesson_exam_key, selectedColor);
+                break;
+            }
         }
         config.commit();
         recreate(); // recreation needed to reach the checkboxes in the preferences layout
@@ -122,7 +144,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
      */
     @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends ATEPreferenceFragmentCompat
-            implements SharedPreferences.OnSharedPreferenceChangeListener {
+            implements SharedPreferences.OnSharedPreferenceChangeListener,
+                    PreferenceFragmentCompat.OnPreferenceStartScreenCallback{
 
         private static final int RINGTONE_PICKER_REQUEST = 100;
         private static final String DIALOG_TAG = "dialog";
@@ -131,7 +154,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            addPreferencesFromResource(R.xml.pref_main);
+            setPreferencesFromResource(R.xml.pref_main, rootKey);
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
             initPrefSummery();
@@ -140,6 +163,13 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            int backgroundColor;
+            if (Utilities.getATEKey(getContext()).equals("light_theme")) {
+                backgroundColor = ContextCompat.getColor(getContext(), R.color.material_background_light);
+            } else {
+                backgroundColor = ContextCompat.getColor(getContext(), R.color.material_background_dark);
+            }
+            view.setBackgroundColor(backgroundColor);
             invalidateSettings();
         }
 
@@ -282,30 +312,54 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 }
             });
 
-            ATEColorPreference primaryColorPref = (ATEColorPreference) findPreference("primary_color");
-            int primaryColor = Config.primaryColor(getActivity(), mAteKey);
-            int darkPrimaryColor = Config.primaryColorDark(getActivity(), mAteKey);
-            primaryColorPref.setColor(primaryColor, darkPrimaryColor);
-            primaryColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    new ColorChooserDialog.Builder(getActivity(), R.string.pref_theme_primary_title)
-                            .preselect(Config.primaryColor(getActivity(), mAteKey))
-                            .show(getFragmentManager());
-                    return true;
-                }
-            });
+            initColorPreference(
+                    "primary_color",
+                    Config.primaryColor(getContext(), mAteKey),
+                    R.string.pref_theme_primary_title,
+                    false);
 
-            ATEColorPreference accentColorPref = (ATEColorPreference) findPreference("accent_color");
-            int accentColor = Config.accentColor(getActivity(), mAteKey);
-            int darkenedAccentColor = ATEUtil.darkenColor(accentColor);
-            accentColorPref.setColor(accentColor, darkenedAccentColor);
-            accentColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            initColorPreference(
+                    "accent_color",
+                    Config.accentColor(getContext(), mAteKey),
+                    R.string.pref_theme_accent_title,
+                    true);
+
+
+            initColorPreference(
+                    getString(R.string.pref_theme_lesson_canceled_key),
+                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_canceled_key),
+                    R.string.pref_theme_lesson_canceled_title,
+                    false);
+
+            initColorPreference(
+                    getString(R.string.pref_theme_lesson_changed_key),
+                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_changed_key),
+                    R.string.pref_theme_lesson_changed_title,
+                    false);
+
+            initColorPreference(
+                    getString(R.string.pref_theme_lesson_event_key),
+                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_event_key),
+                    R.string.pref_theme_lesson_event_title,
+                    false);
+
+            initColorPreference(
+                    getString(R.string.pref_theme_lesson_exam_key),
+                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_exam_key),
+                    R.string.pref_theme_lesson_exam_title,
+                    false);
+        }
+
+        private void initColorPreference(String key, final int color, @StringRes final int title, final boolean isAccent) {
+            ATEColorPreference colorPref = (ATEColorPreference) findPreference(key);
+            int darkColor = ATEUtil.darkenColor(color);
+            colorPref.setColor(color, darkColor);
+            colorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    new ColorChooserDialog.Builder(getActivity(), R.string.pref_theme_accent_title)
-                            .accentMode(true)
-                            .preselect(Config.accentColor(getActivity(), mAteKey))
+                    new ColorChooserDialog.Builder(getActivity(), title)
+                            .accentMode(isAccent)
+                            .preselect(color)
                             .show(getFragmentManager());
                     return true;
                 }
@@ -313,9 +367,11 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         private void initPrefSummery() {
-            setClassPickerSummery();
-            setFilterSelectSummery();
-            setNotificationSoundPreference();
+            if (findPreference(getString(R.string.pref_user_class_group_key)) != null) {
+                setClassPickerSummery();
+                setFilterSelectSummery();
+                setNotificationSoundPreference();
+            }
         }
 
         //Notification Sound Preference
@@ -369,6 +425,24 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 }
                 filterPreference.setSummary(summary);
             }
+        }
+
+        @Override
+        public Fragment getCallbackFragment() {
+            return this;
+        }
+
+        @Override
+        public boolean onPreferenceStartScreen(PreferenceFragmentCompat preferenceFragmentCompat, PreferenceScreen preferenceScreen) {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            SettingsFragment fragment = new SettingsFragment();
+            Bundle args = new Bundle();
+            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
+            fragment.setArguments(args);
+            ft.add(R.id.fragment, fragment, preferenceScreen.getKey());
+            ft.addToBackStack(preferenceScreen.getKey());
+            ft.commit();
+            return true;
         }
     }
 }

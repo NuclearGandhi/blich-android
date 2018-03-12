@@ -5,7 +5,6 @@
 
 package com.blackcracks.blich.data;
 
-import android.content.Context;
 import android.support.annotation.ColorInt;
 
 import java.util.Date;
@@ -76,5 +75,5 @@ public interface DatedLesson {
      *
      * @return a {@link ColorInt}.
      */
-    @ColorInt int getColor(Context context);
+    @ColorInt int getColor();
 }

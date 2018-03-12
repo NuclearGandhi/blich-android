@@ -116,7 +116,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
             if (datedLesson != null) {
                 subject = datedLesson.buildName();
-                color = datedLesson.getColor(mContext);
+                color = datedLesson.getColor();
             } else {
                 subject = lesson.getSubject();
                 teacher = lesson.getTeacher();

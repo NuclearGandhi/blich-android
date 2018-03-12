@@ -5,11 +5,9 @@
 
 package com.blackcracks.blich.data;
 
-import android.content.Context;
-import android.support.v4.content.ContextCompat;
-
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.Constants;
+import com.blackcracks.blich.util.PreferenceUtils;
 
 import java.util.Date;
 
@@ -52,8 +50,8 @@ public class Exam extends RealmObject implements DatedLesson {
     }
 
     @Override
-    public int getColor(Context context) {
-        return ContextCompat.getColor(context, R.color.lesson_exam);
+    public int getColor() {
+        return PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_exam_key);
     }
 
     @Override

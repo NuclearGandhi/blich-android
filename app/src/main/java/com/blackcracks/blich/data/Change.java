@@ -5,11 +5,9 @@
 
 package com.blackcracks.blich.data;
 
-import android.content.Context;
-import android.support.v4.content.ContextCompat;
-
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.PreferenceUtils;
 
 import java.util.Date;
 
@@ -73,12 +71,12 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
     }
 
     @Override
-    public int getColor(Context context) {
-        int colorId;
-        if (changeType.equals(Database.TYPE_CANCELED)) colorId = R.color.lesson_canceled;
-        else colorId = R.color.lesson_changed;
-
-        return ContextCompat.getColor(context, colorId);
+    public int getColor() {
+        if (changeType.equals(Database.TYPE_CANCELED)) {
+            return PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_canceled_key);
+        } else {
+            return PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_changed_key);
+        }
     }
 
     @Override

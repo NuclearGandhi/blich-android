@@ -16,11 +16,15 @@
 
     <string name="pref_user_class_group_title">כיתה</string>
 
-    <string name="pref_theme_category_title">עיצוב</string>
+    <string name="pref_theme_screen_title">עיצוב</string>
+    <string name="pref_theme_screen_key">sub_theme_key</string>
+
+    <string name="pref_theme_category_general_title">צבע - כללי</string>
     <string name="pref_theme_background_title">רקע שחור</string>
     <string name="pref_theme_primary_title">צבע עיקרי</string>
     <string name="pref_theme_accent_title">צבע משני</string>
 
+    <string name="pref_theme_category_schedule_title">צבע - מערכת שעות</string>
     <string name="pref_theme_lesson_canceled_title">צבע ביטולים</string>
     <string name="pref_theme_lesson_changed_title">צבע שינויים</string>
     <string name="pref_theme_lesson_event_title">צבע אירועים</string>

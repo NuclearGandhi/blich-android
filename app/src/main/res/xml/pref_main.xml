@@ -5,8 +5,7 @@
   -->
 
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                                                xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+                                                xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.blackcracks.blich.preference.ClassPickerPreference
         android:defaultValue="@integer/pref_user_class_group_default"
@@ -16,47 +15,65 @@
         android:positiveButtonText="@string/dialog_okay"
         android:title="@string/pref_user_class_group_title"/>
 
-    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
-        android:title="@string/pref_theme_category_title"
-        app:ateKey_prefCategory_textColor="?ate_key">
+    <android.support.v7.preference.PreferenceScreen
+        android:key="@string/pref_theme_screen_key"
+        android:persistent="false"
+        android:title="@string/pref_theme_screen_title">
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference
-            android:defaultValue="false"
-            android:key="@string/pref_theme_background_key"
-            android:persistent="true"
-            android:title="@string/pref_theme_background_title"
-            android:widgetLayout="@layout/ate_preference_checkbox"
-            app:ateKey_pref_switch="?ate_key"/>
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
+            android:title="@string/pref_theme_category_general_title"
+            app:ateKey_prefCategory_textColor="?ate_key">
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_primary_key"
-            android:persistent="false"
-            android:title="@string/pref_theme_primary_title"
-            app:ateKey_pref_color="?ate_key"/>
+            <com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference
+                android:defaultValue="false"
+                android:key="@string/pref_theme_background_key"
+                android:persistent="true"
+                android:title="@string/pref_theme_background_title"
+                android:widgetLayout="@layout/ate_preference_checkbox"
+                app:ateKey_pref_switch="?ate_key"/>
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_accent_key"
-            android:persistent="false"
-            android:title="@string/pref_theme_accent_title"
-            app:ateKey_pref_color="?ate_key" />
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_primary_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_primary_title"
+                app:ateKey_pref_color="?ate_key"/>
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_lesson_canceled_key"
-            android:title="@string/pref_theme_lesson_canceled_title"/>
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_accent_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_accent_title"
+                app:ateKey_pref_color="?ate_key"/>
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_lesson_changed_key"
-            android:title="@string/pref_theme_lesson_changed_title"/>
+        </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_lesson_exam_key"
-            android:title="@string/pref_theme_lesson_exam_title"/>
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
+            android:title="@string/pref_theme_category_schedule_title"
+            app:ateKey_prefCategory_textColor="?ate_key">
 
-        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
-            android:key="@string/pref_theme_lesson_event_key"
-            android:title="@string/pref_theme_lesson_event_title"/>
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_lesson_canceled_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_lesson_canceled_title"/>
 
-    </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_lesson_changed_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_lesson_changed_title"/>
+
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_lesson_exam_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_lesson_exam_title"/>
+
+            <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+                android:key="@string/pref_theme_lesson_event_key"
+                android:persistent="false"
+                android:title="@string/pref_theme_lesson_event_title"/>
+
+        </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
+
+
+    </android.support.v7.preference.PreferenceScreen>
 
     <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_notification_category_title">
 
