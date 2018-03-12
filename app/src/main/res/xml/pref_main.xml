@@ -40,6 +40,22 @@
             android:title="@string/pref_theme_accent_title"
             app:ateKey_pref_color="?ate_key" />
 
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_lesson_canceled_key"
+            android:title="@string/pref_theme_lesson_canceled_title"/>
+
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_lesson_changed_key"
+            android:title="@string/pref_theme_lesson_changed_title"/>
+
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_lesson_exam_key"
+            android:title="@string/pref_theme_lesson_exam_title"/>
+
+        <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
+            android:key="@string/pref_theme_lesson_event_key"
+            android:title="@string/pref_theme_lesson_event_title"/>
+
     </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
     <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_notification_category_title">

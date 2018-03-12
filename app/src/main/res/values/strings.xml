@@ -21,6 +21,11 @@
     <string name="pref_theme_primary_title">צבע עיקרי</string>
     <string name="pref_theme_accent_title">צבע משני</string>
 
+    <string name="pref_theme_lesson_canceled_title">צבע ביטולים</string>
+    <string name="pref_theme_lesson_changed_title">צבע שינויים</string>
+    <string name="pref_theme_lesson_event_title">צבע אירועים</string>
+    <string name="pref_theme_lesson_exam_title">צבע מבחנים</string>
+
     <string name="pref_notification_category_title">התראות</string>
     <string name="pref_notification_toggle_title">התראות</string>
 

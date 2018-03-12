@@ -62,7 +62,9 @@ public class Utilities {
         Realm realm = Realm.getDefaultInstance();
         int id = PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key);
         ClassGroup classGroup = RealmUtils.getGrade(realm, id);
-        setClassGroupProperties(context, classGroup.getId(), classGroup.getGrade());
+        if (classGroup != null) {
+            setClassGroupProperties(context, classGroup.getId(), classGroup.getGrade());
+        }
     }
 
     /**
