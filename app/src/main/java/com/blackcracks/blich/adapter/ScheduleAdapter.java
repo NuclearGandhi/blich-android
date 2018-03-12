@@ -170,7 +170,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             subject = singleChild.buildName();
             teacher = "";
             room = "";
-            color = ContextCompat.getColor(mContext, R.color.lesson_event);
+            color = singleChild.getColor();
         } else {
             if (lessons == null) {
                 replacement = mRealmScheduleHelper.getAdditionalLessons(hour).get(0);

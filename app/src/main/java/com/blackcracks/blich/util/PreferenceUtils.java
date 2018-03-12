@@ -45,8 +45,8 @@ public class PreferenceUtils {
         sDefaultValues.put(R.string.pref_theme_background_key, mContext.getResources().getBoolean(R.bool.pref_theme_background_default));
         sDefaultValues.put(R.string.pref_theme_lesson_canceled_key, ContextCompat.getColor(mContext, R.color.lesson_canceled));
         sDefaultValues.put(R.string.pref_theme_lesson_changed_key, ContextCompat.getColor(mContext, R.color.lesson_changed));
-        sDefaultValues.put(R.string.pref_theme_lesson_event_key, ContextCompat.getColor(mContext, R.color.lesson_event));
         sDefaultValues.put(R.string.pref_theme_lesson_exam_key, ContextCompat.getColor(mContext, R.color.lesson_exam));
+        sDefaultValues.put(R.string.pref_theme_lesson_event_key, ContextCompat.getColor(mContext, R.color.lesson_event));
 
         sDefaultValues.put(R.string.pref_notification_toggle_key, mContext.getResources().getBoolean(R.bool.pref_notification_toggle_default));
         sDefaultValues.put(R.string.pref_notification_sound_key, Settings.System.DEFAULT_NOTIFICATION_URI.toString());

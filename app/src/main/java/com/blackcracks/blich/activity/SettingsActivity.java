@@ -347,15 +347,15 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                     false);
 
             initColorPreference(
-                    getString(R.string.pref_theme_lesson_event_key),
-                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_event_key),
-                    R.string.pref_theme_lesson_event_title,
-                    false);
-
-            initColorPreference(
                     getString(R.string.pref_theme_lesson_exam_key),
                     PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_exam_key),
                     R.string.pref_theme_lesson_exam_title,
+                    false);
+
+            initColorPreference(
+                    getString(R.string.pref_theme_lesson_event_key),
+                    PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_event_key),
+                    R.string.pref_theme_lesson_event_title,
                     false);
         }
 
