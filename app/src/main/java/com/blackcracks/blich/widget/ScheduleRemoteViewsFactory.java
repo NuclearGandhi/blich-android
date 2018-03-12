@@ -17,6 +17,7 @@ import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
@@ -48,6 +49,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public void onDataSetChanged() {
+        PreferenceUtils.getInstance(mContext);
         Realm realm = Realm.getDefaultInstance();
         switchData(
                 ScheduleUtils.fetchScheduleResult(

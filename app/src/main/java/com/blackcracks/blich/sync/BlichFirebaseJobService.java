@@ -50,6 +50,7 @@ public class BlichFirebaseJobService extends JobService {
     @SuppressLint("StaticFieldLeak")
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+        PreferenceUtils.getInstance(getApplicationContext());
         mFetchBlichTask = new AsyncTask<Void, Void, Void>() {
 
             @Override
