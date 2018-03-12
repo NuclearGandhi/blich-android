@@ -147,9 +147,6 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-
-            AppCompatActivity activity = (AppCompatActivity) getActivity();
-            activity.getSupportActionBar().setTitle(R.string.drawer_settings_title);
         }
 
         @Override
