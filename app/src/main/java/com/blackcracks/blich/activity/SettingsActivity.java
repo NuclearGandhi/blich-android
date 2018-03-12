@@ -147,13 +147,21 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             implements SharedPreferences.OnSharedPreferenceChangeListener,
                     PreferenceFragmentCompat.OnPreferenceStartScreenCallback{
 
+        private static final String SUBSCREEN_KEY = "sub_screen";
+
         private static final int RINGTONE_PICKER_REQUEST = 100;
         private static final String DIALOG_TAG = "dialog";
 
         String mAteKey;
+        String mCurrentSubscreenKey = "root";
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            if (savedInstanceState != null &&
+                    savedInstanceState.containsKey(SUBSCREEN_KEY) &&
+                    !savedInstanceState.getString(SUBSCREEN_KEY).equals("root")) {
+                mCurrentSubscreenKey = rootKey = savedInstanceState.getString(SUBSCREEN_KEY);
+            }
             setPreferencesFromResource(R.xml.pref_main, rootKey);
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
@@ -173,17 +181,17 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             invalidateSettings();
         }
 
-        @SuppressWarnings("ConstantConditions")
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-        }
-
         @Override
         public void onStart() {
             super.onStart();
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putString(SUBSCREEN_KEY, mCurrentSubscreenKey);
         }
 
         @Override
@@ -284,6 +292,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (!isAdded()) return;
             if (key.equals(getString(R.string.pref_user_class_group_key))) {
                 setClassPickerSummery();
                 SyncUtils.syncDatabase(getContext());
@@ -433,15 +442,22 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         @Override
-        public boolean onPreferenceStartScreen(PreferenceFragmentCompat preferenceFragmentCompat, PreferenceScreen preferenceScreen) {
+        public boolean onPreferenceStartScreen(
+                PreferenceFragmentCompat preferenceFragmentCompat,
+                PreferenceScreen preferenceScreen) {
+
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             SettingsFragment fragment = new SettingsFragment();
             Bundle args = new Bundle();
             args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
             fragment.setArguments(args);
-            ft.add(R.id.fragment, fragment, preferenceScreen.getKey());
-            ft.addToBackStack(preferenceScreen.getKey());
-            ft.commit();
+
+            ft.add(R.id.fragment, fragment, preferenceScreen.getKey())
+                    .addToBackStack(preferenceScreen.getKey())
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commit();
+
+            mCurrentSubscreenKey = preferenceScreen.getKey();
             return true;
         }
     }
