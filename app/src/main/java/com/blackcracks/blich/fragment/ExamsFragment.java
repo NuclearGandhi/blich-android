@@ -228,6 +228,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 mToolbar,
                 ateKey));
 
+        mCalendarView.setSelectionColor(Config.accentColor(getContext(), ateKey));
         int toolbarColor = Config.toolbarColor(getContext(), ateKey, mToolbar);
         boolean isToolbarLight = Config.isLightToolbar(getContext(), mToolbar, ateKey, toolbarColor);
         if (isToolbarLight) {
