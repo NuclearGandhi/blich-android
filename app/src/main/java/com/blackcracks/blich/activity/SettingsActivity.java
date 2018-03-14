@@ -145,7 +145,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends ATEPreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener,
-                    PreferenceFragmentCompat.OnPreferenceStartScreenCallback{
+                    PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
         private static final String SUBSCREEN_KEY = "sub_screen";
 

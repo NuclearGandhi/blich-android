@@ -203,7 +203,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         String prefKey = getString(R.string.pref_filter_toggle_key);
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
-        if (!PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("") && !isFilterOn) {
+        if (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("") && !isFilterOn) {
             Toast.makeText(getContext(), R.string.toast_filter_not_setup, Toast.LENGTH_LONG)
                     .show();
 
