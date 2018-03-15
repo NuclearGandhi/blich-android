@@ -39,6 +39,7 @@ public class FilterDialog extends DialogFragment
         implements MaterialDialog.SingleButtonCallback {
 
     private Realm mRealm;
+    private OnDestroyListener mOnDestroyListener;
     private OnPositiveClickListener mPositiveClickListener;
 
     private TeacherFilterAdapter mAdapter;
@@ -104,12 +105,6 @@ public class FilterDialog extends DialogFragment
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mRealm.close();
-    }
-
-    @Override
     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
         StringBuilder value = new StringBuilder();
         for (TeacherSubject teacherSubject :
@@ -123,8 +118,23 @@ public class FilterDialog extends DialogFragment
         if (mPositiveClickListener != null) mPositiveClickListener.onPositiveClick(value.toString());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mOnDestroyListener != null) mOnDestroyListener.onDestroy();
+        mRealm.close();
+    }
+
+    public void setOnDestroyListener(OnDestroyListener onDestroyListener) {
+        mOnDestroyListener = onDestroyListener;
+    }
+
     public void setOnPositiveClickListener(OnPositiveClickListener positiveClickListener) {
         mPositiveClickListener = positiveClickListener;
+    }
+
+    public interface OnDestroyListener {
+        void onDestroy();
     }
 
     public interface OnPositiveClickListener {

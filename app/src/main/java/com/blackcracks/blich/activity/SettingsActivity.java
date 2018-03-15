@@ -235,13 +235,19 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             dialog.setOnPositiveClickListener(new FilterDialog.OnPositiveClickListener() {
                 @Override
                 public void onPositiveClick(String value) {
-                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key)))
-                            .setChecked(!value.equals(""));
-
                     ((FilterPreference) findPreference(getString(R.string.pref_filter_select_key)))
                             .setValue(value);
                 }
             });
+
+            dialog.setOnDestroyListener(new FilterDialog.OnDestroyListener() {
+                @Override
+                public void onDestroy() {
+                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key)))
+                            .setChecked(!PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals(""));
+                }
+            });
+
             dialog.show(getFragmentManager(), DIALOG_TAG);
         }
 
@@ -321,8 +327,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 setFilterSelectSummery();
             }
             if (key.equals(getString(R.string.pref_filter_toggle_key)) &&
-                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key))).isChecked() &&
-                    ((FilterPreference) findPreference(getString(R.string.pref_filter_select_key))).getValue().equals("")) {
+                    (PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key) &&
+                    (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("")))) {
                 //If the filter is on and the filter teacher list is empty:
                 showFilterDialog();
             }
