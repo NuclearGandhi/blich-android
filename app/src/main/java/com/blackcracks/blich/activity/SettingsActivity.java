@@ -26,6 +26,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,8 +41,8 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
+import com.blackcracks.blich.dialog.FilterDialog;
 import com.blackcracks.blich.preference.FilterPreference;
-import com.blackcracks.blich.preference.FilterPreferenceDialogFragment;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
@@ -145,7 +146,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     @SuppressWarnings("ConstantConditions")
     public static class SettingsFragment extends ATEPreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener,
-                    PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+            PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
         private static final String SUBSCREEN_KEY = "sub_screen";
 
@@ -206,7 +207,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             PreferenceDialogFragmentCompat fragment = null;
 
             if (preference instanceof ClassPickerPreference) {
-                ClassPickerDialog dialog =  new ClassPickerDialog.Builder()
+                ClassPickerDialog dialog = new ClassPickerDialog.Builder()
                         .setDismissible(true)
                         .setDisplayNegativeButton(true)
                         .build();
@@ -220,12 +221,28 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
                 dialog.show(getFragmentManager(), DIALOG_TAG);
             } else if (preference instanceof FilterPreference) {
-                fragment = FilterPreferenceDialogFragment.newInstance(preference);
+                showFilterDialog();
             }
             if (fragment != null) {
                 fragment.setTargetFragment(this, 0);
                 fragment.show(getFragmentManager(), "fragment");
             }
+        }
+
+        private void showFilterDialog() {
+            FilterDialog dialog = new FilterDialog();
+
+            dialog.setOnPositiveClickListener(new FilterDialog.OnPositiveClickListener() {
+                @Override
+                public void onPositiveClick(String value) {
+                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key)))
+                            .setChecked(!value.equals(""));
+
+                    ((FilterPreference) findPreference(getString(R.string.pref_filter_select_key)))
+                            .setValue(value);
+                }
+            });
+            dialog.show(getFragmentManager(), DIALOG_TAG);
         }
 
         @Override
@@ -302,6 +319,12 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             }
             if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();
+            }
+            if (key.equals(getString(R.string.pref_filter_toggle_key)) &&
+                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key))).isChecked() &&
+                    ((FilterPreference) findPreference(getString(R.string.pref_filter_select_key))).getValue().equals("")) {
+                //If the filter is on and the filter teacher list is empty:
+                showFilterDialog();
             }
         }
 

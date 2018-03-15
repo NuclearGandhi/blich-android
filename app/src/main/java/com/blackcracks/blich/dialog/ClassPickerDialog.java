@@ -209,7 +209,6 @@ public class ClassPickerDialog extends DialogFragment {
                 PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key));
     }
 
-
     /**
      * Insert data from {@link ClassGroup}s into {@link MaterialNumberPicker}s.
      *
