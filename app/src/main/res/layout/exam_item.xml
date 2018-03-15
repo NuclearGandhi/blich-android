@@ -15,10 +15,8 @@
         android:id="@+id/exam_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
         android:gravity="center_horizontal"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="19"/>
@@ -28,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintRight_toRightOf="@+id/exam_day"
         app:layout_constraintTop_toBottomOf="@+id/exam_day"
         tools:text="יום ב'"/>
@@ -39,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/exam_day_of_week"
         app:layout_constraintTop_toTopOf="@+id/exam_day"

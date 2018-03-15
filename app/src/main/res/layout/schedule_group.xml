@@ -19,16 +19,16 @@
         android:id="@+id/schedule_group_hour"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:gravity="center"
-        android:textColor="@color/white_text"
-        android:textSize="20sp"
         android:background="@drawable/oval"
+        android:gravity="center"
         android:tag="tint_background|accent_color"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1"/>
+        tools:layout_constraintTop_creator="1"
+        tools:text="0"/>
 
     <TextView
         android:id="@+id/schedule_group_subject"
@@ -36,7 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="24dp"
-        android:textColor="?android:textColorPrimaryInverse"
+        android:tag="text_color|primary_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/schedule_group_classroom"
         app:layout_constraintStart_toEndOf="@+id/schedule_group_hour"
@@ -44,7 +45,8 @@
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1"/>
+        tools:layout_constraintTop_creator="1"
+        tools:text="מקצוע"/>
 
     <TextView
         android:id="@+id/schedule_group_teacher"
@@ -56,7 +58,8 @@
         tools:layout_conversion_absoluteHeight="19dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_conversion_absoluteX="272dp"
-        tools:layout_conversion_absoluteY="35dp"/>
+        tools:layout_conversion_absoluteY="35dp"
+        tools:text="מורה"/>
 
 
     <ImageView
@@ -65,9 +68,9 @@
         android:layout_height="wrap_content"
         android:rotation="0"
         android:src="@drawable/ic_expand_more_24dp"
+        android:tint="?android:textColorPrimary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@+id/schedule_group_subject"
-        android:tint="?android:textColorPrimary"
         tools:ignore="ContentDescription"/>
 
     <TextView
@@ -78,7 +81,8 @@
         android:ellipsize="none"
         android:visibility="visible"
         app:layout_constraintBaseline_toBaselineOf="@+id/schedule_group_subject"
-        app:layout_constraintEnd_toStartOf="@+id/schedule_group_indicator"/>
+        app:layout_constraintEnd_toStartOf="@+id/schedule_group_indicator"
+        tools:text="כיתה"/>
 
     <LinearLayout
         android:id="@+id/schedule_group_events"
