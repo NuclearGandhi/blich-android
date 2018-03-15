@@ -13,11 +13,13 @@
         android:key="@string/pref_user_class_group_key"
         android:negativeButtonText="@string/dialog_cancel"
         android:positiveButtonText="@string/dialog_okay"
+        android:icon="@drawable/ic_account_card_details_white_24dp"
         android:title="@string/pref_user_class_group_title"/>
 
     <android.support.v7.preference.PreferenceScreen
         android:key="@string/pref_theme_screen_key"
         android:persistent="false"
+        android:icon="@drawable/ic_brush_white_24dp"
         android:title="@string/pref_theme_screen_title">
 
         <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
