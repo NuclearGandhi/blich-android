@@ -18,16 +18,20 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.NumberPicker;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
+
+import java.util.List;
 
 import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
@@ -200,11 +204,66 @@ public class ClassPickerDialog extends DialogFragment {
         mGradePicker.setVisibility(View.VISIBLE);
         mDialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
 
-        ClassGroupUtils.loadDataIntoPicker(
+        loadDataIntoPicker(
                 mRealm,
-                mGradePicker,
-                mClassIndexPicker,
                 PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key));
+    }
+
+
+    /**
+     * Insert data from {@link ClassGroup}s into {@link MaterialNumberPicker}s.
+     *
+     * @param realm a {@link Realm} instance.
+     * @param currentUserClassGroupId the current user's {@link ClassGroup} id.
+     */
+    public void loadDataIntoPicker(
+            Realm realm,
+            int currentUserClassGroupId) {
+
+        final int[] maxIndexes = ClassGroupUtils.fetchMaxIndices(realm);
+        List<ClassGroup> abnormalClasses = ClassGroupUtils.fetchAbnormalClasses(realm);
+
+        String[] displayedValues = new String[4 + abnormalClasses.size()];
+        displayedValues[0] = "ט";
+        displayedValues[1] = "י";
+        displayedValues[2] = "יא";
+        displayedValues[3] = "יב";
+        for (int i = 0; i < abnormalClasses.size(); i++) {
+            displayedValues[i + 4] = abnormalClasses.get(i).getName();
+        }
+
+        mGradePicker.setDisplayedValues(displayedValues);
+        mGradePicker.setMaxValue(displayedValues.length - 1);
+
+        //Load values when grade changes
+        NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                if (newVal < 4) { //Normal grade
+                    mClassIndexPicker.setVisibility(View.VISIBLE);
+                    mClassIndexPicker.setMaxValue(maxIndexes[newVal]);
+                } else { //Abnormal
+                    mClassIndexPicker.setVisibility(View.INVISIBLE);
+                }
+            }
+        };
+        mGradePicker.setOnValueChangedListener(valueChangeListener);
+
+        ClassGroup classGroup = RealmUtils.getGrade(realm, currentUserClassGroupId);
+
+        //Set current value
+        int gradeIndex;
+        if (classGroup.isNormal()) {
+            int grade = classGroup.getGrade();
+            int number = classGroup.getNumber();
+
+            gradeIndex = grade - 9;
+            mClassIndexPicker.setValue(number);
+        } else {
+            gradeIndex = 4;
+        }
+        mGradePicker.setValue(gradeIndex);
+        valueChangeListener.onValueChange(mGradePicker, 1, gradeIndex);
     }
 
     public void setOnPositiveClickListener(OnPositiveClickListener listener) {
