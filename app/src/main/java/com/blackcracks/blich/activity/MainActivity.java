@@ -214,7 +214,7 @@ public class MainActivity extends BaseThemedActivity implements
         if (newVersion > oldVersion) {
             if (!mPreferenceUtils.getBoolean(R.string.pref_is_first_launch)) {
                 Utilities.setClassGroupProperties(this);
-                showChangelogDialog();
+                //showChangelogDialog();
             }
 
             mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
