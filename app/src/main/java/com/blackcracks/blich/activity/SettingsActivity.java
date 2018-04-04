@@ -8,6 +8,7 @@ package com.blackcracks.blich.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
@@ -336,6 +338,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         private void invalidateSettings() {
             mAteKey = ((SettingsActivity) getActivity()).getATEKey();
+
+            findPreference(getString(R.string.pref_theme_screen_key)).setLayoutResource(R.layout.ate_preference_custom_support);
 
             findPreference("dark_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override

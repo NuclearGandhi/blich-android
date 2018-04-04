@@ -6,16 +6,16 @@
 package com.blackcracks.blich.preference;
 
 import android.content.Context;
-import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
+import com.afollestad.appthemeengine.prefs.supportv7.ATEDialogPreference;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.PreferenceUtils;
 
 /**
  * A preference to store the user's chosen {@link com.blackcracks.blich.data.ClassGroup}.
  */
-public class ClassPickerPreference extends DialogPreference {
+public class ClassPickerPreference extends ATEDialogPreference {
 
     private int mValue;
 
