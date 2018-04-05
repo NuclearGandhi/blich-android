@@ -22,7 +22,7 @@
         android:background="@drawable/oval"
         android:gravity="center"
         android:tag="tint_background|accent_color"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintBottom_creator="1"

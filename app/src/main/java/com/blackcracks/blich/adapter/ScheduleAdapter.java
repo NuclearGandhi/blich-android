@@ -35,6 +35,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
+    private String mAteKey;
 
     private ExpandableListView mExpandableListView;
     private TextView mStatusTextView;
@@ -50,6 +51,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                            TextView statusTextView) {
         mRealmScheduleHelper = new RealmScheduleHelper(null);
         mContext = context;
+
+        mAteKey = ((MainActivity) mContext).getATEKey();
 
         mExpandableListView = expandableListView;
         mStatusTextView = statusTextView;
@@ -144,7 +147,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         //Set the hour indicator text
         String hourText = hourNum + "";
         holder.hourView.setText(hourText);
-        if (((MainActivity) mContext).getATEKey().equals("dark_theme")) holder.hourView.setBackground(null);
+        if (mAteKey.equals("dark_theme"))
+            holder.hourView.setBackground(null);
+        else
+            holder.hourView.setTextColor(Config.textColorPrimaryInverse(mContext, mAteKey));
 
         //Get all the lessons and events
         final List<Lesson> lessons = hour.getLessons();
