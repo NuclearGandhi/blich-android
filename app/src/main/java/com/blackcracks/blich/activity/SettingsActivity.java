@@ -160,14 +160,12 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            if (savedInstanceState != null &&
-                    savedInstanceState.containsKey(SUBSCREEN_KEY) &&
-                    !savedInstanceState.getString(SUBSCREEN_KEY).equals("root")) {
-                mCurrentSubscreenKey = rootKey = savedInstanceState.getString(SUBSCREEN_KEY);
-            }
             setPreferencesFromResource(R.xml.pref_main, rootKey);
+
             PreferenceManager.getDefaultSharedPreferences(getContext())
                     .registerOnSharedPreferenceChangeListener(this);
+
+
             initPrefSummery();
         }
 
@@ -182,6 +180,12 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             }
             view.setBackgroundColor(backgroundColor);
             invalidateSettings();
+
+            if
+                    (savedInstanceState != null &&
+                    savedInstanceState.containsKey(SUBSCREEN_KEY) &&
+                    !savedInstanceState.getString(SUBSCREEN_KEY).equals("root"))
+                switchPreferenceScreen(savedInstanceState.getString(SUBSCREEN_KEY));
         }
 
         @Override
@@ -479,19 +483,24 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 PreferenceFragmentCompat preferenceFragmentCompat,
                 PreferenceScreen preferenceScreen) {
 
+            switchPreferenceScreen(preferenceScreen.getKey());
+            return true;
+        }
+
+        private void switchPreferenceScreen(String key) {
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             SettingsFragment fragment = new SettingsFragment();
             Bundle args = new Bundle();
-            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
+            args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, key);
             fragment.setArguments(args);
 
-            ft.add(R.id.fragment, fragment, preferenceScreen.getKey())
-                    .addToBackStack(preferenceScreen.getKey())
+            ft.add(R.id.fragment, fragment, key)
+                    .addToBackStack(key)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .addToBackStack(ARG_PREFERENCE_ROOT)
                     .commit();
 
-            mCurrentSubscreenKey = preferenceScreen.getKey();
-            return true;
+            mCurrentSubscreenKey = key;
         }
     }
 }
