@@ -8,6 +8,8 @@ package com.blackcracks.blich.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -30,6 +32,15 @@ public class AboutActivity extends BaseThemedActivity {
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_about, null , false);
         setContentView(mRootView);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_forward_white_24dp);
+        }
     }
 
     /**

@@ -6,4 +6,5 @@
 
 <resources>
     <dimen name="action_bar_icon">32px</dimen>
+    <dimen name="status_bar_height">25dp</dimen>
 </resources>

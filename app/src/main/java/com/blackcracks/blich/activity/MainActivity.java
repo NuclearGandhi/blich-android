@@ -135,18 +135,17 @@ public class MainActivity extends BaseThemedActivity implements
                     .activityTheme(R.style.AppTheme)
                     .primaryColorRes(R.color.defaultLightPrimaryColor)
                     .accentColorRes(R.color.defaultLightAccentColor)
-                    .coloredNavigationBar(false)
                     .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultLightAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultLightAccentColor)
                     .commit();
         }
+
         if (!ATE.config(this, "dark_theme").isConfigured(4)) {
             ATE.config(this, "dark_theme")
                     .activityTheme(R.style.AppTheme_Dark)
                     .primaryColorRes(R.color.defaultDarkPrimaryColor)
                     .accentColorRes(R.color.defaultDarkAccentColor)
-                    .coloredNavigationBar(false)
                     .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
