@@ -42,27 +42,23 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
 
     @Override
     public String buildName() {
-        String str = "";
         switch (getChangeType()) {
             case Database.TYPE_CANCELED: {
-                str = "ביטול " + buildLessonName();
-                break;
+                return  "ביטול " + buildLessonName();
             }
             case Database.TYPE_NEW_HOUR: {
-                str = "הזזת " + buildLessonName() + " לשעה " + getNewHour();
-                break;
+                return  "הזזת " + buildLessonName() + " לשעה " + getNewHour();
             }
             case Database.TYPE_NEW_ROOM: {
-                str = buildLessonName() + " -> חדר: " + getNewRoom();
-                break;
+                return  buildLessonName() + " -> חדר: " + getNewRoom();
             }
             case Database.TYPE_NEW_TEACHER: {
-                str = buildLessonName() + " -> מורה: " + getNewTeacher();
-                break;
+                return  buildLessonName() + " -> מורה: " + getNewTeacher();
+            }
+            default: {
+                return  buildLessonName();
             }
         }
-
-        return str;
     }
 
     @Override
