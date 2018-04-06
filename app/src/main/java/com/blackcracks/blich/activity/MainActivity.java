@@ -81,6 +81,8 @@ public class MainActivity extends BaseThemedActivity implements
         super.onCreate(savedInstanceState);
         //Initialization stuff
         setupTheme();
+        setAllowDrawBehindStatusBar();
+        setAutoStatusBarColor(false);
 
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
@@ -110,7 +112,7 @@ public class MainActivity extends BaseThemedActivity implements
 
         //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        setupDrawer();
+        setupDrawerLayout();
 
         //Create notification channels
         if (Build.VERSION.SDK_INT >= 26) {
@@ -135,6 +137,7 @@ public class MainActivity extends BaseThemedActivity implements
                     .activityTheme(R.style.AppTheme)
                     .primaryColorRes(R.color.defaultLightPrimaryColor)
                     .accentColorRes(R.color.defaultLightAccentColor)
+                    .statusBarColor(Color.TRANSPARENT)
                     .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultLightAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultLightAccentColor)
@@ -146,6 +149,7 @@ public class MainActivity extends BaseThemedActivity implements
                     .activityTheme(R.style.AppTheme_Dark)
                     .primaryColorRes(R.color.defaultDarkPrimaryColor)
                     .accentColorRes(R.color.defaultDarkAccentColor)
+                    .statusBarColor(Color.TRANSPARENT)
                     .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
                     .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
                     .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
@@ -199,11 +203,6 @@ public class MainActivity extends BaseThemedActivity implements
         }
     }
 
-    private void showChangelogDialog() {
-        new ChangelogDialog()
-                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
-    }
-
     /**
      * Handle app updating.
      */
@@ -220,7 +219,17 @@ public class MainActivity extends BaseThemedActivity implements
         }
     }
 
-    private void setupDrawer() {
+    private void showChangelogDialog() {
+        new ChangelogDialog()
+                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
+    }
+
+    private void setupDrawerLayout() {
+        mDrawerLayout.setStatusBarBackgroundColor(Config.primaryColorDark(this, getATEKey()));
+        setupNavigationView();
+    }
+
+    private void setupNavigationView() {
         mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.getMenu().findItem(R.id.schedule).setChecked(true);
         mNavigationView.setNavigationItemSelectedListener(
