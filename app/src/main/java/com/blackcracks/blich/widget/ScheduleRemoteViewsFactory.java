@@ -79,7 +79,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         Hour hour = mRealmHelper.getHour(position);
         int hourNum = mRealmHelper.getHour(position).getHour();
 
-        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_item);
+        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_schedule_widget);
         views.setTextViewText(
                 R.id.widget_schedule_hour,
                 Integer.toString(hourNum));
@@ -129,7 +129,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             } else {
                 text = Html.fromHtml("<b>" + subject + "</b>");
             }
-            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.widget_schedule_info);
+            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.item_lesson_widget);
             info.setTextViewText(R.id.widget_schedule_subject, text);
             info.setTextColor(R.id.widget_schedule_subject, color);
 

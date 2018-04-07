@@ -88,7 +88,7 @@ public class TeacherFilterAdapter extends BaseAdapter {
 
     private View newView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.teacher_filter_item, parent, false);
+                .inflate(R.layout.item_teacher_filter, parent, false);
         ViewHolder holder = new ViewHolder(view);
         view.setTag(holder);
         return view;

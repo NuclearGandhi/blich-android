@@ -5,13 +5,12 @@
   -->
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:paddingBottom="24dp"
-          android:paddingEnd="24dp"
-          android:paddingStart="24dp"
-          android:paddingTop="14dp"
-          android:textAppearance="@style/TextAppearance.AppCompat.Large"
-          android:textColor="@color/white_text"
-          android:tag="background|primary_color_dark"
-          android:textSize="22sp"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:paddingTop="20dp"
+    android:tag="background|primary_color_dark,text_color|parent_dependent"
+    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    tools:text="חודש" />

@@ -100,7 +100,7 @@ public class ExamAdapter extends BaseAdapter {
 
     private View newView(ViewGroup parent) {
         View view =
-                LayoutInflater.from(mContext).inflate(R.layout.exam_item, parent, false);
+                LayoutInflater.from(mContext).inflate(R.layout.item_exam, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
 
@@ -150,10 +150,10 @@ public class ExamAdapter extends BaseAdapter {
         final TextView examTeacher;
 
         ViewHolder(View itemView) {
-            examDay = itemView.findViewById(R.id.exam_day);
-            examDayOfWeek = itemView.findViewById(R.id.exam_day_of_week);
-            examSubject = itemView.findViewById(R.id.exam_subject);
-            examTeacher = itemView.findViewById(R.id.exam_teacher);
+            examDay = itemView.findViewById(R.id.item_day_in_month);
+            examDayOfWeek = itemView.findViewById(R.id.item_day_of_week);
+            examSubject = itemView.findViewById(R.id.item_subject);
+            examTeacher = itemView.findViewById(R.id.item_teacher);
         }
     }
 }

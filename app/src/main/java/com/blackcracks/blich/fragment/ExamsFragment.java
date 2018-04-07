@@ -34,6 +34,7 @@ import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.ExamUtils;
 import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
@@ -302,6 +303,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 .setMaximumDate(maxDate)
                 .commit();
 
+        final int dotColor = Config.textColorPrimary(
+                getContext(),
+                Utilities.getATEKey(getContext())
+        );
+
         DayViewDecorator decorator = new DayViewDecorator() {
             @Override
             public boolean shouldDecorate(CalendarDay day) {
@@ -310,7 +316,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
             @Override
             public void decorate(DayViewFacade view) {
-                view.addSpan(new DotSpan(5, Color.WHITE));
+                view.addSpan(new DotSpan(
+                        5,
+                        dotColor));
             }
         };
 
