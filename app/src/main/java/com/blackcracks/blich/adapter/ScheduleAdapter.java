@@ -8,6 +8,8 @@ package com.blackcracks.blich.adapter;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -44,7 +46,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     /**
      * @param expandableListView the corresponding view for the adapter.
-     * @param statusTextView {@link TextView} for when the data is invalid.
+     * @param statusTextView     {@link TextView} for when the data is invalid.
      */
     public ScheduleAdapter(ExpandableListView expandableListView,
                            Context context,
@@ -128,7 +130,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private View newGroupView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.schedule_group, parent, false);
+                .inflate(R.layout.item_schedule_group, parent, false);
         GroupViewHolder holder = new GroupViewHolder(view);
         view.setTag(holder);
         return view;
@@ -221,7 +223,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         Else, show the indicator view and add a click listener
          */
         if (getChildrenCount(groupPosition) == 0) {
-            if (teacher.equals("")) holder.teacherView.setVisibility(View.GONE);
+            if (teacher.equals("..."))
+                setSingleLine((ConstraintLayout) holder.subjectView.getParent());
+
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
         } else {
@@ -287,7 +291,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
     private View newChildView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.schedule_child, parent, false);
+                .inflate(R.layout.item_schedule_child, parent, false);
         ChildViewHolder holder = new ChildViewHolder(view);
         view.setTag(holder);
         return view;
@@ -330,7 +334,9 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
 
-        if (teacher.equals("")) holder.teacherView.setVisibility(View.GONE);
+        if (teacher.equals(""))
+            setSingleLine((ConstraintLayout) holder.subjectView.getParent());
+
         holder.teacherView.setText(teacher);
         holder.classroomView.setText(room);
 
@@ -347,7 +353,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
      * Add event dots to the parent view.
      *
      * @param parent the view to put the dots in.
-     * @param list list of {@link DatedLesson}s to make event dots from.
+     * @param list   list of {@link DatedLesson}s to make event dots from.
      */
     private void makeEventDots(ViewGroup parent, List<DatedLesson> list) {
         for (DatedLesson lesson :
@@ -360,7 +366,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
      * Add a new dot to the parent view.
      *
      * @param parent a parent {@link ViewGroup}
-     * @param color the color of the desired dot.
+     * @param color  the color of the desired dot.
      */
     private void makeEventDot(ViewGroup parent, @ColorInt int color) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
@@ -396,12 +402,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final ImageView indicatorView;
 
         GroupViewHolder(View view) {
-            eventsView = view.findViewById(R.id.schedule_group_events);
-            hourView = view.findViewById(R.id.schedule_group_hour);
-            subjectView = view.findViewById(R.id.schedule_group_subject);
-            teacherView = view.findViewById(R.id.schedule_group_teacher);
-            classroomView = view.findViewById(R.id.schedule_group_classroom);
-            indicatorView = view.findViewById(R.id.schedule_group_indicator);
+            eventsView = view.findViewById(R.id.item_event_dots);
+            hourView = view.findViewById(R.id.item_hour_num);
+            subjectView = view.findViewById(R.id.item_subject);
+            teacherView = view.findViewById(R.id.item_teacher);
+            classroomView = view.findViewById(R.id.item_classroom);
+            indicatorView = view.findViewById(R.id.item_expand_indicator);
         }
 
         void reset() {
@@ -412,10 +418,12 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
             classroomView.setText("");
             indicatorView.setRotationX(0);
-            indicatorView.setVisibility(View.GONE);
+            indicatorView.setVisibility(View.INVISIBLE);
 
             eventsView.removeAllViews();
             eventsView.setVisibility(View.VISIBLE);
+
+            setTwoLine((ConstraintLayout) subjectView.getParent());
         }
     }
 
@@ -428,13 +436,32 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         private final TextView teacherView;
 
         private ChildViewHolder(View view) {
-            subjectView = view.findViewById(R.id.schedule_child_subject);
-            classroomView = view.findViewById(R.id.schedule_child_classroom);
-            teacherView = view.findViewById(R.id.schedule_child_teacher);
+            subjectView = view.findViewById(R.id.item_subject);
+            classroomView = view.findViewById(R.id.item_classroom);
+            teacherView = view.findViewById(R.id.item_teacher);
         }
 
         void reset() {
             teacherView.setVisibility(View.VISIBLE);
+            setTwoLine((ConstraintLayout) subjectView.getParent());
         }
+    }
+
+    private static void setSingleLine(ConstraintLayout rootView) {
+        rootView.findViewById(R.id.item_teacher).setVisibility(View.GONE);
+
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(rootView);
+        constraintSet.connect(R.id.item_subject, ConstraintSet.BOTTOM, rootView.getId(), ConstraintSet.BOTTOM, 0);
+        constraintSet.setVerticalBias(R.id.item_subject, 0.5f);
+        constraintSet.applyTo(rootView);
+    }
+
+    private static void setTwoLine(ConstraintLayout rootView) {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(rootView);
+        constraintSet.connect(R.id.item_subject, ConstraintSet.BOTTOM, R.id.guideline, ConstraintSet.TOP, 0);
+        constraintSet.setVerticalBias(R.id.item_subject, 1f);
+        constraintSet.applyTo(rootView);
     }
 }

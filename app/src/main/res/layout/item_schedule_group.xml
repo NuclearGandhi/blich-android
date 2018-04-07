@@ -1,27 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Written by Ido Fang Bentov
   ~ Copyright (C) Blich - All Rights Reserved
   -->
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="wrap_content"
-                                             android:background="?attr/selectableItemBackground"
-                                             android:paddingBottom="8dp"
-                                             android:paddingTop="8dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_dense_height"
+    android:background="?attr/selectableItemBackground">
 
     <TextView
-        android:id="@+id/schedule_group_hour"
+        android:id="@+id/item_hour_num"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
         android:background="@drawable/oval"
         android:gravity="center"
         android:tag="tint_background|accent_color"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintBottom_creator="1"
@@ -30,17 +28,19 @@
         tools:text="0" />
 
     <TextView
-        android:id="@+id/schedule_group_subject"
+        android:id="@+id/item_subject"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="72dp"
+        android:layout_marginStart="16dp"
         android:tag="text_color|primary_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/schedule_group_classroom"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/schedule_group_hour"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/item_classroom"
+        app:layout_constraintStart_toEndOf="@+id/item_hour_num"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
@@ -48,62 +48,64 @@
         tools:text="מקצוע" />
 
     <TextView
-        android:id="@+id/schedule_group_teacher"
+        android:id="@+id/item_teacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="@+id/schedule_group_subject"
-        app:layout_constraintTop_toBottomOf="@+id/space"
+        app:layout_constraintRight_toRightOf="@+id/item_subject"
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:layout_constraintVertical_bias="0.0"
         tools:layout_conversion_absoluteHeight="19dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_conversion_absoluteX="272dp"
         tools:layout_conversion_absoluteY="35dp"
-        tools:text="מורה"/>
+        tools:text="מורה" />
 
 
     <ImageView
-        android:id="@+id/schedule_group_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:id="@+id/item_expand_indicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
         android:rotation="0"
         android:src="@drawable/ic_expand_more_24dp"
-        android:tint="?android:textColorPrimary"
+        android:tag="tint|primary_text"
+        android:transformPivotX="12dp"
+        android:transformPivotY="12dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/schedule_group_subject"
+        app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/schedule_group_classroom"
+        android:id="@+id/item_classroom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="48dp"
         android:ellipsize="none"
         android:visibility="visible"
-        app:layout_constraintBaseline_toBaselineOf="@+id/schedule_group_subject"
-        app:layout_constraintEnd_toStartOf="@+id/schedule_group_indicator"
-        tools:text="כיתה"/>
+        app:layout_constraintBaseline_toBaselineOf="@+id/item_subject"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="כיתה" />
 
     <LinearLayout
-        android:id="@+id/schedule_group_events"
+        android:id="@+id/item_event_dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="6dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@+id/schedule_group_indicator"
-        app:layout_constraintTop_toBottomOf="@+id/space">
+        app:layout_constraintEnd_toEndOf="@+id/item_expand_indicator"
+        app:layout_constraintTop_toBottomOf="@id/item_expand_indicator">
 
     </LinearLayout>
 
-    <Space
-        android:id="@+id/space"
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/schedule_group_subject"/>
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
 
 
 </android.support.constraint.ConstraintLayout>

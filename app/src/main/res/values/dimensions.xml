@@ -7,4 +7,7 @@
 <resources>
     <dimen name="action_bar_icon">32px</dimen>
     <dimen name="status_bar_height">25dp</dimen>
+
+    <dimen name="list_item_dense_height">60dp</dimen>
+    <dimen name="list_divider_height">1dp</dimen>
 </resources>

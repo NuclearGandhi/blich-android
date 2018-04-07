@@ -5,16 +5,15 @@
   -->
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="wrap_content"
-                                             android:orientation="horizontal"
-                                             android:paddingTop="8dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_dense_height"
+    android:orientation="horizontal">
 
 
     <TextView
-        android:id="@+id/schedule_child_subject"
+        android:id="@+id/item_subject"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -22,57 +21,53 @@
         android:tag="text_color|primary_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/schedule_child_classroom"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/item_classroom"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="מקצוע"/>
+        app:layout_constraintVertical_bias="1.0"
+        tools:text="מקצוע" />
 
     <TextView
-        android:id="@+id/schedule_child_teacher"
+        android:id="@+id/item_teacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="@+id/schedule_child_subject"
-        app:layout_constraintTop_toBottomOf="@+id/space"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintRight_toRightOf="@+id/item_subject"
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:layout_constraintVertical_bias="0.0"
         tools:layout_conversion_absoluteHeight="19dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_conversion_absoluteX="272dp"
         tools:layout_conversion_absoluteY="35dp"
-        tools:text="מורה"/>
+        tools:text="מורה" />
 
 
     <TextView
-        android:id="@+id/schedule_child_classroom"
+        android:id="@+id/item_classroom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="48dp"
         android:ellipsize="none"
-        android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/schedule_child_subject"
+        app:layout_constraintBaseline_toBaselineOf="@+id/item_subject"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="כיתה"/>
+        tools:text="כיתה" />
 
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/list_divider_height"
         android:background="?android:attr/listDivider"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        app:layout_constraintRight_toRightOf="parent" />
 
-    <Space
-        android:id="@+id/space"
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/schedule_child_subject"/>
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
 
 </android.support.constraint.ConstraintLayout>
