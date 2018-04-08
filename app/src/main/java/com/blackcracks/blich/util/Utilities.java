@@ -15,7 +15,7 @@ import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.ClassGroup;
-import com.blackcracks.blich.widget.BlichWidgetProvider;
+import com.blackcracks.blich.appwidget.BlichWidgetProvider;
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -86,7 +86,7 @@ public class Utilities {
      */
     public static void updateWidget(Context context) {
         ComponentName widget = new ComponentName(context, BlichWidgetProvider.class);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_schedule);
         AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
         widgetManager.updateAppWidget(widget, views);
     }

@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.widget;
+package com.blackcracks.blich.appwidget;
 
 import android.content.Intent;
 import android.widget.RemoteViewsService;

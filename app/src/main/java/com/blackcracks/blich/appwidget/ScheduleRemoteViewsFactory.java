@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.widget;
+package com.blackcracks.blich.appwidget;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;

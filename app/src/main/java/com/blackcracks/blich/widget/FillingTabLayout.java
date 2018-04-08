@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.view;
+package com.blackcracks.blich.widget;
 
 import android.content.Context;
 import android.support.design.widget.TabLayout;
@@ -11,16 +11,16 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class RtlTabLayout extends TabLayout {
-    public RtlTabLayout(Context context) {
+public class FillingTabLayout extends TabLayout {
+    public FillingTabLayout(Context context) {
         super(context);
     }
 
-    public RtlTabLayout(Context context, AttributeSet attrs) {
+    public FillingTabLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public RtlTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FillingTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

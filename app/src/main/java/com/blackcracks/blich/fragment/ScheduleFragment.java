@@ -123,7 +123,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         final MenuItem filter = menu.findItem(R.id.action_filter_toggle);
         //Inflate it with a view
         mFilterActionButton = (ImageButton) LayoutInflater.from(getContext())
-                .inflate(R.layout.menu_filter_list, null, false);
+                .inflate(R.layout.widget_teacher_filter, null, false);
         filter.setActionView(mFilterActionButton);
 
         tintFilterAction(((MainActivity) getActivity()).getATEKey());

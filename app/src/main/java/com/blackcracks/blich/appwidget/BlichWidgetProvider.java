@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.widget;
+package com.blackcracks.blich.appwidget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -37,7 +37,7 @@ public class BlichWidgetProvider extends AppWidgetProvider {
 
         String ateKey = Utilities.getATEKey(context);
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_schedule);
 
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);

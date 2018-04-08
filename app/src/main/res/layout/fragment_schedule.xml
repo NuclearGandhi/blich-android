@@ -24,7 +24,7 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"/>
 
-        <com.blackcracks.blich.view.RtlTabLayout
+        <com.blackcracks.blich.widget.FillingTabLayout
             android:id="@+id/tablayout_schedule_days"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

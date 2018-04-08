@@ -385,7 +385,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
      * @param color  the color of the desired dot.
      */
     private void makeEventDot(ViewGroup parent, @ColorInt int color) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.schedule_event_dot, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.dot_modified_lesson, parent, false);
 
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.event_dot);
         //noinspection ConstantConditions
