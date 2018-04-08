@@ -167,6 +167,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final String room;
         int color;
 
+        boolean isModified = false;
+
         /*
         There are 4 types of children:
         -Lesson
@@ -179,6 +181,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             teacher = "";
             room = "";
             color = singleChild.getColor();
+
+            isModified = true;
         } else {
             if (lessons == null) {
                 replacement = mRealmScheduleHelper.getAdditionalLessons(hour).get(0);
@@ -197,6 +201,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 teacher = "";
                 room = "";
                 color = replacement.getColor();
+
+                isModified = true;
             }
         }
 
@@ -211,21 +217,15 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             makeEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
         }
 
-        //Display the correct state of the group
-        if (mExpandedArray.get(groupPosition)) {
-            showExpandedGroup(holder, teacher, room);
-        } else {
-            showCollapsed(holder);
-        }
+
+        if (isModified)
+            setSingleLine((ConstraintLayout) holder.subjectView.getParent());
 
         /*
         If there are no children, show a simple item.
         Else, show the indicator view and add a click listener
          */
         if (getChildrenCount(groupPosition) == 0) {
-            if (teacher.equals("..."))
-                setSingleLine((ConstraintLayout) holder.subjectView.getParent());
-
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
         } else {
@@ -251,15 +251,26 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                 }
             });
         }
+
+        //Display the correct state of the group
+        if (mExpandedArray.get(groupPosition)) {
+            showExpandedGroup(holder, teacher, room);
+        } else {
+            showCollapsed(holder);
+        }
     }
 
-    private void showExpandedGroup(final GroupViewHolder holder, final String teacher, final String room) {
+    private void showExpandedGroup(
+            final GroupViewHolder holder,
+            final String teacher,
+            final String room) {
         holder.indicatorView.animate().rotation(180);
 
         //Run on a different thread due to a bug where the view won't update itself if modified from this thread
         holder.teacherView.post(new Runnable() {
             @Override
             public void run() {
+                holder.subjectView.setMaxLines(Integer.MAX_VALUE);
                 holder.teacherView.setText(teacher);
                 holder.classroomView.setText(room);
                 holder.eventsView.setVisibility(View.GONE);
@@ -268,6 +279,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     }
 
     private void showCollapsed(GroupViewHolder holder) {
+        holder.subjectView.setMaxLines(1);
         holder.indicatorView.animate().rotation(0);
         holder.teacherView.setText("...");
         holder.classroomView.setText("");
@@ -318,11 +330,15 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final String room;
         int color;
 
+        boolean isModified = false;
+
         if (datedLesson != null) {//Apply DatedLesson
             subject = datedLesson.buildName();
             teacher = "";
             room = "";
             color = datedLesson.getColor();
+
+            isModified = true;
         } else {//Normal lesson
             //noinspection ConstantConditions
             subject = lesson.getSubject();
@@ -334,7 +350,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
 
-        if (teacher.equals(""))
+        if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
 
         holder.teacherView.setText(teacher);
@@ -452,8 +468,8 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(rootView);
-        constraintSet.connect(R.id.item_subject, ConstraintSet.BOTTOM, rootView.getId(), ConstraintSet.BOTTOM, 0);
-        constraintSet.setVerticalBias(R.id.item_subject, 0.5f);
+        constraintSet.connect(R.id.item_subject, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        constraintSet.setVerticalBias(R.id.item_subject, 0.25f);
         constraintSet.applyTo(rootView);
     }
 
