@@ -343,7 +343,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         private void invalidateSettings() {
             mAteKey = ((SettingsActivity) getActivity()).getATEKey();
 
-            findPreference(getString(R.string.pref_theme_screen_key)).setLayoutResource(R.layout.ate_preference_custom_support);
+            findPreference(getString(R.string.pref_theme_screen_key)).setLayoutResource(R.layout.ate_preference);
 
             findPreference("dark_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
