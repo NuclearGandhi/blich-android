@@ -9,12 +9,13 @@ import android.content.Context;
 import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
+import com.afollestad.appthemeengine.prefs.supportv7.ATEDialogPreference;
 import com.blackcracks.blich.R;
 
 /**
  * A preference to store the user's chosen teachers to filter.
  */
-public class FilterPreference extends DialogPreference {
+public class FilterPreference extends ATEDialogPreference {
 
     private String mValue;
 

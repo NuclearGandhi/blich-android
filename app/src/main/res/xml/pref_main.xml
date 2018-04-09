@@ -1,25 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Written by Ido Fang Bentov
   ~ Copyright (C) Blich - All Rights Reserved
   -->
 
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                                                xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.blackcracks.blich.preference.ClassPickerPreference
         android:defaultValue="@integer/pref_user_class_group_default"
         android:dialogTitle=""
+        android:icon="@drawable/ic_account_card_details_white_24dp"
         android:key="@string/pref_user_class_group_key"
         android:negativeButtonText="@string/dialog_cancel"
         android:positiveButtonText="@string/dialog_okay"
-        android:icon="@drawable/ic_account_card_details_white_24dp"
-        android:title="@string/pref_user_class_group_title"/>
+        android:title="@string/pref_user_class_group_title" />
 
-    <android.support.v7.preference.PreferenceScreen
+    <PreferenceScreen
+        android:icon="@drawable/ic_brush_white_24dp"
         android:key="@string/pref_theme_screen_key"
         android:persistent="false"
-        android:icon="@drawable/ic_brush_white_24dp"
         android:title="@string/pref_theme_screen_title">
 
         <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
@@ -32,19 +31,19 @@
                 android:persistent="true"
                 android:title="@string/pref_theme_background_title"
                 android:widgetLayout="@layout/ate_preference_checkbox"
-                app:ateKey_pref_switch="?ate_key"/>
+                app:ateKey_pref_switch="?ate_key" />
 
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_primary_key"
                 android:persistent="false"
                 android:title="@string/pref_theme_primary_title"
-                app:ateKey_pref_color="?ate_key"/>
+                app:ateKey_pref_color="?ate_key" />
 
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_accent_key"
                 android:persistent="false"
                 android:title="@string/pref_theme_accent_title"
-                app:ateKey_pref_color="?ate_key"/>
+                app:ateKey_pref_color="?ate_key" />
 
         </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
@@ -55,51 +54,53 @@
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_lesson_canceled_key"
                 android:persistent="false"
-                android:title="@string/pref_theme_lesson_canceled_title"/>
+                android:title="@string/pref_theme_lesson_canceled_title"
+                app:ateKey_pref_color="?ate_key" />
 
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_lesson_changed_key"
                 android:persistent="false"
-                android:title="@string/pref_theme_lesson_changed_title"/>
+                android:title="@string/pref_theme_lesson_changed_title"
+                app:ateKey_pref_color="?ate_key" />
 
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_lesson_exam_key"
                 android:persistent="false"
-                android:title="@string/pref_theme_lesson_exam_title"/>
+                android:title="@string/pref_theme_lesson_exam_title"
+                app:ateKey_pref_color="?ate_key" />
 
             <com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference
                 android:key="@string/pref_theme_lesson_event_key"
                 android:persistent="false"
-                android:title="@string/pref_theme_lesson_event_title"/>
+                android:title="@string/pref_theme_lesson_event_title"
+                app:ateKey_pref_color="?ate_key" />
 
         </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
+    </PreferenceScreen>
 
+    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
+        android:title="@string/pref_notification_category_title"
+        app:ateKey_prefCategory_textColor="?ate_key">
 
-    </android.support.v7.preference.PreferenceScreen>
-
-    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_notification_category_title">
-
-        <SwitchPreferenceCompat
+        <com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference
             android:defaultValue="true"
             android:disableDependentsState="false"
+            android:icon="@drawable/ic_notifications_white_24dp"
             android:key="@string/pref_notification_toggle_key"
-            android:title="@string/pref_notification_toggle_title"/>
-
-        <Preference
-            android:defaultValue="true"
-            android:dependency="@string/pref_notification_toggle_key"
-            android:key="@string/pref_notification_sound_key"
-            android:title="@string/pref_notification_sound_title"/>
-
+            android:title="@string/pref_notification_toggle_title"
+            app:ateKey_pref_switch="?ate_key" />
     </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
 
-    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory android:title="@string/pref_filter_category_title">
+    <com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory
+        android:title="@string/pref_filter_category_title"
+        app:ateKey_prefCategory_textColor="?ate_key">
 
-        <SwitchPreferenceCompat
+        <com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference
             android:defaultValue="@bool/pref_filter_toggle_default"
             android:disableDependentsState="false"
             android:key="@string/pref_filter_toggle_key"
-            android:title="@string/pref_filter_toggle_title"/>
+            android:title="@string/pref_filter_toggle_title"
+            app:ateKey_pref_switch="?ate_key" />
 
         <com.blackcracks.blich.preference.FilterPreference
             android:defaultValue=""
@@ -108,7 +109,7 @@
             android:key="@string/pref_filter_select_key"
             android:negativeButtonText="@string/dialog_cancel"
             android:positiveButtonText="@string/dialog_okay"
-            android:title="@string/pref_filter_select_title"/>
+            android:title="@string/pref_filter_select_title" />
 
     </com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceCategory>
-</android.support.v7.preference.PreferenceScreen>
+</PreferenceScreen>

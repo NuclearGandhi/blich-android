@@ -95,8 +95,6 @@ public class BlichFirebaseJobService extends JobService {
                     context.getString(R.string.notification_channel_schedule_id));
             NotificationCompat.InboxStyle inboxStyle = buildNotificationContent(notificationList, builder);
 
-            Uri ringtone = Uri.parse(PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key));
-
             Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context,
@@ -108,8 +106,7 @@ public class BlichFirebaseJobService extends JobService {
                     .setSmallIcon(R.drawable.ic_timetable_white_24dp)
                     .setContentTitle(context.getResources().getString(
                             R.string.notification_update_title))
-                    .setSound(ringtone)
-                    .setDefaults(Notification.DEFAULT_VIBRATE)
+                    .setDefaults(Notification.DEFAULT_VIBRATE|Notification.DEFAULT_SOUND)
                     .setStyle(inboxStyle)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)

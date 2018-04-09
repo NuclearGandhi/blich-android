@@ -37,6 +37,7 @@ import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.prefs.supportv7.ATEColorPreference;
 import com.afollestad.appthemeengine.prefs.supportv7.ATEPreferenceFragmentCompat;
+import com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference;
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
@@ -249,74 +250,12 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             dialog.setOnDestroyListener(new FilterDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy() {
-                    ((SwitchPreferenceCompat) findPreference(getString(R.string.pref_filter_toggle_key)))
+                    ((ATESwitchPreference) findPreference(getString(R.string.pref_filter_toggle_key)))
                             .setChecked(!PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals(""));
                 }
             });
 
             dialog.show(getFragmentManager(), DIALOG_TAG);
-        }
-
-        @Override
-        public boolean onPreferenceTreeClick(Preference preference) {
-
-            String key = preference.getKey();
-            if (key == null) return true;
-            //Handle the notification sound preference
-            if (key.equals(getString(R.string.pref_notification_sound_key))) {
-                Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
-
-                String existingValue = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
-                if (existingValue != null) {
-                    if (existingValue.length() == 0) {
-                        // Select "Silent"
-                        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-                    } else {
-                        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(existingValue));
-                    }
-                } else {
-                    // No ringtone has been selected, set to the default
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
-                }
-
-                startActivityForResult(intent, RINGTONE_PICKER_REQUEST);
-                return true;
-            } else {
-                return super.onPreferenceTreeClick(preference);
-            }
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-            //Handle the notification sound preference
-            if (requestCode == RINGTONE_PICKER_REQUEST && data != null) {
-
-                String key = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
-                Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                if (uri != null) {
-
-                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                            .putString(key, uri.toString())
-                            .apply();
-
-                    Ringtone ringtone = RingtoneManager.getRingtone(getContext(), uri);
-                    Preference preference = findPreference(key);
-                    preference.setSummary(ringtone.getTitle(getContext()));
-                } else {
-                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                            .putString(key, "")
-                            .apply();
-                    Preference preference = findPreference(key);
-                    preference.setSummary("שקט");
-                }
-            } else {
-                super.onActivityResult(requestCode, resultCode, data);
-            }
         }
 
         @Override
@@ -416,29 +355,6 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             if (findPreference(getString(R.string.pref_user_class_group_key)) != null) {
                 setClassPickerSummery();
                 setFilterSelectSummery();
-                setNotificationSoundPreference();
-            }
-        }
-
-        //Notification Sound Preference
-        private void setNotificationSoundPreference() {
-            String notificationSoundKey = getString(R.string.pref_notification_sound_key);
-            String uri = PreferenceUtils.getInstance().getString(R.string.pref_notification_sound_key);
-            if (!uri.equals("")) {
-                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putString(notificationSoundKey, uri)
-                        .apply();
-
-                Ringtone ringtone = RingtoneManager.getRingtone(getContext(), Uri.parse(uri));
-                Preference preference = findPreference(notificationSoundKey);
-                preference.setSummary(ringtone.getTitle(getContext()));
-            } else {
-                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putString(notificationSoundKey, "")
-                        .apply();
-
-                Preference preference = findPreference(notificationSoundKey);
-                preference.setSummary("שקט");
             }
         }
 
