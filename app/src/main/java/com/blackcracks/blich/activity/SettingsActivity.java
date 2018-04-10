@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -62,7 +63,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     private static final String FRAGMENT_KEY = "fragment_settings";
 
     private View mRootView;
-    private Fragment mFragment;
+    private SettingsFragment mFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +83,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         if (savedInstanceState != null) {
-            mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_KEY);
+            mFragment = (SettingsFragment) getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_KEY);
         } else {
             mFragment = new SettingsFragment();
         }
@@ -153,19 +154,15 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
 
         private static final String SUBSCREEN_KEY = "sub_screen";
 
-        private static final int RINGTONE_PICKER_REQUEST = 100;
         private static final String DIALOG_TAG = "dialog";
 
-        String mAteKey;
-        String mCurrentSubscreenKey = "root";
+        private String mAteKey;
+        private String mCurrentSubscreenKey = "root";
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_main, rootKey);
-
-            PreferenceManager.getDefaultSharedPreferences(getContext())
-                    .registerOnSharedPreferenceChangeListener(this);
-
+            mCurrentSubscreenKey = rootKey != null ? rootKey : "root";
 
             initPrefSummery();
         }
@@ -185,8 +182,10 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             if
                     (savedInstanceState != null &&
                     savedInstanceState.containsKey(SUBSCREEN_KEY) &&
-                    !savedInstanceState.getString(SUBSCREEN_KEY).equals("root"))
+                    !savedInstanceState.getString(SUBSCREEN_KEY).equals("root")) {
+                getFragmentManager().popBackStack();
                 switchPreferenceScreen(savedInstanceState.getString(SUBSCREEN_KEY));
+            }
         }
 
         @Override
@@ -352,7 +351,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         private void initPrefSummery() {
-            if (findPreference(getString(R.string.pref_user_class_group_key)) != null) {
+            if (mCurrentSubscreenKey.equals("root")) {
                 setClassPickerSummery();
                 setFilterSelectSummery();
             }
@@ -413,7 +412,6 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             ft.add(R.id.fragment, fragment, key)
                     .addToBackStack(key)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .addToBackStack(ARG_PREFERENCE_ROOT)
                     .commit();
 
             mCurrentSubscreenKey = key;
