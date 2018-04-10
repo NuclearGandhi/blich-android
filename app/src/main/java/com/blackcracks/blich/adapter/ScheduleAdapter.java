@@ -158,7 +158,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         final List<Lesson> lessons = hour.getLessons();
 
         Lesson firstLesson = null;
-        DatedLesson singleChild = mRealmScheduleHelper.getNonReplacingLesson(hour);
+        DatedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(hour);
         DatedLesson replacement = null;
 
         //The main data
@@ -176,11 +176,11 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         -Event (in addition to Lesson)
         -Exam (in addition to Lesson)
          */
-        if (singleChild != null) { //Then display the single lesson
-            subject = singleChild.buildName();
+        if (specialEvent != null) { //Then display the single lesson
+            subject = specialEvent.buildName();
             teacher = "";
             room = "";
-            color = singleChild.getColor();
+            color = specialEvent.getColor();
 
             isModified = true;
         } else {
@@ -210,7 +210,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.subjectView.setTextColor(color);
 
         //Add dots to signify that there are changes
-        if (singleChild == null) {
+        if (specialEvent == null) {
             List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
             ScheduleUtils.removeDuplicateDaterLessons(datedLessons); //Remove duplicates
             datedLessons.remove(replacement); //Remove the displayed dated lesson
@@ -220,6 +220,13 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
+
+        //Display the correct state of the group
+        if (mExpandedArray.get(groupPosition)) {
+            showExpandedGroup(holder, teacher, room);
+        } else {
+            showCollapsed(holder);
+        }
 
         /*
         If there are no children, show a simple item.
@@ -250,13 +257,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
                     }
                 }
             });
-        }
-
-        //Display the correct state of the group
-        if (mExpandedArray.get(groupPosition)) {
-            showExpandedGroup(holder, teacher, room);
-        } else {
-            showCollapsed(holder);
         }
     }
 
@@ -464,8 +464,6 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     }
 
     private static void setSingleLine(ConstraintLayout rootView) {
-        rootView.findViewById(R.id.item_teacher).setVisibility(View.GONE);
-
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(rootView);
         constraintSet.connect(R.id.item_subject, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
