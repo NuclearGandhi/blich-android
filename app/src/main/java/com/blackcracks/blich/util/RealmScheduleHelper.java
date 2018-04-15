@@ -59,22 +59,23 @@ public class RealmScheduleHelper {
      * be shown.
      */
     private void buildEmptyHours() {
-        for (DatedLesson datedLesson:
-             mDatedLessons) {
-            if (!datedLesson.isAReplacer()) {
-                for(int i = datedLesson.getBeginHour(); i <= datedLesson.getEndHour(); i++) {
-                    if (getHourByNum(i) == null) {
-                        Hour hour = new Hour();
-                        hour.setHour(i);
-                        mHours.add(hour);
-                    }
+        for (DatedLesson datedLesson :
+                mDatedLessons) {
+            //if (!datedLesson.isAReplacer()) {
+            for (int i = datedLesson.getBeginHour(); i <= datedLesson.getEndHour(); i++) {
+                if (getHourByNum(i) == null) {
+                    Hour hour = new Hour();
+                    hour.setHour(i);
+                    mHours.add(hour);
                 }
+                //}
             }
         }
         Collections.sort(mHours);
     }
 
-    private @Nullable Hour getHourByNum(int hourNum) {
+    private @Nullable
+    Hour getHourByNum(int hourNum) {
         for (Hour hour :
                 mHours) {
             if (hour.getHour() == hourNum) return hour;
@@ -104,7 +105,7 @@ public class RealmScheduleHelper {
      *
      * @param toReplace a {@link Lesson} to replace.
      * @return replaced {@link DatedLesson}.
-     *         {@code null} if none exist.
+     * {@code null} if none exist.
      */
     public @Nullable
     DatedLesson getLessonReplacement(int hour, Lesson toReplace) {
@@ -125,7 +126,7 @@ public class RealmScheduleHelper {
      */
     public List<DatedLesson> getDatedLessons(Hour hour) {
         List<DatedLesson> lessons = new ArrayList<>();
-        for (DatedLesson datedLesson:
+        for (DatedLesson datedLesson :
                 mDatedLessons) {
             if (datedLesson.isEqualToHour(hour.getHour())) {
                 lessons.add(datedLesson);
@@ -138,7 +139,7 @@ public class RealmScheduleHelper {
      * Get a single replacing {@link DatedLesson} in the specified hour.
      *
      * @return non replacing {@link DatedLesson}.
-     *         {@code null} if none exist.
+     * {@code null} if none exist.
      */
     public @Nullable
     DatedLesson getNonReplacingLesson(Hour hour) {
@@ -150,7 +151,7 @@ public class RealmScheduleHelper {
         }
         return null;
     }
-    
+
     /**
      * Get all the non replacing lessons, and lessons that come in addition to
      * (see {@link #canReplaceInList(DatedLesson, List)}) the specified hour.
@@ -159,17 +160,19 @@ public class RealmScheduleHelper {
      */
     public List<DatedLesson> getAdditionalLessons(Hour hour) {
         List<Lesson> lessons = hour.getLessons();
+        if (lessons == null)
+            return getDatedLessons(hour);
+
         List<DatedLesson> nonReplacingLessons = new ArrayList<>();
         for (DatedLesson datedLesson :
-                mDatedLessons) {
-            if (datedLesson.isEqualToHour(hour.getHour()) && (
-                    !datedLesson.isAReplacer() || !canReplaceInList(datedLesson, lessons))){
+                getDatedLessons(hour)) {
+            if (!datedLesson.isAReplacer() || !canReplaceInList(datedLesson, lessons)) {
                 nonReplacingLessons.add(datedLesson);
             }
         }
         return nonReplacingLessons;
     }
-    
+
     /**
      * Get the count additional lessons in the specified hour.
      *
@@ -185,7 +188,7 @@ public class RealmScheduleHelper {
      * given list.
      *
      * @param datedLesson a {@link DatedLesson}.
-     * @param lessons a list of {@link Lesson}s.
+     * @param lessons     a list of {@link Lesson}s.
      * @return {@code true} the {@code datedLesson} can replace.
      */
     private boolean canReplaceInList(DatedLesson datedLesson, List<Lesson> lessons) {
@@ -230,13 +233,13 @@ public class RealmScheduleHelper {
     /**
      * Get the count of normal lessons in the given hour.
      *
-     * @param hour  an {@link Hour}.
-     * @return  count of lessons.
+     * @param hour an {@link Hour}.
+     * @return count of lessons.
      */
     public int getLessonCount(Hour hour) {
         if (!mIsDataValid) return 0;
         List<Lesson> lessons = hour.getLessons();
-        if (lessons == null){
+        if (lessons == null) {
             return 0;
         }
         return lessons.size();
@@ -245,8 +248,8 @@ public class RealmScheduleHelper {
     /**
      * Get the count of normal lesson in the hour in the specified position.
      *
-     * @param position  position of hour.
-     * @return  count of lessons.
+     * @param position position of hour.
+     * @return count of lessons.
      */
     public int getLessonCount(int position) {
         return getLessonCount(getHour(position));

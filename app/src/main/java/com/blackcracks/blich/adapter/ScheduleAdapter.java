@@ -221,8 +221,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
 
+        boolean isSingleLesson = getChildrenCount(groupPosition) == 0;
+
         //Display the correct state of the group
-        if (mExpandedArray.get(groupPosition)) {
+        if (mExpandedArray.get(groupPosition) || isSingleLesson) {
             showExpandedGroup(holder, teacher, room);
         } else {
             showCollapsed(holder);
@@ -232,7 +234,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         If there are no children, show a simple item.
         Else, show the indicator view and add a click listener
          */
-        if (getChildrenCount(groupPosition) == 0) {
+        if (isSingleLesson) {
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
         } else {
