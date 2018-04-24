@@ -37,6 +37,16 @@ public class ScheduleResult {
     public boolean isDataValid() {
         if (mHours == null || mDatedLessons == null) return false;
         if (mHours.size() == 0 && mDatedLessons.size() == 0) return false;
+
+        for (Hour hour : mHours) {
+            for (Lesson lesson : hour.getLessons()) {
+                if (!lesson.isValid()) return false;
+            }
+        }
+
+        for(DatedLesson datedLesson : mDatedLessons) {
+            if (!datedLesson.isValid()) return false;
+        }
         return true;
     }
 }

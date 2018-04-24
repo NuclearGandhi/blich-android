@@ -35,6 +35,8 @@ public interface DatedLesson {
      */
     Date getDate();
 
+    boolean isValid();
+
     /** Compare between the current lesson and a given hour.
      * @param hour hour - period to compare to.
      * @return {@code true} the lesson is taking place in the given hour.
