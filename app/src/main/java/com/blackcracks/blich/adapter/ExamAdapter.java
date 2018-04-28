@@ -6,18 +6,22 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.ExamItem;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.data.MonthDivider;
 import com.blackcracks.blich.util.RealmExamHelper;
+import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
 import java.util.List;
@@ -29,6 +33,8 @@ import java.util.Locale;
 public class ExamAdapter extends BaseAdapter {
 
     private final Context mContext;
+    private int monthDividerTextColor;
+
     private RealmExamHelper mExamHelper;
     private TextView mStatusMessage;
 
@@ -41,6 +47,12 @@ public class ExamAdapter extends BaseAdapter {
         mContext = context;
         mExamHelper = new RealmExamHelper(data);
         mStatusMessage = statusMessage;
+
+        boolean isPrimaryDarkColorLight = ATEUtil.isColorLight(
+                Config.primaryColorDark(context, Utilities.getATEKey(context)));
+        monthDividerTextColor = isPrimaryDarkColorLight ?
+                ContextCompat.getColor(context, R.color.text_color_primary_light) :
+                ContextCompat.getColor(context, R.color.text_color_primary_dark);
     }
 
     /**
@@ -135,6 +147,7 @@ public class ExamAdapter extends BaseAdapter {
         TextView view = (TextView) LayoutInflater.from(mContext).inflate(
                 R.layout.exam_month_divider, parent, false);
         view.setText(divider.buildLabel());
+        view.setTextColor(monthDividerTextColor);
 
         return view;
     }

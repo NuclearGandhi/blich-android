@@ -11,6 +11,6 @@
     android:paddingEnd="16dp"
     android:paddingStart="16dp"
     android:paddingTop="20dp"
-    android:tag="background|primary_color_dark,text_color|parent_dependent"
+    android:tag="background|primary_color_dark"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
     tools:text="חודש" />

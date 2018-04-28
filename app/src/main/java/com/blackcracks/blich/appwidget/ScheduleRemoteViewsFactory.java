@@ -86,9 +86,9 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
         int primaryTextColor;
         if (ateKey.equals("light_theme")) {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.black_text);
+            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
         } else {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.white_text);
+            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
         }
         views.setTextColor(R.id.widget_schedule_hour,
                 primaryTextColor);
