@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
@@ -62,7 +64,7 @@ import timber.log.Timber;
  */
 @SuppressWarnings("ConstantConditions")
 public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
-        android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
+        android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>> {
 
     private static final int EXAM_LOADER_ID = 1;
 
@@ -229,13 +231,14 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 mToolbar,
                 ateKey));
 
-        mCalendarView.setSelectionColor(Config.accentColor(getContext(), ateKey));
         int toolbarColor = Config.toolbarColor(getContext(), ateKey, mToolbar);
         boolean isToolbarLight = Config.isLightToolbar(getContext(), mToolbar, ateKey, toolbarColor);
         if (isToolbarLight) {
+            mCalendarView.setSelectionColor(ContextCompat.getColor(getContext(), R.color.button_pressed_light));
             mCalendarView.setDateTextAppearance(R.style.TextAppearance_Toolbar_Light);
             mCalendarView.setWeekDayTextAppearance(R.style.TextAppearance_Toolbar_Light);
         } else {
+            mCalendarView.setSelectionColor(ContextCompat.getColor(getContext(), R.color.button_pressed_dark));
             mCalendarView.setDateTextAppearance(R.style.TextAppearance_Toolbar_Dark);
             mCalendarView.setWeekDayTextAppearance(R.style.TextAppearance_Toolbar_Dark);
         }
@@ -292,7 +295,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private void loadDataIntCalendar(List<Exam> data) {
         List<GenericExam> exams = ExamUtils.buildExamsList(data);
-        for (GenericExam exam:
+        for (GenericExam exam :
                 exams) {
             mDates.add(CalendarDay.from(exam.getDate()));
         }

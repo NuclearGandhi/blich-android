@@ -14,14 +14,17 @@
     <color name="text_color_primary_light">#DE000000</color>
     <color name="text_color_primary_dark">#FFFFFF</color>
 
+    <color name="material_background_light">@color/white_50</color>
+    <color name="material_background_dark">@color/grey_850</color>
+    
+    <color name="button_pressed_light">#66999999</color>
+    <color name="button_pressed_dark">#40CCCCCC</color>
+    
     <color name="lesson_canceled">#E53935</color>
     <color name="lesson_changed">#1976D2</color>
     <color name="lesson_exam">#FF8F00</color>
     <color name="lesson_event">#388E3C</color>
-
-    <color name="material_background_light">@color/white_50</color>
-    <color name="material_background_dark">@color/grey_850</color>
-
+    
     <color name="white_50">#FAFAFA</color>
 
     <color name="grey_800">#424242</color>
