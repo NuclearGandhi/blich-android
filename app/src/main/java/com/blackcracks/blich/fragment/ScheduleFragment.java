@@ -63,18 +63,15 @@ public class ScheduleFragment extends BlichBaseFragment {
         SchedulePagerAdapter pagerAdapter = new SchedulePagerAdapter(
                 getChildFragmentManager(),
                 getResources().getStringArray(R.array.tab_schedule_names));
-        if (viewPager != null) {
-            viewPager.setAdapter(pagerAdapter);
 
-            int day = ScheduleUtils.getWantedDayOfTheWeek();
-            viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);
+        viewPager.setAdapter(pagerAdapter);
 
-        }
-        if (mTabLayout != null) {
-            mTabLayout.setupWithViewPager(viewPager);
-            mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-            mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        }
+        int day = ScheduleUtils.getWantedDayOfTheWeek();
+        viewPager.setCurrentItem(SchedulePagerAdapter.getRealPosition(day - 1), false);
+
+        mTabLayout.setupWithViewPager(viewPager);
+        mTabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
+        mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         return mRootView;
     }
