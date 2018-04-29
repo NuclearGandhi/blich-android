@@ -80,7 +80,6 @@ public class MainActivity extends BaseThemedActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Initialization stuff
-        setupTheme();
         setAllowDrawBehindStatusBar();
         setAutoStatusBarColor(false);
 
@@ -127,33 +126,6 @@ public class MainActivity extends BaseThemedActivity implements
             if (channel == null) {
                 createNotificationChannels();
             }
-        }
-    }
-
-    private void setupTheme() {
-        // Default config
-        if (!ATE.config(this, "light_theme").isConfigured(4)) {
-            ATE.config(this, "light_theme")
-                    .activityTheme(R.style.AppTheme)
-                    .primaryColorRes(R.color.defaultLightPrimaryColor)
-                    .accentColorRes(R.color.defaultLightAccentColor)
-                    .statusBarColor(Color.TRANSPARENT)
-                    .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
-                    .navigationViewSelectedIconRes(R.color.defaultLightAccentColor)
-                    .navigationViewSelectedTextRes(R.color.defaultLightAccentColor)
-                    .commit();
-        }
-
-        if (!ATE.config(this, "dark_theme").isConfigured(4)) {
-            ATE.config(this, "dark_theme")
-                    .activityTheme(R.style.AppTheme_Dark)
-                    .primaryColorRes(R.color.defaultDarkPrimaryColor)
-                    .accentColorRes(R.color.defaultDarkAccentColor)
-                    .statusBarColor(Color.TRANSPARENT)
-                    .lightStatusBarMode(Config.LIGHT_STATUS_BAR_AUTO)
-                    .navigationViewSelectedIconRes(R.color.defaultDarkAccentColor)
-                    .navigationViewSelectedTextRes(R.color.defaultDarkAccentColor)
-                    .commit();
         }
     }
 

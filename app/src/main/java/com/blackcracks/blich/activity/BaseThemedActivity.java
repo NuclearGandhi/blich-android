@@ -49,15 +49,6 @@ public abstract class BaseThemedActivity extends ATEActivity {
         context.getApplicationContext().createConfigurationContext(config);
     }
 
-    public void setAllowDrawBehindStatusBar() {
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-    public void setAutoStatusBarColor(boolean autoStatusBarColor) {
-        mAutoStatusBarColor = autoStatusBarColor;
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -67,5 +58,14 @@ public abstract class BaseThemedActivity extends ATEActivity {
     @Override
     public final String getATEKey() {
         return Utilities.getATEKey(this);
+    }
+
+    public void setAllowDrawBehindStatusBar() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    public void setAutoStatusBarColor(boolean autoStatusBarColor) {
+        mAutoStatusBarColor = autoStatusBarColor;
     }
 }
