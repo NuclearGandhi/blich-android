@@ -21,7 +21,7 @@ public class ClassPickerPreference extends ATEDialogPreference {
 
     public ClassPickerPreference(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setDialogLayoutResource(R.layout.dialog_select_class);
+        setDialogLayoutResource(R.layout.dialog_class_picker);
     }
 
     @Override

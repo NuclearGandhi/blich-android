@@ -35,7 +35,7 @@ import io.realm.RealmResults;
 /**
  * A dialog for {@link FilterPreference}. Prompts the user with a teacher list to filter.
  */
-public class FilterDialog extends DialogFragment
+public class TeacherFilterDialog extends DialogFragment
         implements MaterialDialog.SingleButtonCallback {
 
     private Realm mRealm;

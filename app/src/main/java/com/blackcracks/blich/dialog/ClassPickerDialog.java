@@ -102,7 +102,7 @@ public class ClassPickerDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(
-                R.layout.dialog_select_class,
+                R.layout.dialog_class_picker,
                 null);
 
         setCancelable(mBuilder.isDismissible);

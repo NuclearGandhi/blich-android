@@ -6,30 +6,21 @@
 package com.blackcracks.blich.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +36,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
-import com.blackcracks.blich.dialog.FilterDialog;
+import com.blackcracks.blich.dialog.TeacherFilterDialog;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
@@ -236,9 +227,9 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
         }
 
         private void showFilterDialog() {
-            FilterDialog dialog = new FilterDialog();
+            TeacherFilterDialog dialog = new TeacherFilterDialog();
 
-            dialog.setOnPositiveClickListener(new FilterDialog.OnPositiveClickListener() {
+            dialog.setOnPositiveClickListener(new TeacherFilterDialog.OnPositiveClickListener() {
                 @Override
                 public void onPositiveClick(String value) {
                     ((FilterPreference) findPreference(getString(R.string.pref_filter_select_key)))
@@ -246,7 +237,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 }
             });
 
-            dialog.setOnDestroyListener(new FilterDialog.OnDestroyListener() {
+            dialog.setOnDestroyListener(new TeacherFilterDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy() {
                     ((ATESwitchPreference) findPreference(getString(R.string.pref_filter_toggle_key)))
