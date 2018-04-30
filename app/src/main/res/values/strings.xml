@@ -39,8 +39,7 @@
     <string name="pref_filter_toggle_title">סינון</string>
     <string name="pref_filter_select_title">בחירת מורים</string>
 
-    <string name="dialog_choose_class_title">מהי כיתתך?</string>
-    <string name="dialog_choose_class_content">כיתה:</string>
+    <string name="dialog_class_picker_title">בחירת כיתה</string>
     <string name="dialog_okay">אישור</string>
     <string name="dialog_try_again">נסה שוב</string>
     <string name="dialog_cancel">ביטול</string>

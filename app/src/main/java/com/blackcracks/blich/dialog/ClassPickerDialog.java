@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -57,7 +58,7 @@ public class ClassPickerDialog extends DialogFragment {
     private MaterialDialog mDialog;
     private NumberPicker mClassIndexPicker;
     private NumberPicker mGradePicker;
-    private FrameLayout mProgressBar;
+    private ProgressBar mProgressBar;
     private BroadcastReceiver mFetchBroadcastReceiver;
     private OnPositiveClickListener mOnDestroyListener;
 
@@ -106,8 +107,6 @@ public class ClassPickerDialog extends DialogFragment {
                 null);
 
         setCancelable(mBuilder.isDismissible);
-        MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getContext());
-        dialogBuilder.customView(rootView, false);
 
         mGradePicker =
                 rootView.findViewById(R.id.dialog_class_picker_grade);
@@ -124,6 +123,9 @@ public class ClassPickerDialog extends DialogFragment {
         mClassIndexPicker.setWrapSelectorWheel(true);
         ThemeUtils.themeNumberPicker(mClassIndexPicker);
 
+        MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getContext());
+        dialogBuilder.customView(rootView, false);
+        dialogBuilder.title(R.string.dialog_class_picker_title);
         dialogBuilder.positiveText(R.string.dialog_okay);
         dialogBuilder.onPositive(new MaterialDialog.SingleButtonCallback() {
             @Override
@@ -149,7 +151,7 @@ public class ClassPickerDialog extends DialogFragment {
 
         if (mBuilder.doDisplayNegativeButton) dialogBuilder.negativeText(R.string.dialog_cancel);
 
-        mProgressBar = rootView.findViewById(R.id.picker_progressbar);
+        mProgressBar = rootView.findViewById(R.id.loading);
         mDialog = dialogBuilder.build();
         return mDialog;
     }
