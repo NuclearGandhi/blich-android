@@ -29,11 +29,11 @@ import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.ThemeUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.List;
 
-import biz.kasual.materialnumberpicker.MaterialNumberPicker;
 import io.realm.Realm;
 
 /**
@@ -55,8 +55,8 @@ public class ClassPickerDialog extends DialogFragment {
     private int mId = -1;
 
     private MaterialDialog mDialog;
-    private MaterialNumberPicker mClassIndexPicker;
-    private MaterialNumberPicker mGradePicker;
+    private NumberPicker mClassIndexPicker;
+    private NumberPicker mGradePicker;
     private FrameLayout mProgressBar;
     private BroadcastReceiver mFetchBroadcastReceiver;
     private OnPositiveClickListener mOnDestroyListener;
@@ -109,10 +109,20 @@ public class ClassPickerDialog extends DialogFragment {
         MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getContext());
         dialogBuilder.customView(rootView, false);
 
-        mClassIndexPicker =
-                rootView.findViewById(R.id.dialog_choose_class_number_picker);
         mGradePicker =
-                rootView.findViewById(R.id.dialog_choose_class_name_picker);
+                rootView.findViewById(R.id.dialog_class_picker_grade);
+        mClassIndexPicker =
+                rootView.findViewById(R.id.dialog_class_picker_index);
+
+        mGradePicker.setMinValue(0);
+        mGradePicker.setMaxValue(1);
+        mGradePicker.setWrapSelectorWheel(false);
+        ThemeUtils.themeNumberPicker(mGradePicker);
+
+        mClassIndexPicker.setMinValue(1);
+        mClassIndexPicker.setMaxValue(1);
+        mClassIndexPicker.setWrapSelectorWheel(true);
+        ThemeUtils.themeNumberPicker(mClassIndexPicker);
 
         dialogBuilder.positiveText(R.string.dialog_okay);
         dialogBuilder.onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -156,7 +166,6 @@ public class ClassPickerDialog extends DialogFragment {
 
     @Override
     public void onResume() {
-        //Start the listener
         super.onResume();
         LocalBroadcastManager.getInstance(getContext())
                 .registerReceiver(mFetchBroadcastReceiver,
@@ -210,7 +219,7 @@ public class ClassPickerDialog extends DialogFragment {
     }
 
     /**
-     * Insert data from {@link ClassGroup}s into {@link MaterialNumberPicker}s.
+     * Insert data from {@link ClassGroup}s into {@link NumberPicker}s.
      *
      * @param realm a {@link Realm} instance.
      * @param currentUserClassGroupId the current user's {@link ClassGroup} id.
