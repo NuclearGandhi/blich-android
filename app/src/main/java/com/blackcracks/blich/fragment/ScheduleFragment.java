@@ -31,12 +31,14 @@ import android.widget.Toast;
 
 import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.Utilities;
 
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
@@ -100,8 +102,8 @@ public class ScheduleFragment extends BlichBaseFragment {
 
         if (mFilterActionButton != null) tintFilterAction(ateKey);
 
-        int toolbarColor = Config.toolbarColor(getContext(), ateKey, mToolbar);
-        boolean isToolbarLight = Config.isLightToolbar(getContext(), mToolbar, ateKey, toolbarColor);
+        boolean isToolbarLight = ATEUtil.isColorLight(
+                Config.primaryColor(getContext(), ateKey));
         if (isToolbarLight) {
             mTabLayout.setTabTextColors(ContextCompat.getColorStateList(getContext(), R.color.text_color_light));
             mTabLayout.setSelectedTabIndicatorColor(Config.accentColor(getContext(), ateKey));
@@ -119,8 +121,11 @@ public class ScheduleFragment extends BlichBaseFragment {
         //Get the menu item
         final MenuItem filter = menu.findItem(R.id.action_filter_toggle);
         //Inflate it with a view
-        mFilterActionButton = (ImageButton) LayoutInflater.from(getContext())
-                .inflate(R.layout.widget_teacher_filter, null, false);
+        mFilterActionButton = new ImageButton(getContext(),
+                null,
+                R.attr.actionBarItemBackground);
+
+        mFilterActionButton.setImageResource(R.drawable.ic_filter_list_white_24dp);
         filter.setActionView(mFilterActionButton);
 
         tintFilterAction(((MainActivity) getActivity()).getATEKey());
@@ -129,11 +134,8 @@ public class ScheduleFragment extends BlichBaseFragment {
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
         //Set the correct image according to the filter toggle state
-        if (!isFilterOn) {
-            mFilterActionButton.setImageDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
-            );
-        }
+        if (!isFilterOn)
+            mFilterActionButton.setImageResource(R.drawable.ic_disabled_filter_list_white_24dp);
 
         mFilterActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
