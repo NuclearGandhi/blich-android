@@ -306,10 +306,10 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                 .setMaximumDate(maxDate)
                 .commit();
 
-        final int dotColor = Config.textColorPrimary(
-                getContext(),
-                Utilities.getATEKey(getContext())
-        );
+        String ateKey = Utilities.getATEKey(getContext());
+        final int dotColor = ATEUtil.isColorLight(Config.primaryColor(getContext(), ateKey)) ?
+                ContextCompat.getColor(getContext(), R.color.ate_primary_text_light) :
+                ContextCompat.getColor(getContext(), R.color.ate_primary_text_dark);
 
         DayViewDecorator decorator = new DayViewDecorator() {
             @Override
