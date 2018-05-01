@@ -112,16 +112,20 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 if (selected) {
+                    int index = 0;
+
                     for (int i = 0; i < mDates.size(); i++) {
-                        CalendarDay event = mDates.get(i);
-                        if (event.equals(date)) {
-                            ViewCompat.animate(mDropDown).rotation(0).start();
-                            mAppBarLayout.setExpanded(false, true);
-                            mIsExpanded = false;
-                            mListView.smoothScrollToPosition(i);
-                            mListView.setSelection(i);
+                        if (mDates.get(i).equals(date)) {
+                            index = i;
+                            break;
                         }
                     }
+
+                    ViewCompat.animate(mDropDown).rotation(0).start();
+                    mAppBarLayout.setExpanded(false, true);
+                    mIsExpanded = false;
+                    mListView.smoothScrollToPosition(index);
+                    mListView.setSelection(index);
                 }
             }
         });
