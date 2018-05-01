@@ -17,7 +17,7 @@ import com.blackcracks.blich.util.Utilities;
 
 public class SplashActivity extends BaseStatusBarActivity {
 
-    private static final int SPLASH_SCREEN_DURATION = 1000;
+    private static final int SPLASH_SCREEN_DURATION = 250;
 
     private String mATEKey;
 
