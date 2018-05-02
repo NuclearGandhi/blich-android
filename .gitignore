@@ -2,12 +2,7 @@
 .gradle
 gradle.properties
 /local.properties
-.idea/libraries
-.idea/gradle.xml
-.idea/workspace.xml
-.idea/dictionaries
-.idea/copyright
-/.idea/runConfigurations.xml
+.idea/
 /build
 /captures
 /app/build
