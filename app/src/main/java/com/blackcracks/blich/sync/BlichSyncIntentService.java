@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 
 /**
@@ -33,7 +33,7 @@ public class BlichSyncIntentService extends IntentService {
         if (Utilities.isThereNetworkConnection(getApplicationContext())) {
             status = BlichSyncTask.syncBlich(getApplicationContext());
         } else {
-            status = SyncUtils.FETCH_STATUS_NO_CONNECTION;
+            status = SyncCallbackUtils.FETCH_STATUS_NO_CONNECTION;
         }
         sendBroadcast(getApplicationContext(), status);
         Utilities.updateWidget(getApplicationContext());
@@ -42,9 +42,9 @@ public class BlichSyncIntentService extends IntentService {
     /**
      * Send a broadcast to all listeners that the sync has finished.
      *
-     * @param status a {@link SyncUtils.FetchStatus} returned the from sync.
+     * @param status a {@link SyncCallbackUtils.FetchStatus} returned the from sync.
      */
-    private static void sendBroadcast(Context context, @SyncUtils.FetchStatus int status) {
+    private static void sendBroadcast(Context context, @SyncCallbackUtils.FetchStatus int status) {
         Intent intent = new Intent(ACTION_SYNC_FINISHED_CALLBACK);
         intent.putExtra(EXTRA_FETCH_STATUS, status);
         LocalBroadcastManager.getInstance(context)

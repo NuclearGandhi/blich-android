@@ -38,10 +38,10 @@ import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.dialog.TeacherFilterDialog;
 import com.blackcracks.blich.preference.FilterPreference;
-import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.sync.BlichSync;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 
 import io.realm.Realm;
@@ -253,10 +253,10 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             if (!isAdded()) return;
             if (key.equals(getString(R.string.pref_user_class_group_key))) {
                 setClassPickerSummery();
-                SyncUtils.syncDatabase(getContext());
+                SyncCallbackUtils.syncDatabase(getContext());
             }
             if (key.equals(getString(R.string.pref_notification_toggle_key))) {
-                BlichSyncUtils.initializePeriodicSync(getContext());
+                BlichSync.initializePeriodicSync(getContext());
             }
             if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();

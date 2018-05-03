@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 
@@ -24,12 +23,8 @@ import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.receiver.BootReceiver;
+import com.blackcracks.blich.receiver.ScheduleAlarmReceiver;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.firebase.jobdispatcher.Constraint;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.Trigger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +35,6 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -51,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * A utility class for syncing.
  */
-public class BlichSyncUtils {
+public class BlichSync {
 
     //BlichData
     private static final String BLICH_BASE_URI =

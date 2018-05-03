@@ -17,7 +17,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 
@@ -29,7 +28,7 @@ import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.ThemeUtils;
 import com.blackcracks.blich.util.Utilities;
 
@@ -73,7 +72,7 @@ public class ClassPickerDialog extends DialogFragment {
 
         mRealm = Realm.getDefaultInstance();
 
-        final SyncUtils.OnSyncRetryListener onSyncRetryListener = new SyncUtils.OnSyncRetryListener() {
+        final SyncCallbackUtils.OnSyncRetryListener onSyncRetryListener = new SyncCallbackUtils.OnSyncRetryListener() {
             @Override
             public void onRetry() {
                 syncData();
@@ -84,9 +83,9 @@ public class ClassPickerDialog extends DialogFragment {
         mFetchBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int status = intent.getIntExtra(SyncClassGroupsService.FETCH_STATUS_EXTRA, SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
-                if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) setDataValid();
-                SyncUtils.syncFinishedCallback(getActivity(), status, mBuilder.isDismissible, onSyncRetryListener);
+                int status = intent.getIntExtra(SyncClassGroupsService.FETCH_STATUS_EXTRA, SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL);
+                if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) setDataValid();
+                SyncCallbackUtils.syncFinishedCallback(getActivity(), status, mBuilder.isDismissible, onSyncRetryListener);
             }
         };
 

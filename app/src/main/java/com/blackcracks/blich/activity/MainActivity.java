@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.afollestad.appthemeengine.ATE;
 import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
 import com.blackcracks.blich.BuildConfig;
@@ -34,10 +33,10 @@ import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.sync.BlichSync;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -163,7 +162,7 @@ public class MainActivity extends BaseThemedActivity implements
                 public void onDestroy(Context context, int id) {
                     mPreferenceUtils.putInt(R.string.pref_user_class_group_key, id);
                     mPreferenceUtils.putBoolean(R.string.pref_is_first_launch, false);
-                    SyncUtils.initializeSync(context);
+                    SyncCallbackUtils.initializeSync(context);
                     showChangelogDialog();
                 }
             });
@@ -174,7 +173,7 @@ public class MainActivity extends BaseThemedActivity implements
 
         } else {
             if (savedInstanceState == null || !savedInstanceState.containsKey(IS_FIRST_INSTANCE_KEY)) {
-                SyncUtils.initializeSync(this);
+                SyncCallbackUtils.initializeSync(this);
             }
         }
     }
@@ -194,7 +193,7 @@ public class MainActivity extends BaseThemedActivity implements
             if (oldVersion < 47) {
                 Driver driver = new GooglePlayDriver(this);
                 FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
-                driver.cancel(BlichSyncUtils.BLICH_SYNC_TAG);
+                driver.cancel(BlichSync.BLICH_SYNC_TAG);
             }
             mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
         }

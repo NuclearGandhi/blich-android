@@ -15,7 +15,7 @@ import android.view.View;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.sync.BlichSyncUtils;
+import com.blackcracks.blich.sync.BlichSync;
 
 import java.lang.annotation.Retention;
 
@@ -24,7 +24,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * A class containing utility methods to initialize sync and handle UI responses to it.
  */
-public class SyncUtils {
+public class SyncCallbackUtils {
 
     @Retention(SOURCE)
     @IntDef({FETCH_STATUS_SUCCESSFUL, FETCH_STATUS_UNSUCCESSFUL,
@@ -42,7 +42,7 @@ public class SyncUtils {
      * Initialize all the sync related settings and calls.
      */
     public static void initializeSync(Context context) {
-        BlichSyncUtils.initializePeriodicSync(context);
+        BlichSync.initializePeriodicSync(context);
         syncDatabase(context);
     }
 
@@ -51,7 +51,7 @@ public class SyncUtils {
      */
     public static void syncDatabase(Context context) {
             PreferenceUtils.getInstance().putBoolean(R.string.pref_is_syncing_key, true);
-            BlichSyncUtils.startImmediateSync(context);
+            BlichSync.startImmediateSync(context);
     }
 
     /**

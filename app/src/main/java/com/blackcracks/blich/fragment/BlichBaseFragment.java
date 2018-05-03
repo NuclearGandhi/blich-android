@@ -39,7 +39,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.sync.BlichSyncIntentService;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 
 /**
  * A base fragment for most of the fragments in the app.
@@ -73,10 +73,10 @@ public abstract class BlichBaseFragment extends Fragment implements
                 mRootView.findViewById(R.id.swiperefresh_schedule);
         mSwipeRefreshLayout.setEnabled(false);
 
-        final SyncUtils.OnSyncRetryListener onSyncRetryListener = new SyncUtils.OnSyncRetryListener() {
+        final SyncCallbackUtils.OnSyncRetryListener onSyncRetryListener = new SyncCallbackUtils.OnSyncRetryListener() {
             @Override
             public void onRetry() {
-                SyncUtils.syncDatabase(getContext());
+                SyncCallbackUtils.syncDatabase(getContext());
             }
         };
 
@@ -85,11 +85,11 @@ public abstract class BlichBaseFragment extends Fragment implements
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                @SyncUtils.FetchStatus int status = intent.getIntExtra(
+                @SyncCallbackUtils.FetchStatus int status = intent.getIntExtra(
                         BlichSyncIntentService.EXTRA_FETCH_STATUS,
-                        SyncUtils.FETCH_STATUS_UNSUCCESSFUL);
+                        SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL);
 
-                SyncUtils.syncFinishedCallback(getActivity(), status, true, onSyncRetryListener);
+                SyncCallbackUtils.syncFinishedCallback(getActivity(), status, true, onSyncRetryListener);
             }
         };
 
