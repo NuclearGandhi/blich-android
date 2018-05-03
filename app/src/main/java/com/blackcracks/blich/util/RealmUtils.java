@@ -37,7 +37,7 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(11)
+                .schemaVersion(12)
                 .migration(new RealmMigration() {
 
                     @SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
@@ -127,6 +127,13 @@ public class RealmUtils {
                                     .addField("grade", int.class)
                                     .addField("number", int.class);
                             oldVersion++;
+                        }
+                        if (oldVersion == 11) {
+                            schema.create("ExamReminder")
+                                    .addRealmObjectField("exam", schema.get("Exam"))
+                                    .addField("remindDate", Date.class)
+                                    .addField("requestCode", int.class);
+                            oldVersion ++;
                         }
                     }
 
