@@ -9,9 +9,9 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
@@ -26,7 +26,6 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
-import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
 import java.util.ArrayList;
@@ -41,49 +40,39 @@ import io.realm.RealmQuery;
  * A {@link JobService} that runs every few hours to update the database and notify
  * the user of any changes.
  */
-public class BlichFirebaseJobService extends JobService {
+public class ScheduleAlarmReceiver extends BroadcastReceiver {
 
     private static final int NOTIFICATION_UPDATE_ID = 1;
 
+    private Context mContext;
     private AsyncTask<Void, Void, Void> mFetchBlichTask;
 
     @SuppressLint("StaticFieldLeak")
     @Override
-    public boolean onStartJob(final JobParameters jobParameters) {
-        PreferenceUtils.getInstance(getApplicationContext());
+    public void onReceive(final Context context, Intent intent) {
+        mContext = context;
+        PreferenceUtils.getInstance(context);
         mFetchBlichTask = new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                RealmUtils.setUpRealm(getApplicationContext());
+                RealmUtils.setUpRealm(context);
             }
 
             @Override
             protected Void doInBackground(Void... voids) {
-                Context context = getApplicationContext();
                 BlichSyncTask.syncBlich(context);
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                jobFinished(jobParameters, false);
-                Utilities.updateWidget(getBaseContext());
+                Utilities.updateWidget(context);
             }
         };
         mFetchBlichTask.execute();
-
-        notifyUser(getBaseContext());
-        return true;
-    }
-
-    @Override
-    public boolean onStopJob(JobParameters job) {
-        if (mFetchBlichTask != null) {
-            mFetchBlichTask.cancel(true);
-        }
-        return true;
+        notifyUser(context);
     }
 
     private void notifyUser(Context context) {
@@ -169,17 +158,17 @@ public class BlichFirebaseJobService extends JobService {
         if (isFilterOn) {
             RealmUtils.buildFilteredQuery(
                     changesQuery,
-                    getBaseContext(),
+                    mContext,
                     Change.class);
 
             RealmUtils.buildFilteredQuery(
                     examsQuery,
-                    getBaseContext(),
+                    mContext,
                     Exam.class);
 
             RealmUtils.buildFilteredQuery(
                     eventsQuery,
-                    getBaseContext(),
+                    mContext,
                     Event.class);
         }
 

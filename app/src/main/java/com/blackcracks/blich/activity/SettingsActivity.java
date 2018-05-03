@@ -256,7 +256,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 SyncUtils.syncDatabase(getContext());
             }
             if (key.equals(getString(R.string.pref_notification_toggle_key))) {
-                BlichSyncUtils.initializeJobService(getContext());
+                BlichSyncUtils.initializePeriodicSync(getContext());
             }
             if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();

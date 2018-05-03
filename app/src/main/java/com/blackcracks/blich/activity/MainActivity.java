@@ -34,10 +34,14 @@ import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
+import com.blackcracks.blich.sync.BlichSyncUtils;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncUtils;
 import com.blackcracks.blich.util.Utilities;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
@@ -187,6 +191,11 @@ public class MainActivity extends BaseThemedActivity implements
                 //showChangelogDialog();
             }
 
+            if (oldVersion < 47) {
+                Driver driver = new GooglePlayDriver(this);
+                FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+                driver.cancel(BlichSyncUtils.BLICH_SYNC_TAG);
+            }
             mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
         }
     }

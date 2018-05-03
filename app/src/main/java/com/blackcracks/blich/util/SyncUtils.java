@@ -42,7 +42,7 @@ public class SyncUtils {
      * Initialize all the sync related settings and calls.
      */
     public static void initializeSync(Context context) {
-        BlichSyncUtils.initializeJobService(context);
+        BlichSyncUtils.initializePeriodicSync(context);
         syncDatabase(context);
     }
 
