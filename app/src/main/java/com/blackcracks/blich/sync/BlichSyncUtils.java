@@ -7,8 +7,10 @@ package com.blackcracks.blich.sync;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -21,6 +23,7 @@ import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
+import com.blackcracks.blich.receiver.BootReceiver;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -80,6 +83,8 @@ public class BlichSyncUtils {
      * Start or cancel the periodic sync.
      */
     public static void initializePeriodicSync(@NonNull Context context) {
+        ComponentName receiver = new ComponentName(context, BootReceiver.class);
+        PackageManager pm = context.getPackageManager();
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null)
@@ -100,6 +105,10 @@ public class BlichSyncUtils {
 
         boolean isNotificationsOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
         if (isNotificationsOn) {
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+
             Calendar calendar = Calendar.getInstance();
             int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
             int minute = calendar.get(Calendar.MINUTE);
@@ -138,6 +147,10 @@ public class BlichSyncUtils {
                         morningSync);
             }
         } else {
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
+
             alarmManager.cancel(eveningPendingIntent);
             alarmManager.cancel(morningPendingIntent);
         }

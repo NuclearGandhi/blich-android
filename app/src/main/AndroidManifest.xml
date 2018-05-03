@@ -54,11 +54,13 @@
             android:name=".sync.BlichSyncIntentService"
             android:exported="false" />
 
-        <receiver android:name=".sync.ScheduleAlarmReceiver"  android:exported="true">
+        <receiver android:name=".receiver.BootReceiver"
+            android:enabled="false">
             <intent-filter>
-                <action android:name="com.blackcracks.blich.ACTION_SCHEDULE_NOTIFY"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>
