@@ -123,7 +123,8 @@ public class ScheduleFragment extends BlichBaseFragment {
         //Inflate it with a view
         mFilterActionButton = new ImageButton(getContext(),
                 null,
-                R.attr.actionBarItemBackground);
+                R.attr.actionBarItemBackground,
+                R.style.Widget_AppCompat_ActionButton);
 
         mFilterActionButton.setImageResource(R.drawable.ic_filter_list_white_24dp);
         filter.setActionView(mFilterActionButton);
@@ -215,34 +216,13 @@ public class ScheduleFragment extends BlichBaseFragment {
                 .putBoolean(prefKey, !isFilterOn)
                 .apply();
 
-        //Get the action view
-        if (isFilterOn) { //We need to disable it
-            //If API > 21, start an animation, else simply change the image
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                startFilterActionAnimation(false);
-            } else {
-                //Change image
-                mFilterActionButton.setImageDrawable(
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_disabled_filter_list_white_24dp)
-                );
-            }
-        } else {
-            //If API > 21, start an animation, else simply change the image
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                startFilterActionAnimation(true);
-            } else {
-                //Change image
-                mFilterActionButton.setImageDrawable(
-                        ContextCompat.getDrawable(getContext(), R.drawable.ic_filter_list_white_24dp));
-            }
-        }
+        startFilterActionAnimation(!isFilterOn);
     }
 
     private void tintFilterAction(String ateKey) {
         mFilterActionButton.setImageTintList(ColorStateList.valueOf(Config.getToolbarTitleColor(getContext(), mToolbar, ateKey)));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void startFilterActionAnimation(final boolean enable) {
         //Get the drawable id
         int drawableId;
