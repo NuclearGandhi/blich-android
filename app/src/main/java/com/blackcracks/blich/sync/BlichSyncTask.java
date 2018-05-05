@@ -17,7 +17,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONArray;
@@ -43,9 +43,9 @@ public class BlichSyncTask {
     /**
      * Begin syncing the data.
      *
-     * @return a {@link SyncUtils.FetchStatus} returned by the sync.
+     * @return a {@link SyncCallbackUtils.FetchStatus} returned by the sync.
      */
-    public static @SyncUtils.FetchStatus
+    public static @SyncCallbackUtils.FetchStatus
     int syncBlich(Context context) {
         //Log the beginning of sync
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
@@ -54,8 +54,8 @@ public class BlichSyncTask {
         BlichData blichData = new BlichData();
         int status = fetchData(context, blichData);
 
-        if (status == SyncUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
-            BlichSyncUtils.loadDataIntoRealm(blichData);
+        if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
+            BlichSync.loadDataIntoRealm(blichData);
         }
 
         //Log the end of sync
@@ -72,65 +72,65 @@ public class BlichSyncTask {
      * Fetch the required data from the server.
      *
      * @param blichData Data object to insert the fetched data into.
-     * @return a {@link SyncUtils.FetchStatus}.
+     * @return a {@link SyncCallbackUtils.FetchStatus}.
      */
-    private static @SyncUtils.FetchStatus
+    private static @SyncCallbackUtils.FetchStatus
     int fetchData(Context context, BlichData blichData) {
         //Call four different requests from the server.
         for(int i = 0; i < 4; i++) {
             String json;
 
-            String command = BlichSyncUtils.COMMAND_SCHEDULE;
+            String command = BlichSync.COMMAND_SCHEDULE;
             switch (i) {
                 case 0: {
-                    command = BlichSyncUtils.COMMAND_SCHEDULE;
+                    command = BlichSync.COMMAND_SCHEDULE;
                     break;
                 }
                 case 1: {
-                    command = BlichSyncUtils.COMMAND_CHANGES;
+                    command = BlichSync.COMMAND_CHANGES;
                     break;
                 }
                 case 2: {
-                    command = BlichSyncUtils.COMMAND_EVENTS;
+                    command = BlichSync.COMMAND_EVENTS;
                     break;
                 }
                 case 3: {
-                    command = BlichSyncUtils.COMMAND_EXAMS;
+                    command = BlichSync.COMMAND_EXAMS;
                     break;
                 }
             }
 
             try {
-                json = BlichSyncUtils.getResponseFromUrl(BlichSyncUtils.buildUrlFromCommand(context, command));
+                json = BlichSync.getResponseFromUrl(BlichSync.buildUrlFromCommand(context, command));
 
-                if (json == null || json.equals("")) return SyncUtils.FETCH_STATUS_UNSUCCESSFUL;
+                if (json == null || json.equals("")) return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
 
                 //Insert data accordingly
                 switch (command) {
-                    case BlichSyncUtils.COMMAND_SCHEDULE: {
+                    case BlichSync.COMMAND_SCHEDULE: {
                         insertScheduleJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSyncUtils.COMMAND_CHANGES: {
+                    case BlichSync.COMMAND_CHANGES: {
                         insertChangesJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSyncUtils.COMMAND_EVENTS: {
+                    case BlichSync.COMMAND_EVENTS: {
                         insertEventsJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSyncUtils.COMMAND_EXAMS: {
+                    case BlichSync.COMMAND_EXAMS: {
                         insertExamsJsonIntoData(json, blichData);
                         break;
                     }
                 }
             } catch (IOException | JSONException e) {
                 Timber.e(e);
-                return SyncUtils.FETCH_STATUS_UNSUCCESSFUL;
+                return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
             }
         }
 
-        return SyncUtils.FETCH_STATUS_SUCCESSFUL;
+        return SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL;
     }
 
     private static void insertScheduleJsonIntoData(String json, BlichData blichData) throws JSONException {

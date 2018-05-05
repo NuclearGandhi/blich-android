@@ -20,7 +20,7 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.ExamItem;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.data.MonthDivider;
-import com.blackcracks.blich.util.RealmExamHelper;
+import com.blackcracks.blich.adapter.helper.RealmExamHelper;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;

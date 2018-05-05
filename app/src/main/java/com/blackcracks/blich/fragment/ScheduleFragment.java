@@ -36,8 +36,7 @@ import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
-import com.blackcracks.blich.util.SyncUtils;
-
+import com.blackcracks.blich.util.SyncCallbackUtils;
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
  * for the user.
@@ -167,7 +166,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                SyncUtils.syncDatabase(getContext());
+                SyncCallbackUtils.syncDatabase(getContext());
                 return true;
             }
             default:

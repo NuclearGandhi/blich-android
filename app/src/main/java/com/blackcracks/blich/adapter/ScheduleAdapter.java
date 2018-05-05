@@ -28,7 +28,7 @@ import com.blackcracks.blich.data.DatedLesson;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.util.RealmScheduleHelper;
+import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
 
 import java.util.List;

@@ -5,8 +5,12 @@
 
 package com.blackcracks.blich.sync;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
@@ -18,14 +22,9 @@ import com.blackcracks.blich.data.Change;
 import com.blackcracks.blich.data.Event;
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
+import com.blackcracks.blich.receiver.BootReceiver;
+import com.blackcracks.blich.receiver.ScheduleAlarmReceiver;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.firebase.jobdispatcher.Constraint;
-import com.firebase.jobdispatcher.Driver;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
-import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.Trigger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +32,9 @@ import java.lang.annotation.Retention;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -45,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * A utility class for syncing.
  */
-public class BlichSyncUtils {
+public class BlichSync {
 
     //BlichData
     private static final String BLICH_BASE_URI =
@@ -68,46 +68,92 @@ public class BlichSyncUtils {
     static final String COMMAND_EVENTS = "events";
     static final String COMMAND_CHANGES = "changes";
 
-    private static final int SYNC_INTERVAL_HOURS = 6;
-    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
-    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS/3;
+    private static final int REQUEST_CODE_EVENING_ALARM = 0;
+    private static final int REQUEST_CODE_MORNING_ALARM = 1;
 
-    private static final String BLICH_SYNC_TAG = "blich_tag";
+    public static final String BLICH_SYNC_TAG = "blich_tag";
 
     /**
      * Start or cancel the periodic sync.
      */
-    synchronized public static void initializeJobService(@NonNull Context context) {
-        boolean is_notifications_on = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
+    public static void initializePeriodicSync(@NonNull Context context) {
+        ComponentName receiver = new ComponentName(context, BootReceiver.class);
+        PackageManager pm = context.getPackageManager();
 
-        Driver driver = new GooglePlayDriver(context);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
-        if (is_notifications_on) {
-            scheduleFirebaseJobDispatcherSync(dispatcher);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null)
+            return;
+
+        Intent intent = new Intent(context, ScheduleAlarmReceiver.class);
+        PendingIntent eveningPendingIntent = PendingIntent.getBroadcast(
+                context,
+                REQUEST_CODE_EVENING_ALARM,
+                intent,
+                0);
+
+        PendingIntent morningPendingIntent = PendingIntent.getBroadcast(
+                context,
+                REQUEST_CODE_MORNING_ALARM,
+                intent,
+                0);
+
+        boolean isNotificationsOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
+        if (isNotificationsOn) {
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+
+            Calendar calendar = Calendar.getInstance();
+            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            if (hourOfDay > 21 || (hourOfDay == 21 && minute > 30))
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 21);
+            calendar.set(Calendar.MINUTE, 30);
+            Date eveningSync = new Date(calendar.getTimeInMillis());
+
+            calendar = Calendar.getInstance();
+
+            if (hourOfDay >= 7)
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 7);
+            calendar.set(Calendar.MINUTE, 0);
+            Date morningSync = new Date(calendar.getTimeInMillis());
+
+            alarmManager.setInexactRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    eveningSync.getTime(),
+                    AlarmManager.INTERVAL_DAY,
+                    eveningPendingIntent
+            );
+
+            alarmManager.setInexactRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    morningSync.getTime(),
+                    AlarmManager.INTERVAL_DAY,
+                    morningPendingIntent
+            );
+
+            if (BuildConfig.DEBUG) {
+                Timber.d("Evening sync starting on %s\nMorning sync starting on %s",
+                        eveningSync,
+                        morningSync);
+            }
         } else {
-            dispatcher.cancel(BLICH_SYNC_TAG);
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
+
+            alarmManager.cancel(eveningPendingIntent);
+            alarmManager.cancel(morningPendingIntent);
         }
-    }
 
-    /**
-     * Configure and start the {@link com.firebase.jobdispatcher.JobService}.
-     */
-    private static void scheduleFirebaseJobDispatcherSync(FirebaseJobDispatcher dispatcher) {
-
-        Job syncBlichJob = dispatcher.newJobBuilder()
-                .setService(BlichFirebaseJobService.class)
-                .setTag(BLICH_SYNC_TAG)
-                .setConstraints(Constraint.ON_ANY_NETWORK)
-                .setLifetime(Lifetime.FOREVER)
-                .setRecurring(true)
-                .setTrigger(Trigger.executionWindow(
-                        SYNC_INTERVAL_SECONDS,
-                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS
-                ))
-                .setReplaceCurrent(true)
-                .build();
-
-        dispatcher.schedule(syncBlichJob);
+        if (BuildConfig.DEBUG) {
+            Timber.d(isNotificationsOn ?
+                        "Periodic sync is enabled" :
+                        "Periodic sync is disabled");
+        }
     }
 
     /**

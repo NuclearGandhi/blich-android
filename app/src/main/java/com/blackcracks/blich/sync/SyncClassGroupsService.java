@@ -11,8 +11,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.util.Constants.Database;
-import com.blackcracks.blich.util.SyncUtils;
-import com.blackcracks.blich.util.SyncUtils.FetchStatus;
+import com.blackcracks.blich.util.SyncCallbackUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils.FetchStatus;
 import com.blackcracks.blich.util.Utilities;
 
 import org.json.JSONArray;
@@ -52,7 +52,7 @@ public class SyncClassGroupsService extends IntentService {
         if (Utilities.isThereNetworkConnection(getApplicationContext())) {
             return fetchClass();
         } else {
-            return SyncUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
+            return SyncCallbackUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
         }
     }
 
@@ -62,15 +62,15 @@ public class SyncClassGroupsService extends IntentService {
      * @return If the fetch is successful
      */
     private @FetchStatus int fetchClass() {
-        URL url = BlichSyncUtils.buildURLFromUri(
-                BlichSyncUtils.buildBaseUriFromCommand(BlichSyncUtils.COMMAND_CLASSES));
+        URL url = BlichSync.buildURLFromUri(
+                BlichSync.buildBaseUriFromCommand(BlichSync.COMMAND_CLASSES));
 
         RealmList<ClassGroup> data = new RealmList<>();
 
         try {
-            String json = BlichSyncUtils.getResponseFromUrl(url);
+            String json = BlichSync.getResponseFromUrl(url);
 
-            if (json == null || json.equals("")) return SyncUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
+            if (json == null || json.equals("")) return SyncCallbackUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
             insertClassesJsonIntoData(json, data);
 
         } catch (IOException | JSONException e) {
@@ -78,7 +78,7 @@ public class SyncClassGroupsService extends IntentService {
         }
 
         loadDataIntoRealm(data);
-        return SyncUtils.FETCH_STATUS_SUCCESSFUL;
+        return SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL;
     }
 
     /**

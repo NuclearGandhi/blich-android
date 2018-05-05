@@ -6,7 +6,6 @@
 package com.blackcracks.blich.fragment;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,7 +34,7 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.ExamUtils;
-import com.blackcracks.blich.util.SyncUtils;
+import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
@@ -197,7 +196,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                SyncUtils.syncDatabase(getContext());
+                SyncCallbackUtils.syncDatabase(getContext());
                 return true;
             }
             default:

@@ -3,12 +3,13 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.util;
+package com.blackcracks.blich.adapter.helper;
 
 import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.ExamItem;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.data.MonthDivider;
+import com.blackcracks.blich.util.ExamUtils;
 
 import java.util.ArrayList;
 import java.util.List;
