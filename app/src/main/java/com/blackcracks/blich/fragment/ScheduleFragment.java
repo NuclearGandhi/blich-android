@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -38,7 +37,6 @@ import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.SyncUtils;
-import com.blackcracks.blich.util.Utilities;
 
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
@@ -136,7 +134,7 @@ public class ScheduleFragment extends BlichBaseFragment {
 
         //Set the correct image according to the filter toggle state
         if (!isFilterOn)
-            mFilterActionButton.setImageResource(R.drawable.ic_disabled_filter_list_white_24dp);
+            mFilterActionButton.setImageResource(R.drawable.ic_filter_list_white_disabled_24dp);
 
         mFilterActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,7 +189,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         if (mFilterActionButton != null) {
             int drawableId;
             if (isFilterOn) drawableId = R.drawable.ic_filter_list_white_24dp;
-            else drawableId = R.drawable.ic_disabled_filter_list_white_24dp;
+            else drawableId = R.drawable.ic_filter_list_white_disabled_24dp;
             mFilterActionButton.setImageDrawable(
                     ContextCompat.getDrawable(getContext(), drawableId)
             );
@@ -246,7 +244,7 @@ public class ScheduleFragment extends BlichBaseFragment {
                         //Change image at the end of the animation
                         int imageId;
                         if (enable) imageId = R.drawable.ic_filter_list_white_24dp;
-                        else imageId = R.drawable.ic_disabled_filter_list_white_24dp;
+                        else imageId = R.drawable.ic_filter_list_white_disabled_24dp;
                         mFilterActionButton.setImageDrawable(
                                 ContextCompat.getDrawable(getContext(), imageId));
                         mFilterActionButton.setEnabled(true);
