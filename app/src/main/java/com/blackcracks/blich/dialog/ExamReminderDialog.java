@@ -52,7 +52,7 @@ public class ExamReminderDialog extends DialogFragment {
                             }
                         })
                         .build()
-                        .show(getChildFragmentManager(), DIALOG_TAG_TIME_PICKER);
+                        .show(getFragmentManager(), DIALOG_TAG_TIME_PICKER);
             }
         });
 

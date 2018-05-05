@@ -6,11 +6,13 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.afollestad.appthemeengine.Config;
@@ -21,6 +23,7 @@ import com.blackcracks.blich.data.ExamItem;
 import com.blackcracks.blich.data.GenericExam;
 import com.blackcracks.blich.data.MonthDivider;
 import com.blackcracks.blich.adapter.helper.RealmExamHelper;
+import com.blackcracks.blich.dialog.ExamReminderDialog;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Calendar;
@@ -32,7 +35,11 @@ import java.util.Locale;
  */
 public class ExamAdapter extends BaseAdapter {
 
+    private static final String DIALOG_TAG_EXAM_REMINDER = "exam_reminder";
+
     private final Context mContext;
+    private FragmentManager mFragmentManager;
+
     private int monthDividerTextColor;
 
     private RealmExamHelper mExamHelper;
@@ -43,8 +50,13 @@ public class ExamAdapter extends BaseAdapter {
      * @param statusMessage {@link TextView} for when the data is invalid.
      */
     @SuppressWarnings("SameParameterValue")
-    public ExamAdapter(Context context, List<Exam> data, TextView statusMessage) {
+    public ExamAdapter(
+            Context context,
+            FragmentManager fragmentManager,
+            List<Exam> data,
+            TextView statusMessage) {
         mContext = context;
+        mFragmentManager = fragmentManager;
         mExamHelper = new RealmExamHelper(data);
         mStatusMessage = statusMessage;
 
@@ -141,6 +153,13 @@ public class ExamAdapter extends BaseAdapter {
         viewHolder.examDayOfWeek.setText(dayOfWeek);
         viewHolder.examSubject.setText(subject);
         viewHolder.examTeacher.setText(teacher);
+        viewHolder.notificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ExamReminderDialog()
+                        .show(mFragmentManager, DIALOG_TAG_EXAM_REMINDER);
+            }
+        });
     }
 
     private View buildMonthDivider(ViewGroup parent, MonthDivider divider) {
@@ -161,12 +180,14 @@ public class ExamAdapter extends BaseAdapter {
         final TextView examDayOfWeek;
         final TextView examSubject;
         final TextView examTeacher;
+        final ImageButton notificationButton;
 
         ViewHolder(View itemView) {
             examDay = itemView.findViewById(R.id.item_day_in_month);
             examDayOfWeek = itemView.findViewById(R.id.item_day_of_week);
             examSubject = itemView.findViewById(R.id.item_subject);
             examTeacher = itemView.findViewById(R.id.item_teacher);
+            notificationButton = itemView.findViewById(R.id.item_notification_button);
         }
     }
 }

@@ -1,14 +1,11 @@
 package com.blackcracks.blich.data;
 
-import com.blackcracks.blich.util.PreferenceUtils;
-
 import java.util.Date;
 
 import io.realm.RealmObject;
-import io.realm.annotations.Required;
 
 public class ExamReminder extends RealmObject {
-    @Required private Exam exam;
+    private Exam exam;
     private Date remindDate;
     private int requestCode;
 
