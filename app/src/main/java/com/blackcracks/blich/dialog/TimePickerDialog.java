@@ -52,6 +52,8 @@ public class TimePickerDialog extends DialogFragment
 
         private OnTimeSetListener mListener;
 
+        public Builder() {}
+
         private Builder(Bundle args) {
             timeHour = args.getInt(KEY_TIME_HOUR);
             timeMinutes = args.getInt(KEY_TIME_MINUTES);

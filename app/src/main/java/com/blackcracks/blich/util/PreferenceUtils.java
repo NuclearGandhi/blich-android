@@ -52,6 +52,9 @@ public class PreferenceUtils {
 
         sDefaultValues.put(R.string.pref_filter_toggle_key, mContext.getResources().getBoolean(R.bool.pref_filter_toggle_default));
         sDefaultValues.put(R.string.pref_filter_select_key, "");
+
+        sDefaultValues.put(R.string.pref_exam_reminder_hour, 8);
+        sDefaultValues.put(R.string.pref_exam_reminder_minutes, 15);
     }
 
     public static PreferenceUtils getInstance(Context context) {

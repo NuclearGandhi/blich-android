@@ -46,6 +46,14 @@
 
     <string name="dialog_changelog_title">שינויים וחידושים</string>
 
+    <string name="dialog_teacher_filter_title">סינון</string>
+    <string name="dialog_teacher_filter_description">בחר את כל המורים שמלמדים אותך\nהערה: יש להשתמש באפשרות זו בזהירות כיוון שהיא עלולה להוביל להסתרת שיעורים של מורים שבטעות לא נבחרו</string>
+
+    <string name="dialog_exam_reminder_title">תזכרות למבחן</string>
+    <string name="dialog_exam_reminder_one_day">יום לפני</string>
+    <string name="dialog_exam_reminder_three_days">שלושה ימים לפני</string>
+    <string name="dialog_exam_reminder_week">שבוע לפני</string>
+
     <string name="dialog_fetch_no_connection_title">אין חיבור לאינטרנט</string>
     <string name="dialog_fetch_no_connection_message">אין אפשרות לעדכן את הנתונים כיוון שאין חיבור לאינטרנט.</string>
     <string name="dialog_fetch_empty_html_title">אין גישה לאתר</string>
@@ -53,10 +61,6 @@
     <string name="dialog_fetch_unsuccessful_title">שגיאה</string>
     <string name="dialog_fetch_unsuccessful_message">אירעה שגיאה בהשגת המידע מאתר בליך.</string>
     <string name="dialog_fetch_class_unsuccessful_message">אין אפשרות לשנות את הכיתה עד שיהיה חיבור לאינטרנט</string>
-
-
-    <string name="dialog_teacher_filter_title">סינון</string>
-    <string name="dialog_teacher_filter_description">בחר את כל המורים שמלמדים אותך\nהערה: יש להשתמש באפשרות זו בזהירות כיוון שהיא עלולה להוביל להסתרת שיעורים של מורים שבטעות לא נבחרו</string>
 
     <string name="drawer_schedule_title">מערכת שעות</string>
     <string name="drawer_exams_title">מבחנים</string>

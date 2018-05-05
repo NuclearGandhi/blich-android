@@ -24,4 +24,7 @@
 
     <string name="pref_filter_toggle_key">filter_key</string>
     <string name="pref_filter_select_key">filter_select</string>
+
+    <string name="pref_exam_reminder_hour">exam_reminder_hour</string>
+    <string name="pref_exam_reminder_minutes">exam_reminder_minutes</string>
 </resources>

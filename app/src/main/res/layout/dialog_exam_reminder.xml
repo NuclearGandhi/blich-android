@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <CheckBox
+        android:id="@+id/reminder_one_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/dialog_exam_reminder_one_day"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/reminder_week"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_exam_reminder_three_days"
+        app:layout_constraintStart_toStartOf="@+id/reminder_one_day"
+        app:layout_constraintTop_toBottomOf="@+id/reminder_three_days2" />
+
+    <CheckBox
+        android:id="@+id/reminder_three_days2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_exam_reminder_week"
+        app:layout_constraintStart_toStartOf="@+id/reminder_one_day"
+        app:layout_constraintTop_toBottomOf="@+id/reminder_one_day" />
+
+    <Button
+        android:id="@+id/reminder_time"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="109dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:tag="text_color|primary_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reminder_week"
+        tools:text="14:00" />
+</android.support.constraint.ConstraintLayout>
