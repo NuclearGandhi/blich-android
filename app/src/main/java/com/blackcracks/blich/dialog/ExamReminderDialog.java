@@ -36,7 +36,9 @@ public class ExamReminderDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View rootView = LayoutInflater.from(getContext())
                 .inflate(R.layout.dialog_exam_reminder, null, false);
+
         mTimeButton = rootView.findViewById(R.id.reminder_time);
+        setTimeText();
         mTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,14 +59,21 @@ public class ExamReminderDialog extends DialogFragment {
         });
 
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getContext())
-                .title(R.string.dialog_exam_reminder_title);
+                .customView(rootView, false)
+                .title(R.string.dialog_exam_reminder_title)
+                .positiveText(R.string.dialog_okay)
+                .negativeText(R.string.dialog_cancel);
 
         return builder.build();
     }
 
     private void saveReminderTime() {
-        mTimeButton.setText(mReminderHour + ":" + mReminderMinutes);
+        setTimeText();
         PreferenceUtils.getInstance().putInt(R.string.pref_exam_reminder_hour, mReminderHour);
         PreferenceUtils.getInstance().putInt(R.string.pref_exam_reminder_minutes, mReminderMinutes);
+    }
+
+    private void setTimeText() {
+        mTimeButton.setText(mReminderHour + ":" + mReminderMinutes);
     }
 }
