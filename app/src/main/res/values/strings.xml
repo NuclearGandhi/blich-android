@@ -47,7 +47,7 @@
     <string name="dialog_changelog_title">שינויים וחידושים</string>
 
     <string name="dialog_teacher_filter_title">סינון</string>
-    <string name="dialog_teacher_filter_description">בחר את כל המורים שמלמדים אותך\nהערה: יש להשתמש באפשרות זו בזהירות כיוון שהיא עלולה להוביל להסתרת שיעורים של מורים שבטעות לא נבחרו</string>
+    <string name="dialog_teacher_filter_description">בחר את כל המורים שמלמדים אותך.\n<b>הערה:</b> יש להשתמש באפשרות זו בזהירות כיוון שהיא עלולה להוביל להסתרת שיעורים של מורים שבטעות לא נבחרו.</string>
 
     <string name="dialog_exam_reminder_title">תזכרות למבחן</string>
     <string name="dialog_exam_reminder_one_day">יום לפני</string>
