@@ -40,7 +40,9 @@ public class ExamAdapter extends BaseAdapter {
     private final Context mContext;
     private FragmentManager mFragmentManager;
 
-    private int monthDividerTextColor;
+    private float mEnabledButtonAlpha;
+    private float mDisabledButtonAlpha;
+    private int mMonthDividerTextColor;
 
     private RealmExamHelper mExamHelper;
     private TextView mStatusMessage;
@@ -60,11 +62,22 @@ public class ExamAdapter extends BaseAdapter {
         mExamHelper = new RealmExamHelper(data);
         mStatusMessage = statusMessage;
 
+        String ateKey = Utilities.getATEKey(context);
+
         boolean isPrimaryDarkColorLight = ATEUtil.isColorLight(
-                Config.primaryColorDark(context, Utilities.getATEKey(context)));
-        monthDividerTextColor = isPrimaryDarkColorLight ?
+                Config.primaryColorDark(context, ateKey));
+        mMonthDividerTextColor = isPrimaryDarkColorLight ?
                 ContextCompat.getColor(context, R.color.text_color_primary_light) :
                 ContextCompat.getColor(context, R.color.text_color_primary_dark);
+
+        if (ateKey.equals("light_theme")){
+            mEnabledButtonAlpha = 0.87f;
+            mDisabledButtonAlpha = 0.54f;
+        }
+        else {
+            mEnabledButtonAlpha = 1f;
+            mDisabledButtonAlpha = 0.7f;
+        }
     }
 
     /**
@@ -160,13 +173,14 @@ public class ExamAdapter extends BaseAdapter {
                         .show(mFragmentManager, DIALOG_TAG_EXAM_REMINDER);
             }
         });
+        viewHolder.notificationButton.setAlpha(mDisabledButtonAlpha);
     }
 
     private View buildMonthDivider(ViewGroup parent, MonthDivider divider) {
         TextView view = (TextView) LayoutInflater.from(mContext).inflate(
                 R.layout.exam_month_divider, parent, false);
         view.setText(divider.buildLabel());
-        view.setTextColor(monthDividerTextColor);
+        view.setTextColor(mMonthDividerTextColor);
 
         return view;
     }
