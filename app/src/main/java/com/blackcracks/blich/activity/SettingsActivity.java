@@ -128,6 +128,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             }
         }
         config.commit();
+        Utilities.updateWidget(this);
         recreate(); // recreation needed to reach the checkboxes in the preferences layout
     }
 
@@ -260,13 +261,15 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             }
             if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();
+                Utilities.updateWidget(getContext());
             }
-            if (key.equals(getString(R.string.pref_filter_toggle_key)) &&
-                    (PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key) &&
-                    (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("")))) {
-                //If the filter is on and the filter teacher list is empty:
-                showFilterDialog();
-            }
+            if (key.equals(getString(R.string.pref_filter_toggle_key)))
+                Utilities.updateWidget(getContext());
+                if ((PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key) &&
+                        (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("")))) {
+                    //If the filter is on and the filter teacher list is empty:
+                    showFilterDialog();
+                }
         }
 
         private void invalidateSettings() {
@@ -280,6 +283,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                     // Marks both theme configs as changed so MainActivity restarts itself on return
                     Config.markChanged(getActivity(), "light_theme");
                     Config.markChanged(getActivity(), "dark_theme");
+                    Utilities.updateWidget(getContext());
                     // The dark_theme preference value gets saved by Android in the default PreferenceManager.
                     // It's used in getATEKey() of both the Activities.
                     getActivity().recreate();

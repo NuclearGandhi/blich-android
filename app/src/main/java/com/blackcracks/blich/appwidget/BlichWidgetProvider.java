@@ -62,13 +62,18 @@ public class BlichWidgetProvider extends AppWidgetProvider {
                 R.id.widget_schedule_title,
                 Config.getToolbarTitleColor(context, null, ateKey, toolbarColor));
 
+        int color;
         if (ateKey.equals("dark_theme")) {
-            int color = ContextCompat.getColor(context, R.color.grey_850);
-            views.setInt(R.id.widget_listview, "setBackgroundColor", color);
+            color = ContextCompat.getColor(context, R.color.grey_850);
+        } else {
+            color = ContextCompat.getColor(context, R.color.white_50);
         }
+        views.setInt(R.id.widget_listview, "setBackgroundColor", color);
+
         //Connect between the list and the adapter.
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_listview);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }

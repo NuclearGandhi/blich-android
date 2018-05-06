@@ -35,6 +35,8 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     private int mDay;
     private RealmScheduleHelper mRealmHelper;
 
+    private int mPrimaryTextColor;
+
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
         mRealmHelper = new RealmScheduleHelper(null);
@@ -60,6 +62,18 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 )
         );
         realm.close();
+
+        updateTheme();
+    }
+
+    private void updateTheme() {
+        String ateKey = Utilities.getATEKey(mContext);
+
+        if (ateKey.equals("light_theme")) {
+            mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
+        } else {
+            mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
+        }
     }
 
     @Override
@@ -73,9 +87,6 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public RemoteViews getViewAt(int position) {
-
-        String ateKey = Utilities.getATEKey(mContext);
-
         Hour hour = mRealmHelper.getHour(position);
         int hourNum = mRealmHelper.getHour(position).getHour();
 
@@ -84,14 +95,8 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 R.id.widget_schedule_hour,
                 Integer.toString(hourNum));
 
-        int primaryTextColor;
-        if (ateKey.equals("light_theme")) {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
-        } else {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
-        }
         views.setTextColor(R.id.widget_schedule_hour,
-                primaryTextColor);
+                mPrimaryTextColor);
 
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
@@ -120,7 +125,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             } else {
                 subject = lesson.getSubject();
                 teacher = lesson.getTeacher();
-                color = primaryTextColor;
+                color = mPrimaryTextColor;
             }
 
             Spanned text;
