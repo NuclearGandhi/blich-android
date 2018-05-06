@@ -89,13 +89,13 @@ public class BlichSync {
                 context,
                 REQUEST_CODE_EVENING_ALARM,
                 intent,
-                0);
+                PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent morningPendingIntent = PendingIntent.getBroadcast(
                 context,
                 REQUEST_CODE_MORNING_ALARM,
                 intent,
-                0);
+                PendingIntent.FLAG_CANCEL_CURRENT);
 
         boolean isNotificationsOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
         if (isNotificationsOn) {
@@ -111,7 +111,17 @@ public class BlichSync {
                 calendar.add(Calendar.DAY_OF_YEAR, 1);
             calendar.set(Calendar.HOUR_OF_DAY, 21);
             calendar.set(Calendar.MINUTE, 30);
-            Date eveningSync = new Date(calendar.getTimeInMillis());
+
+            alarmManager.setInexactRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY,
+                    eveningPendingIntent
+            );
+
+            if (BuildConfig.DEBUG) {
+                Timber.d("Evening sync starting on %s", calendar);
+            }
 
             calendar = Calendar.getInstance();
 
@@ -119,26 +129,16 @@ public class BlichSync {
                 calendar.add(Calendar.DAY_OF_YEAR, 1);
             calendar.set(Calendar.HOUR_OF_DAY, 7);
             calendar.set(Calendar.MINUTE, 0);
-            Date morningSync = new Date(calendar.getTimeInMillis());
 
             alarmManager.setInexactRepeating(
                     AlarmManager.RTC_WAKEUP,
-                    eveningSync.getTime(),
-                    AlarmManager.INTERVAL_DAY,
-                    eveningPendingIntent
-            );
-
-            alarmManager.setInexactRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    morningSync.getTime(),
+                    calendar.getTimeInMillis(),
                     AlarmManager.INTERVAL_DAY,
                     morningPendingIntent
             );
 
             if (BuildConfig.DEBUG) {
-                Timber.d("Evening sync starting on %s\nMorning sync starting on %s",
-                        eveningSync,
-                        morningSync);
+                Timber.d("Morning sync starting on %s", calendar);
             }
         } else {
             pm.setComponentEnabledSetting(receiver,
