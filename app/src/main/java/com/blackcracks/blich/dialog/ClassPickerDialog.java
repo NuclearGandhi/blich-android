@@ -43,7 +43,7 @@ import io.realm.Realm;
  * @see ClassPickerDialog
  */
 @SuppressWarnings("ConstantConditions")
-public class ClassPickerDialog extends DialogFragment {
+public class ClassPickerDialog extends BaseDialog<ClassPickerDialog.Builder> {
 
     private static final String KEY_DATA_VALID = "data_valid";
 
@@ -64,12 +64,6 @@ public class ClassPickerDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Bundle args = getArguments();
-        if (args.isEmpty())
-            throw new IllegalArgumentException("Dialog must be created using Builder");
-        mBuilder = new Builder(args);
-
         mRealm = Realm.getDefaultInstance();
 
         final SyncCallbackUtils.OnSyncRetryListener onSyncRetryListener = new SyncCallbackUtils.OnSyncRetryListener() {
@@ -94,6 +88,11 @@ public class ClassPickerDialog extends DialogFragment {
         } else {
             syncData();
         }
+    }
+
+    @Override
+    protected void onCreateBuilder() {
+        mBuilder = new Builder();
     }
 
     @NonNull
@@ -283,7 +282,7 @@ public class ClassPickerDialog extends DialogFragment {
         void onDestroy(Context context, int id);
     }
 
-    public static class Builder {
+    public static class Builder extends BaseDialog.Builder {
 
         static final String KEY_DISMISSIBLE = "dismissible";
         static final String KEY_DISPLAY_NEGATIVE_BUTTON = "display_negative_button";
@@ -294,7 +293,8 @@ public class ClassPickerDialog extends DialogFragment {
         public Builder() {
         }
 
-        private Builder(Bundle args) {
+        @Override
+        protected void setArgs(Bundle args) {
             isDismissible = args.getBoolean(KEY_DISMISSIBLE);
             doDisplayNegativeButton = args.getBoolean(KEY_DISPLAY_NEGATIVE_BUTTON);
         }
@@ -309,6 +309,7 @@ public class ClassPickerDialog extends DialogFragment {
             return this;
         }
 
+        @Override
         public ClassPickerDialog build() {
             Bundle args = new Bundle();
             args.putBoolean(KEY_DISMISSIBLE, isDismissible);

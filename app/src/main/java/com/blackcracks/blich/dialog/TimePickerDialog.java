@@ -7,20 +7,14 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
-public class TimePickerDialog extends DialogFragment
+public class TimePickerDialog extends BaseDialog<TimePickerDialog.Builder>
         implements android.app.TimePickerDialog.OnTimeSetListener {
 
-    private Builder mBuilder;
     private OnTimeSetListener mListener;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Bundle args = getArguments();
-        if (args == null)
-            throw new IllegalArgumentException("Dialog must be created using Builder");
-        mBuilder = new Builder(args);
+    protected void onCreateBuilder() {
+        mBuilder = new Builder();
     }
 
     @Override
@@ -42,7 +36,7 @@ public class TimePickerDialog extends DialogFragment
         void onTimeSet(int hour, int minute);
     }
 
-    public static class Builder {
+    public static class Builder extends BaseDialog.Builder {
 
         static final String KEY_TIME_HOUR = "time_hour";
         static final String KEY_TIME_MINUTES = "time_mintues";
@@ -54,7 +48,8 @@ public class TimePickerDialog extends DialogFragment
 
         public Builder() {}
 
-        private Builder(Bundle args) {
+        @Override
+        protected void setArgs(Bundle args) {
             timeHour = args.getInt(KEY_TIME_HOUR);
             timeMinutes = args.getInt(KEY_TIME_MINUTES);
         }
@@ -74,6 +69,7 @@ public class TimePickerDialog extends DialogFragment
             return this;
         }
 
+        @Override
         public TimePickerDialog build() {
             Bundle args = new Bundle();
             args.putInt(KEY_TIME_HOUR, timeHour);

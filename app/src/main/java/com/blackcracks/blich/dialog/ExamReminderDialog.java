@@ -14,7 +14,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.PreferenceUtils;
 
-public class ExamReminderDialog extends DialogFragment {
+public class ExamReminderDialog extends BaseDialog<ExamReminderDialog.Builder> {
 
     private static final String DIALOG_TAG_TIME_PICKER = "time_picker";
 
@@ -29,6 +29,11 @@ public class ExamReminderDialog extends DialogFragment {
 
         mReminderHour = PreferenceUtils.getInstance().getInt(R.string.pref_exam_reminder_hour);
         mReminderMinutes = PreferenceUtils.getInstance().getInt(R.string.pref_exam_reminder_minutes);
+    }
+
+    @Override
+    protected void onCreateBuilder() {
+        mBuilder = new Builder();
     }
 
     @NonNull
@@ -75,5 +80,17 @@ public class ExamReminderDialog extends DialogFragment {
 
     private void setTimeText() {
         mTimeButton.setText(mReminderHour + ":" + mReminderMinutes);
+    }
+
+    public static class Builder extends BaseDialog.Builder {
+
+        @Override
+        protected void setArgs(Bundle args) {
+        }
+
+        @Override
+        public BaseDialog build() {
+            return null;
+        }
     }
 }
