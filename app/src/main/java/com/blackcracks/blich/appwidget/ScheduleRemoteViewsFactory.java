@@ -36,6 +36,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     private RealmScheduleHelper mRealmHelper;
 
     private int mPrimaryTextColor;
+    private int mDividerColorResource;
 
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
@@ -71,8 +72,10 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
         if (ateKey.equals("light_theme")) {
             mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
+            mDividerColorResource = R.color.divider_light;
         } else {
             mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
+            mDividerColorResource = R.color.divider_dark;
         }
     }
 
@@ -97,6 +100,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
         views.setTextColor(R.id.widget_schedule_hour,
                 mPrimaryTextColor);
+        views.setImageViewResource(R.id.divider, mDividerColorResource);
 
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
