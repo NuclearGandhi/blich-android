@@ -54,6 +54,10 @@
             android:name=".sync.BlichSyncIntentService"
             android:exported="false" />
 
+        <receiver android:name=".receiver.ScheduleAlarmReceiver"
+            android:exported="false">
+        </receiver>
+
         <receiver android:name=".receiver.BootReceiver"
             android:enabled="false">
             <intent-filter>

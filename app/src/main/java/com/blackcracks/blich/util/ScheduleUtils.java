@@ -23,7 +23,6 @@ import com.blackcracks.blich.data.Exam;
 import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.data.ScheduleResult;
-import com.blackcracks.blich.receiver.ScheduleAlarmReceiver;
 
 import java.util.ArrayList;
 import java.util.Calendar;
