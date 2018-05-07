@@ -54,6 +54,10 @@
             android:name=".sync.BlichSyncIntentService"
             android:exported="false" />
 
+        <receiver android:name=".receiver.ScheduleAlarmReceiver"
+            android:exported="false">
+        </receiver>
+
         <receiver android:name=".receiver.BootReceiver"
             android:enabled="false">
             <intent-filter>
@@ -61,6 +65,17 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".appwidget.BlichWidgetProvider"
+            android:label="מערכת שעות">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_schedule_provider" />
+        </receiver>
     </application>
 
 </manifest>

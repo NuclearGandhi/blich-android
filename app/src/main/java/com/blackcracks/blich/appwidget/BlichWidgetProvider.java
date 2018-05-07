@@ -10,7 +10,10 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.widget.ListView;
 import android.widget.RemoteViews;
 
 import com.afollestad.appthemeengine.Config;
@@ -62,13 +65,18 @@ public class BlichWidgetProvider extends AppWidgetProvider {
                 R.id.widget_schedule_title,
                 Config.getToolbarTitleColor(context, null, ateKey, toolbarColor));
 
-        if (ateKey.equals("dark_theme")) {
-            int color = ContextCompat.getColor(context, R.color.grey_850);
-            views.setInt(R.id.widget_listview, "setBackgroundColor", color);
+        int backgroundColor;
+        if (ateKey.equals("light_theme")) {
+            backgroundColor = ContextCompat.getColor(context, R.color.white_50);
+        } else {
+            backgroundColor = ContextCompat.getColor(context, R.color.grey_850);
         }
+        views.setInt(R.id.widget_listview, "setBackgroundColor", backgroundColor);
+
         //Connect between the list and the adapter.
         intent = new Intent(context, ScheduleRemoteViewsService.class);
         views.setRemoteAdapter(R.id.widget_listview, intent);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_listview);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }

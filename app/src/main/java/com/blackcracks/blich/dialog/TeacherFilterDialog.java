@@ -13,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -78,8 +79,8 @@ public class TeacherFilterDialog extends DialogFragment
         listView.setAdapter(mAdapter);
 
         //Set up button click listeners
-        Button selectAll = view.findViewById(R.id.btn_select_all);
-        Button selectNone = view.findViewById(R.id.btn_select_none);
+        ImageButton selectAll = view.findViewById(R.id.btn_select_all);
+        ImageButton selectNone = view.findViewById(R.id.btn_select_none);
 
         selectAll.setOnClickListener(new View.OnClickListener() {
             @Override

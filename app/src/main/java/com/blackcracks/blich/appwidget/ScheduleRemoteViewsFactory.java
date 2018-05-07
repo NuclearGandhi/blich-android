@@ -35,6 +35,9 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     private int mDay;
     private RealmScheduleHelper mRealmHelper;
 
+    private int mPrimaryTextColor;
+    private int mDividerColorResource;
+
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
         mRealmHelper = new RealmScheduleHelper(null);
@@ -60,6 +63,20 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 )
         );
         realm.close();
+
+        updateTheme();
+    }
+
+    private void updateTheme() {
+        String ateKey = Utilities.getATEKey(mContext);
+
+        if (ateKey.equals("light_theme")) {
+            mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
+            mDividerColorResource = R.color.divider_light;
+        } else {
+            mPrimaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
+            mDividerColorResource = R.color.divider_dark;
+        }
     }
 
     @Override
@@ -73,25 +90,17 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public RemoteViews getViewAt(int position) {
-
-        String ateKey = Utilities.getATEKey(mContext);
-
         Hour hour = mRealmHelper.getHour(position);
         int hourNum = mRealmHelper.getHour(position).getHour();
 
-        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_schedule_widget);
+        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_appwidget_schedule);
         views.setTextViewText(
                 R.id.widget_schedule_hour,
                 Integer.toString(hourNum));
 
-        int primaryTextColor;
-        if (ateKey.equals("light_theme")) {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_light);
-        } else {
-            primaryTextColor = ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
-        }
         views.setTextColor(R.id.widget_schedule_hour,
-                primaryTextColor);
+                mPrimaryTextColor);
+        views.setImageViewResource(R.id.divider, mDividerColorResource);
 
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
@@ -120,7 +129,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             } else {
                 subject = lesson.getSubject();
                 teacher = lesson.getTeacher();
-                color = primaryTextColor;
+                color = mPrimaryTextColor;
             }
 
             Spanned text;
@@ -129,7 +138,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             } else {
                 text = Html.fromHtml("<b>" + subject + "</b>");
             }
-            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.item_lesson_widget);
+            RemoteViews info = new RemoteViews(mContext.getPackageName(), R.layout.item_appwidget_lesson);
             info.setTextViewText(R.id.widget_schedule_subject, text);
             info.setTextColor(R.id.widget_schedule_subject, color);
 

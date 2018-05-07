@@ -7,6 +7,7 @@ package com.blackcracks.blich.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
@@ -120,7 +121,7 @@ public class ScheduleFragment extends BlichBaseFragment {
         //Inflate it with a view
         mFilterActionButton = new ImageButton(getContext(),
                 null,
-                R.attr.actionBarItemBackground,
+                R.attr.actionButtonStyle,
                 R.style.Widget_AppCompat_ActionButton);
 
         mFilterActionButton.setImageResource(R.drawable.ic_filter_list_white_24dp);

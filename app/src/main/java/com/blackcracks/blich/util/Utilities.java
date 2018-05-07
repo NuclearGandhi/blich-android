@@ -8,6 +8,7 @@ package com.blackcracks.blich.util;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -85,9 +86,11 @@ public class Utilities {
      * Update the widget on the home screen.
      */
     public static void updateWidget(Context context) {
-        ComponentName widget = new ComponentName(context, BlichWidgetProvider.class);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_schedule);
-        AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
-        widgetManager.updateAppWidget(widget, views);
+        Intent intent = new Intent(context, BlichWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(new ComponentName(context, BlichWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        context.sendBroadcast(intent);
     }
 }
