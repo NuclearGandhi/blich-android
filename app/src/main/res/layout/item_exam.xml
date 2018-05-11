@@ -39,11 +39,11 @@
         android:id="@+id/item_subject"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginStart="72dp"
         android:tag="text_color|primary_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toStartOf="@+id/item_notification_button"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/item_day_in_month"
         tools:text="מבחן בלשון" />
@@ -57,21 +57,6 @@
         app:layout_constraintStart_toStartOf="@+id/item_subject"
         app:layout_constraintTop_toBottomOf="@+id/item_subject"
         tools:text="שם מורה, שם מורה, שם מורה, שם מורה, שם מורה, שם מורה, שם מורה, שם מורה" />
-
-    <ImageButton
-        android:id="@+id/item_notification_button"
-        style="@style/Widget.AppCompat.ActionButton"
-        android:padding="0dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_notifications_white_disabled_24dp"
-        android:tag="tint|icon_color"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_subject"
-        tools:alpha="0.54"
-        tools:src="@drawable/ic_notifications_white_disabled_24dp"
-        tools:tint="@color/ate_icon_light" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -161,7 +161,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         TextView statusMessage = mRootView.findViewById(R.id.exam_no_data_status);
         mAdapter = new ExamAdapter(
                 getContext(),
-                getFragmentManager(),
                 null,
                 statusMessage);
         mListView.setAdapter(mAdapter);

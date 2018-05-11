@@ -41,8 +41,8 @@ public class TimePickerDialog extends BaseDialog<TimePickerDialog.Builder>
         static final String KEY_TIME_HOUR = "time_hour";
         static final String KEY_TIME_MINUTES = "time_mintues";
 
-        int timeHour;
-        int timeMinutes;
+        int timeHour = 7;
+        int timeMinutes = 0;
 
         private OnTimeSetListener mListener;
 
