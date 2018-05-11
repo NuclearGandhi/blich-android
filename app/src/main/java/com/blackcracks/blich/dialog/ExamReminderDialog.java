@@ -14,7 +14,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.util.PreferenceUtils;
 
-public class ExamReminderDialog extends DialogFragment {
+public class ExamReminderDialog extends BaseDialog<ExamReminderDialog.Builder> {
 
     private static final String DIALOG_TAG_TIME_PICKER = "time_picker";
 
@@ -31,12 +31,19 @@ public class ExamReminderDialog extends DialogFragment {
         mReminderMinutes = PreferenceUtils.getInstance().getInt(R.string.pref_exam_reminder_minutes);
     }
 
+    @Override
+    protected void onCreateBuilder() {
+        mBuilder = new Builder();
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View rootView = LayoutInflater.from(getContext())
                 .inflate(R.layout.dialog_exam_reminder, null, false);
+
         mTimeButton = rootView.findViewById(R.id.reminder_time);
+        setTimeText();
         mTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,19 +59,38 @@ public class ExamReminderDialog extends DialogFragment {
                             }
                         })
                         .build()
-                        .show(getChildFragmentManager(), DIALOG_TAG_TIME_PICKER);
+                        .show(getFragmentManager(), DIALOG_TAG_TIME_PICKER);
             }
         });
 
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getContext())
-                .title(R.string.dialog_exam_reminder_title);
+                .customView(rootView, false)
+                .title(R.string.dialog_exam_reminder_title)
+                .positiveText(R.string.dialog_okay)
+                .negativeText(R.string.dialog_cancel);
 
         return builder.build();
     }
 
     private void saveReminderTime() {
-        mTimeButton.setText(mReminderHour + ":" + mReminderMinutes);
+        setTimeText();
         PreferenceUtils.getInstance().putInt(R.string.pref_exam_reminder_hour, mReminderHour);
         PreferenceUtils.getInstance().putInt(R.string.pref_exam_reminder_minutes, mReminderMinutes);
+    }
+
+    private void setTimeText() {
+        mTimeButton.setText(mReminderHour + ":" + mReminderMinutes);
+    }
+
+    public static class Builder extends BaseDialog.Builder {
+
+        @Override
+        protected void setArgs(Bundle args) {
+        }
+
+        @Override
+        public BaseDialog build() {
+            return null;
+        }
     }
 }

@@ -10,9 +10,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
         android:text="@string/dialog_exam_reminder_one_day"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/reminder_time" />
 
     <CheckBox
         android:id="@+id/reminder_week"
@@ -20,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="@string/dialog_exam_reminder_three_days"
         app:layout_constraintStart_toStartOf="@+id/reminder_one_day"
-        app:layout_constraintTop_toBottomOf="@+id/reminder_three_days2" />
+        app:layout_constraintTop_toBottomOf="@+id/reminder_one_day" />
 
     <CheckBox
         android:id="@+id/reminder_three_days2"
@@ -28,18 +29,17 @@
         android:layout_height="wrap_content"
         android:text="@string/dialog_exam_reminder_week"
         app:layout_constraintStart_toStartOf="@+id/reminder_one_day"
-        app:layout_constraintTop_toBottomOf="@+id/reminder_one_day" />
+        app:layout_constraintTop_toBottomOf="@+id/reminder_week" />
 
     <Button
         android:id="@+id/reminder_time"
         style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="109dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:tag="text_color|primary_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reminder_week"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="14:00" />
 </android.support.constraint.ConstraintLayout>
