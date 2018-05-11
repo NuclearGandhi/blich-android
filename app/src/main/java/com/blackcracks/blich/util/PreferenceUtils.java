@@ -37,7 +37,7 @@ public class PreferenceUtils {
         mPref = PreferenceManager.getDefaultSharedPreferences(context);
         mContext = context;
 
-        sDefaultValues.put(R.string.pref_is_first_launch, false);
+        sDefaultValues.put(R.string.pref_is_first_launch_key, false);
         sDefaultValues.put(R.string.pref_is_syncing_key, true);
         sDefaultValues.put(R.string.pref_app_version_key, 1);
         sDefaultValues.put(R.string.pref_user_class_group_key, mContext.getResources().getInteger(R.integer.pref_user_class_group_default));

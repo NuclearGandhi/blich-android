@@ -5,7 +5,7 @@
   -->
 
 <resources>
-    <string name="pref_is_first_launch">first_launch</string>
+    <string name="pref_is_first_launch_key">first_launch</string>
     <string name="pref_is_syncing_key">is_syncing</string>
     <string name="pref_app_version_key">app_version</string>
 

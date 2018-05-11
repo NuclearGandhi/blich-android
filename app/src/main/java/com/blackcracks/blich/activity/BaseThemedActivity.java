@@ -19,6 +19,7 @@ import android.view.View;
 
 import com.afollestad.appthemeengine.ATEActivity;
 import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
 import com.blackcracks.blich.util.Utilities;
 
 import java.util.Locale;
@@ -26,7 +27,8 @@ import java.util.Locale;
 /**
  * @author Aidan Follestad (afollestad)
  */
-public abstract class BaseThemedActivity extends ATEActivity {
+public abstract class BaseThemedActivity extends ATEActivity implements
+        ATECollapsingTbCustomizer {
 
     private boolean mAutoStatusBarColor = true;
 
@@ -67,5 +69,15 @@ public abstract class BaseThemedActivity extends ATEActivity {
 
     public void setAutoStatusBarColor(boolean autoStatusBarColor) {
         mAutoStatusBarColor = autoStatusBarColor;
+    }
+
+    @Override
+    public int getCollapsedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
+    }
+
+    @Override
+    public int getExpandedTintColor() {
+        return Config.getToolbarTitleColor(this, null, getATEKey());
     }
 }

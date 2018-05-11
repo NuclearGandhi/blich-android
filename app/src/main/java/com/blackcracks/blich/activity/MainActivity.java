@@ -52,12 +52,10 @@ import timber.log.Timber;
  * Realm, old preferences migration, app update handling, and settings the locale to Hebrew - right to left.
  * Handles {@link Fragment} switching and saving it when destroyed.</p>
  */
-public class MainActivity extends BaseThemedActivity implements
-        ATECollapsingTbCustomizer {
+public class MainActivity extends BaseThemedActivity {
 
     private static final String FRAGMENT_TAG = "fragment";
     private static final String DIALOG_CLASS_PICKER_TAG = "class_picker";
-    private static final String DIALOG_CHANGELOG_TAG = "changelog";
 
     //Firebase events constants
     private static final String EVENT_CHANGE_FRAGMENT = "change_fragment";
@@ -86,17 +84,10 @@ public class MainActivity extends BaseThemedActivity implements
         setAllowDrawBehindStatusBar();
         setAutoStatusBarColor(false);
 
+        mPreferenceUtils = PreferenceUtils.getInstance();
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
-        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
-        mPreferenceUtils = PreferenceUtils.getInstance(this);
-        Timber.plant(new Timber.DebugTree());
-        RealmUtils.setUpRealm(this);
-
-        migrateOldSettings();
         setupFirstLaunch(savedInstanceState);
-
-        onUpdate();
 
         //Link to the layout
         mRootView = LayoutInflater.from(this).inflate(
@@ -115,35 +106,12 @@ public class MainActivity extends BaseThemedActivity implements
         //set up drawer
         mDrawerLayout = findViewById(R.id.drawer_layout);
         setupDrawerLayout();
-
-        //Create notification channels
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationManager notificationManager = (NotificationManager)
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-
-            @SuppressWarnings("ConstantConditions")
-            NotificationChannel channel = notificationManager.getNotificationChannel(
-                    getString(R.string.notification_channel_schedule_id)
-            );
-
-            if (channel == null) {
-                createNotificationChannels();
-            }
-        }
-    }
-
-    private void migrateOldSettings() {
-        //If using old user settings
-        if (mPreferenceUtils.getInt(R.string.pref_user_class_group_key) == -1) {
-            mPreferenceUtils.putBoolean(R.string.pref_is_first_launch, true);
-            mPreferenceUtils.putInt(R.string.pref_user_class_group_key, 1);
-        }
     }
 
     private void setupFirstLaunch(Bundle savedInstanceState) {
 
         //Open a class picker dialog in case this is the first time the user opened the app
-        boolean isFirstLaunch = mPreferenceUtils.getBoolean(R.string.pref_is_first_launch);
+        boolean isFirstLaunch = mPreferenceUtils.getBoolean(R.string.pref_is_first_launch_key);
         if (isFirstLaunch) {
             ClassPickerDialog dialogFragment = null;
             if (savedInstanceState != null) dialogFragment = (ClassPickerDialog)
@@ -161,9 +129,9 @@ public class MainActivity extends BaseThemedActivity implements
                 @Override
                 public void onDestroy(Context context, int id) {
                     mPreferenceUtils.putInt(R.string.pref_user_class_group_key, id);
-                    mPreferenceUtils.putBoolean(R.string.pref_is_first_launch, false);
+                    mPreferenceUtils.putBoolean(R.string.pref_is_first_launch_key, false);
                     SyncCallbackUtils.initializeSync(context);
-                    showChangelogDialog();
+                    Utilities.showChangelogDialog(getSupportFragmentManager());
                 }
             });
 
@@ -176,32 +144,6 @@ public class MainActivity extends BaseThemedActivity implements
                 SyncCallbackUtils.initializeSync(this);
             }
         }
-    }
-
-    /**
-     * Handle app updating.
-     */
-    private void onUpdate() {
-        int oldVersion = mPreferenceUtils.getInt(R.string.pref_app_version_key);
-        int newVersion = BuildConfig.VERSION_CODE;
-        if (newVersion > oldVersion) {
-            if (!mPreferenceUtils.getBoolean(R.string.pref_is_first_launch)) {
-                Utilities.setClassGroupProperties(this);
-                //showChangelogDialog();
-            }
-
-            if (oldVersion < 47) {
-                Driver driver = new GooglePlayDriver(this);
-                FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
-                driver.cancel(BlichSync.BLICH_SYNC_TAG);
-            }
-            mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
-        }
-    }
-
-    private void showChangelogDialog() {
-        new ChangelogDialog()
-                .show(getSupportFragmentManager(), DIALOG_CHANGELOG_TAG);
     }
 
     private void setupDrawerLayout() {
@@ -274,27 +216,6 @@ public class MainActivity extends BaseThemedActivity implements
         );
     }
 
-    @RequiresApi(api = 26)
-    private void createNotificationChannels() {
-
-        NotificationChannel scheduleChannel = new NotificationChannel(
-                getString(R.string.notification_channel_schedule_id),
-                getString(R.string.notification_channel_schedule_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-        );
-
-        scheduleChannel.setDescription(
-                getString(R.string.notification_channel_schedule_description)
-        );
-        scheduleChannel.enableLights(true);
-        scheduleChannel.setLightColor(Color.CYAN);
-
-        NotificationManager notificationManager = (NotificationManager)
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        //noinspection ConstantConditions
-        notificationManager.createNotificationChannel(scheduleChannel);
-    }
-
     /**
      * Replace a fragment.
      *
@@ -323,16 +244,6 @@ public class MainActivity extends BaseThemedActivity implements
         getSupportFragmentManager().putFragment(outState,
                 FRAGMENT_TAG,
                 mFragment);
-    }
-
-    @Override
-    public int getCollapsedTintColor() {
-        return Config.getToolbarTitleColor(this, null, getATEKey());
-    }
-
-    @Override
-    public int getExpandedTintColor() {
-        return Config.getToolbarTitleColor(this, null, getATEKey());
     }
 
     public DrawerLayout getDrawerLayout() {
