@@ -84,7 +84,7 @@ public class MainActivity extends BaseThemedActivity {
         setAllowDrawBehindStatusBar();
         setAutoStatusBarColor(false);
 
-        mPreferenceUtils = PreferenceUtils.getInstance();
+        mPreferenceUtils = PreferenceUtils.getInstance(this);
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 
         setupFirstLaunch(savedInstanceState);
