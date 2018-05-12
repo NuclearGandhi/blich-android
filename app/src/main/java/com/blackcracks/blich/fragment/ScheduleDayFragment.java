@@ -15,6 +15,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,16 +64,15 @@ public class ScheduleDayFragment extends Fragment implements
 
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
+        //TODO update text accordingly
         TextView statusTextView = rootView.findViewById(R.id.text_status);
 
-        ExpandableListView listView = rootView.findViewById(R.id.expandable_listview_schedule_day);
-        mAdapter = new ScheduleAdapter(listView, getContext(), statusTextView);
-        listView.setAdapter(mAdapter);
-        listView.setChildDivider(
-                ContextCompat.getDrawable(getContext(),
-                        android.R.color.transparent)); //Hide the child dividers
+        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        //TODO Initialize adapter
+        recyclerView.setAdapter(mAdapter);
 
-        ViewCompat.setNestedScrollingEnabled(listView, true);
+        ViewCompat.setNestedScrollingEnabled(recyclerView, true);
         return rootView;
     }
 

@@ -19,11 +19,9 @@
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 
-    <ExpandableListView
-        android:id="@+id/expandable_listview_schedule_day"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_list"
         android:layout_width="match_parent"
-        android:listSelector="@android:color/transparent"
-        android:layout_height="match_parent"
-        android:groupIndicator="@null"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>
