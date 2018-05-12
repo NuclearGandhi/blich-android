@@ -7,11 +7,11 @@ package com.blackcracks.blich.adapter.helper;
 
 import android.support.annotation.Nullable;
 
-import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Event;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.schedule.ScheduleResult;
 
 import java.util.ArrayList;
 import java.util.Collections;

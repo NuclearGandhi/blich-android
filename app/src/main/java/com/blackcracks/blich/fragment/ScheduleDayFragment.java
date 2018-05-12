@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
-import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.util.ScheduleUtils;
 
 import io.realm.Realm;
@@ -176,7 +176,6 @@ public class ScheduleDayFragment extends Fragment implements
             deliverResult(
                     ScheduleUtils.fetchScheduleResult(
                             mRealm,
-                            getContext(),
                             mDay,
                             false
                     )

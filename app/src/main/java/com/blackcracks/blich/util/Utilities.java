@@ -13,10 +13,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
-import android.widget.RemoteViews;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.ClassGroup;
+import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.appwidget.BlichWidgetProvider;
 import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.crashlytics.android.Crashlytics;

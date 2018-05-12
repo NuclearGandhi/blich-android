@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.raw;
 
 import android.support.annotation.NonNull;
 

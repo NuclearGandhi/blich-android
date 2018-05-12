@@ -3,7 +3,9 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.exam;
+
+import com.blackcracks.blich.data.raw.Exam;
 
 import java.util.ArrayList;
 import java.util.Calendar;

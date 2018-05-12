@@ -5,8 +5,8 @@
 
 package com.blackcracks.blich.util;
 
-import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.data.GenericExam;
+import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.exam.GenericExam;
 
 import java.util.ArrayList;
 import java.util.List;

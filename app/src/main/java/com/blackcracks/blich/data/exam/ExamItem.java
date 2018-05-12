@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.exam;
 
 import android.support.annotation.IntDef;
 

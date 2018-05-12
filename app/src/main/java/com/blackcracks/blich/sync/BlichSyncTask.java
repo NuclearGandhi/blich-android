@@ -10,11 +10,11 @@ import android.os.Bundle;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.BlichData;
-import com.blackcracks.blich.data.Change;
-import com.blackcracks.blich.data.Event;
-import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.raw.Change;
+import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ShahafUtils;
@@ -154,7 +154,6 @@ public class BlichSyncTask {
                 lesson.setSubject(jsonLesson.getString(Database.JSON_STRING_SUBJECT));
                 lesson.setTeacher(jsonLesson.getString(Database.JSON_STRING_TEACHER));
                 lesson.setRoom(jsonLesson.getString(Database.JSON_STRING_ROOM));
-                lesson.setChangeType(Database.TYPE_NORMAL);
 
                 lessons.add(lesson);
             }

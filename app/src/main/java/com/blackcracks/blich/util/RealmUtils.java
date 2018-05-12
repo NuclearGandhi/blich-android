@@ -10,9 +10,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.ClassGroup;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.raw.ClassGroup;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -129,10 +129,8 @@ public class RealmUtils {
                             oldVersion++;
                         }
                         if (oldVersion == 11) {
-                            schema.create("ExamReminder")
-                                    .addRealmObjectField("exam", schema.get("Exam"))
-                                    .addField("remindDate", Date.class)
-                                    .addField("requestCode", int.class);
+                            schema.get("Lesson")
+                                    .removeField("changeType");
                             oldVersion ++;
                         }
                     }
@@ -161,7 +159,6 @@ public class RealmUtils {
      */
     public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             Realm realm,
-            Context context,
             Class<E> clazz,
             int day) {
 
@@ -175,7 +172,7 @@ public class RealmUtils {
                 break;
         }
 
-        return buildFilteredQuery(query, context, clazz);
+        return buildFilteredQuery(query, clazz);
     }
 
     /**
@@ -187,7 +184,6 @@ public class RealmUtils {
      */
     public static <E extends RealmModel> RealmQuery<E> buildFilteredQuery(
             RealmQuery<E> query,
-            Context context,
             Class<E> clazz) {
 
 

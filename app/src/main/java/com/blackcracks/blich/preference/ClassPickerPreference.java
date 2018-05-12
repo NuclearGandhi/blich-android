@@ -10,10 +10,11 @@ import android.util.AttributeSet;
 
 import com.afollestad.appthemeengine.prefs.supportv7.ATEDialogPreference;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.util.PreferenceUtils;
 
 /**
- * A preference to store the user's chosen {@link com.blackcracks.blich.data.ClassGroup}.
+ * A preference to store the user's chosen {@link ClassGroup}.
  */
 public class ClassPickerPreference extends ATEDialogPreference {
 
@@ -37,7 +38,7 @@ public class ClassPickerPreference extends ATEDialogPreference {
     /**
      * Set the preference's value.
      *
-     * @param value the value to set, must be a {@link com.blackcracks.blich.data.ClassGroup} id.
+     * @param value the value to set, must be a {@link ClassGroup} id.
      */
     public void setValue(int value) {
         mValue = value;

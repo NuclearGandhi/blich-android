@@ -5,10 +5,10 @@
 
 package com.blackcracks.blich.adapter.helper;
 
-import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.data.ExamItem;
-import com.blackcracks.blich.data.GenericExam;
-import com.blackcracks.blich.data.MonthDivider;
+import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.exam.ExamItem;
+import com.blackcracks.blich.data.exam.GenericExam;
+import com.blackcracks.blich.data.exam.MonthDivider;
 import com.blackcracks.blich.util.ExamUtils;
 
 import java.util.ArrayList;

@@ -33,7 +33,7 @@ import com.afollestad.appthemeengine.prefs.supportv7.ATESwitchPreference;
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.ClassGroup;
+import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.dialog.TeacherFilterDialog;

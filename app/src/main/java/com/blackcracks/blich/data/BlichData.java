@@ -5,6 +5,11 @@
 
 package com.blackcracks.blich.data;
 
+import com.blackcracks.blich.data.raw.Change;
+import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.raw.Hour;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Required;

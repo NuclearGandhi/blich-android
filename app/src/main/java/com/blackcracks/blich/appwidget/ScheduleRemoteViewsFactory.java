@@ -13,10 +13,10 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
@@ -57,7 +57,6 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         switchData(
                 ScheduleUtils.fetchScheduleResult(
                         realm,
-                        mContext,
                         mDay,
                         true
                 )

@@ -3,7 +3,9 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.raw;
+
+import com.blackcracks.blich.data.TeacherSubject;
 
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -18,18 +20,14 @@ public class Lesson extends RealmObject {
     @Required private String subject;
     private String room;
     private String teacher;
-    private String changeType;
     @LinkingObjects("lessons") private final RealmResults<Hour> owners  = null;
 
-    public Lesson() {
+    public Lesson() {}
 
-    }
-
-    public Lesson(String subject, String room, String teacher, String changeType) {
+    public Lesson(String subject, String room, String teacher) {
         this.subject = subject;
         this.room = room;
         this.teacher = teacher;
-        this.changeType = changeType;
     }
 
     public String getSubject() {
@@ -54,14 +52,6 @@ public class Lesson extends RealmObject {
 
     public void setTeacher(String teacher) {
         this.teacher = teacher;
-    }
-
-    public String getChangeType() {
-        return changeType;
-    }
-
-    public void setChangeType(String changeType) {
-        this.changeType = changeType;
     }
 
     /**

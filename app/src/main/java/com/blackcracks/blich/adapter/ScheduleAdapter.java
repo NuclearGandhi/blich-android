@@ -24,10 +24,10 @@ import android.widget.TextView;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
 

@@ -5,7 +5,7 @@
 
 package com.blackcracks.blich.util;
 
-import com.blackcracks.blich.data.ClassGroup;
+import com.blackcracks.blich.data.raw.ClassGroup;
 
 import java.util.List;
 

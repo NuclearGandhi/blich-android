@@ -23,7 +23,7 @@ import android.widget.ProgressBar;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.ClassGroup;
+import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.sync.SyncClassGroupsService;
 import com.blackcracks.blich.util.ClassGroupUtils;
 import com.blackcracks.blich.util.PreferenceUtils;

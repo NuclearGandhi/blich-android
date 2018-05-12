@@ -3,9 +3,10 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.schedule.DatedLesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferenceUtils;
 
@@ -14,38 +15,44 @@ import java.util.Date;
 import io.realm.RealmObject;
 
 /**
- * A data class holding information about events.
+ * A data class holding information about exams.
  */
-public class Event extends RealmObject implements DatedLesson {
+public class Exam extends RealmObject implements DatedLesson {
 
     private String name;
     private Date date;
+
     private int beginHour;
     private int endHour;
 
     private String subject;
     private String teacher;
+
     private String room;
 
-    public Event() {}
+    public Exam() {}
 
-    public Event(Date date, String name, int beginHour, int endHour) {
-        setDate(date);
+    public Exam(String name, Date date, int beginHour, int endHour, String room) {
         setName(name);
+        setDate(date);
         setBeginHour(beginHour);
         setEndHour(endHour);
+        setRoom(room);
     }
 
     @Override
     public String buildName() {
-        if (room.equals("")) return name;
-
-        return name + ", " + room;
+        return getName() + " לקבוצה של " + getTeacher() + ", בחדר " + getRoom();
     }
 
     @Override
     public String getType() {
-        return Constants.Database.TYPE_EVENT;
+        return Constants.Database.TYPE_EXAM;
+    }
+
+    @Override
+    public int getColor() {
+        return PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_exam_key);
     }
 
     @Override
@@ -64,14 +71,9 @@ public class Event extends RealmObject implements DatedLesson {
     }
 
     @Override
-    public int getColor() {
-        return PreferenceUtils.getInstance().getInt(R.string.pref_theme_lesson_event_key);
-    }
-
-    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Event) {
-            Event e = (Event) obj;
+        if (obj instanceof Exam) {
+            Exam e = (Exam) obj;
             return buildName().equals(e.buildName());
         }
         return false;
@@ -82,7 +84,15 @@ public class Event extends RealmObject implements DatedLesson {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name.contains("מבחן") ||
+                name.contains("בוחן") ||
+                name.contains("מבחני") ||
+                name.contains("מתכונת") ||
+                name.contains("בגרות")) {
+            this.name = name;
+        } else {
+            this.name = "מבחן ב" + name;
+        }
     }
 
     public Date getDate() {
@@ -110,7 +120,7 @@ public class Event extends RealmObject implements DatedLesson {
         this.endHour = endHour;
     }
 
-    private String getSubject() {
+    public String getSubject() {
         return subject;
     }
 
@@ -118,7 +128,7 @@ public class Event extends RealmObject implements DatedLesson {
         this.subject = subject;
     }
 
-    private String getTeacher() {
+    public String getTeacher() {
         return teacher;
     }
 
@@ -126,7 +136,7 @@ public class Event extends RealmObject implements DatedLesson {
         this.teacher = teacher;
     }
 
-    public String getRoom() {
+    private String getRoom() {
         return room;
     }
 

@@ -3,9 +3,10 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data;
+package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.schedule.DatedLesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
 

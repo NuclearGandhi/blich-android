@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -20,7 +19,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.TeacherFilterAdapter;
-import com.blackcracks.blich.data.Lesson;
+import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.util.PreferenceUtils;

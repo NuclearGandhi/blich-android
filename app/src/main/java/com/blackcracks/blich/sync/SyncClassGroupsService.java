@@ -9,7 +9,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.blackcracks.blich.data.ClassGroup;
+import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;

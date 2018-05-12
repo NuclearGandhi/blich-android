@@ -16,13 +16,13 @@ import android.text.Spanned;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.Change;
-import com.blackcracks.blich.data.DatedLesson;
-import com.blackcracks.blich.data.Event;
-import com.blackcracks.blich.data.Exam;
-import com.blackcracks.blich.data.Hour;
-import com.blackcracks.blich.data.Lesson;
-import com.blackcracks.blich.data.ScheduleResult;
+import com.blackcracks.blich.data.raw.Change;
+import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.schedule.ScheduleResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,7 +69,6 @@ public class ScheduleUtils {
      */
     public static ScheduleResult fetchScheduleResult(
             Realm realm,
-            Context context,
             int day,
             boolean loadToRAM) {
         //Check if the user wants to filter the schedule
@@ -84,7 +83,6 @@ public class ScheduleUtils {
             //Query using Inverse-Relationship and filter
             List<Lesson> lessons = RealmUtils.buildFilteredQuery(
                     realm,
-                    context,
                     Lesson.class,
                     day)
                     .findAll();
@@ -98,21 +96,18 @@ public class ScheduleUtils {
 
             changes = RealmUtils.buildFilteredQuery(
                     realm,
-                    context,
                     Change.class,
                     day)
                     .findAll();
 
             events = RealmUtils.buildFilteredQuery(
                     realm,
-                    context,
                     Event.class,
                     day)
                     .findAll();
 
             exams = RealmUtils.buildFilteredQuery(
                     realm,
-                    context,
                     Exam.class,
                     day)
                     .findAll();
@@ -188,7 +183,7 @@ public class ScheduleUtils {
     }
 
     public static void notifyUser(Context context) {
-        List<DatedLesson> notificationList = fetchNotificationList(context);
+        List<DatedLesson> notificationList = fetchNotificationList();
         if (!notificationList.isEmpty()) {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -226,7 +221,7 @@ public class ScheduleUtils {
      *
      * @return a list of {@link DatedLesson}s.
      */
-    private static List<DatedLesson> fetchNotificationList(Context context) {
+    private static List<DatedLesson> fetchNotificationList() {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -270,17 +265,14 @@ public class ScheduleUtils {
         if (isFilterOn) {
             RealmUtils.buildFilteredQuery(
                     changesQuery,
-                    context,
                     Change.class);
 
             RealmUtils.buildFilteredQuery(
                     examsQuery,
-                    context,
                     Exam.class);
 
             RealmUtils.buildFilteredQuery(
                     eventsQuery,
-                    context,
                     Event.class);
         }
 
