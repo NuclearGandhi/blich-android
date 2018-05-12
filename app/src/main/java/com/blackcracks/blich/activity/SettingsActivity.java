@@ -38,7 +38,7 @@ import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.dialog.TeacherFilterDialog;
 import com.blackcracks.blich.preference.FilterPreference;
-import com.blackcracks.blich.sync.BlichSync;
+import com.blackcracks.blich.sync.BlichSyncHelper;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
@@ -257,7 +257,7 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 SyncCallbackUtils.syncDatabase(getContext());
             }
             if (key.equals(getString(R.string.pref_notification_toggle_key))) {
-                BlichSync.initializePeriodicSync(getContext());
+                BlichSyncHelper.initializePeriodicSync(getContext());
             }
             if (key.equals(getString(R.string.pref_filter_select_key))) {
                 setFilterSelectSummery();

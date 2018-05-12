@@ -17,6 +17,7 @@ import com.blackcracks.blich.data.Hour;
 import com.blackcracks.blich.data.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
+import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -27,7 +28,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import timber.log.Timber;
 
 /**
@@ -52,10 +55,10 @@ public class BlichSyncTask {
         firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
 
         BlichData blichData = new BlichData();
-        int status = fetchData(context, blichData);
+        int status = fetchData(blichData);
 
         if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
-            BlichSync.loadDataIntoRealm(blichData);
+            loadDataIntoRealm(blichData);
         }
 
         //Log the end of sync
@@ -75,51 +78,51 @@ public class BlichSyncTask {
      * @return a {@link SyncCallbackUtils.FetchStatus}.
      */
     private static @SyncCallbackUtils.FetchStatus
-    int fetchData(Context context, BlichData blichData) {
+    int fetchData(BlichData blichData) {
         //Call four different requests from the server.
         for(int i = 0; i < 4; i++) {
             String json;
 
-            String command = BlichSync.COMMAND_SCHEDULE;
+            String command = ShahafUtils.COMMAND_SCHEDULE;
             switch (i) {
                 case 0: {
-                    command = BlichSync.COMMAND_SCHEDULE;
+                    command = ShahafUtils.COMMAND_SCHEDULE;
                     break;
                 }
                 case 1: {
-                    command = BlichSync.COMMAND_CHANGES;
+                    command = ShahafUtils.COMMAND_CHANGES;
                     break;
                 }
                 case 2: {
-                    command = BlichSync.COMMAND_EVENTS;
+                    command = ShahafUtils.COMMAND_EVENTS;
                     break;
                 }
                 case 3: {
-                    command = BlichSync.COMMAND_EXAMS;
+                    command = ShahafUtils.COMMAND_EXAMS;
                     break;
                 }
             }
 
             try {
-                json = BlichSync.getResponseFromUrl(BlichSync.buildUrlFromCommand(context, command));
+                json = ShahafUtils.getResponseFromUrl(ShahafUtils.buildUrlFromCommand(command));
 
                 if (json == null || json.equals("")) return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
 
                 //Insert data accordingly
                 switch (command) {
-                    case BlichSync.COMMAND_SCHEDULE: {
+                    case ShahafUtils.COMMAND_SCHEDULE: {
                         insertScheduleJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSync.COMMAND_CHANGES: {
+                    case ShahafUtils.COMMAND_CHANGES: {
                         insertChangesJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSync.COMMAND_EVENTS: {
+                    case ShahafUtils.COMMAND_EVENTS: {
                         insertEventsJsonIntoData(json, blichData);
                         break;
                     }
-                    case BlichSync.COMMAND_EXAMS: {
+                    case ShahafUtils.COMMAND_EXAMS: {
                         insertExamsJsonIntoData(json, blichData);
                         break;
                     }
@@ -271,6 +274,38 @@ public class BlichSyncTask {
         }
 
         blichData.setExams(exams);
+    }
+
+    /**
+     * Insert the given data into realm. Deletes all the old data.
+     *
+     * @param blichData data to insert.
+     */
+    private static void loadDataIntoRealm(BlichData blichData) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        //Delete old data
+        RealmResults<Hour> hours = realm.where(Hour.class)
+                .findAll();
+        hours.deleteAllFromRealm();
+
+        RealmResults<Change> changes = realm.where(Change.class)
+                .findAll();
+        changes.deleteAllFromRealm();
+
+        RealmResults<Event> events = realm.where(Event.class)
+                .findAll();
+        events.deleteAllFromRealm();
+
+        RealmResults<Exam> exams = realm.where(Exam.class)
+                .findAll();
+        exams.deleteAllFromRealm();
+
+        //Insert new data
+        realm.insert(blichData);
+        realm.commitTransaction();
+        realm.close();
     }
 
     /**

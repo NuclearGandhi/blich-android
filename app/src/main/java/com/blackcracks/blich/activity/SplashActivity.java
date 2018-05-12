@@ -18,17 +18,12 @@ import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.dialog.ChangelogDialog;
-import com.blackcracks.blich.dialog.ClassPickerDialog;
-import com.blackcracks.blich.sync.BlichSync;
+import com.blackcracks.blich.sync.BlichSyncHelper;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
-import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.firebase.jobdispatcher.Driver;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 
 import timber.log.Timber;
@@ -138,7 +133,7 @@ public class SplashActivity extends BaseStatusBarActivity {
 
             if (oldVersion < 47) {
                 Driver driver = new GooglePlayDriver(this);
-                driver.cancel(BlichSync.BLICH_SYNC_TAG);
+                driver.cancel(BlichSyncHelper.BLICH_SYNC_TAG);
             }
             mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
         }

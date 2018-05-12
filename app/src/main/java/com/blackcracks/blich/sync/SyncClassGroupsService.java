@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.blackcracks.blich.data.ClassGroup;
 import com.blackcracks.blich.util.Constants.Database;
+import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils.FetchStatus;
 import com.blackcracks.blich.util.Utilities;
@@ -62,13 +63,13 @@ public class SyncClassGroupsService extends IntentService {
      * @return If the fetch is successful
      */
     private @FetchStatus int fetchClass() {
-        URL url = BlichSync.buildURLFromUri(
-                BlichSync.buildBaseUriFromCommand(BlichSync.COMMAND_CLASSES));
+        URL url = ShahafUtils.buildURLFromUri(
+                ShahafUtils.buildBaseUriFromCommand(ShahafUtils.COMMAND_CLASSES));
 
         RealmList<ClassGroup> data = new RealmList<>();
 
         try {
-            String json = BlichSync.getResponseFromUrl(url);
+            String json = ShahafUtils.getResponseFromUrl(url);
 
             if (json == null || json.equals("")) return SyncCallbackUtils.FETCH_STATUS_CLASS_UNSUCCESSFUL;
             insertClassesJsonIntoData(json, data);

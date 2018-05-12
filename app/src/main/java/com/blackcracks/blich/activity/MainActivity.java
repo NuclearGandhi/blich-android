@@ -6,16 +6,11 @@
 package com.blackcracks.blich.activity;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -26,25 +21,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.afollestad.appthemeengine.Config;
-import com.afollestad.appthemeengine.customizers.ATECollapsingTbCustomizer;
-import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.dialog.ChangelogDialog;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamsFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
-import com.blackcracks.blich.sync.BlichSync;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
-import com.firebase.jobdispatcher.Driver;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
-
-import timber.log.Timber;
 
 /**
  * The launch {@link AppCompatActivity}.

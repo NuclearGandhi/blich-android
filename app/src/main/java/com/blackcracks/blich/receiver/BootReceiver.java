@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.blackcracks.blich.sync.BlichSync;
+import com.blackcracks.blich.sync.BlichSyncHelper;
 
 public class BootReceiver extends BroadcastReceiver {
 
@@ -15,6 +15,6 @@ public class BootReceiver extends BroadcastReceiver {
         if (intent == null || !intent.getAction().equals(ACTION_BOOT_COMPLETED))
             return;
 
-        BlichSync.initializePeriodicSync(context);
+        BlichSyncHelper.initializePeriodicSync(context);
     }
 }
