@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.schedule.ModifiedLesson;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 
@@ -24,7 +24,7 @@ import timber.log.Timber;
  */
 public class RealmScheduleHelper {
     private List<RawPeriod> mRawPeriods;
-    private List<DatedLesson> mDatedLessons;
+    private List<ModifiedLesson> mModifiedLessons;
 
     private boolean mIsDataValid;
 
@@ -49,7 +49,7 @@ public class RealmScheduleHelper {
 
         if (mIsDataValid) {
             mRawPeriods = data.getRawPeriods();
-            mDatedLessons = data.getDatedLessons();
+            mModifiedLessons = data.getModifiedLessons();
             buildEmptyHours();
         }
     }
@@ -59,10 +59,10 @@ public class RealmScheduleHelper {
      * be shown.
      */
     private void buildEmptyHours() {
-        for (DatedLesson datedLesson :
-                mDatedLessons) {
-            //if (!datedLesson.isAReplacer()) {
-            for (int i = datedLesson.getBeginHour(); i <= datedLesson.getEndHour(); i++) {
+        for (ModifiedLesson modifiedLesson :
+                mModifiedLessons) {
+            //if (!modifiedLesson.isAReplacer()) {
+            for (int i = modifiedLesson.getBeginHour(); i <= modifiedLesson.getEndHour(); i++) {
                 if (getHourByNum(i) == null) {
                     RawPeriod RawPeriod = new RawPeriod();
                     RawPeriod.setHour(i);
@@ -101,18 +101,18 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Get a {@link DatedLesson} replacement for the lesson, if it exists.
+     * Get a {@link ModifiedLesson} replacement for the lesson, if it exists.
      *
      * @param toReplace a {@link RawLesson} to replace.
-     * @return replaced {@link DatedLesson}.
+     * @return replaced {@link ModifiedLesson}.
      * {@code null} if none exist.
      */
     public @Nullable
-    DatedLesson getLessonReplacement(int hour, RawLesson toReplace) {
-        for (DatedLesson datedLesson :
-                mDatedLessons) {
-            if (datedLesson.isEqualToHour(hour) && datedLesson.canReplaceLesson(toReplace)) {
-                return datedLesson;
+    ModifiedLesson getLessonReplacement(int hour, RawLesson toReplace) {
+        for (ModifiedLesson modifiedLesson :
+                mModifiedLessons) {
+            if (modifiedLesson.isEqualToHour(hour) && modifiedLesson.canReplaceLesson(toReplace)) {
+                return modifiedLesson;
             }
         }
 
@@ -120,31 +120,31 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Get all the {@link DatedLesson}s in the specified RawPeriod.
+     * Get all the {@link ModifiedLesson}s in the specified RawPeriod.
      *
-     * @return a list of {@link DatedLesson}s.
+     * @return a list of {@link ModifiedLesson}s.
      */
-    public List<DatedLesson> getDatedLessons(RawPeriod RawPeriod) {
-        List<DatedLesson> lessons = new ArrayList<>();
-        for (DatedLesson datedLesson :
-                mDatedLessons) {
-            if (datedLesson.isEqualToHour(RawPeriod.getHour())) {
-                lessons.add(datedLesson);
+    public List<ModifiedLesson> getDatedLessons(RawPeriod RawPeriod) {
+        List<ModifiedLesson> lessons = new ArrayList<>();
+        for (ModifiedLesson modifiedLesson :
+                mModifiedLessons) {
+            if (modifiedLesson.isEqualToHour(RawPeriod.getHour())) {
+                lessons.add(modifiedLesson);
             }
         }
         return lessons;
     }
 
     /**
-     * Get a single replacing {@link DatedLesson} in the specified RawPeriod.
+     * Get a single replacing {@link ModifiedLesson} in the specified RawPeriod.
      *
-     * @return non replacing {@link DatedLesson}.
+     * @return non replacing {@link ModifiedLesson}.
      * {@code null} if none exist.
      */
     public @Nullable
-    DatedLesson getNonReplacingLesson(RawPeriod RawPeriod) {
-        for (DatedLesson lesson :
-                mDatedLessons) {
+    ModifiedLesson getNonReplacingLesson(RawPeriod RawPeriod) {
+        for (ModifiedLesson lesson :
+                mModifiedLessons) {
             if (lesson.isEqualToHour(RawPeriod.getHour()) && !lesson.isAReplacer() && lesson instanceof Event) {
                 return lesson;
             }
@@ -154,20 +154,20 @@ public class RealmScheduleHelper {
 
     /**
      * Get all the non replacing lessons, and lessons that come in addition to
-     * (see {@link #canReplaceInList(DatedLesson, List)}) the specified RawPeriod.
+     * (see {@link #canReplaceInList(ModifiedLesson, List)}) the specified RawPeriod.
      *
-     * @return a list of {@link DatedLesson}s.
+     * @return a list of {@link ModifiedLesson}s.
      */
-    public List<DatedLesson> getAdditionalLessons(RawPeriod RawPeriod) {
+    public List<ModifiedLesson> getAdditionalLessons(RawPeriod RawPeriod) {
         List<RawLesson> rawLessons = RawPeriod.getRawLessons();
         if (rawLessons == null)
             return getDatedLessons(RawPeriod);
 
-        List<DatedLesson> nonReplacingLessons = new ArrayList<>();
-        for (DatedLesson datedLesson :
+        List<ModifiedLesson> nonReplacingLessons = new ArrayList<>();
+        for (ModifiedLesson modifiedLesson :
                 getDatedLessons(RawPeriod)) {
-            if (!datedLesson.isAReplacer() || !canReplaceInList(datedLesson, rawLessons)) {
-                nonReplacingLessons.add(datedLesson);
+            if (!modifiedLesson.isAReplacer() || !canReplaceInList(modifiedLesson, rawLessons)) {
+                nonReplacingLessons.add(modifiedLesson);
             }
         }
         return nonReplacingLessons;
@@ -184,17 +184,17 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Check if the given {@link DatedLesson} can replace any {@link RawLesson} in the
+     * Check if the given {@link ModifiedLesson} can replace any {@link RawLesson} in the
      * given list.
      *
-     * @param datedLesson a {@link DatedLesson}.
+     * @param modifiedLesson a {@link ModifiedLesson}.
      * @param rawLessons     a list of {@link RawLesson}s.
-     * @return {@code true} the {@code datedLesson} can replace.
+     * @return {@code true} the {@code modifiedLesson} can replace.
      */
-    private boolean canReplaceInList(DatedLesson datedLesson, List<RawLesson> rawLessons) {
+    private boolean canReplaceInList(ModifiedLesson modifiedLesson, List<RawLesson> rawLessons) {
         for (RawLesson rawLesson :
                 rawLessons) {
-            if (datedLesson.canReplaceLesson(rawLesson)) return true;
+            if (modifiedLesson.canReplaceLesson(rawLesson)) return true;
         }
         return false;
     }

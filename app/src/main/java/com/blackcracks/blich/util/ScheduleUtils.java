@@ -19,7 +19,7 @@ import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.schedule.ModifiedLesson;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.raw.Exam;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
@@ -149,20 +149,20 @@ public class ScheduleUtils {
             exams = realm.copyFromRealm(exams);
         }
 
-        List<DatedLesson> datedLessons = new ArrayList<DatedLesson>(changes);
-        datedLessons.addAll(events);
-        datedLessons.addAll(exams);
+        List<ModifiedLesson> modifiedLessons = new ArrayList<ModifiedLesson>(changes);
+        modifiedLessons.addAll(events);
+        modifiedLessons.addAll(exams);
 
-        return new ScheduleResult(RawPeriods, datedLessons);
+        return new ScheduleResult(RawPeriods, modifiedLessons);
     }
 
-    public static void removeDuplicateDaterLessons(List<DatedLesson> list) {
+    public static void removeDuplicateDaterLessons(List<ModifiedLesson> list) {
         if (list.size() != 0 || list.size() != 1) {
             //Get all the changes, and remove all duplicate types
             //Build the comparator
-            Comparator<DatedLesson> typeComparator = new Comparator<DatedLesson>() {
+            Comparator<ModifiedLesson> typeComparator = new Comparator<ModifiedLesson>() {
                 @Override
-                public int compare(DatedLesson o1, DatedLesson o2) {
+                public int compare(ModifiedLesson o1, ModifiedLesson o2) {
                     return o1.getType().compareTo(o2.getType());
                 }
             };
@@ -172,8 +172,8 @@ public class ScheduleUtils {
 
             //Delete
             for (int i = 1; i < list.size(); i++) {
-                DatedLesson lesson = list.get(i);
-                DatedLesson prevLesson = list.get(i - 1);
+                ModifiedLesson lesson = list.get(i);
+                ModifiedLesson prevLesson = list.get(i - 1);
                 if (lesson.getType().equals(prevLesson.getType())) {
                     list.remove(lesson);
                     i--;
@@ -183,7 +183,7 @@ public class ScheduleUtils {
     }
 
     public static void notifyUser(Context context) {
-        List<DatedLesson> notificationList = fetchNotificationList();
+        List<ModifiedLesson> notificationList = fetchNotificationList();
         if (!notificationList.isEmpty()) {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -219,9 +219,9 @@ public class ScheduleUtils {
     /**
      * Fetch all the changes in the schedule.
      *
-     * @return a list of {@link DatedLesson}s.
+     * @return a list of {@link ModifiedLesson}s.
      */
-    private static List<DatedLesson> fetchNotificationList() {
+    private static List<ModifiedLesson> fetchNotificationList() {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -276,7 +276,7 @@ public class ScheduleUtils {
                     Event.class);
         }
 
-        List<DatedLesson> results = new ArrayList<>();
+        List<ModifiedLesson> results = new ArrayList<>();
         results.addAll(changesQuery.findAll());
         results.addAll(examsQuery.findAll());
         results.addAll(eventsQuery.findAll());
@@ -287,10 +287,10 @@ public class ScheduleUtils {
     /**
      * Load the notification body with the changes.
      *
-     * @param notificationList {@link DatedLesson}s to build content from.
+     * @param notificationList {@link ModifiedLesson}s to build content from.
      * @return notification body.
      */
-    private static NotificationCompat.InboxStyle buildNotificationContent(List<DatedLesson> notificationList,
+    private static NotificationCompat.InboxStyle buildNotificationContent(List<ModifiedLesson> notificationList,
                                                                    NotificationCompat.Builder builder) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
@@ -298,9 +298,9 @@ public class ScheduleUtils {
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
 
-        List<DatedLesson> todayNotificationChanges = new ArrayList<>();
-        List<DatedLesson> tomorrowNotificationChanges = new ArrayList<>();
-        for (DatedLesson lesson :
+        List<ModifiedLesson> todayNotificationChanges = new ArrayList<>();
+        List<ModifiedLesson> tomorrowNotificationChanges = new ArrayList<>();
+        for (ModifiedLesson lesson :
                 notificationList) {
             Calendar date = Calendar.getInstance();
             date.setTime(lesson.getDate());
@@ -311,7 +311,7 @@ public class ScheduleUtils {
 
         if (todayNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("היום:"));
-            for (DatedLesson lesson :
+            for (ModifiedLesson lesson :
                     todayNotificationChanges) {
                 inboxStyle.addLine(lesson.buildName());
             }
@@ -320,7 +320,7 @@ public class ScheduleUtils {
 
         if (tomorrowNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("מחר:"));
-            for (DatedLesson lesson :
+            for (ModifiedLesson lesson :
                     tomorrowNotificationChanges) {
                 inboxStyle.addLine(lesson.buildName());
             }

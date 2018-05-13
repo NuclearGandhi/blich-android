@@ -6,7 +6,7 @@
 package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.schedule.ModifiedLesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
 
@@ -17,7 +17,7 @@ import io.realm.RealmObject;
 /**
  * A data class holding information about a change in schedule.
  */
-public class Change extends RealmObject implements DatedLesson, Cloneable {
+public class Change extends RealmObject implements ModifiedLesson, Cloneable {
 
     private String changeType;
     private Date date;

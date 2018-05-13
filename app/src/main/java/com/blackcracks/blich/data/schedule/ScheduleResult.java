@@ -16,19 +16,19 @@ import java.util.List;
 public class ScheduleResult {
 
     private List<RawPeriod> mRawPeriods;
-    private List<DatedLesson> mDatedLessons;
+    private List<ModifiedLesson> mModifiedLessons;
 
-    public ScheduleResult(List<RawPeriod> RawPeriods, List<DatedLesson> datedLessons) {
+    public ScheduleResult(List<RawPeriod> RawPeriods, List<ModifiedLesson> modifiedLessons) {
         mRawPeriods = RawPeriods;
-        mDatedLessons = datedLessons;
+        mModifiedLessons = modifiedLessons;
     }
 
     public List<RawPeriod> getRawPeriods() {
         return mRawPeriods;
     }
 
-    public List<DatedLesson> getDatedLessons() {
-        return mDatedLessons;
+    public List<ModifiedLesson> getModifiedLessons() {
+        return mModifiedLessons;
     }
 
     /**
@@ -38,8 +38,8 @@ public class ScheduleResult {
      */
     @SuppressWarnings("RedundantIfStatement")
     public boolean isDataValid() {
-        if (mRawPeriods == null || mDatedLessons == null) return false;
-        if (mRawPeriods.size() == 0 && mDatedLessons.size() == 0) return false;
+        if (mRawPeriods == null || mModifiedLessons == null) return false;
+        if (mRawPeriods.size() == 0 && mModifiedLessons.size() == 0) return false;
 
         for (RawPeriod RawPeriod : mRawPeriods) {
             for (RawLesson rawLesson : RawPeriod.getRawLessons()) {
@@ -47,8 +47,8 @@ public class ScheduleResult {
             }
         }
 
-        for(DatedLesson datedLesson : mDatedLessons) {
-            if (!datedLesson.isValid()) return false;
+        for(ModifiedLesson modifiedLesson : mModifiedLessons) {
+            if (!modifiedLesson.isValid()) return false;
         }
         return true;
     }

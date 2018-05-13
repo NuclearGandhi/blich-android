@@ -25,7 +25,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.DatedLesson;
+import com.blackcracks.blich.data.schedule.ModifiedLesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
@@ -88,8 +88,8 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         final List<RawLesson> rawLessons = RawPeriod.getRawLessons();
 
         RawLesson firstRawLesson = null;
-        DatedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(RawPeriod);
-        DatedLesson replacement = null;
+        ModifiedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(RawPeriod);
+        ModifiedLesson replacement = null;
 
         //The main data
         String subject;
@@ -142,10 +142,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         //Add dots to signify that there are changes
         if (specialEvent == null) {
-            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(RawPeriod); //Get all the dated rawLessons
-            ScheduleUtils.removeDuplicateDaterLessons(datedLessons); //Remove duplicates
-            datedLessons.remove(replacement); //Remove the displayed dated lesson
-            makeEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
+            List<ModifiedLesson> modifiedLessons = mRealmScheduleHelper.getDatedLessons(RawPeriod); //Get all the dated rawLessons
+            ScheduleUtils.removeDuplicateDaterLessons(modifiedLessons); //Remove duplicates
+            modifiedLessons.remove(replacement); //Remove the displayed dated lesson
+            makeEventDots(holder.eventsView, modifiedLessons); //Load the data into the event dots
         }
 
 
@@ -203,16 +203,16 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         holder.reset();
 
         RawLesson rawLesson = (RawLesson) getChild(groupPosition, childPosition);
-        DatedLesson datedLesson;
+        ModifiedLesson modifiedLesson;
 
         RawPeriod RawPeriod = (RawPeriod) getGroup(groupPosition);
-        if (rawLesson == null) {//This is not a replacer DatedLesson, therefore get the non replacing rawLesson
-            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(RawPeriod);
+        if (rawLesson == null) {//This is not a replacer ModifiedLesson, therefore get the non replacing rawLesson
+            List<ModifiedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(RawPeriod);
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
             int index = childPosition - lastLessonPos;
-            datedLesson = nonReplacingLessons.get(index);
+            modifiedLesson = nonReplacingLessons.get(index);
         } else {
-            datedLesson = mRealmScheduleHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
+            modifiedLesson = mRealmScheduleHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
         }
         String subject;
         final String teacher;
@@ -221,11 +221,11 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         boolean isModified = false;
 
-        if (datedLesson != null) {//Apply DatedLesson
-            subject = datedLesson.buildName();
+        if (modifiedLesson != null) {//Apply ModifiedLesson
+            subject = modifiedLesson.buildName();
             teacher = "";
             room = "";
-            color = datedLesson.getColor();
+            color = modifiedLesson.getColor();
 
             isModified = true;
         } else {//Normal rawLesson
@@ -274,10 +274,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
      * Add event dots to the parent view.
      *
      * @param parent the view to put the dots in.
-     * @param list   list of {@link DatedLesson}s to make event dots from.
+     * @param list   list of {@link ModifiedLesson}s to make event dots from.
      */
-    private void makeEventDots(ViewGroup parent, List<DatedLesson> list) {
-        for (DatedLesson lesson :
+    private void makeEventDots(ViewGroup parent, List<ModifiedLesson> list) {
+        for (ModifiedLesson lesson :
                 list) {
             makeEventDot(parent, lesson.getColor());
         }

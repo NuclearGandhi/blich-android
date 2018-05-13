@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * An interface for all changes in the schedule and their common behavior.
  */
-public interface DatedLesson {
+public interface ModifiedLesson {
 
     /**
      * Build a label to show to the user.
