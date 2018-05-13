@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,115 +29,46 @@ import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
+import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
+import com.thoughtbot.expandablerecyclerview.listeners.OnGroupClickListener;
+import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import java.util.List;
 
-public class ScheduleAdapter extends BaseExpandableListAdapter {
+public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapter.GroupViewHolder, ScheduleAdapter.ChildViewHolder> {
 
     private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private String mAteKey;
 
-    private ExpandableListView mExpandableListView;
-    private TextView mStatusTextView;
-
     private SparseBooleanArray mExpandedArray;
 
-    /**
-     * @param expandableListView the corresponding view for the adapter.
-     * @param statusTextView     {@link TextView} for when the data is invalid.
-     */
-    public ScheduleAdapter(ExpandableListView expandableListView,
-                           Context context,
-                           TextView statusTextView) {
+    public ScheduleAdapter(List<? extends ExpandableGroup> groups,
+                           Context context) {
+        super(groups);
+
         mRealmScheduleHelper = new RealmScheduleHelper(null);
         mContext = context;
 
         mAteKey = ((MainActivity) mContext).getATEKey();
 
-        mExpandableListView = expandableListView;
-        mStatusTextView = statusTextView;
-
         mExpandedArray = new SparseBooleanArray();
     }
 
     @Override
-    public int getGroupCount() {
-        int count = mRealmScheduleHelper.getHourCount();
-        //Set the status TextView according to the validity of the data.
-        if (count == 0) mStatusTextView.setVisibility(View.VISIBLE);
-        else mStatusTextView.setVisibility(View.GONE);
-
-        return count;
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        int count = mRealmScheduleHelper.getChildCount(groupPosition);
-        /*The number of group children is smaller by one than the number of lessons. This is because
-        one lesson is already displayed in the group view.
-         */
-        if (count != 0) count--;
-        return count;
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-        return mRealmScheduleHelper.getHour(groupPosition);
-    }
-
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
-        return mRealmScheduleHelper.getLesson(groupPosition, childPosition + 1);
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return true;
-    }
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+    public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
         if (!mRealmScheduleHelper.isDataValid()) return null;
 
-        View view;
-        if (convertView == null) {
-            view = newGroupView(parent);
-        } else {
-            view = convertView;
-            GroupViewHolder holder = new GroupViewHolder(view);
-            view.setTag(holder);
-        }
-        bindGroupView(groupPosition, view);
-        return view;
-    }
-
-    private View newGroupView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_schedule_group, parent, false);
         GroupViewHolder holder = new GroupViewHolder(view);
-        view.setTag(holder);
-        return view;
+        return holder;
     }
 
-    private void bindGroupView(int groupPosition, View view) {
-
-        final GroupViewHolder holder = (GroupViewHolder) view.getTag();
+    @Override
+    public void onBindGroupViewHolder(final GroupViewHolder holder,
+                                      final int groupPosition,
+                                      ExpandableGroup group) {
         //Set initial values
         holder.reset();
 
@@ -208,6 +138,7 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
+        holder.setData(teacher, room);
 
         //Add dots to signify that there are changes
         if (specialEvent == null) {
@@ -225,11 +156,10 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
 
         //Display the correct state of the group
         if (mExpandedArray.get(groupPosition) || isSingleLesson) {
-            showExpandedGroup(holder, teacher, room);
+            holder.expand();
         } else {
-            showCollapsed(holder);
+            holder.collapse();
         }
-
         /*
         If there are no children, show a simple item.
         Else, show the indicator view and add a click listener
@@ -239,80 +169,37 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
             holder.classroomView.setText(room);
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
-            final int finalGroupPos = groupPosition;
-            view.setOnClickListener(new View.OnClickListener() {
-
+            holder.setOnGroupClickListener(new OnGroupClickListener() {
                 @Override
-                public void onClick(View v) {
-
-                    boolean isExpanded = mExpandedArray.get(finalGroupPos, false);
+                public boolean onGroupClick(int flatPos) {
+                    boolean isExpanded = mExpandedArray.get(flatPos, false);
                     if (!isExpanded) {
                         //Expand
-                        mExpandableListView.expandGroup(finalGroupPos, true);
-                        mExpandedArray.put(finalGroupPos, true);
-                        showExpandedGroup(holder, teacher, room);
+                        mExpandedArray.put(flatPos, true);
+                        return true;
                     } else {
                         //Collapse
-                        mExpandableListView.collapseGroup(finalGroupPos);
-                        mExpandedArray.put(finalGroupPos, false);
-                        showCollapsed(holder);
+                        mExpandedArray.put(flatPos, false);
+                        return false;
                     }
                 }
             });
         }
     }
 
-    private void showExpandedGroup(
-            final GroupViewHolder holder,
-            final String teacher,
-            final String room) {
-        holder.indicatorView.animate().rotation(180);
-
-        //Run on a different thread due to a bug where the view won't update itself if modified from this thread
-        holder.teacherView.post(new Runnable() {
-            @Override
-            public void run() {
-                holder.subjectView.setMaxLines(Integer.MAX_VALUE);
-                holder.teacherView.setText(teacher);
-                holder.classroomView.setText(room);
-                holder.eventsView.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    private void showCollapsed(GroupViewHolder holder) {
-        holder.subjectView.setMaxLines(1);
-        holder.indicatorView.animate().rotation(0);
-        holder.teacherView.setText("...");
-        holder.classroomView.setText("");
-
-        holder.eventsView.setVisibility(View.VISIBLE);
-    }
-
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        if (!mRealmScheduleHelper.isDataValid()) return null;
-
-        View view;
-        if (convertView == null) {
-            view = newChildView(parent);
-        } else {
-            view = convertView;
-        }
-        bindChildView(groupPosition, childPosition, view);
-        return view;
-    }
-
-    private View newChildView(ViewGroup parent) {
+    public ChildViewHolder onCreateChildViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_schedule_child, parent, false);
         ChildViewHolder holder = new ChildViewHolder(view);
-        view.setTag(holder);
-        return view;
+        return holder;
     }
 
-    private void bindChildView(int groupPosition, int childPosition, View view) {
-        ChildViewHolder holder = (ChildViewHolder) view.getTag();
+    @Override
+    public void onBindChildViewHolder(ChildViewHolder holder,
+                                      int groupPosition,
+                                      ExpandableGroup group,
+                                      int childPosition) {
         holder.reset();
 
         Lesson lesson = (Lesson) getChild(groupPosition, childPosition);
@@ -359,12 +246,28 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
         holder.classroomView.setText(room);
 
         //Set a bottom divider if this is the last child
-        View divider = view.findViewById(R.id.divider);
         if (getChildrenCount(groupPosition) - 1 == childPosition) {
-            divider.setVisibility(View.VISIBLE);
+            holder.divider.setVisibility(View.VISIBLE);
         } else {
-            divider.setVisibility(View.GONE);
+            holder.divider.setVisibility(View.GONE);
         }
+    }
+
+    public int getChildrenCount(int groupPosition) {
+        int count = mRealmScheduleHelper.getChildCount(groupPosition);
+        /*The number of group children is smaller by one than the number of lessons. This is because
+        one lesson is already displayed in the group view.
+         */
+        if (count != 0) count--;
+        return count;
+    }
+
+    public Object getGroup(int groupPosition) {
+        return mRealmScheduleHelper.getHour(groupPosition);
+    }
+
+    public Object getChild(int groupPosition, int childPosition) {
+        return mRealmScheduleHelper.getLesson(groupPosition, childPosition + 1);
     }
 
     /**
@@ -410,22 +313,60 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     /**
      * A class to hold all references to each group's child views.
      */
-    private static class GroupViewHolder {
+    static class GroupViewHolder extends com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder {
 
-        final LinearLayout eventsView;
-        final TextView hourView;
-        final TextView subjectView;
-        final TextView teacherView;
-        final TextView classroomView;
-        final ImageView indicatorView;
+        private final LinearLayout eventsView;
+        private final TextView hourView;
+        private final TextView subjectView;
+        private final TextView teacherView;
+        private final TextView classroomView;
+        private final ImageView indicatorView;
+
+        private String teacher;
+        private String room;
 
         GroupViewHolder(View view) {
+            super(view);
             eventsView = view.findViewById(R.id.item_event_dots);
             hourView = view.findViewById(R.id.item_hour_num);
             subjectView = view.findViewById(R.id.item_subject);
             teacherView = view.findViewById(R.id.item_teacher);
             classroomView = view.findViewById(R.id.item_classroom);
             indicatorView = view.findViewById(R.id.item_expand_indicator);
+        }
+
+        public void setData(String teacher, String room) {
+            this.teacher = teacher;
+            this.room = room;
+        }
+
+        @Override
+        public void expand() {
+            super.expand();
+            indicatorView.animate().rotation(180);
+
+            //Run on a different thread due to a bug where the view won't update itself if modified from this thread
+            teacherView.post(new Runnable() {
+                @Override
+                public void run() {
+                    subjectView.setMaxLines(Integer.MAX_VALUE);
+                    teacherView.setText(teacher);
+                    classroomView.setText(room);
+                    eventsView.setVisibility(View.GONE);
+                }
+            });
+        }
+
+        @Override
+        public void collapse() {
+            super.collapse();
+
+            subjectView.setMaxLines(1);
+            indicatorView.animate().rotation(0);
+            teacherView.setText("...");
+            classroomView.setText("");
+
+            eventsView.setVisibility(View.VISIBLE);
         }
 
         void reset() {
@@ -448,15 +389,18 @@ public class ScheduleAdapter extends BaseExpandableListAdapter {
     /**
      * A class to hold all references to each child's child views.
      */
-    private static class ChildViewHolder {
-        private final TextView subjectView;
-        private final TextView classroomView;
-        private final TextView teacherView;
+    static class ChildViewHolder extends com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder {
+        final TextView subjectView;
+        final TextView classroomView;
+        final TextView teacherView;
+        final View divider;
 
-        private ChildViewHolder(View view) {
+        ChildViewHolder(View view) {
+            super(view);
             subjectView = view.findViewById(R.id.item_subject);
             classroomView = view.findViewById(R.id.item_classroom);
             teacherView = view.findViewById(R.id.item_teacher);
+            divider = view.findViewById(R.id.divider);
         }
 
         void reset() {
