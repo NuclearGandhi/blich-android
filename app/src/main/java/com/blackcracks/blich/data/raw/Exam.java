@@ -66,7 +66,7 @@ public class Exam extends RealmObject implements DatedLesson {
     }
 
     @Override
-    public boolean canReplaceLesson(Lesson toReplace) {
+    public boolean canReplaceLesson(RawLesson toReplace) {
         return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 

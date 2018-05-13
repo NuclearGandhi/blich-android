@@ -13,9 +13,9 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 import com.blackcracks.blich.data.schedule.DatedLesson;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
@@ -89,7 +89,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public RemoteViews getViewAt(int position) {
-        Hour hour = mRealmHelper.getHour(position);
+        RawPeriod RawPeriod = mRealmHelper.getHour(position);
         int hourNum = mRealmHelper.getHour(position).getHour();
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_appwidget_schedule);
@@ -105,16 +105,16 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         views.removeAllViews(R.id.widget_schedule_group);
 
         for (int i = 0; i < mRealmHelper.getChildCount(position); i++) {
-            Lesson lesson = mRealmHelper.getLesson(position, i);
+            RawLesson rawLesson = mRealmHelper.getLesson(position, i);
             DatedLesson datedLesson;
 
-            if (lesson == null) {//This is not a replacer DatedLesson
-                List<DatedLesson> nonReplacingLessons = mRealmHelper.getAdditionalLessons(hour);
+            if (rawLesson == null) {//This is not a replacer DatedLesson
+                List<DatedLesson> nonReplacingLessons = mRealmHelper.getAdditionalLessons(RawPeriod);
                 int lastLessonPos = mRealmHelper.getLessonCount(position);
                 int index = i - lastLessonPos;
                 datedLesson = nonReplacingLessons.get(index);
             } else {
-                datedLesson = mRealmHelper.getLessonReplacement(hour.getHour(), lesson);
+                datedLesson = mRealmHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
             }
 
             //Data holders
@@ -126,8 +126,8 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
                 subject = datedLesson.buildName();
                 color = datedLesson.getColor();
             } else {
-                subject = lesson.getSubject();
-                teacher = lesson.getTeacher();
+                subject = rawLesson.getSubject();
+                teacher = rawLesson.getTeacher();
                 color = mPrimaryTextColor;
             }
 

@@ -15,16 +15,16 @@ import io.realm.annotations.Required;
 /**
  * A data class holding information about a single lesson in an hour.
  */
-public class Lesson extends RealmObject {
+public class RawLesson extends RealmObject {
 
     @Required private String subject;
     private String room;
     private String teacher;
-    @LinkingObjects("lessons") private final RealmResults<Hour> owners  = null;
+    @LinkingObjects("lessons") private final RealmResults<RawPeriod> owners  = null;
 
-    public Lesson() {}
+    public RawLesson() {}
 
-    public Lesson(String subject, String room, String teacher) {
+    public RawLesson(String subject, String room, String teacher) {
         this.subject = subject;
         this.room = room;
         this.teacher = teacher;
@@ -63,7 +63,7 @@ public class Lesson extends RealmObject {
         return new TeacherSubject(teacher, subject);
     }
 
-    public RealmResults<Hour> getOwners() {
+    public RealmResults<RawPeriod> getOwners() {
         return owners;
     }
 }

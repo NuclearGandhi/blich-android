@@ -15,20 +15,20 @@ import io.realm.RealmObject;
 /**
  * A data class holding information about a single hour in the schedule.
  */
-public class Hour extends RealmObject implements Comparable<Hour> {
+public class RawPeriod extends RealmObject implements Comparable<RawPeriod> {
 
     private int day;
     private int hour;
-    private RealmList<Lesson> lessons;
+    private RealmList<RawLesson> mRawLessons;
 
-    public Hour() {
+    public RawPeriod() {
 
     }
 
-    public Hour(int day, int hour, RealmList<Lesson> lessons) {
+    public RawPeriod(int day, int hour, RealmList<RawLesson> rawLessons) {
         this.day = day;
         this.hour = hour;
-        this.lessons = lessons;
+        this.mRawLessons = rawLessons;
     }
 
     public int getHour() {
@@ -39,12 +39,12 @@ public class Hour extends RealmObject implements Comparable<Hour> {
         this.hour = hour;
     }
 
-    public List<Lesson> getLessons() {
-        return lessons;
+    public List<RawLesson> getRawLessons() {
+        return mRawLessons;
     }
 
-    public void setLessons(RealmList<Lesson> lessons) {
-        this.lessons = lessons;
+    public void setRawLessons(RealmList<RawLesson> rawLessons) {
+        this.mRawLessons = rawLessons;
     }
 
     public int getDay() {
@@ -56,7 +56,7 @@ public class Hour extends RealmObject implements Comparable<Hour> {
     }
 
     @Override
-    public int compareTo(@NonNull Hour o) {
+    public int compareTo(@NonNull RawPeriod o) {
         if (getHour() > o.getHour()) return 1;
         else if (getHour() == o.getHour()) return 0;
         else return -1;

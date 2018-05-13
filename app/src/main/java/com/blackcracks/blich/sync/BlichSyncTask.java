@@ -13,8 +13,8 @@ import com.blackcracks.blich.data.BlichData;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.raw.Exam;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ShahafUtils;
@@ -140,34 +140,34 @@ public class BlichSyncTask {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonHours = raw.getJSONArray(Database.JSON_ARRAY_HOURS);
-        RealmList<Hour> hours = new RealmList<>();
+        RealmList<RawPeriod> RawPeriods = new RealmList<>();
         for (int i = 0; i < jsonHours.length(); i++) {
-            Hour hour = new Hour();
+            RawPeriod RawPeriod = new RawPeriod();
             JSONObject jsonHour = jsonHours.getJSONObject(i);
 
-            RealmList<Lesson> lessons = new RealmList<>();
+            RealmList<RawLesson> rawLessons = new RealmList<>();
             JSONArray jsonLessons = jsonHour.getJSONArray(Database.JSON_ARRAY_LESSONS);
             for (int j = 0; j < jsonLessons.length(); j++) {
-                Lesson lesson = new Lesson();
+                RawLesson rawLesson = new RawLesson();
                 JSONObject jsonLesson = jsonLessons.getJSONObject(j);
 
-                lesson.setSubject(jsonLesson.getString(Database.JSON_STRING_SUBJECT));
-                lesson.setTeacher(jsonLesson.getString(Database.JSON_STRING_TEACHER));
-                lesson.setRoom(jsonLesson.getString(Database.JSON_STRING_ROOM));
+                rawLesson.setSubject(jsonLesson.getString(Database.JSON_STRING_SUBJECT));
+                rawLesson.setTeacher(jsonLesson.getString(Database.JSON_STRING_TEACHER));
+                rawLesson.setRoom(jsonLesson.getString(Database.JSON_STRING_ROOM));
 
-                lessons.add(lesson);
+                rawLessons.add(rawLesson);
             }
 
             int day = (jsonHour.getInt(Database.JSON_INT_DAY) + 1) % 7;
 
-            hour.setLessons(lessons);
-            hour.setHour(jsonHour.getInt(Database.JSON_INT_HOUR));
-            hour.setDay(day);
+            RawPeriod.setRawLessons(rawLessons);
+            RawPeriod.setHour(jsonHour.getInt(Database.JSON_INT_HOUR));
+            RawPeriod.setDay(day);
 
-            hours.add(hour);
+            RawPeriods.add(RawPeriod);
         }
 
-        blichData.setHours(hours);
+        blichData.setRawPeriods(RawPeriods);
         blichData.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
     }
 
@@ -285,9 +285,9 @@ public class BlichSyncTask {
         realm.beginTransaction();
 
         //Delete old data
-        RealmResults<Hour> hours = realm.where(Hour.class)
+        RealmResults<RawPeriod> RawPeriods = realm.where(RawPeriod.class)
                 .findAll();
-        hours.deleteAllFromRealm();
+        RawPeriods.deleteAllFromRealm();
 
         RealmResults<Change> changes = realm.where(Change.class)
                 .findAll();

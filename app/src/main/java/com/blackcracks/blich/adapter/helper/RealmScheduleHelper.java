@@ -7,10 +7,10 @@ package com.blackcracks.blich.adapter.helper;
 
 import android.support.annotation.Nullable;
 
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 import com.blackcracks.blich.data.schedule.DatedLesson;
 import com.blackcracks.blich.data.raw.Event;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import timber.log.Timber;
  * A helper class to easily extract information from given data.
  */
 public class RealmScheduleHelper {
-    private List<Hour> mHours;
+    private List<RawPeriod> mRawPeriods;
     private List<DatedLesson> mDatedLessons;
 
     private boolean mIsDataValid;
@@ -48,7 +48,7 @@ public class RealmScheduleHelper {
         }
 
         if (mIsDataValid) {
-            mHours = data.getHours();
+            mRawPeriods = data.getRawPeriods();
             mDatedLessons = data.getDatedLessons();
             buildEmptyHours();
         }
@@ -64,21 +64,21 @@ public class RealmScheduleHelper {
             //if (!datedLesson.isAReplacer()) {
             for (int i = datedLesson.getBeginHour(); i <= datedLesson.getEndHour(); i++) {
                 if (getHourByNum(i) == null) {
-                    Hour hour = new Hour();
-                    hour.setHour(i);
-                    mHours.add(hour);
+                    RawPeriod RawPeriod = new RawPeriod();
+                    RawPeriod.setHour(i);
+                    mRawPeriods.add(RawPeriod);
                 }
                 //}
             }
         }
-        Collections.sort(mHours);
+        Collections.sort(mRawPeriods);
     }
 
     private @Nullable
-    Hour getHourByNum(int hourNum) {
-        for (Hour hour :
-                mHours) {
-            if (hour.getHour() == hourNum) return hour;
+    RawPeriod getHourByNum(int hourNum) {
+        for (RawPeriod RawPeriod :
+                mRawPeriods) {
+            if (RawPeriod.getHour() == hourNum) return RawPeriod;
         }
         return null;
     }
@@ -88,27 +88,27 @@ public class RealmScheduleHelper {
         return mIsDataValid;
     }
 
-    public Hour getHour(int position) {
-        return mHours.get(position);
+    public RawPeriod getHour(int position) {
+        return mRawPeriods.get(position);
     }
 
     public @Nullable
-    Lesson getLesson(int position, int childPos) {
+    RawLesson getLesson(int position, int childPos) {
         if (!mIsDataValid) return null;
-        List<Lesson> lessons = getHour(position).getLessons();
-        if (lessons != null && lessons.size() > childPos) return lessons.get(childPos);
+        List<RawLesson> rawLessons = getHour(position).getRawLessons();
+        if (rawLessons != null && rawLessons.size() > childPos) return rawLessons.get(childPos);
         return null;
     }
 
     /**
      * Get a {@link DatedLesson} replacement for the lesson, if it exists.
      *
-     * @param toReplace a {@link Lesson} to replace.
+     * @param toReplace a {@link RawLesson} to replace.
      * @return replaced {@link DatedLesson}.
      * {@code null} if none exist.
      */
     public @Nullable
-    DatedLesson getLessonReplacement(int hour, Lesson toReplace) {
+    DatedLesson getLessonReplacement(int hour, RawLesson toReplace) {
         for (DatedLesson datedLesson :
                 mDatedLessons) {
             if (datedLesson.isEqualToHour(hour) && datedLesson.canReplaceLesson(toReplace)) {
@@ -120,15 +120,15 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Get all the {@link DatedLesson}s in the specified hour.
+     * Get all the {@link DatedLesson}s in the specified RawPeriod.
      *
      * @return a list of {@link DatedLesson}s.
      */
-    public List<DatedLesson> getDatedLessons(Hour hour) {
+    public List<DatedLesson> getDatedLessons(RawPeriod RawPeriod) {
         List<DatedLesson> lessons = new ArrayList<>();
         for (DatedLesson datedLesson :
                 mDatedLessons) {
-            if (datedLesson.isEqualToHour(hour.getHour())) {
+            if (datedLesson.isEqualToHour(RawPeriod.getHour())) {
                 lessons.add(datedLesson);
             }
         }
@@ -136,16 +136,16 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Get a single replacing {@link DatedLesson} in the specified hour.
+     * Get a single replacing {@link DatedLesson} in the specified RawPeriod.
      *
      * @return non replacing {@link DatedLesson}.
      * {@code null} if none exist.
      */
     public @Nullable
-    DatedLesson getNonReplacingLesson(Hour hour) {
+    DatedLesson getNonReplacingLesson(RawPeriod RawPeriod) {
         for (DatedLesson lesson :
                 mDatedLessons) {
-            if (lesson.isEqualToHour(hour.getHour()) && !lesson.isAReplacer() && lesson instanceof Event) {
+            if (lesson.isEqualToHour(RawPeriod.getHour()) && !lesson.isAReplacer() && lesson instanceof Event) {
                 return lesson;
             }
         }
@@ -154,19 +154,19 @@ public class RealmScheduleHelper {
 
     /**
      * Get all the non replacing lessons, and lessons that come in addition to
-     * (see {@link #canReplaceInList(DatedLesson, List)}) the specified hour.
+     * (see {@link #canReplaceInList(DatedLesson, List)}) the specified RawPeriod.
      *
      * @return a list of {@link DatedLesson}s.
      */
-    public List<DatedLesson> getAdditionalLessons(Hour hour) {
-        List<Lesson> lessons = hour.getLessons();
-        if (lessons == null)
-            return getDatedLessons(hour);
+    public List<DatedLesson> getAdditionalLessons(RawPeriod RawPeriod) {
+        List<RawLesson> rawLessons = RawPeriod.getRawLessons();
+        if (rawLessons == null)
+            return getDatedLessons(RawPeriod);
 
         List<DatedLesson> nonReplacingLessons = new ArrayList<>();
         for (DatedLesson datedLesson :
-                getDatedLessons(hour)) {
-            if (!datedLesson.isAReplacer() || !canReplaceInList(datedLesson, lessons)) {
+                getDatedLessons(RawPeriod)) {
+            if (!datedLesson.isAReplacer() || !canReplaceInList(datedLesson, rawLessons)) {
                 nonReplacingLessons.add(datedLesson);
             }
         }
@@ -174,27 +174,27 @@ public class RealmScheduleHelper {
     }
 
     /**
-     * Get the count additional lessons in the specified hour.
+     * Get the count additional lessons in the specified RawPeriod.
      *
-     * @param hour a period.
+     * @param RawPeriod a period.
      * @return count of additional lessons.
      */
-    private int getAdditionalLessonsCount(Hour hour) {
-        return getAdditionalLessons(hour).size();
+    private int getAdditionalLessonsCount(RawPeriod RawPeriod) {
+        return getAdditionalLessons(RawPeriod).size();
     }
 
     /**
-     * Check if the given {@link DatedLesson} can replace any {@link Lesson} in the
+     * Check if the given {@link DatedLesson} can replace any {@link RawLesson} in the
      * given list.
      *
      * @param datedLesson a {@link DatedLesson}.
-     * @param lessons     a list of {@link Lesson}s.
+     * @param rawLessons     a list of {@link RawLesson}s.
      * @return {@code true} the {@code datedLesson} can replace.
      */
-    private boolean canReplaceInList(DatedLesson datedLesson, List<Lesson> lessons) {
-        for (Lesson lesson :
-                lessons) {
-            if (datedLesson.canReplaceLesson(lesson)) return true;
+    private boolean canReplaceInList(DatedLesson datedLesson, List<RawLesson> rawLessons) {
+        for (RawLesson rawLesson :
+                rawLessons) {
+            if (datedLesson.canReplaceLesson(rawLesson)) return true;
         }
         return false;
     }
@@ -206,7 +206,7 @@ public class RealmScheduleHelper {
      */
     public int getHourCount() {
         if (mIsDataValid) {
-            return mHours.size();
+            return mRawPeriods.size();
         } else {
             return 0;
         }
@@ -220,29 +220,29 @@ public class RealmScheduleHelper {
      */
     public int getChildCount(int position) {
         if (mIsDataValid) {
-            Hour hour = getHour(position);
-            if (getNonReplacingLesson(hour) != null) {
+            RawPeriod RawPeriod = getHour(position);
+            if (getNonReplacingLesson(RawPeriod) != null) {
                 return 0;
             }
-            return getLessonCount(hour) + getAdditionalLessonsCount(hour);
+            return getLessonCount(RawPeriod) + getAdditionalLessonsCount(RawPeriod);
         } else {
             return 0;
         }
     }
 
     /**
-     * Get the count of normal lessons in the given hour.
+     * Get the count of normal lessons in the given RawPeriod.
      *
-     * @param hour an {@link Hour}.
+     * @param RawPeriod an {@link RawPeriod}.
      * @return count of lessons.
      */
-    public int getLessonCount(Hour hour) {
+    public int getLessonCount(RawPeriod RawPeriod) {
         if (!mIsDataValid) return 0;
-        List<Lesson> lessons = hour.getLessons();
-        if (lessons == null) {
+        List<RawLesson> rawLessons = RawPeriod.getRawLessons();
+        if (rawLessons == null) {
             return 0;
         }
-        return lessons.size();
+        return rawLessons.size();
     }
 
     /**

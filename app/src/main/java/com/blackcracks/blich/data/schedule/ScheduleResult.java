@@ -5,8 +5,8 @@
 
 package com.blackcracks.blich.data.schedule;
 
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 
 import java.util.List;
 
@@ -15,16 +15,16 @@ import java.util.List;
  */
 public class ScheduleResult {
 
-    private List<Hour> mHours;
+    private List<RawPeriod> mRawPeriods;
     private List<DatedLesson> mDatedLessons;
 
-    public ScheduleResult(List<Hour> hours, List<DatedLesson> datedLessons) {
-        mHours = hours;
+    public ScheduleResult(List<RawPeriod> RawPeriods, List<DatedLesson> datedLessons) {
+        mRawPeriods = RawPeriods;
         mDatedLessons = datedLessons;
     }
 
-    public List<Hour> getHours() {
-        return mHours;
+    public List<RawPeriod> getRawPeriods() {
+        return mRawPeriods;
     }
 
     public List<DatedLesson> getDatedLessons() {
@@ -38,12 +38,12 @@ public class ScheduleResult {
      */
     @SuppressWarnings("RedundantIfStatement")
     public boolean isDataValid() {
-        if (mHours == null || mDatedLessons == null) return false;
-        if (mHours.size() == 0 && mDatedLessons.size() == 0) return false;
+        if (mRawPeriods == null || mDatedLessons == null) return false;
+        if (mRawPeriods.size() == 0 && mDatedLessons.size() == 0) return false;
 
-        for (Hour hour : mHours) {
-            for (Lesson lesson : hour.getLessons()) {
-                if (!lesson.isValid()) return false;
+        for (RawPeriod RawPeriod : mRawPeriods) {
+            for (RawLesson rawLesson : RawPeriod.getRawLessons()) {
+                if (!rawLesson.isValid()) return false;
             }
         }
 

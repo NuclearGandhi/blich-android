@@ -23,9 +23,9 @@ import android.widget.TextView;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 import com.blackcracks.blich.data.schedule.DatedLesson;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.ScheduleUtils;
@@ -73,10 +73,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         holder.reset();
 
         //Get the overall data object
-        Hour hour = (Hour) getGroup(groupPosition);
-        int hourNum = hour.getHour();
+        RawPeriod RawPeriod = (RawPeriod) getGroup(groupPosition);
+        int hourNum = RawPeriod.getHour();
 
-        //Set the hour indicator text
+        //Set the RawPeriod indicator text
         String hourText = hourNum + "";
         holder.hourView.setText(hourText);
         if (mAteKey.equals("dark_theme"))
@@ -84,11 +84,11 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         else
             holder.hourView.setTextColor(Config.textColorPrimaryInverse(mContext, mAteKey));
 
-        //Get all the lessons and events
-        final List<Lesson> lessons = hour.getLessons();
+        //Get all the rawLessons and events
+        final List<RawLesson> rawLessons = RawPeriod.getRawLessons();
 
-        Lesson firstLesson = null;
-        DatedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(hour);
+        RawLesson firstRawLesson = null;
+        DatedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(RawPeriod);
         DatedLesson replacement = null;
 
         //The main data
@@ -101,10 +101,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         /*
         There are 4 types of children:
-        -Lesson
-        -Change (replaces Lesson)
-        -Event (in addition to Lesson)
-        -Exam (in addition to Lesson)
+        -RawLesson
+        -Change (replaces RawLesson)
+        -Event (in addition to RawLesson)
+        -Exam (in addition to RawLesson)
          */
         if (specialEvent != null) { //Then display the single lesson
             subject = specialEvent.buildName();
@@ -114,17 +114,17 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
             isModified = true;
         } else {
-            if (lessons == null) {
-                replacement = mRealmScheduleHelper.getAdditionalLessons(hour).get(0);
+            if (rawLessons == null) {
+                replacement = mRealmScheduleHelper.getAdditionalLessons(RawPeriod).get(0);
             } else {
-                firstLesson = lessons.get(0); //We need to display the first lesson in the group collapsed mode
-                replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstLesson);
+                firstRawLesson = rawLessons.get(0); //We need to display the first lesson in the group collapsed mode
+                replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstRawLesson);
             }
 
             if (replacement == null) { //Then display a normal lesson
-                subject = firstLesson.getSubject();
-                teacher = firstLesson.getTeacher();
-                room = firstLesson.getRoom();
+                subject = firstRawLesson.getSubject();
+                teacher = firstRawLesson.getTeacher();
+                room = firstRawLesson.getRoom();
                 color = Config.textColorPrimary(mContext, null);
             } else { //Then display a modified lesson
                 subject = replacement.buildName();
@@ -142,7 +142,7 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         //Add dots to signify that there are changes
         if (specialEvent == null) {
-            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(hour); //Get all the dated lessons
+            List<DatedLesson> datedLessons = mRealmScheduleHelper.getDatedLessons(RawPeriod); //Get all the dated rawLessons
             ScheduleUtils.removeDuplicateDaterLessons(datedLessons); //Remove duplicates
             datedLessons.remove(replacement); //Remove the displayed dated lesson
             makeEventDots(holder.eventsView, datedLessons); //Load the data into the event dots
@@ -202,17 +202,17 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
                                       int childPosition) {
         holder.reset();
 
-        Lesson lesson = (Lesson) getChild(groupPosition, childPosition);
+        RawLesson rawLesson = (RawLesson) getChild(groupPosition, childPosition);
         DatedLesson datedLesson;
 
-        Hour hour = (Hour) getGroup(groupPosition);
-        if (lesson == null) {//This is not a replacer DatedLesson, therefore get the non replacing lesson
-            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(hour);
+        RawPeriod RawPeriod = (RawPeriod) getGroup(groupPosition);
+        if (rawLesson == null) {//This is not a replacer DatedLesson, therefore get the non replacing rawLesson
+            List<DatedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(RawPeriod);
             int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
             int index = childPosition - lastLessonPos;
             datedLesson = nonReplacingLessons.get(index);
         } else {
-            datedLesson = mRealmScheduleHelper.getLessonReplacement(hour.getHour(), lesson);
+            datedLesson = mRealmScheduleHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
         }
         String subject;
         final String teacher;
@@ -228,11 +228,11 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             color = datedLesson.getColor();
 
             isModified = true;
-        } else {//Normal lesson
+        } else {//Normal rawLesson
             //noinspection ConstantConditions
-            subject = lesson.getSubject();
-            teacher = lesson.getTeacher();
-            room = lesson.getRoom();
+            subject = rawLesson.getSubject();
+            teacher = rawLesson.getTeacher();
+            room = rawLesson.getRoom();
             color = Config.textColorPrimary(mContext, null);
         }
 

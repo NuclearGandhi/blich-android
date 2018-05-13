@@ -8,7 +8,7 @@ package com.blackcracks.blich.data;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.raw.Exam;
-import com.blackcracks.blich.data.raw.Hour;
+import com.blackcracks.blich.data.raw.RawPeriod;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -20,7 +20,7 @@ import io.realm.annotations.Required;
 public class BlichData extends RealmObject {
 
     private int classId;
-    @Required private RealmList<Hour> hours;
+    @Required private RealmList<RawPeriod> mRawPeriods;
     @Required private RealmList<Change> changes;
     @Required private RealmList<Event> events;
     @Required private RealmList<Exam> exams;
@@ -33,12 +33,12 @@ public class BlichData extends RealmObject {
         this.classId = classId;
     }
 
-    public RealmList<Hour> getHours() {
-        return hours;
+    public RealmList<RawPeriod> getRawPeriods() {
+        return mRawPeriods;
     }
 
-    public void setHours(RealmList<Hour> hours) {
-        this.hours = hours;
+    public void setRawPeriods(RealmList<RawPeriod> RawPeriods) {
+        this.mRawPeriods = RawPeriods;
     }
 
     public RealmList<Change> getChanges() {

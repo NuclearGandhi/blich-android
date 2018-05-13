@@ -19,7 +19,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.TeacherFilterAdapter;
-import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.util.PreferenceUtils;
@@ -142,14 +142,14 @@ public class TeacherFilterDialog extends DialogFragment
     }
 
     private List<TeacherSubject> fetchTeacherList() {
-        RealmResults<Lesson> results = mRealm.where(Lesson.class)
+        RealmResults<RawLesson> results = mRealm.where(RawLesson.class)
                 .notEqualTo("teacher", " ")
                 .findAll();
 
         List<TeacherSubject> teacherSubjects = new ArrayList<>();
-        for (Lesson lesson :
+        for (RawLesson rawLesson :
                 results) {
-            TeacherSubject teacherSubject = lesson.getTeacherSubject();
+            TeacherSubject teacherSubject = rawLesson.getTeacherSubject();
             if (!teacherSubjects.contains(teacherSubject))
                 teacherSubjects.add(teacherSubject);
         }

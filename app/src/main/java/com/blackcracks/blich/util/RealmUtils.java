@@ -11,8 +11,8 @@ import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.raw.ClassGroup;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,114 +37,8 @@ public class RealmUtils {
     public static void setUpRealm(Context context) {
         io.realm.Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(12)
-                .migration(new RealmMigration() {
-
-                    @SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
-                    @Override
-                    public void migrate(@NonNull DynamicRealm realm, long oldVersion, long newVersion) {
-
-                        RealmSchema schema = realm.getSchema();
-
-                        if (oldVersion == 0) {
-                            schema.get("Lesson")
-                                    .addField("hour", int.class);
-                            oldVersion++;
-                        }
-                        if (oldVersion == 1) {
-                            schema.get("Lesson")
-                                    .removeField("hour");
-                            oldVersion++;
-                        }
-                        if (oldVersion == 2) {
-                            schema.get("Schedule")
-                                    .removeField("schedule")
-                                    .addRealmListField("hours", schema.get("Hour"));
-                            oldVersion++;
-                        }
-                        if (oldVersion == 3) {
-                            schema.rename("Schedule", "BlichData");
-                            oldVersion++;
-                        }
-                        if (oldVersion == 4) {
-                            schema.create("Change")
-                                    .addField("changeType", String.class)
-                                    .addField("hour", int.class)
-                                    .addField("subject", String.class)
-                                    .addField("teacher", String.class)
-                                    .addField("newTeacher", String.class)
-                                    .addField("newRoom", String.class)
-                                    .addField("newHour", int.class);
-                            schema.get("BlichData")
-                                    .addRealmListField("changes", schema.get("Change"));
-                            oldVersion++;
-                        }
-                        if (oldVersion == 5) {
-                            schema.get("Change")
-                                    .addField("day", int.class);
-                            oldVersion++;
-                        }
-                        if (oldVersion == 6) {
-                            schema.get("Change")
-                                    .removeField("day")
-                                    .addField("date", Date.class);
-                            oldVersion++;
-                        }
-                        if (oldVersion == 7) {
-                            schema.create("Event")
-                                    .addField("date", Date.class)
-                                    .addField("name", String.class)
-                                    .addField("beginHour", int.class)
-                                    .addField("endHour", int.class)
-                                    .addField("room", String.class);
-                            schema.get("BlichData")
-                                    .addRealmListField("events", schema.get("Event"));
-                            oldVersion++;
-                        }
-                        if (oldVersion == 8) {
-                            schema.get("Event")
-                                    .addField("subject", String.class)
-                                    .addField("teacher", String.class);
-                            oldVersion++;
-                        }
-                        if (oldVersion == 9) {
-                            schema.create("Exam")
-                                    .addField("date", Date.class)
-                                    .addField("name", String.class)
-                                    .addField("beginHour", int.class)
-                                    .addField("endHour", int.class)
-                                    .addField("room", String.class)
-                                    .addField("subject", String.class)
-                                    .addField("teacher", String.class);
-                            schema.get("BlichData")
-                                    .addRealmListField("exams", schema.get("Exam"));
-                            oldVersion++;
-                        }
-                        if (oldVersion == 10) {
-                            schema.create("ClassGroup")
-                                    .addField("id", int.class)
-                                    .addField("name", String.class)
-                                    .addField("grade", int.class)
-                                    .addField("number", int.class);
-                            oldVersion++;
-                        }
-                        if (oldVersion == 11) {
-                            schema.get("Lesson")
-                                    .removeField("changeType");
-                            oldVersion ++;
-                        }
-                    }
-
-                    @Override
-                    public int hashCode() {
-                        return 37;
-                    }
-
-                    @Override
-                    public boolean equals(Object obj) {
-                        return obj instanceof RealmMigration;
-                    }
-                })
+                .schemaVersion(BlichMigration.DATABASE_VERSION)
+                .migration(new BlichMigration())
                 .build();
         io.realm.Realm.setDefaultConfiguration(config);
     }
@@ -164,7 +58,7 @@ public class RealmUtils {
 
         RealmQuery<E> query;
         switch (clazz.getSimpleName()) {
-            case "Lesson":
+            case "RawLesson":
                 query = buildBaseLessonQuery(realm, clazz, day);
                 break;
             default:
@@ -315,32 +209,32 @@ public class RealmUtils {
     }
 
     /**
-     * Convert lessons to hour list.
+     * Convert rawLessons to hour list.
      *
-     * @param lessons a list of {@link Lesson}.
+     * @param rawLessons a list of {@link RawLesson}.
      * @param day day of the week.
-     * @return list of {@link Hour}
+     * @return list of {@link RawPeriod}
      */
-    public static List<Hour> convertLessonListToHour(List<Lesson> lessons, int day) {
+    public static List<RawPeriod> convertLessonListToHour(List<RawLesson> rawLessons, int day) {
         //Translate the lesson list to hour list
-        List<Hour> results = new ArrayList<>();
-        for (Lesson lesson :
-                lessons) {
-            int hourNum = lesson.getOwners().get(0).getHour();
-            Hour hour = null;
+        List<RawPeriod> results = new ArrayList<>();
+        for (RawLesson rawLesson :
+                rawLessons) {
+            int hourNum = rawLesson.getOwners().get(0).getHour();
+            RawPeriod RawPeriod = null;
 
-            for (Hour result :
+            for (RawPeriod result :
                     results) {
-                if (result.getHour() == hourNum) hour = result;
+                if (result.getHour() == hourNum) RawPeriod = result;
             }
 
-            if (hour == null) {
-                RealmList<Lesson> lessonList = new RealmList<>();
-                lessonList.add(lesson);
-                hour = new Hour(day, hourNum, lessonList);
-                results.add(hour);
+            if (RawPeriod == null) {
+                RealmList<RawLesson> rawLessonList = new RealmList<>();
+                rawLessonList.add(rawLesson);
+                RawPeriod = new RawPeriod(day, hourNum, rawLessonList);
+                results.add(RawPeriod);
             } else {
-                hour.getLessons().add(lesson);
+                RawPeriod.getRawLessons().add(rawLesson);
             }
         }
 
@@ -348,33 +242,33 @@ public class RealmUtils {
     }
 
     /**
-     * Convert lesson to hour list. Load the returned {@link Hour} list to RAM.
+     * Convert lesson to hour list. Load the returned {@link RawPeriod} list to RAM.
      *
-     * @param lessons a list of {@link Lesson}.
+     * @param rawLessons a list of {@link RawLesson}.
      * @param day day of the week.
-     * @return list of {@link Hour}
+     * @return list of {@link RawPeriod}
      */
-    public static List<Hour> convertLessonListToHourRAM(Realm realm, List<Lesson> lessons, int day) {
+    public static List<RawPeriod> convertLessonListToHourRAM(Realm realm, List<RawLesson> rawLessons, int day) {
         //Translate the lesson list to hour list
-        List<Hour> results = new ArrayList<>();
-        for (Lesson lesson :
-                lessons) {
-            int hourNum = lesson.getOwners().get(0).getHour();
-            Hour hour = null;
+        List<RawPeriod> results = new ArrayList<>();
+        for (RawLesson rawLesson :
+                rawLessons) {
+            int hourNum = rawLesson.getOwners().get(0).getHour();
+            RawPeriod RawPeriod = null;
 
-            for (Hour result :
+            for (RawPeriod result :
                     results) {
-                if (result.getHour() == hourNum) hour = result;
+                if (result.getHour() == hourNum) RawPeriod = result;
             }
 
-            lesson = realm.copyFromRealm(lesson);
-            if (hour == null) {
-                RealmList<Lesson> lessonList = new RealmList<>();
-                lessonList.add(lesson);
-                hour = new Hour(day, hourNum, lessonList);
-                results.add(hour);
+            rawLesson = realm.copyFromRealm(rawLesson);
+            if (RawPeriod == null) {
+                RealmList<RawLesson> rawLessonList = new RealmList<>();
+                rawLessonList.add(rawLesson);
+                RawPeriod = new RawPeriod(day, hourNum, rawLessonList);
+                results.add(RawPeriod);
             } else {
-                hour.getLessons().add(lesson);
+                RawPeriod.getRawLessons().add(rawLesson);
             }
         }
 
@@ -424,6 +318,121 @@ public class RealmUtils {
         return realm.where(ClassGroup.class)
                 .equalTo("id", id)
                 .findFirst();
+    }
+
+    private static class BlichMigration implements RealmMigration {
+
+        private static final int DATABASE_VERSION = 13;
+
+        @SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
+        @Override
+        public void migrate(@NonNull DynamicRealm realm, long oldVersion, long newVersion) {
+
+            RealmSchema schema = realm.getSchema();
+
+            if (oldVersion == 0) {
+                schema.get("RawLesson")
+                        .addField("hour", int.class);
+                oldVersion++;
+            }
+            if (oldVersion == 1) {
+                schema.get("RawLesson")
+                        .removeField("hour");
+                oldVersion++;
+            }
+            if (oldVersion == 2) {
+                schema.get("Schedule")
+                        .removeField("schedule")
+                        .addRealmListField("hours", schema.get("RawPeriod"));
+                oldVersion++;
+            }
+            if (oldVersion == 3) {
+                schema.rename("Schedule", "BlichData");
+                oldVersion++;
+            }
+            if (oldVersion == 4) {
+                schema.create("Change")
+                        .addField("changeType", String.class)
+                        .addField("hour", int.class)
+                        .addField("subject", String.class)
+                        .addField("teacher", String.class)
+                        .addField("newTeacher", String.class)
+                        .addField("newRoom", String.class)
+                        .addField("newHour", int.class);
+                schema.get("BlichData")
+                        .addRealmListField("changes", schema.get("Change"));
+                oldVersion++;
+            }
+            if (oldVersion == 5) {
+                schema.get("Change")
+                        .addField("day", int.class);
+                oldVersion++;
+            }
+            if (oldVersion == 6) {
+                schema.get("Change")
+                        .removeField("day")
+                        .addField("date", Date.class);
+                oldVersion++;
+            }
+            if (oldVersion == 7) {
+                schema.create("Event")
+                        .addField("date", Date.class)
+                        .addField("name", String.class)
+                        .addField("beginHour", int.class)
+                        .addField("endHour", int.class)
+                        .addField("room", String.class);
+                schema.get("BlichData")
+                        .addRealmListField("events", schema.get("Event"));
+                oldVersion++;
+            }
+            if (oldVersion == 8) {
+                schema.get("Event")
+                        .addField("subject", String.class)
+                        .addField("teacher", String.class);
+                oldVersion++;
+            }
+            if (oldVersion == 9) {
+                schema.create("Exam")
+                        .addField("date", Date.class)
+                        .addField("name", String.class)
+                        .addField("beginHour", int.class)
+                        .addField("endHour", int.class)
+                        .addField("room", String.class)
+                        .addField("subject", String.class)
+                        .addField("teacher", String.class);
+                schema.get("BlichData")
+                        .addRealmListField("exams", schema.get("Exam"));
+                oldVersion++;
+            }
+            if (oldVersion == 10) {
+                schema.create("ClassGroup")
+                        .addField("id", int.class)
+                        .addField("name", String.class)
+                        .addField("grade", int.class)
+                        .addField("number", int.class);
+                oldVersion++;
+            }
+            if (oldVersion == 11) {
+                schema.get("RawLesson")
+                        .removeField("changeType");
+                oldVersion++;
+            }
+            if (oldVersion == 12) {
+                schema.rename("Lesson", "RawLesson");
+                schema.rename("Hour", "RawPeriod");
+                oldVersion++;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return 37;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof RealmMigration;
+        }
     }
 
 }

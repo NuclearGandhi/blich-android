@@ -12,7 +12,7 @@ public class Constants {
         public static final String JSON_INT_CLASS_ID = "ClassId";
 
         public static final String JSON_INT_DAY = "Day";
-        public static final String JSON_INT_HOUR = "Hour";
+        public static final String JSON_INT_HOUR = "RawPeriod";
         public static final String JSON_ARRAY_LESSONS = "Lessons";
 
         public static final String JSON_STRING_SUBJECT = "Subject";

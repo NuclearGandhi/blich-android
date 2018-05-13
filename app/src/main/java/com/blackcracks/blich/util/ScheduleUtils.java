@@ -17,11 +17,11 @@ import android.text.Spanned;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.raw.Change;
+import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.raw.RawPeriod;
 import com.blackcracks.blich.data.schedule.DatedLesson;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.raw.Exam;
-import com.blackcracks.blich.data.raw.Hour;
-import com.blackcracks.blich.data.raw.Lesson;
 import com.blackcracks.blich.data.schedule.ScheduleResult;
 
 import java.util.ArrayList;
@@ -74,25 +74,25 @@ public class ScheduleUtils {
         //Check if the user wants to filter the schedule
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
-        List<Hour> hours;
+        List<RawPeriod> RawPeriods;
         List<Change> changes;
         List<Event> events;
         List<Exam> exams;
 
         if (isFilterOn) { //Filter
             //Query using Inverse-Relationship and filter
-            List<Lesson> lessons = RealmUtils.buildFilteredQuery(
+            List<RawLesson> rawLessons = RealmUtils.buildFilteredQuery(
                     realm,
-                    Lesson.class,
+                    RawLesson.class,
                     day)
                     .findAll();
 
             if (loadToRAM) {
-                hours = RealmUtils.convertLessonListToHourRAM(realm, lessons, day);
+                RawPeriods = RealmUtils.convertLessonListToHourRAM(realm, rawLessons, day);
             } else {
-                hours = RealmUtils.convertLessonListToHour(lessons, day);
+                RawPeriods = RealmUtils.convertLessonListToHour(rawLessons, day);
             }
-            Collections.sort(hours);
+            Collections.sort(RawPeriods);
 
             changes = RealmUtils.buildFilteredQuery(
                     realm,
@@ -113,15 +113,15 @@ public class ScheduleUtils {
                     .findAll();
 
         } else {//No filter, Query all
-            RealmResults<Hour> hourList = realm.where(Hour.class)
+            RealmResults<RawPeriod> rawPeriodList = realm.where(RawPeriod.class)
                     .equalTo("day", day)
                     .findAll()
                     .sort("hour", Sort.ASCENDING);
 
             if (loadToRAM) {
-                hours = realm.copyFromRealm(hourList);
+                RawPeriods = realm.copyFromRealm(rawPeriodList);
             } else {
-                hours = new ArrayList<>(hourList);
+                RawPeriods = new ArrayList<>(rawPeriodList);
             }
 
             changes = RealmUtils.buildBaseQuery(
@@ -153,7 +153,7 @@ public class ScheduleUtils {
         datedLessons.addAll(events);
         datedLessons.addAll(exams);
 
-        return new ScheduleResult(hours, datedLessons);
+        return new ScheduleResult(RawPeriods, datedLessons);
     }
 
     public static void removeDuplicateDaterLessons(List<DatedLesson> list) {

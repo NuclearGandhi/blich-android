@@ -82,7 +82,7 @@ public class Change extends RealmObject implements DatedLesson, Cloneable {
     }
 
     @Override
-    public boolean canReplaceLesson(Lesson toReplace) {
+    public boolean canReplaceLesson(RawLesson toReplace) {
         return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 

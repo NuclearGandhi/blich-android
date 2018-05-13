@@ -7,7 +7,7 @@ package com.blackcracks.blich.data.schedule;
 
 import android.support.annotation.ColorInt;
 
-import com.blackcracks.blich.data.raw.Lesson;
+import com.blackcracks.blich.data.raw.RawLesson;
 
 import java.util.Date;
 
@@ -53,12 +53,12 @@ public interface DatedLesson {
     boolean isAReplacer();
 
     /**
-     * Can the current lesson replace the given {@link Lesson}.
+     * Can the current lesson replace the given {@link RawLesson}.
      *
-     * @param toReplace {@link Lesson} to replace
-     * @return {@code true} replaces the given {@link Lesson}.
+     * @param toReplace {@link RawLesson} to replace
+     * @return {@code true} replaces the given {@link RawLesson}.
      */
-    boolean canReplaceLesson(Lesson toReplace);
+    boolean canReplaceLesson(RawLesson toReplace);
 
     /**
      * Get the period the lesson begins.
