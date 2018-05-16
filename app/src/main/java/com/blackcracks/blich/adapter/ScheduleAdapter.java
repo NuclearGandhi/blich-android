@@ -103,16 +103,17 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
-        holder.setData(teacher, room);
+
+        boolean isSingleLesson = group.getItemCount() == 0;
+        boolean isLastItem = flatPosition == getItemCount() - 1;
+        holder.setData(isLastItem, isSingleLesson, teacher, room);
 
         //Add dots to signify that there are changes
-        for(int modifiedColor : period.getChangeTypeColors())
+        for (int modifiedColor : period.getChangeTypeColors())
             makeEventDot(holder.eventsView, modifiedColor);
 
         if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
-
-        boolean isSingleLesson = group.getItemCount() == 0;
 
         //Display the correct state of the group
         if (expandableList.expandedGroupIndexes[groupPosition] || isSingleLesson) {
@@ -188,7 +189,9 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         holder.classroomView.setText(room);
 
         //Set a bottom divider if this is the last child
-        if (group.getItemCount() - 1 == childPosition) {
+        boolean isLastChild = group.getItemCount() - 1 == childPosition;
+        boolean isLastItem = flatPosition == getItemCount() - 1;
+        if (isLastChild && !isLastItem) {
             holder.divider.setVisibility(View.VISIBLE);
         } else {
             holder.divider.setVisibility(View.GONE);
@@ -222,7 +225,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         private final TextView teacherView;
         private final TextView classroomView;
         private final ImageView indicatorView;
+        private final View divider;
 
+        private boolean isLastItem = false;
+        private boolean isSingleLesson = false;
         private String teacher;
         private String room;
 
@@ -234,11 +240,21 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             teacherView = view.findViewById(R.id.item_teacher);
             classroomView = view.findViewById(R.id.item_classroom);
             indicatorView = view.findViewById(R.id.item_expand_indicator);
+            divider = view.findViewById(R.id.divider);
         }
 
-        public void setData(String teacher, String room) {
+        void setData(boolean isLastItem, boolean isSingleLesson, String teacher, String room) {
+            this.isLastItem = isLastItem;
+            this.isSingleLesson = isSingleLesson;
             this.teacher = teacher;
             this.room = room;
+        }
+
+        void invalidateDivider(boolean isExpanded) {
+            if ((isExpanded && !isSingleLesson) || isLastItem)
+                divider.setVisibility(View.GONE);
+            else
+                divider.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -246,31 +262,29 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             super.expand();
             indicatorView.animate().rotation(180);
 
-            //Run on a different thread due to a bug where the view won't update itself if modified from this thread
-            teacherView.post(new Runnable() {
-                @Override
-                public void run() {
-                    subjectView.setMaxLines(Integer.MAX_VALUE);
-                    teacherView.setText(teacher);
-                    classroomView.setText(room);
-                    eventsView.setVisibility(View.GONE);
-                }
-            });
+            subjectView.setMaxLines(Integer.MAX_VALUE);
+            teacherView.setText(teacher);
+            classroomView.setText(room);
+            eventsView.setVisibility(View.GONE);
+
+            invalidateDivider(true);
         }
 
         @Override
         public void collapse() {
             super.collapse();
-
             subjectView.setMaxLines(1);
             indicatorView.animate().rotation(0);
             teacherView.setText("...");
             classroomView.setText("");
 
             eventsView.setVisibility(View.VISIBLE);
+            invalidateDivider(false);
         }
 
         void reset() {
+            isLastItem = false;
+            isSingleLesson = false;
             subjectView.setText("");
 
             teacherView.setVisibility(View.VISIBLE);
@@ -282,6 +296,8 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
             eventsView.removeAllViews();
             eventsView.setVisibility(View.VISIBLE);
+
+            divider.setVisibility(View.VISIBLE);
 
             setTwoLine((ConstraintLayout) subjectView.getParent());
         }
