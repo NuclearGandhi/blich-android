@@ -6,7 +6,7 @@
 package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.schedule.ModifiedLesson;
+import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
 
@@ -45,19 +45,19 @@ public class Change extends RealmObject implements ModifiedLesson, Cloneable {
     public String buildName() {
         switch (getChangeType()) {
             case Database.TYPE_CANCELED: {
-                return  "ביטול " + buildLessonName();
+                return "ביטול " + buildLessonName();
             }
             case Database.TYPE_NEW_HOUR: {
-                return  "הזזת " + buildLessonName() + " לשעה " + getNewHour();
+                return "הזזת " + buildLessonName() + " לשעה " + getNewHour();
             }
             case Database.TYPE_NEW_ROOM: {
-                return  buildLessonName() + " -> חדר: " + getNewRoom();
+                return buildLessonName() + " -> חדר: " + getNewRoom();
             }
             case Database.TYPE_NEW_TEACHER: {
-                return  buildLessonName() + " -> מורה: " + getNewTeacher();
+                return buildLessonName() + " -> מורה: " + getNewTeacher();
             }
             default: {
-                return  buildLessonName();
+                return buildLessonName();
             }
         }
     }
@@ -78,11 +78,11 @@ public class Change extends RealmObject implements ModifiedLesson, Cloneable {
 
     @Override
     public boolean isAReplacer() {
-        return !getTeacher().equals("") && !getSubject().equals("");
+        return true;
     }
 
     @Override
-    public boolean canReplaceLesson(RawLesson toReplace) {
+    public boolean canReplaceLesson(Lesson toReplace) {
         return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 

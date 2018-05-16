@@ -5,6 +5,7 @@
 
 package com.blackcracks.blich.data.schedule;
 
+import com.blackcracks.blich.data.raw.ModifiedLesson;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
 
@@ -13,12 +14,12 @@ import java.util.List;
 /**
  * A class to hold schedule result from realm.
  */
-public class ScheduleResult {
+public class RawSchedule {
 
     private List<RawPeriod> mRawPeriods;
     private List<ModifiedLesson> mModifiedLessons;
 
-    public ScheduleResult(List<RawPeriod> RawPeriods, List<ModifiedLesson> modifiedLessons) {
+    public RawSchedule(List<RawPeriod> RawPeriods, List<ModifiedLesson> modifiedLessons) {
         mRawPeriods = RawPeriods;
         mModifiedLessons = modifiedLessons;
     }
@@ -32,7 +33,7 @@ public class ScheduleResult {
     }
 
     /**
-     * Check if the data in {@link ScheduleResult} is valid.
+     * Check if the data in {@link RawSchedule} is valid.
      *
      * @return {@code true} the data is valid.
      */
@@ -42,7 +43,7 @@ public class ScheduleResult {
         if (mRawPeriods.size() == 0 && mModifiedLessons.size() == 0) return false;
 
         for (RawPeriod RawPeriod : mRawPeriods) {
-            for (RawLesson rawLesson : RawPeriod.getRawLessons()) {
+            for (RawLesson rawLesson : RawPeriod.getLessons()) {
                 if (!rawLesson.isValid()) return false;
             }
         }

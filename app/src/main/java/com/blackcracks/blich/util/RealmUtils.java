@@ -125,7 +125,6 @@ public class RealmUtils {
         }
     }
 
-
     /**
      * Build a base query for lessons.
      *
@@ -234,7 +233,7 @@ public class RealmUtils {
                 RawPeriod = new RawPeriod(day, hourNum, rawLessonList);
                 results.add(RawPeriod);
             } else {
-                RawPeriod.getRawLessons().add(rawLesson);
+                RawPeriod.getLessons().add(rawLesson);
             }
         }
 
@@ -268,7 +267,7 @@ public class RealmUtils {
                 RawPeriod = new RawPeriod(day, hourNum, rawLessonList);
                 results.add(RawPeriod);
             } else {
-                RawPeriod.getRawLessons().add(rawLesson);
+                RawPeriod.getLessons().add(rawLesson);
             }
         }
 
@@ -331,19 +330,19 @@ public class RealmUtils {
             RealmSchema schema = realm.getSchema();
 
             if (oldVersion == 0) {
-                schema.get("RawLesson")
+                schema.get("Lesson")
                         .addField("hour", int.class);
                 oldVersion++;
             }
             if (oldVersion == 1) {
-                schema.get("RawLesson")
+                schema.get("Lesson")
                         .removeField("hour");
                 oldVersion++;
             }
             if (oldVersion == 2) {
                 schema.get("Schedule")
                         .removeField("schedule")
-                        .addRealmListField("hours", schema.get("RawPeriod"));
+                        .addRealmListField("hours", schema.get("Period"));
                 oldVersion++;
             }
             if (oldVersion == 3) {
@@ -413,13 +412,17 @@ public class RealmUtils {
                 oldVersion++;
             }
             if (oldVersion == 11) {
-                schema.get("RawLesson")
+                schema.get("Lesson")
                         .removeField("changeType");
                 oldVersion++;
             }
             if (oldVersion == 12) {
                 schema.rename("Lesson", "RawLesson");
+                schema.get("RawLesson")
+                        .removeField("changeType");
                 schema.rename("Hour", "RawPeriod");
+                schema.get("BlichData")
+                        .renameField("hours", "periods");
                 oldVersion++;
             }
         }

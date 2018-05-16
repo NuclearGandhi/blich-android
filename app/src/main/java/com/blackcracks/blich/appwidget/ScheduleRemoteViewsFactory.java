@@ -15,10 +15,11 @@ import android.widget.RemoteViewsService;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.ModifiedLesson;
-import com.blackcracks.blich.data.schedule.ScheduleResult;
+import com.blackcracks.blich.data.raw.ModifiedLesson;
+import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.schedule.Period;
+import com.blackcracks.blich.data.schedule.RawSchedule;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.Utilities;
@@ -31,16 +32,16 @@ import io.realm.Realm;
 class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private Context mContext;
+    private Realm mRealm;
 
+    private List<Period> mData;
     private int mDay;
-    private RealmScheduleHelper mRealmHelper;
 
     private int mPrimaryTextColor;
     private int mDividerColorResource;
 
     public ScheduleRemoteViewsFactory(Context context) {
         mContext = context;
-        mRealmHelper = new RealmScheduleHelper(null);
 
         mDay = ScheduleUtils.getWantedDayOfTheWeek();
     }
@@ -48,22 +49,23 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     @Override
     public void onCreate() {
         RealmUtils.setUpRealm(mContext);
+        mRealm = Realm.getDefaultInstance();
     }
 
     @Override
     public void onDataSetChanged() {
         PreferenceUtils.getInstance(mContext);
-        Realm realm = Realm.getDefaultInstance();
-        switchData(
-                ScheduleUtils.fetchScheduleResult(
-                        realm,
-                        mDay,
-                        true
-                )
-        );
-        realm.close();
-
+        switchData(ScheduleUtils.fetchProcessedData(mDay));
         updateTheme();
+    }
+
+    /**
+     * Switch the data being displayed in the widget.
+     *
+     * @param data data to switch to.
+     */
+    private void switchData(List<Period> data) {
+        mData = data;
     }
 
     private void updateTheme() {
@@ -80,22 +82,23 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public void onDestroy() {
+        mRealm.close();
     }
 
     @Override
     public int getCount() {
-        return mRealmHelper.getHourCount();
+        return mData.size();
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
-        RawPeriod RawPeriod = mRealmHelper.getHour(position);
-        int hourNum = mRealmHelper.getHour(position).getHour();
+        Period period = mData.get(position);
+        int periodNum = period.getPeriodNum();
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_appwidget_schedule);
         views.setTextViewText(
                 R.id.widget_schedule_hour,
-                Integer.toString(hourNum));
+                Integer.toString(periodNum));
 
         views.setTextColor(R.id.widget_schedule_hour,
                 mPrimaryTextColor);
@@ -104,32 +107,21 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
 
-        for (int i = 0; i < mRealmHelper.getChildCount(position); i++) {
-            RawLesson rawLesson = mRealmHelper.getLesson(position, i);
-            ModifiedLesson modifiedLesson;
+        for (int i = 0; i < period.getItemCount(); i++) {
+            Lesson lesson = period.getItems().get(i);
 
-            if (rawLesson == null) {//This is not a replacer ModifiedLesson
-                List<ModifiedLesson> nonReplacingLessons = mRealmHelper.getAdditionalLessons(RawPeriod);
-                int lastLessonPos = mRealmHelper.getLessonCount(position);
-                int index = i - lastLessonPos;
-                modifiedLesson = nonReplacingLessons.get(index);
-            } else {
-                modifiedLesson = mRealmHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
-            }
-
+            boolean isModified = lesson.getModifier() != null;
             //Data holders
-            String subject;
-            String teacher = "";
-            int color;
+            String subject = lesson.buildTitle();
+            String teacher;
+            if (isModified)
+                teacher = lesson.getTeacher();
+            else
+                teacher = "";
 
-            if (modifiedLesson != null) {
-                subject = modifiedLesson.buildName();
-                color = modifiedLesson.getColor();
-            } else {
-                subject = rawLesson.getSubject();
-                teacher = rawLesson.getTeacher();
+            int color = lesson.getColor();
+            if (color == -1)
                 color = mPrimaryTextColor;
-            }
 
             Spanned text;
             if (!teacher.equals("")) {
@@ -165,14 +157,5 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
     @Override
     public boolean hasStableIds() {
         return true;
-    }
-
-    /**
-     * Switch the data being displayed in the widget.
-     *
-     * @param data data to switch to.
-     */
-    private void switchData(ScheduleResult data) {
-        mRealmHelper.switchData(data);
     }
 }

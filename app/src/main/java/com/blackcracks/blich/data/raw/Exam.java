@@ -6,7 +6,7 @@
 package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.schedule.ModifiedLesson;
+import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.util.Constants;
 import com.blackcracks.blich.util.PreferenceUtils;
 
@@ -62,11 +62,11 @@ public class Exam extends RealmObject implements ModifiedLesson {
 
     @Override
     public boolean isAReplacer() {
-        return !getTeacher().equals("") && !getSubject().equals("");
+        return !teacher.equals("") && !subject.equals("");
     }
 
     @Override
-    public boolean canReplaceLesson(RawLesson toReplace) {
+    public boolean canReplaceLesson(Lesson toReplace) {
         return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
     }
 

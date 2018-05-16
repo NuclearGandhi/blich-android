@@ -19,10 +19,12 @@ import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.ModifiedLesson;
+import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.raw.ModifiedLesson;
 import com.blackcracks.blich.data.raw.Event;
 import com.blackcracks.blich.data.raw.Exam;
-import com.blackcracks.blich.data.schedule.ScheduleResult;
+import com.blackcracks.blich.data.schedule.Period;
+import com.blackcracks.blich.data.schedule.RawSchedule;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,15 +61,23 @@ public class ScheduleUtils {
         return day;
     }
 
+    public static List<Period> fetchProcessedData(int day) {
+        Realm realm = Realm.getDefaultInstance();
+        RawSchedule raw = fetchRawData(realm, day, true);
+        List<Period> results = processData(raw);
+        realm.close();
+        return results;
+    }
+
     /**
-     * Fetch from {@link Realm} schedule and pack it into a {@link ScheduleResult}.
+     * Fetch from {@link Realm} schedule and pack it into a {@link RawSchedule}.
      *
      * @param realm     a {@link Realm} instance.
      * @param day       day of the week.
      * @param loadToRAM {@code true} copy the data from realm.
-     * @return the {@link ScheduleResult}.
+     * @return the {@link RawSchedule}.
      */
-    public static ScheduleResult fetchScheduleResult(
+    private static RawSchedule fetchRawData(
             Realm realm,
             int day,
             boolean loadToRAM) {
@@ -153,33 +163,86 @@ public class ScheduleUtils {
         modifiedLessons.addAll(events);
         modifiedLessons.addAll(exams);
 
-        return new ScheduleResult(RawPeriods, modifiedLessons);
+        return new RawSchedule(RawPeriods, modifiedLessons);
     }
 
-    public static void removeDuplicateDaterLessons(List<ModifiedLesson> list) {
-        if (list.size() != 0 || list.size() != 1) {
-            //Get all the changes, and remove all duplicate types
-            //Build the comparator
-            Comparator<ModifiedLesson> typeComparator = new Comparator<ModifiedLesson>() {
-                @Override
-                public int compare(ModifiedLesson o1, ModifiedLesson o2) {
-                    return o1.getType().compareTo(o2.getType());
-                }
-            };
+    private static List<Period> processData(RawSchedule raw) {
+        List<Period> processedData = new ArrayList<>();
+        for (RawPeriod rawPeriod : raw.getRawPeriods()) {
+            int periodNum = rawPeriod.getHour();
+            List<Lesson> lessons = new ArrayList<>();
+            for (RawLesson rawLesson : rawPeriod.getLessons()) {
+                Lesson lesson = new Lesson(
+                        rawLesson.getSubject(),
+                        rawLesson.getRoom(),
+                        rawLesson.getTeacher()
+                );
+                lessons.add(lesson);
+            }
 
-            //Sort
-            Collections.sort(list, typeComparator);
+            Period period = new Period(
+                    lessons.get(0).buildTitle(),
+                    lessons,
+                    periodNum);
+            processedData.add(period);
+        }
 
-            //Delete
-            for (int i = 1; i < list.size(); i++) {
-                ModifiedLesson lesson = list.get(i);
-                ModifiedLesson prevLesson = list.get(i - 1);
-                if (lesson.getType().equals(prevLesson.getType())) {
-                    list.remove(lesson);
-                    i--;
+        for (ModifiedLesson modifiedLesson : raw.getModifiedLessons()) {
+            List<Integer> missedPeriods = new ArrayList<>();
+            for(int i = modifiedLesson.getBeginHour(); i <= modifiedLesson.getEndHour(); i++)
+                missedPeriods.add(i);
+
+            for (Period period : processedData) {
+                if (modifiedLesson.isEqualToHour(period.getPeriodNum())) {
+                    missedPeriods.remove((Integer) period.getPeriodNum());
+
+                    period.addChangeTypeColor(modifiedLesson.getColor());
+                    List<Lesson> lessons = period.getItems();
+
+                    if (!modifiedLesson.isAReplacer()) {
+                        lessons.clear();
+                    }
+
+                    boolean isReplacing = false;
+                    for (Lesson lesson : lessons) {
+                        if (modifiedLesson.canReplaceLesson(lesson)) {
+                            lesson.setModifier(modifiedLesson);
+                            isReplacing = true;
+                            break;
+                        }
+                    }
+
+                    if (!isReplacing) {
+                        Lesson newLesson = new Lesson(null, null, null);
+                        newLesson.setModifier(modifiedLesson);
+                        lessons.add(newLesson);
+                    }
                 }
             }
+
+            for (int periodNum : missedPeriods) {
+                List<Lesson> newLessons = new ArrayList<>();
+                Lesson newLesson = new Lesson(null, null, null);
+                newLesson.setModifier(modifiedLesson);
+                newLessons.add(newLesson);
+
+                Period newPeriod = new Period(
+                        newLesson.buildTitle(),
+                        newLessons,
+                        periodNum
+                );
+
+                processedData.add(newPeriod);
+            }
         }
+
+        for (Period period : processedData) {
+            period.setFirstLesson(period.getItems().get(0));
+            period.getItems().remove(0);
+        }
+
+        Collections.sort(processedData);
+        return processedData;
     }
 
     public static void notifyUser(Context context) {

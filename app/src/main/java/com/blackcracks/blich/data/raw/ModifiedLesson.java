@@ -3,11 +3,12 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.data.schedule;
+package com.blackcracks.blich.data.raw;
 
 import android.support.annotation.ColorInt;
 
 import com.blackcracks.blich.data.raw.RawLesson;
+import com.blackcracks.blich.data.schedule.Lesson;
 
 import java.util.Date;
 
@@ -58,7 +59,7 @@ public interface ModifiedLesson {
      * @param toReplace {@link RawLesson} to replace
      * @return {@code true} replaces the given {@link RawLesson}.
      */
-    boolean canReplaceLesson(RawLesson toReplace);
+    boolean canReplaceLesson(Lesson toReplace);
 
     /**
      * Get the period the lesson begins.

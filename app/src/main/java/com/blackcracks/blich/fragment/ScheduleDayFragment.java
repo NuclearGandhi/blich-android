@@ -10,23 +10,26 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.ScheduleAdapter;
-import com.blackcracks.blich.data.schedule.ScheduleResult;
+import com.blackcracks.blich.data.schedule.Period;
 import com.blackcracks.blich.util.ScheduleUtils;
+
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -37,13 +40,14 @@ import io.realm.RealmChangeListener;
  */
 @SuppressWarnings("ConstantConditions")
 public class ScheduleDayFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<ScheduleResult>,
+        LoaderManager.LoaderCallbacks<List<Period>>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String DAY_KEY = "day";
 
     private static final int SCHEDULE_LOADER_ID = 1;
 
+    private RecyclerView mRecyclerView;
     private ScheduleAdapter mAdapter;
 
     private Realm mRealm;
@@ -67,12 +71,14 @@ public class ScheduleDayFragment extends Fragment implements
         //TODO update text accordingly
         TextView statusTextView = rootView.findViewById(R.id.text_status);
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        //TODO Initialize adapter
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView = rootView.findViewById(R.id.recycler_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(
+                getContext(),
+                DividerItemDecoration.HORIZONTAL
+        ));
 
-        ViewCompat.setNestedScrollingEnabled(recyclerView, true);
+        ViewCompat.setNestedScrollingEnabled(mRecyclerView, true);
         return rootView;
     }
 
@@ -125,6 +131,7 @@ public class ScheduleDayFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+        clearData();
         mRealm.close();
     }
 
@@ -138,55 +145,60 @@ public class ScheduleDayFragment extends Fragment implements
     }
 
     @Override
-    public Loader<ScheduleResult> onCreateLoader(int id, Bundle args) {
-        return new ScheduleLoader(getContext(), mDay, mRealm);
+    public Loader<List<Period>> onCreateLoader(int id, Bundle args) {
+        return new ScheduleLoader(getContext(), mDay);
     }
 
     @Override
-    public void onLoadFinished(Loader<ScheduleResult> loader, ScheduleResult data) {
-        mAdapter.switchData(data);
+    public void onLoadFinished(Loader<List<Period>> loader, List<Period> data) {
+        clearData();
+        mAdapter = new ScheduleAdapter(
+                data,
+                getContext()
+        );
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
-    public void onLoaderReset(Loader<ScheduleResult> loader) {
-        mAdapter.switchData(null);
+    public void onLoaderReset(Loader<List<Period>> loader) {
+        clearData();
+        mRecyclerView.setAdapter(null);
+    }
+
+    private void clearData() {
+        if (mAdapter != null) {
+            mAdapter.clear();
+        }
     }
 
     /**
-     * A {@link Loader<ScheduleResult>} to fetch schedule from {@link Realm} database
+     * A {@link Loader< List<Period> >} to fetch schedule from {@link Realm} database
      */
-    private static class ScheduleLoader extends Loader<ScheduleResult> {
+    private static class ScheduleLoader extends AsyncTaskLoader<List<Period>> {
 
         private int mDay;
 
-        private Realm mRealm;
-
-        public ScheduleLoader(Context context, int day, Realm realm) {
+        public ScheduleLoader(Context context, int day) {
             super(context);
             mDay = day;
-            mRealm = realm;
         }
 
-        /**
-         * Query the schedule data and filter it if need
-         */
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            if (mRealm.isClosed()) return;
-            deliverResult(
-                    ScheduleUtils.fetchScheduleResult(
-                            mRealm,
-                            mDay,
-                            false
-                    )
-            );
+            forceLoad();
         }
 
         @Override
         protected void onStopLoading() {
             super.onStopLoading();
             cancelLoad();
+        }
+
+        @Nullable
+        @Override
+        public List<Period> loadInBackground() {
+            return ScheduleUtils.fetchProcessedData(mDay);
         }
     }
 }

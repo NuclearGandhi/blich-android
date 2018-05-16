@@ -19,7 +19,7 @@ public class RawPeriod extends RealmObject implements Comparable<RawPeriod> {
 
     private int day;
     private int hour;
-    private RealmList<RawLesson> mRawLessons;
+    private RealmList<RawLesson> lessons;
 
     public RawPeriod() {
 
@@ -28,7 +28,7 @@ public class RawPeriod extends RealmObject implements Comparable<RawPeriod> {
     public RawPeriod(int day, int hour, RealmList<RawLesson> rawLessons) {
         this.day = day;
         this.hour = hour;
-        this.mRawLessons = rawLessons;
+        this.lessons = rawLessons;
     }
 
     public int getHour() {
@@ -39,12 +39,12 @@ public class RawPeriod extends RealmObject implements Comparable<RawPeriod> {
         this.hour = hour;
     }
 
-    public List<RawLesson> getRawLessons() {
-        return mRawLessons;
+    public List<RawLesson> getLessons() {
+        return lessons;
     }
 
-    public void setRawLessons(RealmList<RawLesson> rawLessons) {
-        this.mRawLessons = rawLessons;
+    public void setLessons(RealmList<RawLesson> lessons) {
+        this.lessons = lessons;
     }
 
     public int getDay() {

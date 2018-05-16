@@ -20,7 +20,7 @@ import io.realm.annotations.Required;
 public class BlichData extends RealmObject {
 
     private int classId;
-    @Required private RealmList<RawPeriod> mRawPeriods;
+    @Required private RealmList<RawPeriod> periods;
     @Required private RealmList<Change> changes;
     @Required private RealmList<Event> events;
     @Required private RealmList<Exam> exams;
@@ -33,12 +33,12 @@ public class BlichData extends RealmObject {
         this.classId = classId;
     }
 
-    public RealmList<RawPeriod> getRawPeriods() {
-        return mRawPeriods;
+    public RealmList<RawPeriod> getPeriods() {
+        return periods;
     }
 
-    public void setRawPeriods(RealmList<RawPeriod> RawPeriods) {
-        this.mRawPeriods = RawPeriods;
+    public void setPeriods(RealmList<RawPeriod> RawPeriods) {
+        this.periods = RawPeriods;
     }
 
     public RealmList<Change> getChanges() {

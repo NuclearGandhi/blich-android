@@ -160,14 +160,14 @@ public class BlichSyncTask {
 
             int day = (jsonHour.getInt(Database.JSON_INT_DAY) + 1) % 7;
 
-            RawPeriod.setRawLessons(rawLessons);
+            RawPeriod.setLessons(rawLessons);
             RawPeriod.setHour(jsonHour.getInt(Database.JSON_INT_HOUR));
             RawPeriod.setDay(day);
 
             RawPeriods.add(RawPeriod);
         }
 
-        blichData.setRawPeriods(RawPeriods);
+        blichData.setPeriods(RawPeriods);
         blichData.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
     }
 

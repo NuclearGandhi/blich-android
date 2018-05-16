@@ -15,50 +15,53 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.appthemeengine.Config;
+import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.raw.RawLesson;
-import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.schedule.ModifiedLesson;
-import com.blackcracks.blich.data.schedule.ScheduleResult;
-import com.blackcracks.blich.adapter.helper.RealmScheduleHelper;
-import com.blackcracks.blich.util.ScheduleUtils;
+import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.schedule.Period;
 import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
 import com.thoughtbot.expandablerecyclerview.listeners.OnGroupClickListener;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapter.GroupViewHolder, ScheduleAdapter.ChildViewHolder> {
 
-    private RealmScheduleHelper mRealmScheduleHelper;
     private Context mContext;
     private String mAteKey;
 
-    private SparseBooleanArray mExpandedArray;
+    private int mPrimaryTextColor;
+    private int mHourTextColor;
 
     public ScheduleAdapter(List<? extends ExpandableGroup> groups,
                            Context context) {
         super(groups);
 
-        mRealmScheduleHelper = new RealmScheduleHelper(null);
         mContext = context;
-
         mAteKey = ((MainActivity) mContext).getATEKey();
+        mPrimaryTextColor = Config.textColorPrimary(mContext, mAteKey);
+        if (mAteKey.equals("light_theme"))
+            mHourTextColor = ATEUtil.isColorLight(Config.accentColor(mContext, mAteKey)) ?
+                    ContextCompat.getColor(mContext, R.color.text_color_primary_light) :
+                    ContextCompat.getColor(mContext, R.color.text_color_primary_dark);
+        else
+            mHourTextColor = Config.textColorPrimary(mContext, mAteKey);
+    }
 
-        mExpandedArray = new SparseBooleanArray();
+    public void clear() {
+        getGroups().clear();
     }
 
     @Override
     public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
-        if (!mRealmScheduleHelper.isDataValid()) return null;
-
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_schedule_group, parent, false);
         GroupViewHolder holder = new GroupViewHolder(view);
@@ -66,100 +69,58 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
     }
 
     @Override
-    public void onBindGroupViewHolder(final GroupViewHolder holder,
-                                      final int groupPosition,
+    public void onBindGroupViewHolder(GroupViewHolder holder,
+                                      int flatPosition,
                                       ExpandableGroup group) {
-        //Set initial values
+
         holder.reset();
+        int groupPosition = expandableList.getUnflattenedPosition(flatPosition).groupPos;
 
-        //Get the overall data object
-        RawPeriod RawPeriod = (RawPeriod) getGroup(groupPosition);
-        int hourNum = RawPeriod.getHour();
-
-        //Set the RawPeriod indicator text
-        String hourText = hourNum + "";
-        holder.hourView.setText(hourText);
-        if (mAteKey.equals("dark_theme"))
-            holder.hourView.setBackground(null);
-        else
-            holder.hourView.setTextColor(Config.textColorPrimaryInverse(mContext, mAteKey));
-
-        //Get all the rawLessons and events
-        final List<RawLesson> rawLessons = RawPeriod.getRawLessons();
-
-        RawLesson firstRawLesson = null;
-        ModifiedLesson specialEvent = mRealmScheduleHelper.getNonReplacingLesson(RawPeriod);
-        ModifiedLesson replacement = null;
+        Period period = (Period) group;
+        Lesson firstLesson = period.getFirstLesson();
+        boolean isModified = firstLesson.getModifier() != null;
 
         //The main data
-        String subject;
-        final String teacher;
-        final String room;
-        int color;
-
-        boolean isModified = false;
-
-        /*
-        There are 4 types of children:
-        -RawLesson
-        -Change (replaces RawLesson)
-        -Event (in addition to RawLesson)
-        -Exam (in addition to RawLesson)
-         */
-        if (specialEvent != null) { //Then display the single lesson
-            subject = specialEvent.buildName();
+        String subject = firstLesson.buildTitle();
+        String teacher;
+        String room;
+        if (isModified) {
             teacher = "";
             room = "";
-            color = specialEvent.getColor();
-
-            isModified = true;
         } else {
-            if (rawLessons == null) {
-                replacement = mRealmScheduleHelper.getAdditionalLessons(RawPeriod).get(0);
-            } else {
-                firstRawLesson = rawLessons.get(0); //We need to display the first lesson in the group collapsed mode
-                replacement = mRealmScheduleHelper.getLessonReplacement(hourNum, firstRawLesson);
-            }
-
-            if (replacement == null) { //Then display a normal lesson
-                subject = firstRawLesson.getSubject();
-                teacher = firstRawLesson.getTeacher();
-                room = firstRawLesson.getRoom();
-                color = Config.textColorPrimary(mContext, null);
-            } else { //Then display a modified lesson
-                subject = replacement.buildName();
-                teacher = "";
-                room = "";
-                color = replacement.getColor();
-
-                isModified = true;
-            }
+            teacher = firstLesson.getTeacher();
+            room = firstLesson.getRoom();
         }
+
+        int color = firstLesson.getColor();
+        if (color == -1)
+            color = mPrimaryTextColor;
+
+        holder.hourView.setText(period.getPeriodNum() + "");
+        holder.hourView.setTextColor(mHourTextColor);
+        if (!mAteKey.equals("light_theme"))
+            holder.hourView.setBackground(null);
 
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
         holder.setData(teacher, room);
 
         //Add dots to signify that there are changes
-        if (specialEvent == null) {
-            List<ModifiedLesson> modifiedLessons = mRealmScheduleHelper.getDatedLessons(RawPeriod); //Get all the dated rawLessons
-            ScheduleUtils.removeDuplicateDaterLessons(modifiedLessons); //Remove duplicates
-            modifiedLessons.remove(replacement); //Remove the displayed dated lesson
-            makeEventDots(holder.eventsView, modifiedLessons); //Load the data into the event dots
-        }
-
+        for(int modifiedColor : period.getChangeTypeColors())
+            makeEventDot(holder.eventsView, modifiedColor);
 
         if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
 
-        boolean isSingleLesson = getChildrenCount(groupPosition) == 0;
+        boolean isSingleLesson = group.getItemCount() == 0;
 
         //Display the correct state of the group
-        if (mExpandedArray.get(groupPosition) || isSingleLesson) {
+        if (expandableList.expandedGroupIndexes[groupPosition] || isSingleLesson) {
             holder.expand();
         } else {
             holder.collapse();
         }
+
         /*
         If there are no children, show a simple item.
         Else, show the indicator view and add a click listener
@@ -167,21 +128,18 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         if (isSingleLesson) {
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
+            holder.setOnGroupClickListener(new OnGroupClickListener() {
+                @Override
+                public boolean onGroupClick(int flatPos) {
+                    return false;
+                }
+            });
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
             holder.setOnGroupClickListener(new OnGroupClickListener() {
                 @Override
                 public boolean onGroupClick(int flatPos) {
-                    boolean isExpanded = mExpandedArray.get(flatPos, false);
-                    if (!isExpanded) {
-                        //Expand
-                        mExpandedArray.put(flatPos, true);
-                        return true;
-                    } else {
-                        //Collapse
-                        mExpandedArray.put(flatPos, false);
-                        return false;
-                    }
+                    return toggleGroup(flatPos);
                 }
             });
         }
@@ -197,44 +155,28 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
     @Override
     public void onBindChildViewHolder(ChildViewHolder holder,
-                                      int groupPosition,
+                                      int flatPosition,
                                       ExpandableGroup group,
                                       int childPosition) {
         holder.reset();
+        Lesson lesson = (Lesson) group.getItems().get(childPosition);
 
-        RawLesson rawLesson = (RawLesson) getChild(groupPosition, childPosition);
-        ModifiedLesson modifiedLesson;
+        boolean isModified = lesson.getModifier() != null;
 
-        RawPeriod RawPeriod = (RawPeriod) getGroup(groupPosition);
-        if (rawLesson == null) {//This is not a replacer ModifiedLesson, therefore get the non replacing rawLesson
-            List<ModifiedLesson> nonReplacingLessons = mRealmScheduleHelper.getAdditionalLessons(RawPeriod);
-            int lastLessonPos = mRealmScheduleHelper.getLessonCount(groupPosition) - 1;
-            int index = childPosition - lastLessonPos;
-            modifiedLesson = nonReplacingLessons.get(index);
-        } else {
-            modifiedLesson = mRealmScheduleHelper.getLessonReplacement(RawPeriod.getHour(), rawLesson);
-        }
-        String subject;
+        String subject = lesson.buildTitle();
         final String teacher;
         final String room;
-        int color;
-
-        boolean isModified = false;
-
-        if (modifiedLesson != null) {//Apply ModifiedLesson
-            subject = modifiedLesson.buildName();
-            teacher = "";
-            room = "";
-            color = modifiedLesson.getColor();
-
-            isModified = true;
-        } else {//Normal rawLesson
-            //noinspection ConstantConditions
-            subject = rawLesson.getSubject();
-            teacher = rawLesson.getTeacher();
-            room = rawLesson.getRoom();
-            color = Config.textColorPrimary(mContext, null);
+        if (isModified) {
+            teacher = lesson.getTeacher();
+            room = lesson.getRoom();
+        } else {
+            teacher = lesson.getTeacher();
+            room = lesson.getRoom();
         }
+
+        int color = lesson.getColor();
+        if (color == -1)
+            color = mPrimaryTextColor;
 
         holder.subjectView.setText(subject);
         holder.subjectView.setTextColor(color);
@@ -246,40 +188,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         holder.classroomView.setText(room);
 
         //Set a bottom divider if this is the last child
-        if (getChildrenCount(groupPosition) - 1 == childPosition) {
+        if (group.getItemCount() - 1 == childPosition) {
             holder.divider.setVisibility(View.VISIBLE);
         } else {
             holder.divider.setVisibility(View.GONE);
-        }
-    }
-
-    public int getChildrenCount(int groupPosition) {
-        int count = mRealmScheduleHelper.getChildCount(groupPosition);
-        /*The number of group children is smaller by one than the number of lessons. This is because
-        one lesson is already displayed in the group view.
-         */
-        if (count != 0) count--;
-        return count;
-    }
-
-    public Object getGroup(int groupPosition) {
-        return mRealmScheduleHelper.getHour(groupPosition);
-    }
-
-    public Object getChild(int groupPosition, int childPosition) {
-        return mRealmScheduleHelper.getLesson(groupPosition, childPosition + 1);
-    }
-
-    /**
-     * Add event dots to the parent view.
-     *
-     * @param parent the view to put the dots in.
-     * @param list   list of {@link ModifiedLesson}s to make event dots from.
-     */
-    private void makeEventDots(ViewGroup parent, List<ModifiedLesson> list) {
-        for (ModifiedLesson lesson :
-                list) {
-            makeEventDot(parent, lesson.getColor());
         }
     }
 
@@ -297,17 +209,6 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         drawable.setColor(color);
         view.setBackground(drawable);
         parent.addView(view);
-    }
-
-    /**
-     * Switch the schedule to be displayed. Calls {@link BaseExpandableListAdapter#notifyDataSetChanged()}.
-     *
-     * @param data data to switch to.
-     */
-    public void switchData(ScheduleResult data) {
-        mRealmScheduleHelper.switchData(data);
-        mExpandedArray.clear();
-        notifyDataSetChanged();
     }
 
     /**

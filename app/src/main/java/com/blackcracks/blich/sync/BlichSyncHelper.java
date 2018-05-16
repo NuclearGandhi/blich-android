@@ -15,11 +15,13 @@ import android.support.annotation.NonNull;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.schedule.Period;
 import com.blackcracks.blich.receiver.BootReceiver;
 import com.blackcracks.blich.receiver.ScheduleAlarmReceiver;
 import com.blackcracks.blich.util.PreferenceUtils;
 
 import java.util.Calendar;
+import java.util.List;
 
 import timber.log.Timber;
 
