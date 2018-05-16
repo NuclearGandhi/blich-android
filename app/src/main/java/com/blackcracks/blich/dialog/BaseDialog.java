@@ -11,7 +11,7 @@ public abstract class BaseDialog<B extends BaseDialog.Builder> extends DialogFra
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        onCreateBuilder();
+        mBuilder = onCreateBuilder();
 
         Bundle args = getArguments();
         if (args == null)
@@ -19,7 +19,7 @@ public abstract class BaseDialog<B extends BaseDialog.Builder> extends DialogFra
         mBuilder.setArgs(args);
     }
 
-    protected abstract void onCreateBuilder();
+    protected abstract B  onCreateBuilder();
 
     public abstract static class Builder {
 

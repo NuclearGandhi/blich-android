@@ -47,8 +47,6 @@ public class ClassPickerDialog extends BaseDialog<ClassPickerDialog.Builder> {
 
     private static final String KEY_DATA_VALID = "data_valid";
 
-    private Builder mBuilder;
-
     private Realm mRealm;
     private boolean mIsDataValid = false;
     private boolean mIsClassConfigured = false;
@@ -91,8 +89,8 @@ public class ClassPickerDialog extends BaseDialog<ClassPickerDialog.Builder> {
     }
 
     @Override
-    protected void onCreateBuilder() {
-        mBuilder = new Builder();
+    protected Builder onCreateBuilder() {
+        return new Builder();
     }
 
     @NonNull

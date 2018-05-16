@@ -13,8 +13,8 @@ public class TimePickerDialog extends BaseDialog<TimePickerDialog.Builder>
     private OnTimeSetListener mListener;
 
     @Override
-    protected void onCreateBuilder() {
-        mBuilder = new Builder();
+    protected Builder onCreateBuilder() {
+        return new Builder();
     }
 
     @Override
