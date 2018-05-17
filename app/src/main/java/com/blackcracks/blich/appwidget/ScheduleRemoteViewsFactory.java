@@ -107,15 +107,19 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         //Reset the views
         views.removeAllViews(R.id.widget_schedule_group);
 
-        for (int i = 0; i < period.getItemCount(); i++) {
-            Lesson lesson = period.getItems().get(i);
+        for (int i = -1; i < period.getItemCount(); i++) {
+            Lesson lesson;
+            if (i == -1)
+                lesson = period.getFirstLesson();
+            else
+                lesson = period.getItems().get(i);
 
             boolean isModified = lesson.getModifier() != null;
             //Data holders
             String subject = lesson.buildTitle();
             String teacher;
             if (isModified)
-                teacher = lesson.getTeacher();
+                teacher = lesson.getTeacher() != null ? lesson.getTeacher() : "";
             else
                 teacher = "";
 
