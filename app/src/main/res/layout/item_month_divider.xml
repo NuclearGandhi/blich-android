@@ -7,6 +7,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/item_month"
     android:layout_height="72dp"
     android:paddingEnd="16dp"
     android:paddingStart="16dp"

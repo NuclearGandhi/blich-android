@@ -6,7 +6,9 @@
 package com.blackcracks.blich.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,27 +32,24 @@ import java.util.Locale;
 /**
  * {@link android.widget.Adapter} having two views: month dividers and exams.
  */
-public class ExamAdapter extends BaseAdapter {
+public class ExamAdapter extends RecyclerView.Adapter {
 
     private final Context mContext;
 
     private int mMonthDividerTextColor;
 
     private RealmExamHelper mExamHelper;
-    private TextView mStatusMessage;
 
     /**
-     * @param data exams to be displayed.
+     * @param data          exams to be displayed.
      * @param statusMessage {@link TextView} for when the data is invalid.
      */
     @SuppressWarnings("SameParameterValue")
     public ExamAdapter(
             Context context,
-            List<Exam> data,
-            TextView statusMessage) {
+            List<Exam> data) {
         mContext = context;
         mExamHelper = new RealmExamHelper(data);
-        mStatusMessage = statusMessage;
 
         String ateKey = Utilities.getATEKey(context);
 
@@ -72,18 +71,8 @@ public class ExamAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        int count = mExamHelper.getCount();
-        //Set the status TextView according to the validity of the data.
-        if (count == 0) mStatusMessage.setVisibility(View.VISIBLE);
-        else mStatusMessage.setVisibility(View.GONE);
-
-        return count;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mExamHelper.getItem(position);
+    public int getItemCount() {
+        return mExamHelper.getCount();
     }
 
     @Override
@@ -92,44 +81,49 @@ public class ExamAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ExamItem item = (ExamItem) getItem(position);
-        View view = null;
+    public int getItemViewType(int position) {
+        return mExamHelper.getItem(position).getType();
+    }
 
-        //Check the type of the item
-        switch (item.getType()) {
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        switch (viewType) {
             case ExamItem.TYPE_EXAM: {
-                GenericExam exam = (GenericExam) item;
-                if (convertView == null || convertView instanceof TextView) {
-                    view = newView(parent);
-                } else {
-                    view = convertView;
-                }
-                bindView(view, exam);
+                return new ExamViewHolder(
+                        inflater.inflate(R.layout.item_exam, parent, false));
+            }
+            case ExamItem.TYPE_MONTH: {
+                return new DividerViewHolder(
+                        inflater.inflate(R.layout.item_month_divider, parent, false));
+            }
+            default:
+                throw new IllegalArgumentException("Unrecognizable view type: " + viewType);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        switch (getItemViewType(position)) {
+            case ExamItem.TYPE_EXAM: {
+                bindExamView(
+                        (ExamViewHolder) holder,
+                        (GenericExam) mExamHelper.getItem(position));
                 break;
             }
-            case ExamItem.TYPE_MONTH:{
-                MonthDivider divider = (MonthDivider) item;
-                view = buildMonthDivider(parent, divider);
+            case ExamItem.TYPE_MONTH: {
+                bindDividerView(
+                        (DividerViewHolder) holder,
+                        (MonthDivider) mExamHelper.getItem(position));
+                break;
             }
+            default:
+                throw new IllegalArgumentException("Unrecognizable view type: " + getItemViewType(position));
         }
-        return view;
     }
 
-    private View newView(ViewGroup parent) {
-        View view =
-                LayoutInflater.from(mContext).inflate(R.layout.item_exam, parent, false);
-
-        ViewHolder viewHolder = new ViewHolder(view);
-
-        view.setTag(viewHolder);
-        return view;
-    }
-
-    private void bindView(View view, GenericExam exam) {
-
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-
+    private void bindExamView(ExamViewHolder holder, GenericExam exam) {
         String subject = exam.getName();
         long dateInMillis = exam.getDate().getTime();
         String teacher = exam.buildTeacherString();
@@ -143,36 +137,41 @@ public class ExamAdapter extends BaseAdapter {
                 Calendar.SHORT,
                 new Locale("iw"));
 
-        viewHolder.examDay.setText(String.valueOf(day));
-        viewHolder.examDayOfWeek.setText(dayOfWeek);
-        viewHolder.examSubject.setText(subject);
-        viewHolder.examTeacher.setText(teacher);
+        holder.examDay.setText(String.valueOf(day));
+        holder.examDayOfWeek.setText(dayOfWeek);
+        holder.examSubject.setText(subject);
+        holder.examTeacher.setText(teacher);
     }
 
-    private View buildMonthDivider(ViewGroup parent, MonthDivider divider) {
-        TextView view = (TextView) LayoutInflater.from(mContext).inflate(
-                R.layout.exam_month_divider, parent, false);
-        view.setText(divider.buildLabel());
-        view.setTextColor(mMonthDividerTextColor);
-
-        return view;
+    private void bindDividerView(DividerViewHolder holder, MonthDivider divider) {
+        holder.month.setText(divider.buildLabel());
+        holder.month.setTextColor(mMonthDividerTextColor);
     }
 
     /**
      * A class to hold all references to each exam item's child views.
      */
-    private static class ViewHolder {
-
+    private static class ExamViewHolder extends RecyclerView.ViewHolder {
         final TextView examDay;
         final TextView examDayOfWeek;
         final TextView examSubject;
         final TextView examTeacher;
 
-        ViewHolder(View itemView) {
+        ExamViewHolder(View itemView) {
+            super(itemView);
             examDay = itemView.findViewById(R.id.item_day_in_month);
             examDayOfWeek = itemView.findViewById(R.id.item_day_of_week);
             examSubject = itemView.findViewById(R.id.item_subject);
             examTeacher = itemView.findViewById(R.id.item_teacher);
+        }
+    }
+
+    private static class DividerViewHolder extends RecyclerView.ViewHolder {
+        final TextView month;
+
+        public DividerViewHolder(View itemView) {
+            super(itemView);
+            month = itemView.findViewById(R.id.item_month);
         }
     }
 }

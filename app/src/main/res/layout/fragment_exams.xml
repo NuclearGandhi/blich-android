@@ -3,8 +3,7 @@
   ~ Copyright (C) Blich - All Rights Reserved
   -->
 
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/schedule_coordinatorlayout"
@@ -28,7 +27,7 @@
             android:focusable="true"
             android:minHeight="?attr/actionBarSize"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="?attr/colorPrimaryDark"
             app:titleEnabled="false">
 
@@ -45,8 +44,7 @@
                 app:layout_collapseParallaxMultiplier="1.0"
                 app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat.Small"
                 app:mcv_showOtherDates="out_of_range"
-                app:mcv_tileHeight="36dp">
-            </com.prolificinteractive.materialcalendarview.MaterialCalendarView>
+                app:mcv_tileHeight="36dp" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -62,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:rotation="180"
                     android:src="@drawable/ic_arrow_drop_24dp"
-                    tools:ignore="ContentDescription"/>
+                    tools:ignore="ContentDescription" />
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -75,7 +73,8 @@
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:text="@string/schedule_no_data"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh_schedule"
@@ -83,12 +82,12 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ListView
-            android:id="@+id/list_view_exam"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-        </ListView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

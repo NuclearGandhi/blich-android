@@ -15,13 +15,14 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.afollestad.appthemeengine.ATE;
@@ -70,12 +71,10 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
     private Realm mRealm;
     private RealmChangeListener<Realm> mChangeListener;
 
-    private View mRootView;
-
     private AppBarLayout mAppBarLayout;
     private ImageView mDropDown;
     private MaterialCalendarView mCalendarView;
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
     Toolbar mToolbar;
     CollapsingToolbarLayout mCollapsingTb;
 
@@ -91,15 +90,15 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mRealm = Realm.getDefaultInstance();
         setUpRefresher();
 
-        mRootView = super.onCreateView(inflater, container, savedInstanceState);
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        mToolbar = mRootView.findViewById(R.id.toolbar);
+        mToolbar = rootView.findViewById(R.id.toolbar);
         mToolbar.setOnClickListener(this);
-        mCollapsingTb = mRootView.findViewById(R.id.collapsingToolbar);
+        mCollapsingTb = rootView.findViewById(R.id.collapsingToolbar);
 
-        mDropDown = mRootView.findViewById(R.id.drop_down_arrow);
+        mDropDown = rootView.findViewById(R.id.drop_down_arrow);
 
-        mCalendarView = mRootView.findViewById(R.id.calendar_view);
+        mCalendarView = rootView.findViewById(R.id.calendar_view);
         mCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
@@ -123,8 +122,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                     ViewCompat.animate(mDropDown).rotation(0).start();
                     mAppBarLayout.setExpanded(false, true);
                     mIsExpanded = false;
-                    mListView.smoothScrollToPosition(index);
-                    mListView.setSelection(index);
+                    mRecyclerView.smoothScrollToPosition(index);
                 }
             }
         });
@@ -139,7 +137,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
         });
 
-        mAppBarLayout = mRootView.findViewById(R.id.app_bar_layout);
+        mAppBarLayout = rootView.findViewById(R.id.app_bar_layout);
         mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
             @Override
             public void onStateChanged(@State int state) {
@@ -157,17 +155,18 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             }
         });
 
-        mListView = mRootView.findViewById(R.id.list_view_exam);
-        TextView statusMessage = mRootView.findViewById(R.id.exam_no_data_status);
+        //TODO update text accordingly
+        TextView statusMessage = rootView.findViewById(R.id.exam_no_data_status);
+
+        mRecyclerView = rootView.findViewById(R.id.recycler_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new ExamAdapter(
                 getContext(),
-                null,
-                statusMessage);
-        mListView.setAdapter(mAdapter);
+                null);
+        mRecyclerView.setAdapter(mAdapter);
 
-        ViewCompat.setNestedScrollingEnabled(mListView, true);
-
-        return mRootView;
+        mRecyclerView.setNestedScrollingEnabled(true);
+        return rootView;
     }
 
     private void setUpRefresher() {
@@ -287,7 +286,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
         try {
             if (!data.isEmpty()) {
-                loadDataIntCalendar(data);
+                loadDataIntoCalendar(data);
             }
         } catch (IllegalStateException e) {
             Timber.d("Realm instance has been closed");
@@ -299,7 +298,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mAdapter.switchData(null);
     }
 
-    private void loadDataIntCalendar(List<Exam> data) {
+    private void loadDataIntoCalendar(List<Exam> data) {
         List<GenericExam> exams = ExamUtils.buildExamsList(data);
         for (GenericExam exam :
                 exams) {

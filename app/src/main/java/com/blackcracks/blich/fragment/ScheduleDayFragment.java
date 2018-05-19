@@ -78,7 +78,7 @@ public class ScheduleDayFragment extends Fragment implements
                 DividerItemDecoration.HORIZONTAL
         ));
 
-        ViewCompat.setNestedScrollingEnabled(mRecyclerView, true);
+        mRecyclerView.setNestedScrollingEnabled(true);
         return rootView;
     }
 
