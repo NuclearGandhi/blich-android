@@ -90,7 +90,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mRealm = Realm.getDefaultInstance();
         setUpRefresher();
 
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        final View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
         mToolbar = rootView.findViewById(R.id.toolbar);
         mToolbar.setOnClickListener(this);
@@ -110,19 +110,9 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 if (selected) {
-                    int index = 0;
-
-                    for (int i = 0; i < mDates.size(); i++) {
-                        if (mDates.get(i).equals(date)) {
-                            index = i;
-                            break;
-                        }
-                    }
-
                     ViewCompat.animate(mDropDown).rotation(0).start();
                     mAppBarLayout.setExpanded(false, true);
-                    mIsExpanded = false;
-                    mRecyclerView.smoothScrollToPosition(index);
+                    scrollToDate(date);
                 }
             }
         });
@@ -335,6 +325,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private void updateTitle(DateFormat dateFormat, Toolbar toolbar) {
         toolbar.setTitle(dateFormat.format(mCalendarView.getCurrentDate().getDate()));
+    }
+
+    private void scrollToDate(CalendarDay date) {
+        int position = mAdapter.getDateFlatPosition(date);
+        mRecyclerView.smoothScrollToPosition(position);
     }
 
     /**

@@ -24,6 +24,7 @@ import com.blackcracks.blich.data.exam.ExamItem;
 import com.blackcracks.blich.data.exam.GenericExam;
 import com.blackcracks.blich.data.exam.MonthDivider;
 import com.blackcracks.blich.util.Utilities;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.util.Calendar;
 import java.util.List;
@@ -42,7 +43,6 @@ public class ExamAdapter extends RecyclerView.Adapter {
 
     /**
      * @param data          exams to be displayed.
-     * @param statusMessage {@link TextView} for when the data is invalid.
      */
     @SuppressWarnings("SameParameterValue")
     public ExamAdapter(
@@ -68,6 +68,19 @@ public class ExamAdapter extends RecyclerView.Adapter {
     public void switchData(List<Exam> data) {
         mExamHelper.switchData(data);
         notifyDataSetChanged();
+    }
+
+    public int getDateFlatPosition(CalendarDay date) {
+        for(int i = 0; i < mExamHelper.getCount(); i++) {
+            ExamItem item = mExamHelper.getItem(i);
+            if (item instanceof GenericExam) {
+                GenericExam exam = (GenericExam) item;
+                CalendarDay day = CalendarDay.from(exam.getDate());
+                if (date.equals(day))
+                    return i;
+            }
+        }
+        return -1;
     }
 
     @Override
