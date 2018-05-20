@@ -11,7 +11,6 @@ import android.support.annotation.ColorInt;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,11 +26,9 @@ import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.data.schedule.Period;
 import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
 import com.thoughtbot.expandablerecyclerview.listeners.OnGroupClickListener;
-import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
+import com.thoughtbot.expandablerecyclerview.models.IExpandableGroup;
 
 import java.util.List;
-
-import timber.log.Timber;
 
 public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapter.GroupViewHolder, ScheduleAdapter.ChildViewHolder> {
 
@@ -41,7 +38,7 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
     private int mPrimaryTextColor;
     private int mHourTextColor;
 
-    public ScheduleAdapter(List<? extends ExpandableGroup> groups,
+    public ScheduleAdapter(List<? extends IExpandableGroup> groups,
                            Context context) {
         super(groups);
 
@@ -64,14 +61,13 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
     public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_schedule_group, parent, false);
-        GroupViewHolder holder = new GroupViewHolder(view);
-        return holder;
+        return new GroupViewHolder(view);
     }
 
     @Override
     public void onBindGroupViewHolder(GroupViewHolder holder,
                                       int flatPosition,
-                                      ExpandableGroup group) {
+                                      IExpandableGroup group) {
 
         holder.reset();
         int groupPosition = expandableList.getUnflattenedPosition(flatPosition).groupPos;
@@ -129,18 +125,12 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         if (isSingleLesson) {
             holder.teacherView.setText(teacher);
             holder.classroomView.setText(room);
-            holder.setOnGroupClickListener(new OnGroupClickListener() {
-                @Override
-                public boolean onGroupClick(int flatPos) {
-                    return false;
-                }
-            });
         } else {
             holder.indicatorView.setVisibility(View.VISIBLE);
             holder.setOnGroupClickListener(new OnGroupClickListener() {
                 @Override
-                public boolean onGroupClick(int flatPos) {
-                    return toggleGroup(flatPos);
+                public void onGroupClick(int flatPos) {
+                    toggleGroup(flatPos);
                 }
             });
         }
@@ -150,14 +140,13 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
     public ChildViewHolder onCreateChildViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_schedule_child, parent, false);
-        ChildViewHolder holder = new ChildViewHolder(view);
-        return holder;
+        return new ChildViewHolder(view);
     }
 
     @Override
     public void onBindChildViewHolder(ChildViewHolder holder,
                                       int flatPosition,
-                                      ExpandableGroup group,
+                                      IExpandableGroup group,
                                       int childPosition) {
         holder.reset();
         Lesson lesson = (Lesson) group.getItems().get(childPosition);
@@ -273,6 +262,10 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         @Override
         public void collapse() {
             super.collapse();
+
+            if (isSingleLesson)
+                return;
+
             subjectView.setMaxLines(1);
             indicatorView.animate().rotation(0);
             teacherView.setText("...");

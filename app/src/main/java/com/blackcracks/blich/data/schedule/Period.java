@@ -1,36 +1,39 @@
 package com.blackcracks.blich.data.schedule;
 
-import android.os.Parcel;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 
-import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
+import com.thoughtbot.expandablerecyclerview.models.IExpandableGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Period extends ExpandableGroup<Lesson> implements Comparable<Period> {
+public class Period implements Comparable<Period>, IExpandableGroup<Lesson> {
+
+    private List<Lesson> lessons;
 
     private int periodNum;
     private Lesson firstLesson;
     private List<Integer> changeTypeColors;
 
-    public Period(String title, List<Lesson> items, int periodNum) {
-        super(title, items);
+    public Period(List<Lesson> lessons, int periodNum) {
+        this.lessons = lessons;
         this.periodNum = periodNum;
         changeTypeColors = new ArrayList<>();
     }
 
-    public Period(Parcel in) {
-        super(in);
+    @Override
+    public List<Lesson> getItems() {
+        return lessons;
+    }
+
+    @Override
+    public int getItemCount() {
+        return lessons != null ? lessons.size() : 0;
     }
 
     public int getPeriodNum() {
         return periodNum;
-    }
-
-    public void setPeriodNum(int periodNum) {
-        this.periodNum = periodNum;
     }
 
     public Lesson getFirstLesson() {
@@ -43,10 +46,6 @@ public class Period extends ExpandableGroup<Lesson> implements Comparable<Period
 
     public List<Integer> getChangeTypeColors() {
         return changeTypeColors;
-    }
-
-    public void setChangeTypeColors(List<Integer> changeTypeColors) {
-        this.changeTypeColors = changeTypeColors;
     }
 
     public void addChangeTypeColor(@ColorInt int color) {

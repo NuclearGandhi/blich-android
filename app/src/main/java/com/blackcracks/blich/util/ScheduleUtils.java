@@ -181,7 +181,6 @@ public class ScheduleUtils {
             }
 
             Period period = new Period(
-                    lessons.get(0).buildTitle(),
                     lessons,
                     periodNum);
             processedData.add(period);
@@ -227,7 +226,6 @@ public class ScheduleUtils {
                 newLessons.add(newLesson);
 
                 Period newPeriod = new Period(
-                        newLesson.buildTitle(),
                         newLessons,
                         periodNum
                 );
