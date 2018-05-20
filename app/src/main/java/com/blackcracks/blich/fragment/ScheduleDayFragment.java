@@ -73,12 +73,10 @@ public class ScheduleDayFragment extends Fragment implements
 
         mRecyclerView = rootView.findViewById(R.id.recycler_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(
-                getContext(),
-                DividerItemDecoration.HORIZONTAL
-        ));
-
         mRecyclerView.setNestedScrollingEnabled(true);
+
+        mAdapter = new ScheduleAdapter(null, getContext());
+        mRecyclerView.setAdapter(mAdapter);
         return rootView;
     }
 
@@ -131,7 +129,6 @@ public class ScheduleDayFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        clearData();
         mRealm.close();
     }
 
@@ -151,24 +148,12 @@ public class ScheduleDayFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<List<Period>> loader, List<Period> data) {
-        clearData();
-        mAdapter = new ScheduleAdapter(
-                data,
-                getContext()
-        );
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.setData(data);
     }
 
     @Override
     public void onLoaderReset(Loader<List<Period>> loader) {
-        clearData();
         mRecyclerView.setAdapter(null);
-    }
-
-    private void clearData() {
-        if (mAdapter != null) {
-            mAdapter.clear();
-        }
     }
 
     /**
