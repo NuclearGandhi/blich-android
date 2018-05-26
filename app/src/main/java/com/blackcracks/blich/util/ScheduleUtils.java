@@ -10,6 +10,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
@@ -29,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
@@ -71,29 +73,60 @@ public class ScheduleUtils {
         return 0;
     }
 
-    public static List<Period> fetchScheduleData(Realm realm, int day, boolean loadToRAM) {
+    public static List<Period> fetchScheduleData(Realm realm, int day) {
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
         List<Period> data;
         if (isFilterOn) {
             List<Lesson> lessons;
 
-            if (loadToRAM)
-                lessons = realm.copyFromRealm(
-                        buildFilteredQuery(realm, day)
-                        .findAll()
-                );
-            else
-                lessons = buildFilteredQuery(realm, day)
-                        .findAll();
+            lessons = realm.copyFromRealm(
+                    buildFilteredQuery(realm, day)
+                            .findAll()
+            );
 
             data = RealmUtils.convertLessonListToPeriodList(lessons, day);
         } else {
             data = buildQuery(realm, day)
                     .findAll();
 
+            data = realm.copyFromRealm(data);
+        }
+        return data;
+    }
 
-            if (loadToRAM)
-                data = realm.copyFromRealm(data);
+    public static List<Period> fetchScheduleDataAsync(
+            Realm realm,
+            final int day,
+            final OnRealmAsyncFinishedListener listener) {
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
+        final List<Period> data;
+        if (isFilterOn) {
+            RealmResults<Lesson> lessons;
+
+            lessons =
+                    buildFilteredQuery(realm, day)
+                            .findAllAsync();
+
+            lessons.addChangeListener(new RealmChangeListener<RealmResults<Lesson>>() {
+                @Override
+                public void onChange(@NonNull RealmResults<Lesson> lessons) {
+                    listener.onAsyncFinished(RealmUtils.convertLessonListToPeriodList(lessons, day));
+                }
+            });
+
+            data = RealmUtils.convertLessonListToPeriodList(lessons, day);
+        } else {
+            RealmResults<Period> periods = buildQuery(realm, day)
+                    .findAllAsync();
+
+            periods.addChangeListener(new RealmChangeListener<RealmResults<Period>>() {
+                @Override
+                public void onChange(RealmResults<Period> periods) {
+                    listener.onAsyncFinished(periods);
+                }
+            });
+
+            data = periods;
         }
         return data;
     }
@@ -153,6 +186,10 @@ public class ScheduleUtils {
                 .beginGroup()
                 .equalTo("modifier.newTeacher", teacher)
                 .endGroup();
+    }
+
+    public interface OnRealmAsyncFinishedListener {
+        void onAsyncFinished(List<Period> data);
     }
 
     public static void notifyUser(Context context) {

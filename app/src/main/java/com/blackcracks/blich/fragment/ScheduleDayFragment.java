@@ -10,13 +10,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -143,7 +139,16 @@ public class ScheduleDayFragment extends Fragment implements
 
     @Override
     public Loader<List<Period>> onCreateLoader(int id, Bundle args) {
-        return new ScheduleLoader(getContext(), mRealm, mDay);
+        return new ScheduleLoader(
+                getContext(),
+                mRealm,
+                mDay,
+                new ScheduleUtils.OnRealmAsyncFinishedListener() {
+                    @Override
+                    public void onAsyncFinished(List<Period> data) {
+                        mAdapter.setData(data);
+                    }
+                });
     }
 
     @Override
@@ -161,20 +166,26 @@ public class ScheduleDayFragment extends Fragment implements
      */
     private static class ScheduleLoader extends Loader<List<Period>> {
 
+        private ScheduleUtils.OnRealmAsyncFinishedListener mChangeListener;
         private Realm mRealm;
         private int mDay;
 
-        public ScheduleLoader(Context context, Realm realm, int day) {
+        public ScheduleLoader(
+                Context context,
+                Realm realm,
+                int day,
+                ScheduleUtils.OnRealmAsyncFinishedListener listener) {
             super(context);
             mRealm = realm;
             mDay = day;
+            mChangeListener = listener;
         }
 
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
             deliverResult(
-                    ScheduleUtils.fetchScheduleData(mRealm, mDay, false)
+                    ScheduleUtils.fetchScheduleDataAsync(mRealm, mDay, mChangeListener)
             );
         }
 

@@ -54,7 +54,7 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
         }
 
         PreferenceUtils.getInstance(mContext);
-        switchData(ScheduleUtils.fetchScheduleData(mRealm, mDay, true));
+        switchData(ScheduleUtils.fetchScheduleData(mRealm, mDay));
         updateTheme();
     }
 
