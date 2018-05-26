@@ -31,10 +31,8 @@ import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
-import com.blackcracks.blich.data.raw.Exam;
-import com.blackcracks.blich.data.exam.GenericExam;
+import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.listener.AppBarStateChangeListener;
-import com.blackcracks.blich.util.ExamUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -272,7 +270,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
-        mAdapter.switchData(data);
+        mAdapter.setData(data);
 
         try {
             if (!data.isEmpty()) {
@@ -285,13 +283,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     public void onLoaderReset(Loader<List<Exam>> loader) {
-        mAdapter.switchData(null);
+        mAdapter.setData(null);
     }
 
     private void loadDataIntoCalendar(List<Exam> data) {
-        List<GenericExam> exams = ExamUtils.buildExamsList(data);
-        for (GenericExam exam :
-                exams) {
+        for (Exam exam :
+                data) {
             mDates.add(CalendarDay.from(exam.getDate()));
         }
 
@@ -329,11 +326,12 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     private void scrollToDate(CalendarDay date) {
         int position = mAdapter.getDateFlatPosition(date);
-        mRecyclerView.smoothScrollToPosition(position);
+        if (position != -1)
+            mRecyclerView.smoothScrollToPosition(position);
     }
 
     /**
-     * A {@link Loader} to fetch {@link List<Exam>} from {@link Realm} database.
+     * A {@link Loader} to fetch {@link List< Exam >} from {@link Realm} database.
      */
     private static class ExamsLoader extends Loader<List<Exam>> {
 
@@ -348,11 +346,11 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         protected void onStartLoading() {
             super.onStartLoading();
 
-            List<Exam> exams = mRealm.where(Exam.class)
+            List<Exam> rawExams = mRealm.where(Exam.class)
                     .sort("date", Sort.ASCENDING)
                     .findAll();
 
-            deliverResult(exams);
+            deliverResult(rawExams);
         }
 
         @Override

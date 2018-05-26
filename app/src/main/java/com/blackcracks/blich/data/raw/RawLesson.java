@@ -5,8 +5,6 @@
 
 package com.blackcracks.blich.data.raw;
 
-import com.blackcracks.blich.data.TeacherSubject;
-
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.LinkingObjects;
@@ -20,15 +18,8 @@ public class RawLesson extends RealmObject {
     @Required private String subject;
     private String room;
     private String teacher;
-    @LinkingObjects("lessons") private final RealmResults<RawPeriod> owners  = null;
 
     public RawLesson() {}
-
-    public RawLesson(String subject, String room, String teacher) {
-        this.subject = subject;
-        this.room = room;
-        this.teacher = teacher;
-    }
 
     public String getSubject() {
         return subject;
@@ -52,18 +43,5 @@ public class RawLesson extends RealmObject {
 
     public void setTeacher(String teacher) {
         this.teacher = teacher;
-    }
-
-    /**
-     * Create a {@link TeacherSubject} from the lesson.
-     *
-     * @return a {@link TeacherSubject}.
-     */
-    public TeacherSubject getTeacherSubject() {
-        return new TeacherSubject(teacher, subject);
-    }
-
-    public RealmResults<RawPeriod> getOwners() {
-        return owners;
     }
 }

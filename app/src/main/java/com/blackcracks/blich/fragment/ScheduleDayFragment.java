@@ -143,7 +143,7 @@ public class ScheduleDayFragment extends Fragment implements
 
     @Override
     public Loader<List<Period>> onCreateLoader(int id, Bundle args) {
-        return new ScheduleLoader(getContext(), mDay);
+        return new ScheduleLoader(getContext(), mRealm, mDay);
     }
 
     @Override
@@ -159,31 +159,29 @@ public class ScheduleDayFragment extends Fragment implements
     /**
      * A {@link Loader< List<Period> >} to fetch schedule from {@link Realm} database
      */
-    private static class ScheduleLoader extends AsyncTaskLoader<List<Period>> {
+    private static class ScheduleLoader extends Loader<List<Period>> {
 
+        private Realm mRealm;
         private int mDay;
 
-        public ScheduleLoader(Context context, int day) {
+        public ScheduleLoader(Context context, Realm realm, int day) {
             super(context);
+            mRealm = realm;
             mDay = day;
         }
 
         @Override
         protected void onStartLoading() {
             super.onStartLoading();
-            forceLoad();
+            deliverResult(
+                    ScheduleUtils.fetchScheduleData(mRealm, mDay, false)
+            );
         }
 
         @Override
         protected void onStopLoading() {
             super.onStopLoading();
             cancelLoad();
-        }
-
-        @Nullable
-        @Override
-        public List<Period> loadInBackground() {
-            return ScheduleUtils.fetchProcessedData(mDay);
         }
     }
 }

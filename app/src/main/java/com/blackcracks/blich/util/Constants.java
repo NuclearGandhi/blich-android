@@ -43,9 +43,8 @@ public class Constants {
         public static final String TYPE_NEW_TEACHER = "NewTeacher";
         public static final String TYPE_NEW_HOUR = "HourMove";
         public static final String TYPE_NEW_ROOM = "NewRoom";
-        public static final String TYPE_EXAM = "Exam";
+        public static final String TYPE_EXAM = "RawExam";
         public static final String TYPE_CANCELED = "FreeLesson";
         public static final String TYPE_EVENT = "Event";
-        public static final String TYPE_NORMAL = "Normal";
     }
 }

@@ -36,7 +36,8 @@ public class MonthDivider implements ExamItem{
     }
 
     @Override
-    public @Type int getType() {
+    public @ExamItemType
+    int getType() {
         return ExamItem.TYPE_MONTH;
     }
 }

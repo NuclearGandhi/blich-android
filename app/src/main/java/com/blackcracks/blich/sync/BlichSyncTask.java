@@ -9,14 +9,17 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.BlichData;
+import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.Event;
-import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.raw.RawExam;
+import com.blackcracks.blich.data.raw.RawData;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
+import com.blackcracks.blich.data.schedule.Period;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
+import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -54,11 +57,14 @@ public class BlichSyncTask {
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
         firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
 
-        BlichData blichData = new BlichData();
-        int status = fetchData(blichData);
+        RawData rawData = new RawData();
+        int status = fetchData(rawData);
 
         if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
-            loadDataIntoRealm(blichData);
+            insertDataIntoRealm(
+                    ShahafUtils.processScheduleRawData(rawData),
+                    ShahafUtils.processExamRawData(rawData)
+            );
         }
 
         //Log the end of sync
@@ -74,13 +80,13 @@ public class BlichSyncTask {
     /**
      * Fetch the required data from the server.
      *
-     * @param blichData Data object to insert the fetched data into.
+     * @param rawData Data object to insert the fetched data into.
      * @return a {@link SyncCallbackUtils.FetchStatus}.
      */
     private static @SyncCallbackUtils.FetchStatus
-    int fetchData(BlichData blichData) {
+    int fetchData(RawData rawData) {
         //Call four different requests from the server.
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             String json;
 
             String command = ShahafUtils.COMMAND_SCHEDULE;
@@ -106,24 +112,25 @@ public class BlichSyncTask {
             try {
                 json = ShahafUtils.getResponseFromUrl(ShahafUtils.buildUrlFromCommand(command));
 
-                if (json == null || json.equals("")) return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
+                if (json == null || json.equals(""))
+                    return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
 
                 //Insert data accordingly
                 switch (command) {
                     case ShahafUtils.COMMAND_SCHEDULE: {
-                        insertScheduleJsonIntoData(json, blichData);
+                        insertScheduleJsonIntoData(json, rawData);
                         break;
                     }
                     case ShahafUtils.COMMAND_CHANGES: {
-                        insertChangesJsonIntoData(json, blichData);
+                        insertChangesJsonIntoData(json, rawData);
                         break;
                     }
                     case ShahafUtils.COMMAND_EVENTS: {
-                        insertEventsJsonIntoData(json, blichData);
+                        insertEventsJsonIntoData(json, rawData);
                         break;
                     }
                     case ShahafUtils.COMMAND_EXAMS: {
-                        insertExamsJsonIntoData(json, blichData);
+                        insertExamsJsonIntoData(json, rawData);
                         break;
                     }
                 }
@@ -136,11 +143,11 @@ public class BlichSyncTask {
         return SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL;
     }
 
-    private static void insertScheduleJsonIntoData(String json, BlichData blichData) throws JSONException {
+    private static void insertScheduleJsonIntoData(String json, RawData rawData) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonHours = raw.getJSONArray(Database.JSON_ARRAY_HOURS);
-        RealmList<RawPeriod> RawPeriods = new RealmList<>();
+        RealmList<RawPeriod> rawPeriods = new RealmList<>();
         for (int i = 0; i < jsonHours.length(); i++) {
             RawPeriod RawPeriod = new RawPeriod();
             JSONObject jsonHour = jsonHours.getJSONObject(i);
@@ -164,19 +171,18 @@ public class BlichSyncTask {
             RawPeriod.setHour(jsonHour.getInt(Database.JSON_INT_HOUR));
             RawPeriod.setDay(day);
 
-            RawPeriods.add(RawPeriod);
+            rawPeriods.add(RawPeriod);
         }
 
-        blichData.setPeriods(RawPeriods);
-        blichData.setClassId(raw.getInt(Database.JSON_INT_CLASS_ID));
+        rawData.setRawPeriods(rawPeriods);
     }
 
-    private static void insertChangesJsonIntoData(String json, BlichData blichData) throws JSONException {
+    private static void insertChangesJsonIntoData(String json, RawData rawData) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonChanges = raw.getJSONArray(Database.JSON_ARRAY_CHANGES);
         RealmList<Change> changes = new RealmList<>();
-        for(int i = 0; i < jsonChanges.length(); i++) {
+        for (int i = 0; i < jsonChanges.length(); i++) {
             Change change = new Change();
             JSONObject jsonChange = jsonChanges.getJSONObject(i);
             JSONObject jsonStudyGroup = jsonChange.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
@@ -186,34 +192,31 @@ public class BlichSyncTask {
 
             change.setChangeType(jsonChange.getString(Database.JSON_STRING_CHANGE_TYPE));
             change.setDate(date);
-            change.setHour(jsonChange.getInt(Database.JSON_INT_HOUR));
+            change.setBeginHour(jsonChange.getInt(Database.JSON_INT_HOUR));
+            change.setEndHour(jsonChange.getInt(Database.JSON_INT_HOUR));
             change.setSubject(jsonStudyGroup.getString(Database.JSON_STRING_SUBJECT));
-            change.setTeacher(jsonStudyGroup.getString(Database.JSON_STRING_TEACHER));
+            change.setOldTeacher(jsonStudyGroup.getString(Database.JSON_STRING_TEACHER));
             change.setNewHour(jsonChange.getInt(Database.JSON_INT_NEW_HOUR));
             change.setNewTeacher(jsonChange.getString(Database.JSON_STRING_NEW_TEACHER));
             change.setNewRoom(jsonChange.getString(Database.JSON_STRING_NEW_ROOM));
 
             if (change.getChangeType().equals(Database.TYPE_NEW_HOUR)) {
-                try {
-                    Change otherChange = (Change) change.clone();
-                    otherChange.setHour(change.getNewHour());
-                    changes.add(otherChange);
-                } catch (CloneNotSupportedException e) {
-                    Timber.e(e);
-                }
+                changes.add(
+                        change.cloneNewHourVariant()
+                );
             }
             changes.add(change);
         }
 
-        blichData.setChanges(changes);
+        rawData.addModifiedLessons(changes);
     }
 
-    private static void insertEventsJsonIntoData(String json, BlichData blichData) throws JSONException {
+    private static void insertEventsJsonIntoData(String json, RawData rawData) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonEvents = raw.getJSONArray(Database.JSON_ARRAY_EVENTS);
         RealmList<Event> events = new RealmList<>();
-        for(int i = 0; i < jsonEvents.length(); i++) {
+        for (int i = 0; i < jsonEvents.length(); i++) {
             JSONObject jsonEvent = jsonEvents.getJSONObject(i);
             Event event = new Event();
 
@@ -229,27 +232,27 @@ public class BlichSyncTask {
 
 
             event.setDate(date);
-            event.setName(jsonEvent.getString(Database.JSON_NAME));
+            event.setTitle(jsonEvent.getString(Database.JSON_NAME));
             event.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
             event.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
-            event.setRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
+            event.setOldRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
             event.setSubject(subject);
-            event.setTeacher(teacher);
+            event.setOldTeacher(teacher);
 
             events.add(event);
         }
 
-        blichData.setEvents(events);
+        rawData.addModifiedLessons(events);
     }
 
-    private static void insertExamsJsonIntoData(String json, BlichData blichData) throws JSONException{
+    private static void insertExamsJsonIntoData(String json, RawData rawData) throws JSONException {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonExams = raw.getJSONArray(Database.JSON_ARRAY_EXAMS);
-        RealmList<Exam> exams = new RealmList<>();
+        RealmList<RawExam> rawExams = new RealmList<>();
         for (int i = 0; i < jsonExams.length(); i++) {
             JSONObject jsonExam = jsonExams.getJSONObject(i);
-            Exam exam = new Exam();
+            RawExam rawExam = new RawExam();
 
             Date date = parseDate(jsonExam.getString(Database.JSON_STRING_DATE));
             String subject = "";
@@ -260,50 +263,36 @@ public class BlichSyncTask {
                 teacher = studyGroup.getString(Database.JSON_STRING_TEACHER);
             }
 
+            rawExam.setDate(date);
+            rawExam.setTitle(jsonExam.getString(Database.JSON_NAME));
+            rawExam.setBeginHour(jsonExam.getInt(Database.JSON_INT_BEGIN_HOUR));
+            rawExam.setEndHour(jsonExam.getInt(Database.JSON_INT_END_HOUR));
+            rawExam.setOldRoom(jsonExam.getString(Database.JSON_STRING_ROOM));
+            rawExam.setSubject(subject);
+            rawExam.setOldTeacher(teacher);
 
-            exam.setDate(date);
-            exam.setName(jsonExam.getString(Database.JSON_NAME));
-            exam.setBeginHour(jsonExam.getInt(Database.JSON_INT_BEGIN_HOUR));
-            exam.setEndHour(jsonExam.getInt(Database.JSON_INT_END_HOUR));
-            exam.setRoom(jsonExam.getString(Database.JSON_STRING_ROOM));
-            exam.setSubject(subject);
-            exam.setTeacher(teacher);
-
-            exams.add(exam);
+            rawExams.add(rawExam);
         }
 
-        blichData.setExams(exams);
+        rawData.addModifiedLessons(rawExams);
     }
 
-    /**
-     * Insert the given data into realm. Deletes all the old data.
-     *
-     * @param blichData data to insert.
-     */
-    private static void loadDataIntoRealm(BlichData blichData) {
+    private static void insertDataIntoRealm(RealmList<Period> schedule, RealmList<Exam> exams) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
-        //Delete old data
-        RealmResults<RawPeriod> RawPeriods = realm.where(RawPeriod.class)
+        RealmResults<Period> oldSchedule = realm.where(Period.class)
                 .findAll();
-        RawPeriods.deleteAllFromRealm();
+        oldSchedule.deleteAllFromRealm();
 
-        RealmResults<Change> changes = realm.where(Change.class)
+        RealmResults<Exam> oldExams = realm.where(Exam.class)
                 .findAll();
-        changes.deleteAllFromRealm();
+        oldExams.deleteAllFromRealm();
 
-        RealmResults<Event> events = realm.where(Event.class)
-                .findAll();
-        events.deleteAllFromRealm();
-
-        RealmResults<Exam> exams = realm.where(Exam.class)
-                .findAll();
-        exams.deleteAllFromRealm();
-
-        //Insert new data
-        realm.insert(blichData);
+        realm.insert(schedule);
+        realm.insert(exams);
         realm.commitTransaction();
+
         realm.close();
     }
 

@@ -6,25 +6,15 @@
 package com.blackcracks.blich.data.raw;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
-
-import java.util.Date;
-
-import io.realm.RealmObject;
 
 /**
  * A data class holding information about a change in schedule.
  */
-public class Change extends RealmObject implements ModifiedLesson, Cloneable {
+public class Change extends RawModifier {
 
     private String changeType;
-    private Date date;
-    private int hour;
-
-    private String subject;
-    private String teacher;
 
     private String newTeacher;
     private String newRoom;
@@ -33,38 +23,44 @@ public class Change extends RealmObject implements ModifiedLesson, Cloneable {
     public Change() {
     }
 
-    public Change(Date date, String subject, String teacher, String changeType, int hour) {
-        setDate(date);
-        setSubject(subject);
-        setTeacher(teacher);
-        setChangeType(changeType);
-        setHour(hour);
+    public Change cloneNewHourVariant() {
+        Change newChange = new Change();
+        newChange.setDate(date);
+        newChange.setBeginHour(newHour);
+        newChange.setEndHour(newHour);
+
+        newChange.setTitle(title);
+        newChange.setSubject(subject);
+        newChange.setOldTeacher(oldTeacher);
+        newChange.setOldRoom(oldRoom);
+
+        newChange.setChangeType(changeType);
+        newChange.setNewTeacher(newTeacher);
+        newChange.setNewRoom(oldRoom);
+        newChange.setNewHour(newHour);
+
+        return newChange;
     }
 
     @Override
-    public String buildName() {
-        switch (getChangeType()) {
+    public String buildTitle() {
+        switch (changeType) {
             case Database.TYPE_CANCELED: {
-                return "ביטול " + buildLessonName();
+                return "ביטול " + buildBaseTitle();
             }
             case Database.TYPE_NEW_HOUR: {
-                return "הזזת " + buildLessonName() + " לשעה " + getNewHour();
+                return "הזזת " + buildBaseTitle() + " לשעה " + newHour;
             }
             case Database.TYPE_NEW_ROOM: {
-                return buildLessonName() + " -> חדר: " + getNewRoom();
+                return buildBaseTitle() + " -> חדר: " + newRoom;
             }
             case Database.TYPE_NEW_TEACHER: {
-                return buildLessonName() + " -> מורה: " + getNewTeacher();
+                return buildBaseTitle() + " -> מורה: " + newTeacher;
             }
             default: {
-                return buildLessonName();
+                return buildBaseTitle();
             }
         }
-    }
-
-    @Override
-    public String getType() {
-        return changeType;
     }
 
     @Override
@@ -76,58 +72,8 @@ public class Change extends RealmObject implements ModifiedLesson, Cloneable {
         }
     }
 
-    @Override
-    public boolean isAReplacer() {
-        return true;
-    }
-
-    @Override
-    public boolean canReplaceLesson(Lesson toReplace) {
-        return getTeacher().equals(toReplace.getTeacher()) && getSubject().equals(toReplace.getSubject());
-    }
-
-    @Override
-    public boolean isEqualToHour(int hour) {
-        return this.hour == hour;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Change) {
-            Change c = (Change) obj;
-            return buildName().equals(c.buildName());
-        }
-        return false;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        Object clone = super.clone();
-        Change change = (Change) clone;
-        change.setDate(date);
-        change.setChangeType(changeType);
-        change.setHour(hour);
-        change.setSubject(subject);
-        change.setTeacher(teacher);
-        change.setNewRoom(newRoom);
-        change.setNewHour(newHour);
-        change.setNewTeacher(newTeacher);
-
-        return change;
-    }
-
-    @Override
-    public int getBeginHour() {
-        return getHour();
-    }
-
-    @Override
-    public int getEndHour() {
-        return getHour();
-    }
-
-    private String buildLessonName() {
-        return getSubject() + ", " + getTeacher();
+    private String buildBaseTitle() {
+        return subject + ", " + oldTeacher;
     }
 
     public String getChangeType() {
@@ -138,59 +84,25 @@ public class Change extends RealmObject implements ModifiedLesson, Cloneable {
         this.changeType = changeType;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    private int getHour() {
-        return hour;
-    }
-
-    public void setHour(int hour) {
-        this.hour = hour;
-    }
-
-    private String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    private String getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(String teacher) {
-        this.teacher = teacher;
-    }
-
-    private String getNewTeacher() {
-        return newTeacher;
-    }
-
     public void setNewTeacher(String newTeacher) {
         this.newTeacher = newTeacher;
-    }
-
-    private String getNewRoom() {
-        return newRoom;
     }
 
     public void setNewRoom(String newRoom) {
         this.newRoom = newRoom;
     }
 
-    public int getNewHour() {
-        return newHour;
-    }
-
     public void setNewHour(int newHour) {
         this.newHour = newHour;
+    }
+
+    @Override
+    public String getNewTeacher() {
+        return newTeacher;
+    }
+
+    @Override
+    public String getNewRoom() {
+        return newRoom;
     }
 }

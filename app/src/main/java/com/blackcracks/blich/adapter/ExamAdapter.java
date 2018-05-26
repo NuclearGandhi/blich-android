@@ -19,9 +19,8 @@ import com.afollestad.appthemeengine.Config;
 import com.afollestad.appthemeengine.util.ATEUtil;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.helper.RealmExamHelper;
-import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.exam.ExamItem;
-import com.blackcracks.blich.data.exam.GenericExam;
 import com.blackcracks.blich.data.exam.MonthDivider;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -65,16 +64,16 @@ public class ExamAdapter extends RecyclerView.Adapter {
      *
      * @param data exams to switch to.
      */
-    public void switchData(List<Exam> data) {
-        mExamHelper.switchData(data);
+    public void setData(List<Exam> data) {
+        mExamHelper.setData(data);
         notifyDataSetChanged();
     }
 
     public int getDateFlatPosition(CalendarDay date) {
         for(int i = 0; i < mExamHelper.getCount(); i++) {
             ExamItem item = mExamHelper.getItem(i);
-            if (item instanceof GenericExam) {
-                GenericExam exam = (GenericExam) item;
+            if (item instanceof Exam) {
+                Exam exam = (Exam) item;
                 CalendarDay day = CalendarDay.from(exam.getDate());
                 if (date.equals(day))
                     return i;
@@ -122,7 +121,7 @@ public class ExamAdapter extends RecyclerView.Adapter {
             case ExamItem.TYPE_EXAM: {
                 bindExamView(
                         (ExamViewHolder) holder,
-                        (GenericExam) mExamHelper.getItem(position));
+                        (Exam) mExamHelper.getItem(position));
                 break;
             }
             case ExamItem.TYPE_MONTH: {
@@ -136,10 +135,10 @@ public class ExamAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void bindExamView(ExamViewHolder holder, GenericExam exam) {
-        String subject = exam.getName();
+    private void bindExamView(ExamViewHolder holder, Exam exam) {
+        String subject = exam.getBaseTitle();
         long dateInMillis = exam.getDate().getTime();
-        String teacher = exam.buildTeacherString();
+        String teachers = exam.buildTeachersString();
 
         //Get readable date from epoch in millis.
         Calendar calendar = Calendar.getInstance();
@@ -153,7 +152,7 @@ public class ExamAdapter extends RecyclerView.Adapter {
         holder.examDay.setText(String.valueOf(day));
         holder.examDayOfWeek.setText(dayOfWeek);
         holder.examSubject.setText(subject);
-        holder.examTeacher.setText(teacher);
+        holder.examTeacher.setText(teachers);
     }
 
     private void bindDividerView(DividerViewHolder holder, MonthDivider divider) {

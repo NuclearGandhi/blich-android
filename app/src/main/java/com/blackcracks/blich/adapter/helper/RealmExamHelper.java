@@ -5,11 +5,9 @@
 
 package com.blackcracks.blich.adapter.helper;
 
-import com.blackcracks.blich.data.raw.Exam;
 import com.blackcracks.blich.data.exam.ExamItem;
-import com.blackcracks.blich.data.exam.GenericExam;
+import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.exam.MonthDivider;
-import com.blackcracks.blich.util.ExamUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +23,7 @@ public class RealmExamHelper {
     private boolean mIsDataValid;
 
     public RealmExamHelper(List<Exam> exams) {
-        switchData(exams);
+        setData(exams);
     }
 
     /**
@@ -33,7 +31,7 @@ public class RealmExamHelper {
      *
      * @param exams data to switch to.
      */
-    public void switchData(List<Exam> exams) {
+    public void setData(List<Exam> exams) {
         //Check if the data is valid
         try {
             mIsDataValid = exams != null && !exams.isEmpty();
@@ -44,8 +42,7 @@ public class RealmExamHelper {
 
         if (mIsDataValid) {
             mExamItems.clear();
-            List<GenericExam> genericExams = ExamUtils.buildExamsList(exams);
-            buildMonthDividers(genericExams);
+            buildMonthDividers(exams);
         }
     }
 
@@ -56,16 +53,16 @@ public class RealmExamHelper {
     /**
      * Add month dividers to the data list.
      *
-     * @param exams the list of {@link GenericExam}s.
+     * @param exams the list of {@link Exam}s.
      */
-    private void buildMonthDividers(List<GenericExam> exams) {
+    private void buildMonthDividers(List<Exam> exams) {
         mExamItems.add(
                 new MonthDivider(exams.get(0).getDate()));
         mExamItems.add(exams.get(0));
 
         for (int i = 1; i < exams.size(); i++) {
-            GenericExam exam = exams.get(i);
-            if (!exam.equalToByMonth(exams.get(i - 1))) {
+            Exam exam = exams.get(i);
+            if (!exam.equalsByMonth(exams.get(i - 1))) {
                 mExamItems.add(
                         new MonthDivider(exam.getDate()));
             }
@@ -81,6 +78,8 @@ public class RealmExamHelper {
      * @return an {@link ExamItem}.
      */
     public ExamItem getItem(int position) {
+        if (!mIsDataValid)
+            return null;
         return mExamItems.get(position);
     }
 

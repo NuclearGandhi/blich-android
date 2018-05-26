@@ -8,18 +8,27 @@ import com.thoughtbot.expandablerecyclerview.models.IExpandableGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Period implements Comparable<Period>, IExpandableGroup<Lesson> {
+import io.realm.RealmList;
+import io.realm.RealmObject;
 
-    private List<Lesson> lessons;
+public class Period extends RealmObject implements Comparable<Period>, IExpandableGroup<Lesson> {
 
+    private int day;
     private int periodNum;
-    private Lesson firstLesson;
-    private List<Integer> changeTypeColors;
+    private boolean isSingleChild;
+    private RealmList<Lesson> lessons;
 
-    public Period(List<Lesson> lessons, int periodNum) {
+    private Lesson firstLesson;
+    private RealmList<Integer> changeTypeColors;
+
+    public Period() {}
+
+    public Period(int day, RealmList<Lesson> lessons, int periodNum) {
+        this.day = day;
         this.lessons = lessons;
         this.periodNum = periodNum;
-        changeTypeColors = new ArrayList<>();
+        isSingleChild = false;
+        changeTypeColors = new RealmList<>();
     }
 
     @Override
@@ -32,8 +41,24 @@ public class Period implements Comparable<Period>, IExpandableGroup<Lesson> {
         return lessons != null ? lessons.size() : 0;
     }
 
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
     public int getPeriodNum() {
         return periodNum;
+    }
+
+    public boolean isSingleChild() {
+        return isSingleChild;
+    }
+
+    public void setSingleChild(boolean singleChild) {
+        isSingleChild = singleChild;
     }
 
     public Lesson getFirstLesson() {
@@ -55,8 +80,11 @@ public class Period implements Comparable<Period>, IExpandableGroup<Lesson> {
 
     @Override
     public int compareTo(@NonNull Period o) {
+        if (day < o.getDay()) return -1;
+        if (day > o.getDay()) return 1;
         if (periodNum < o.getPeriodNum()) return -1;
-        else if (periodNum == o.getPeriodNum()) return 0;
-        else return 1;
+        if (periodNum == o.getPeriodNum()) return 0;
+
+        return 1;
     }
 }

@@ -10,33 +10,27 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.text.Spanned;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
-import com.blackcracks.blich.data.raw.Change;
-import com.blackcracks.blich.data.raw.RawLesson;
-import com.blackcracks.blich.data.raw.RawPeriod;
+import com.blackcracks.blich.data.raw.RawModifier;
 import com.blackcracks.blich.data.schedule.Lesson;
-import com.blackcracks.blich.data.raw.ModifiedLesson;
-import com.blackcracks.blich.data.raw.Event;
-import com.blackcracks.blich.data.raw.Exam;
+import com.blackcracks.blich.data.schedule.Modifier;
 import com.blackcracks.blich.data.schedule.Period;
-import com.blackcracks.blich.data.schedule.RawSchedule;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * A class containing utility methods for schedule.
@@ -51,200 +45,119 @@ public class ScheduleUtils {
      * @return day of the week.
      */
     public static int getWantedDayOfTheWeek() {
+        Calendar instance = Calendar.getInstance();
+        int hour = instance.get(Calendar.HOUR_OF_DAY);
 
-        int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int daysToAdd = 0;
+        if (hour >= 18)
+            daysToAdd++;
+        if (instance.get(Calendar.DAY_OF_WEEK) == 7)
+            daysToAdd++;
 
-        if (hour >= 18 && day != 7)
-            day++; //Move to the next day if it is later than 18:00, unless it is Saturday.
-        if (day == 7) day = 1; //If it is Saturday, set day to 1 (Sunday).
-        return day;
+        instance.add(Calendar.DAY_OF_WEEK, daysToAdd);
+        return instance.get(Calendar.DAY_OF_WEEK);
     }
 
-    public static List<Period> fetchProcessedData(int day) {
-        Realm realm = Realm.getDefaultInstance();
-        RawSchedule raw = fetchRawData(realm, day, true);
-        List<Period> results = processData(raw);
-        realm.close();
-        return results;
+    public static int getWantedWeekOffset(@Nullable Calendar instance) {
+        if (instance == null)
+            instance = Calendar.getInstance();
+
+        int hour = instance.get(Calendar.HOUR_OF_DAY);
+        int day = instance.get(Calendar.DAY_OF_WEEK);
+
+        if ((hour >= 18 && day == 6) || day == 7) {
+            return 1;
+        }
+        return 0;
     }
 
-    /**
-     * Fetch from {@link Realm} schedule and pack it into a {@link RawSchedule}.
-     *
-     * @param realm     a {@link Realm} instance.
-     * @param day       day of the week.
-     * @param loadToRAM {@code true} copy the data from realm.
-     * @return the {@link RawSchedule}.
-     */
-    private static RawSchedule fetchRawData(
-            Realm realm,
-            int day,
-            boolean loadToRAM) {
-        //Check if the user wants to filter the schedule
+    public static List<Period> fetchScheduleData(Realm realm, int day, boolean loadToRAM) {
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
+        List<Period> data;
+        if (isFilterOn) {
+            List<Lesson> lessons;
 
-        List<RawPeriod> RawPeriods;
-        List<Change> changes;
-        List<Event> events;
-        List<Exam> exams;
+            if (loadToRAM)
+                lessons = realm.copyFromRealm(
+                        buildFilteredQuery(realm, day)
+                        .findAll()
+                );
+            else
+                lessons = buildFilteredQuery(realm, day)
+                        .findAll();
 
-        if (isFilterOn) { //Filter
-            //Query using Inverse-Relationship and filter
-            List<RawLesson> rawLessons = RealmUtils.buildFilteredQuery(
-                    realm,
-                    RawLesson.class,
-                    day)
+            data = RealmUtils.convertLessonListToPeriodList(lessons, day);
+        } else {
+            data = buildQuery(realm, day)
                     .findAll();
 
-            if (loadToRAM) {
-                RawPeriods = RealmUtils.convertLessonListToHourRAM(realm, rawLessons, day);
-            } else {
-                RawPeriods = RealmUtils.convertLessonListToHour(rawLessons, day);
-            }
-            Collections.sort(RawPeriods);
 
-            changes = RealmUtils.buildFilteredQuery(
-                    realm,
-                    Change.class,
-                    day)
-                    .findAll();
-
-            events = RealmUtils.buildFilteredQuery(
-                    realm,
-                    Event.class,
-                    day)
-                    .findAll();
-
-            exams = RealmUtils.buildFilteredQuery(
-                    realm,
-                    Exam.class,
-                    day)
-                    .findAll();
-
-        } else {//No filter, Query all
-            RealmResults<RawPeriod> rawPeriodList = realm.where(RawPeriod.class)
-                    .equalTo("day", day)
-                    .findAll()
-                    .sort("hour", Sort.ASCENDING);
-
-            if (loadToRAM) {
-                RawPeriods = realm.copyFromRealm(rawPeriodList);
-            } else {
-                RawPeriods = new ArrayList<>(rawPeriodList);
-            }
-
-            changes = RealmUtils.buildBaseQuery(
-                    realm,
-                    Change.class,
-                    day)
-                    .findAll();
-
-            events = RealmUtils.buildBaseQuery(
-                    realm,
-                    Event.class,
-                    day)
-                    .findAll();
-
-            exams = RealmUtils.buildBaseQuery(
-                    realm,
-                    Exam.class,
-                    day)
-                    .findAll();
+            if (loadToRAM)
+                data = realm.copyFromRealm(data);
         }
-
-        if (loadToRAM) {
-            changes = realm.copyFromRealm(changes);
-            events = realm.copyFromRealm(events);
-            exams = realm.copyFromRealm(exams);
-        }
-
-        List<ModifiedLesson> modifiedLessons = new ArrayList<ModifiedLesson>(changes);
-        modifiedLessons.addAll(events);
-        modifiedLessons.addAll(exams);
-
-        return new RawSchedule(RawPeriods, modifiedLessons);
+        return data;
     }
 
-    private static List<Period> processData(RawSchedule raw) {
-        List<Period> processedData = new ArrayList<>();
-        for (RawPeriod rawPeriod : raw.getRawPeriods()) {
-            int periodNum = rawPeriod.getHour();
-            List<Lesson> lessons = new ArrayList<>();
-            for (RawLesson rawLesson : rawPeriod.getLessons()) {
-                Lesson lesson = new Lesson(
-                        rawLesson.getSubject(),
-                        rawLesson.getRoom(),
-                        rawLesson.getTeacher()
-                );
-                lessons.add(lesson);
-            }
+    private static RealmQuery<Lesson> buildFilteredQuery(
+            Realm realm,
+            int day) {
 
-            Period period = new Period(
-                    lessons,
-                    periodNum);
-            processedData.add(period);
+        String teacherFilter = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key);
+        String[] teacherSubjects = teacherFilter.split(";");
+
+        RealmQuery<Lesson> query = realm.where(Lesson.class);
+        query.equalTo("owners.day", day)
+                .and()
+                .beginGroup()
+                    .beginGroup()
+                    .isNull("teacher")
+                    .and()
+                    .isNull("subject")
+                    .endGroup();
+
+
+        for (String teacherSubject :
+                teacherSubjects) {
+            if (teacherSubject.equals("")) break;
+
+            String[] arr = teacherSubject.split(",");
+            String teacher = arr[0];
+            String subject = arr[1];
+
+            addTeacherSubjectFilter(query, teacher, subject);
         }
 
-        for (ModifiedLesson modifiedLesson : raw.getModifiedLessons()) {
-            List<Integer> missedPeriods = new ArrayList<>();
-            for(int i = modifiedLesson.getBeginHour(); i <= modifiedLesson.getEndHour(); i++)
-                missedPeriods.add(i);
+        query.endGroup();
+        return query;
+    }
 
-            for (Period period : processedData) {
-                if (modifiedLesson.isEqualToHour(period.getPeriodNum())) {
-                    missedPeriods.remove((Integer) period.getPeriodNum());
+    private static RealmQuery<Period> buildQuery(
+            Realm realm,
+            int day) {
+        return realm.where(Period.class)
+                .equalTo("day", day)
+                .sort("periodNum");
+    }
 
-                    period.addChangeTypeColor(modifiedLesson.getColor());
-                    List<Lesson> lessons = period.getItems();
-
-                    if (!modifiedLesson.isAReplacer()) {
-                        lessons.clear();
-                    }
-
-                    boolean isReplacing = false;
-                    for (Lesson lesson : lessons) {
-                        if (modifiedLesson.canReplaceLesson(lesson)) {
-                            lesson.setModifier(modifiedLesson);
-                            isReplacing = true;
-                            break;
-                        }
-                    }
-
-                    if (!isReplacing) {
-                        Lesson newLesson = new Lesson(null, null, null);
-                        newLesson.setModifier(modifiedLesson);
-                        lessons.add(newLesson);
-                    }
-                }
-            }
-
-            for (int periodNum : missedPeriods) {
-                List<Lesson> newLessons = new ArrayList<>();
-                Lesson newLesson = new Lesson(null, null, null);
-                newLesson.setModifier(modifiedLesson);
-                newLessons.add(newLesson);
-
-                Period newPeriod = new Period(
-                        newLessons,
-                        periodNum
-                );
-
-                processedData.add(newPeriod);
-            }
-        }
-
-        for (Period period : processedData) {
-            period.setFirstLesson(period.getItems().get(0));
-            period.getItems().remove(0);
-        }
-
-        Collections.sort(processedData);
-        return processedData;
+    private static void addTeacherSubjectFilter(
+            RealmQuery<Lesson> query,
+            String teacher,
+            String subject) {
+        query.or()
+                .beginGroup()
+                .equalTo("teacher", teacher)
+                .and()
+                .equalTo("subject", subject)
+                .endGroup()
+                .or()
+                .beginGroup()
+                .equalTo("modifier.newTeacher", teacher)
+                .endGroup();
     }
 
     public static void notifyUser(Context context) {
-        List<ModifiedLesson> notificationList = fetchNotificationList();
+        Realm realm = Realm.getDefaultInstance();
+        List<Modifier> notificationList = fetchNotificationList(realm);
         if (!notificationList.isEmpty()) {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -275,14 +188,15 @@ public class ScheduleUtils {
             notificationManager.notify(NOTIFICATION_UPDATE_ID, notification);
 
         }
+        realm.close();
     }
 
     /**
      * Fetch all the changes in the schedule.
      *
-     * @return a list of {@link ModifiedLesson}s.
+     * @return a list of {@link RawModifier}s.
      */
-    private static List<ModifiedLesson> fetchNotificationList() {
+    private static List<Modifier> fetchNotificationList(Realm realm) {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -300,90 +214,53 @@ public class ScheduleUtils {
 
         Date maxDate = calendar.getTime();
 
-        Realm realm = Realm.getDefaultInstance();
-        RealmQuery<Change> changesQuery = RealmUtils.buildBaseQuery(
-                realm,
-                Change.class,
-                minDate,
-                maxDate)
-                .sort("date");
-
-        RealmQuery<Exam> examsQuery = RealmUtils.buildBaseQuery(
-                realm,
-                Exam.class,
-                minDate,
-                maxDate)
-                .sort("date");
-
-        RealmQuery<Event> eventsQuery = RealmUtils.buildBaseQuery(
-                realm,
-                Event.class,
-                minDate,
-                maxDate)
-                .sort("date");
-
-        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
-        if (isFilterOn) {
-            RealmUtils.buildFilteredQuery(
-                    changesQuery,
-                    Change.class);
-
-            RealmUtils.buildFilteredQuery(
-                    examsQuery,
-                    Exam.class);
-
-            RealmUtils.buildFilteredQuery(
-                    eventsQuery,
-                    Event.class);
-        }
-
-        List<ModifiedLesson> results = new ArrayList<>();
-        results.addAll(changesQuery.findAll());
-        results.addAll(examsQuery.findAll());
-        results.addAll(eventsQuery.findAll());
-
-        return results;
+        return realm.where(Modifier.class)
+                .between("date", minDate, maxDate)
+                .sort("date")
+                .findAll();
     }
 
     /**
      * Load the notification body with the changes.
      *
-     * @param notificationList {@link ModifiedLesson}s to build content from.
+     * @param notificationList {@link RawModifier}s to build content from.
      * @return notification body.
      */
-    private static NotificationCompat.InboxStyle buildNotificationContent(List<ModifiedLesson> notificationList,
-                                                                   NotificationCompat.Builder builder) {
+    private static NotificationCompat.InboxStyle buildNotificationContent(List<Modifier> notificationList,
+                                                                          NotificationCompat.Builder builder) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
-
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
 
-        List<ModifiedLesson> todayNotificationChanges = new ArrayList<>();
-        List<ModifiedLesson> tomorrowNotificationChanges = new ArrayList<>();
-        for (ModifiedLesson lesson :
+        List<Modifier> todayNotificationChanges = new ArrayList<>();
+        List<Modifier> tomorrowNotificationChanges = new ArrayList<>();
+
+        for (Modifier lesson :
                 notificationList) {
-            Calendar date = Calendar.getInstance();
-            date.setTime(lesson.getDate());
-            int day = date.get(Calendar.DAY_OF_WEEK);
-            if (today == day) todayNotificationChanges.add(lesson);
-            else tomorrowNotificationChanges.add(lesson);
+            calendar.setTime(lesson.getDate());
+            int day = calendar.get(Calendar.DAY_OF_WEEK);
+            if (today == day)
+                if (hour < 18)
+                    todayNotificationChanges.add(lesson);
+            else
+                tomorrowNotificationChanges.add(lesson);
         }
 
         if (todayNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("היום:"));
-            for (ModifiedLesson lesson :
+            for (Modifier lesson :
                     todayNotificationChanges) {
-                inboxStyle.addLine(lesson.buildName());
+                inboxStyle.addLine(lesson.getTitle());
             }
         }
 
-
         if (tomorrowNotificationChanges.size() != 0) {
             inboxStyle.addLine(getBoldText("מחר:"));
-            for (ModifiedLesson lesson :
+            for (Modifier lesson :
                     tomorrowNotificationChanges) {
-                inboxStyle.addLine(lesson.buildName());
+                inboxStyle.addLine(lesson.getTitle());
             }
         }
 

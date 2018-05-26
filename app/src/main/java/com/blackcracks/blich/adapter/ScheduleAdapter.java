@@ -25,7 +25,6 @@ import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.data.schedule.Period;
 import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
-import com.thoughtbot.expandablerecyclerview.listeners.OnGroupClickListener;
 import com.thoughtbot.expandablerecyclerview.models.IExpandableGroup;
 
 import java.util.List;
@@ -53,10 +52,6 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             mHourTextColor = Config.textColorPrimary(mContext, mAteKey);
     }
 
-    public void clear() {
-        getGroups().clear();
-    }
-
     @Override
     public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
@@ -68,9 +63,8 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
     public void onBindGroupViewHolder(GroupViewHolder holder,
                                       int flatPosition,
                                       IExpandableGroup group) {
-
         holder.reset();
-        int groupPosition = expandableList.getUnflattenedPosition(flatPosition).groupPos;
+        holder.setOnGroupClickListener(this);
 
         Period period = (Period) group;
         Lesson firstLesson = period.getFirstLesson();
@@ -110,30 +104,6 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
 
         if (isModified)
             setSingleLine((ConstraintLayout) holder.subjectView.getParent());
-
-        //Display the correct state of the group
-        if (expandableList.expandedGroupIndexes[groupPosition] || isSingleLesson) {
-            holder.expand();
-        } else {
-            holder.collapse();
-        }
-
-        /*
-        If there are no children, show a simple item.
-        Else, show the indicator view and add a click listener
-         */
-        if (isSingleLesson) {
-            holder.teacherView.setText(teacher);
-            holder.classroomView.setText(room);
-        } else {
-            holder.indicatorView.setVisibility(View.VISIBLE);
-            holder.setOnGroupClickListener(new OnGroupClickListener() {
-                @Override
-                public void onGroupClick(int flatPos) {
-                    toggleGroup(flatPos);
-                }
-            });
-        }
     }
 
     @Override
@@ -157,8 +127,8 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
         final String teacher;
         final String room;
         if (isModified) {
-            teacher = lesson.getTeacher();
-            room = lesson.getRoom();
+            teacher = "";
+            room = "";
         } else {
             teacher = lesson.getTeacher();
             room = lesson.getRoom();
@@ -239,11 +209,20 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             this.room = room;
         }
 
-        void invalidateDivider(boolean isExpanded) {
+        void refreshDivider(boolean isExpanded) {
             if ((isExpanded && !isSingleLesson) || isLastItem)
                 divider.setVisibility(View.GONE);
             else
                 divider.setVisibility(View.VISIBLE);
+        }
+
+        void refreshSingleState() {
+            if (isSingleLesson) {
+                teacherView.setText(teacher);
+                classroomView.setText(room);
+            } else {
+                indicatorView.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -256,23 +235,28 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
             classroomView.setText(room);
             eventsView.setVisibility(View.GONE);
 
-            invalidateDivider(true);
+            refreshDivider(true);
+            refreshSingleState();
         }
 
         @Override
         public void collapse() {
             super.collapse();
 
-            if (isSingleLesson)
+            if (isSingleLesson) {
+                expand();
                 return;
+            }
+
+            indicatorView.animate().rotation(0);
 
             subjectView.setMaxLines(1);
-            indicatorView.animate().rotation(0);
             teacherView.setText("...");
             classroomView.setText("");
 
             eventsView.setVisibility(View.VISIBLE);
-            invalidateDivider(false);
+            refreshDivider(false);
+            refreshSingleState();
         }
 
         void reset() {

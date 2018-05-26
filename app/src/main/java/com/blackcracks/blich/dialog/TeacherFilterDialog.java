@@ -19,18 +19,14 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.TeacherFilterAdapter;
-import com.blackcracks.blich.data.raw.RawLesson;
-import com.blackcracks.blich.data.TeacherSubject;
+import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.util.PreferenceUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 /**
  * A dialog for {@link FilterPreference}. Prompts the user with a teacher list to filter.
@@ -54,7 +50,7 @@ public class TeacherFilterDialog extends DialogFragment
         mRealm = Realm.getDefaultInstance();
 
         ListView listView = view.findViewById(R.id.list_view_teacher_filter);
-        List<TeacherSubject> teacherSubjects = new ArrayList<>();
+        List<Lesson> filteredTeachers = new ArrayList<>();
 
         //Get all the current filtered teachers
         String[] subjectsAndTeachers = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).split(";");
@@ -65,8 +61,8 @@ public class TeacherFilterDialog extends DialogFragment
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                TeacherSubject teacherSubject = new TeacherSubject(teacher, subject);
-                teacherSubjects.add(teacherSubject);
+                Lesson lesson = new Lesson(subject, teacher, null);
+                filteredTeachers.add(lesson);
             }
         }
 
@@ -74,7 +70,7 @@ public class TeacherFilterDialog extends DialogFragment
         mAdapter = new TeacherFilterAdapter(
                 getContext(),
                 fetchTeacherList(),
-                teacherSubjects);
+                filteredTeachers);
         listView.setAdapter(mAdapter);
 
         //Set up button click listeners
@@ -107,10 +103,10 @@ public class TeacherFilterDialog extends DialogFragment
     @Override
     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
         StringBuilder value = new StringBuilder();
-        for (TeacherSubject teacherSubject :
-                mAdapter.getTeacherSubjects()) {
-            String teacher = teacherSubject.getTeacher();
-            String subject = teacherSubject.getSubject();
+        for (Lesson lesson :
+                mAdapter.getFilteredTeachers()) {
+            String teacher = lesson.getTeacher();
+            String subject = lesson.getSubject();
 
             value.append(teacher).append(",").append(subject).append(";");
         }
@@ -141,26 +137,11 @@ public class TeacherFilterDialog extends DialogFragment
         void onPositiveClick(String value);
     }
 
-    private List<TeacherSubject> fetchTeacherList() {
-        RealmResults<RawLesson> results = mRealm.where(RawLesson.class)
-                .notEqualTo("teacher", " ")
+    private List<Lesson> fetchTeacherList() {
+        return mRealm.where(Lesson.class)
+                .isNull("modifier")
+                .distinctValues("teacher", "subject")
+                .sort("subject")
                 .findAll();
-
-        List<TeacherSubject> teacherSubjects = new ArrayList<>();
-        for (RawLesson rawLesson :
-                results) {
-            TeacherSubject teacherSubject = rawLesson.getTeacherSubject();
-            if (!teacherSubjects.contains(teacherSubject))
-                teacherSubjects.add(teacherSubject);
-        }
-
-        Comparator<TeacherSubject> compareBySubject = new Comparator<TeacherSubject>() {
-            @Override
-            public int compare(TeacherSubject o1, TeacherSubject o2) {
-                return o1.getSubject().compareTo(o2.getSubject());
-            }
-        };
-        Collections.sort(teacherSubjects, compareBySubject);
-        return teacherSubjects;
     }
 }

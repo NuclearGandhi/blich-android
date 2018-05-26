@@ -13,12 +13,8 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.raw.RawLesson;
-import com.blackcracks.blich.data.raw.RawPeriod;
-import com.blackcracks.blich.data.raw.ModifiedLesson;
 import com.blackcracks.blich.data.schedule.Lesson;
 import com.blackcracks.blich.data.schedule.Period;
-import com.blackcracks.blich.data.schedule.RawSchedule;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
@@ -48,14 +44,17 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public void onCreate() {
-        RealmUtils.setUpRealm(mContext);
-        mRealm = Realm.getDefaultInstance();
     }
 
     @Override
     public void onDataSetChanged() {
+        if (mRealm == null) {
+            RealmUtils.setUpRealm(mContext);
+            mRealm = Realm.getDefaultInstance();
+        }
+
         PreferenceUtils.getInstance(mContext);
-        switchData(ScheduleUtils.fetchProcessedData(mDay));
+        switchData(ScheduleUtils.fetchScheduleData(mRealm, mDay, true));
         updateTheme();
     }
 
@@ -82,7 +81,9 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public void onDestroy() {
-        mRealm.close();
+        if (mRealm != null) {
+            mRealm.close();
+        }
     }
 
     @Override

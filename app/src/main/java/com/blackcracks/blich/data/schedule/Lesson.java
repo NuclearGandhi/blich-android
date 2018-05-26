@@ -1,23 +1,25 @@
 package com.blackcracks.blich.data.schedule;
 
-import android.content.Context;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 
-import com.afollestad.appthemeengine.Config;
-import com.blackcracks.blich.data.raw.ModifiedLesson;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.annotations.LinkingObjects;
 
-import io.realm.annotations.Required;
+public class Lesson extends RealmObject {
 
-public class Lesson {
-
-    @Required private String subject;
+    private String subject;
     private String room;
     private String teacher;
-    private ModifiedLesson modifier;
+    private Modifier modifier;
 
-    public Lesson(String subject, String room, String teacher) {
+    @LinkingObjects("lessons")
+    private final RealmResults<Period> owners = null;
+
+    public Lesson() {}
+
+    public Lesson(String subject, String teacher, String room) {
         this.subject = subject;
         this.room = room;
         this.teacher = teacher;
@@ -31,7 +33,7 @@ public class Lesson {
 
     public String buildTitle() {
         if (modifier != null)
-            return modifier.buildName();
+            return modifier.getTitle();
         else
             return subject;
     }
@@ -67,11 +69,24 @@ public class Lesson {
         this.teacher = teacher;
     }
 
-    public ModifiedLesson getModifier() {
+    public Modifier getModifier() {
         return modifier;
     }
 
-    public void setModifier(ModifiedLesson modifier) {
+    public void setModifier(Modifier modifier) {
         this.modifier = modifier;
+    }
+
+    public RealmResults<Period> getOwners() {
+        return owners;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Lesson) {
+            Lesson o = (Lesson) obj;
+            return teacher.equals(o.getTeacher()) && subject.equals(o.getSubject());
+        }
+        return false;
     }
 }
