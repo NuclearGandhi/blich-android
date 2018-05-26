@@ -51,10 +51,12 @@ public class ScheduleUtils {
         int hour = instance.get(Calendar.HOUR_OF_DAY);
 
         int daysToAdd = 0;
-        if (hour >= 18)
+        if (hour >= 18) {
             daysToAdd++;
-        if (instance.get(Calendar.DAY_OF_WEEK) == 7)
-            daysToAdd++;
+
+            if (instance.get(Calendar.DAY_OF_WEEK) == 6)
+                daysToAdd++;
+        }
 
         instance.add(Calendar.DAY_OF_WEEK, daysToAdd);
         return instance.get(Calendar.DAY_OF_WEEK);

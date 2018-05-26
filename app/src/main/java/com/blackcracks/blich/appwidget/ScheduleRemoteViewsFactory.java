@@ -44,14 +44,16 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
     @Override
     public void onCreate() {
+
     }
 
     @Override
     public void onDataSetChanged() {
         if (mRealm == null) {
             RealmUtils.setUpRealm(mContext);
-            mRealm = Realm.getDefaultInstance();
         }
+
+        mRealm = Realm.getDefaultInstance();
 
         PreferenceUtils.getInstance(mContext);
         switchData(ScheduleUtils.fetchScheduleData(mRealm, mDay));
@@ -120,9 +122,9 @@ class ScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
             String subject = lesson.buildTitle();
             String teacher;
             if (isModified)
-                teacher = lesson.getTeacher() != null ? lesson.getTeacher() : "";
-            else
                 teacher = "";
+            else
+                teacher = lesson.getTeacher();
 
             int color = lesson.getColor();
             if (color == -1)
