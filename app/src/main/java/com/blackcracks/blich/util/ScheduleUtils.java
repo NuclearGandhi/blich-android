@@ -62,9 +62,9 @@ public class ScheduleUtils {
         return instance.get(Calendar.DAY_OF_WEEK);
     }
 
-    public static int getWantedWeekOffset(@Nullable Calendar instance) {
-        if (instance == null)
-            instance = Calendar.getInstance();
+    public static int getWantedWeekOffset() {
+
+        Calendar instance = Calendar.getInstance();
 
         int hour = instance.get(Calendar.HOUR_OF_DAY);
         int day = instance.get(Calendar.DAY_OF_WEEK);
@@ -79,14 +79,10 @@ public class ScheduleUtils {
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
         List<Period> data;
         if (isFilterOn) {
-            List<Lesson> lessons;
+            RealmResults<Lesson> lessons = buildFilteredQuery(realm, day)
+                            .findAll();
 
-            lessons = realm.copyFromRealm(
-                    buildFilteredQuery(realm, day)
-                            .findAll()
-            );
-
-            data = RealmUtils.convertLessonListToPeriodList(lessons, day);
+            data = RealmUtils.convertLessonListToPeriodList(realm, lessons, day);
         } else {
             data = buildQuery(realm, day)
                     .findAll();

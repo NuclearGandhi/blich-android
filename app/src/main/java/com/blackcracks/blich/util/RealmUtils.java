@@ -28,6 +28,7 @@ import io.realm.RealmList;
 import io.realm.RealmMigration;
 import io.realm.RealmModel;
 import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import io.realm.RealmSchema;
 
 /**
@@ -52,6 +53,39 @@ public class RealmUtils {
             int periodNum = lesson.getOwners().get(0).getPeriodNum();
             Period period = null;
 
+            for (Period result :
+                    results) {
+                if (result.getPeriodNum() == periodNum) period = result;
+            }
+
+            if (period == null) {
+                RealmList<Lesson> lessonsList = new RealmList<>();
+                lessonsList.add(lesson);
+                period = new Period(day, lessonsList, periodNum);
+                results.add(period);
+            } else {
+                period.getItems().add(lesson);
+            }
+        }
+
+        for (Period period : results) {
+            period.setFirstLesson(period.getItems().get(0));
+            period.getItems().remove(0);
+        }
+
+        Collections.sort(results);
+
+        return results;
+    }
+
+    public static List<Period> convertLessonListToPeriodList(Realm realm, RealmResults<Lesson> lessons, int day) {
+        List<Period> results = new ArrayList<>();
+        for (Lesson lesson :
+                lessons) {
+            int periodNum = lesson.getOwners().get(0).getPeriodNum();
+            Period period = null;
+
+            lesson = realm.copyFromRealm(lesson);
             for (Period result :
                     results) {
                 if (result.getPeriodNum() == periodNum) period = result;

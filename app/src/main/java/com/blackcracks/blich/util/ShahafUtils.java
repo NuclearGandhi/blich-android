@@ -147,9 +147,9 @@ public class ShahafUtils {
             processedData.add(period);
         }
 
+        int weekOffest = ScheduleUtils.getWantedWeekOffset();
         for (RawModifier rawModifier : rawData.getRawModifiers()) {
-            if (rawModifier.isInWeek(ScheduleUtils.getWantedWeekOffset(calendar), calendar)) {
-
+            if (rawModifier.isInWeek(weekOffest)) {
                 Modifier modifier = new Modifier(rawModifier);
                 List<Integer> missedPeriods = new ArrayList<>();
 

@@ -36,16 +36,14 @@ public abstract class RawModifier {
      */
     public abstract String buildTitle();
 
-    public boolean isInWeek(int weekOffset, @Nullable Calendar instance) {
-        if (instance == null) {
-            instance = Calendar.getInstance();
-        }
+    public boolean isInWeek(int weekOffset) {
+        Calendar today = Calendar.getInstance();
 
         Calendar thisDate = Calendar.getInstance();
         thisDate.setTime(date);
-        thisDate.add(Calendar.WEEK_OF_YEAR, weekOffset);
+        today.add(Calendar.WEEK_OF_YEAR, weekOffset);
 
-        return thisDate.get(Calendar.WEEK_OF_YEAR) == instance.get(Calendar.WEEK_OF_YEAR);
+        return thisDate.get(Calendar.WEEK_OF_YEAR) == today.get(Calendar.WEEK_OF_YEAR);
     }
 
     /**
