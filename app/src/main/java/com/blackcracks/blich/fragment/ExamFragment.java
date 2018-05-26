@@ -32,7 +32,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.activity.MainActivity;
 import com.blackcracks.blich.adapter.ExamAdapter;
 import com.blackcracks.blich.data.exam.Exam;
-import com.blackcracks.blich.listener.AppBarStateChangeListener;
+import com.blackcracks.blich.widget.listener.AppBarStateChangeListener;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -61,8 +61,9 @@ import timber.log.Timber;
  * A {@link android.support.v4.app.Fragment} containing a calendar and a list of upcoming exams.
  */
 @SuppressWarnings("ConstantConditions")
-public class ExamsFragment extends BlichBaseFragment implements View.OnClickListener,
-        android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>> {
+public class ExamFragment extends BlichBaseFragment implements
+        View.OnClickListener,
+        android.support.v4.app.LoaderManager.LoaderCallbacks<List<Exam>>{
 
     private static final int EXAM_LOADER_ID = 1;
 
@@ -165,7 +166,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
                     getLoaderManager().restartLoader(
                             EXAM_LOADER_ID,
                             Bundle.EMPTY,
-                            ExamsFragment.this);
+                            ExamFragment.this);
                 }
             }
         };
@@ -196,7 +197,7 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
 
     @Override
     protected int getFragmentLayout() {
-        return R.layout.fragment_exams;
+        return R.layout.fragment_exam;
     }
 
     @Override
@@ -263,29 +264,6 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         mRealm.close();
     }
 
-    @Override
-    public Loader<List<Exam>> onCreateLoader(int id, Bundle args) {
-        return new ExamsLoader(getContext(), mRealm);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
-        mAdapter.setData(data);
-
-        try {
-            if (!data.isEmpty()) {
-                loadDataIntoCalendar(data);
-            }
-        } catch (IllegalStateException e) {
-            Timber.d("Realm instance has been closed");
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Exam>> loader) {
-        mAdapter.setData(null);
-    }
-
     private void loadDataIntoCalendar(List<Exam> data) {
         for (Exam exam :
                 data) {
@@ -328,6 +306,29 @@ public class ExamsFragment extends BlichBaseFragment implements View.OnClickList
         int position = mAdapter.getDateFlatPosition(date);
         if (position != -1)
             mRecyclerView.smoothScrollToPosition(position);
+    }
+
+    @Override
+    public Loader<List<Exam>> onCreateLoader(int id, Bundle args) {
+        return new ExamsLoader(getContext(), mRealm);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
+        mAdapter.setData(data);
+
+        try {
+            if (!data.isEmpty()) {
+                loadDataIntoCalendar(data);
+            }
+        } catch (IllegalStateException e) {
+            Timber.d("Realm instance has been closed");
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Exam>> loader) {
+        mAdapter.setData(null);
     }
 
     /**

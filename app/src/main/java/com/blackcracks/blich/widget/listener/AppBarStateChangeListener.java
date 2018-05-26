@@ -3,7 +3,7 @@
  * Copyright (C) Blich - All Rights Reserved
  */
 
-package com.blackcracks.blich.listener;
+package com.blackcracks.blich.widget.listener;
 
 import android.support.annotation.IntDef;
 import android.support.design.widget.AppBarLayout;

@@ -23,7 +23,7 @@ import android.view.View;
 import com.afollestad.appthemeengine.Config;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
-import com.blackcracks.blich.fragment.ExamsFragment;
+import com.blackcracks.blich.fragment.ExamFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
@@ -151,7 +151,7 @@ public class MainActivity extends BaseThemedActivity {
                                 return true;
                             }
                             case R.id.exams: {
-                                replaceFragment(new ExamsFragment(), true);
+                                replaceFragment(new ExamFragment(), true);
                                 item.setChecked(true);
                                 return true;
                             }
@@ -186,7 +186,7 @@ public class MainActivity extends BaseThemedActivity {
                         int itemToCheck = 0;
                         if (fragment instanceof ScheduleFragment) {
                             itemToCheck = R.id.schedule;
-                        } else if (fragment instanceof ExamsFragment) {
+                        } else if (fragment instanceof ExamFragment) {
                             itemToCheck = R.id.exams;
                         }
                         if (mFragment != fragment) {

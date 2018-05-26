@@ -64,7 +64,6 @@ public class ScheduleAdapter extends ExpandableRecyclerViewAdapter<ScheduleAdapt
                                       int flatPosition,
                                       IExpandableGroup group) {
         holder.reset();
-        holder.setOnGroupClickListener(this);
 
         Period period = (Period) group;
         Lesson firstLesson = period.getFirstLesson();
