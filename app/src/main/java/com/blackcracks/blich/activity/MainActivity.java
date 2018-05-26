@@ -26,6 +26,7 @@ import com.blackcracks.blich.dialog.ClassPickerDialog;
 import com.blackcracks.blich.fragment.ExamFragment;
 import com.blackcracks.blich.fragment.ScheduleFragment;
 import com.blackcracks.blich.util.PreferenceUtils;
+import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.Utilities;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -68,6 +69,7 @@ public class MainActivity extends BaseThemedActivity {
         setAllowDrawBehindStatusBar();
         setAutoStatusBarColor(false);
 
+        RealmUtils.setUpRealm(this);
         mPreferenceUtils = PreferenceUtils.getInstance(this);
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 

@@ -49,7 +49,6 @@ public class SplashActivity extends BaseStatusBarActivity {
         }
 
         Timber.plant(new Timber.DebugTree());
-        RealmUtils.setUpRealm(this);
 
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
 
