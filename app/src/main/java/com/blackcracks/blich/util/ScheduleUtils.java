@@ -11,7 +11,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.text.Spanned;
@@ -25,7 +24,6 @@ import com.blackcracks.blich.data.schedule.Period;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +31,7 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import timber.log.Timber;
 
 /**
  * A class containing utility methods for schedule.
@@ -155,7 +154,7 @@ public class ScheduleUtils {
             String teacher = arr[0];
             String subject = arr[1];
 
-            addTeacherSubjectFilter(query, teacher, subject);
+            ScheduleUtils.addTeacherSubjectLessonFilter(query, teacher, subject);
         }
 
         query.endGroup();
@@ -170,7 +169,7 @@ public class ScheduleUtils {
                 .sort("periodNum");
     }
 
-    private static void addTeacherSubjectFilter(
+    private static void addTeacherSubjectLessonFilter(
             RealmQuery<Lesson> query,
             String teacher,
             String subject) {
@@ -183,6 +182,22 @@ public class ScheduleUtils {
                 .or()
                 .beginGroup()
                 .equalTo("modifier.newTeacher", teacher)
+                .endGroup();
+    }
+
+    private static void addTeacherSubjectModifierFilter(
+            RealmQuery<Modifier> query,
+            String teacher,
+            String subject) {
+        query
+                .beginGroup()
+                .equalTo("subject", subject)
+                .and()
+                .equalTo("oldTeacher", teacher)
+                .endGroup()
+                .or()
+                .beginGroup()
+                .equalTo("newTeacher", teacher)
                 .endGroup();
     }
 
@@ -205,7 +220,7 @@ public class ScheduleUtils {
                     context,
                     0,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_CANCEL_CURRENT);
 
             Notification notification = builder
                     .setSmallIcon(R.drawable.ic_timetable_white_24dp)
@@ -249,9 +264,34 @@ public class ScheduleUtils {
 
         Date maxDate = calendar.getTime();
 
-        return realm.where(Modifier.class)
-                .between("date", minDate, maxDate)
-                .sort("date")
+        //TODO add filter
+        boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
+        RealmQuery<Modifier> query = realm.where(Modifier.class)
+                .between("date", minDate, maxDate);
+
+        if (isFilterOn) {
+            String teacherFilter = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key);
+            String[] teacherSubjects = teacherFilter.split(";");
+
+            query.and()
+                    .beginGroup();
+
+            for (int i = 0; i < teacherSubjects.length; i++) {
+                String teacherSubject = teacherSubjects[i];
+                if (teacherSubject.equals("")) break;
+
+                String[] arr = teacherSubject.split(",");
+                String teacher = arr[0];
+                String subject = arr[1];
+
+                if (i != 0) query.or();
+                addTeacherSubjectModifierFilter(query, teacher, subject);
+            }
+
+            query.endGroup();
+        }
+
+        return query.sort("date")
                 .findAll();
     }
 
@@ -265,6 +305,9 @@ public class ScheduleUtils {
                                                                           NotificationCompat.Builder builder) {
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
+        int tomorrow = calendar.get(Calendar.DAY_OF_WEEK);
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
@@ -279,7 +322,7 @@ public class ScheduleUtils {
             if (today == day)
                 if (hour < 18)
                     todayNotificationChanges.add(lesson);
-            else
+            else if (tomorrow == day)
                 tomorrowNotificationChanges.add(lesson);
         }
 

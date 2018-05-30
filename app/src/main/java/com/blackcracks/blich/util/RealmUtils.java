@@ -274,8 +274,9 @@ public class RealmUtils {
                 schema.create("Modifier")
                         .addField("modifierType", int.class)
                         .addField("title", String.class)
+                        .addField("subject", String.class)
+                        .addField("oldTeacher", String.class)
                         .addField("newTeacher", String.class)
-                        .addField("newRoom", String.class)
                         .addField("date", Date.class)
                         .addField("beginPeriod", int.class)
                         .addField("endPeriod", int.class);
@@ -314,5 +315,4 @@ public class RealmUtils {
             return obj instanceof RealmMigration;
         }
     }
-
 }

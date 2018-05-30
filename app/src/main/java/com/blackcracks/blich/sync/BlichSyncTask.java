@@ -16,6 +16,8 @@ import com.blackcracks.blich.data.raw.RawExam;
 import com.blackcracks.blich.data.raw.RawData;
 import com.blackcracks.blich.data.raw.RawLesson;
 import com.blackcracks.blich.data.raw.RawPeriod;
+import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.schedule.Modifier;
 import com.blackcracks.blich.data.schedule.Period;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
@@ -73,6 +75,9 @@ public class BlichSyncTask {
         Bundle bundle = new Bundle();
         bundle.putInt(LOG_PARAM_STATUS_SYNC, status);
         firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
+
+        //TODO delete
+        ScheduleUtils.notifyUser(context);
 
         return status;
     }
@@ -284,6 +289,14 @@ public class BlichSyncTask {
         RealmResults<Period> oldSchedule = realm.where(Period.class)
                 .findAll();
         oldSchedule.deleteAllFromRealm();
+
+        RealmResults<Modifier> oldModifiers = realm.where(Modifier.class)
+                .findAll();
+        oldModifiers.deleteAllFromRealm();
+
+        RealmResults<Lesson> oldLessons = realm.where(Lesson.class)
+                .findAll();
+        oldLessons.deleteAllFromRealm();
 
         RealmResults<Exam> oldExams = realm.where(Exam.class)
                 .findAll();

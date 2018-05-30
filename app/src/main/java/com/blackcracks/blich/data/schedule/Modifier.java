@@ -38,8 +38,9 @@ public class Modifier extends RealmObject {
     private @ModifierType int modifierType;
     private String title;
 
+    private String subject;
+    private String oldTeacher;
     private String newTeacher;
-    private String newRoom;
 
     private Date date;
     private int beginPeriod;
@@ -73,8 +74,9 @@ public class Modifier extends RealmObject {
 
         title = rawModifier.buildTitle();
 
+        subject = rawModifier.getSubject();
+        oldTeacher = rawModifier.getOldTeacher();
         newTeacher = rawModifier.getNewTeacher();
-        newRoom = rawModifier.getNewRoom();
 
         date = rawModifier.getDate();
         beginPeriod = rawModifier.getBeginHour();
