@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.thoughtbot.expandablerecyclerview.models.IExpandableGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -15,19 +14,18 @@ public class Period extends RealmObject implements Comparable<Period>, IExpandab
 
     private int day;
     private int periodNum;
-    private boolean isSingleChild;
     private RealmList<Lesson> lessons;
 
     private Lesson firstLesson;
     private RealmList<Integer> changeTypeColors;
 
-    public Period() {}
+    public Period() {
+    }
 
     public Period(int day, RealmList<Lesson> lessons, int periodNum) {
         this.day = day;
         this.lessons = lessons;
         this.periodNum = periodNum;
-        isSingleChild = false;
         changeTypeColors = new RealmList<>();
     }
 
@@ -51,14 +49,6 @@ public class Period extends RealmObject implements Comparable<Period>, IExpandab
 
     public int getPeriodNum() {
         return periodNum;
-    }
-
-    public boolean isSingleChild() {
-        return isSingleChild;
-    }
-
-    public void setSingleChild(boolean singleChild) {
-        isSingleChild = singleChild;
     }
 
     public Lesson getFirstLesson() {
@@ -86,5 +76,14 @@ public class Period extends RealmObject implements Comparable<Period>, IExpandab
         if (periodNum == o.getPeriodNum()) return 0;
 
         return 1;
+    }
+
+    public void removeAllNormalLessons() {
+        for(int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).getModifier() == null) {
+                lessons.remove(i);
+                i--;
+            }
+        }
     }
 }

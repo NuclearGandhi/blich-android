@@ -50,7 +50,9 @@ public class RealmUtils {
         List<Period> results = new ArrayList<>();
         for (Lesson lesson :
                 lessons) {
-            int periodNum = lesson.getOwners().get(0).getPeriodNum();
+            int periodNum = lesson.getOwners().size() != 0 ?
+                    lesson.getOwners().get(0).getPeriodNum() :
+                    lesson.getOtherOwners().get(0).getPeriodNum();
             Period period = null;
 
             for (Period result :
@@ -63,6 +65,10 @@ public class RealmUtils {
                 lessonsList.add(lesson);
                 period = new Period(day, lessonsList, periodNum);
                 results.add(period);
+
+                if (lesson.getModifier() != null) {
+                    period.addChangeTypeColor(lesson.getModifier().getColor());
+                }
             } else {
                 period.getItems().add(lesson);
             }
@@ -82,7 +88,9 @@ public class RealmUtils {
         List<Period> results = new ArrayList<>();
         for (Lesson lesson :
                 lessons) {
-            int periodNum = lesson.getOwners().get(0).getPeriodNum();
+            int periodNum = lesson.getOwners().size() != 0 ?
+                    lesson.getOwners().get(0).getPeriodNum() :
+                    lesson.getOtherOwners().get(0).getPeriodNum();
             Period period = null;
 
             lesson = realm.copyFromRealm(lesson);
@@ -96,6 +104,10 @@ public class RealmUtils {
                 lessonsList.add(lesson);
                 period = new Period(day, lessonsList, periodNum);
                 results.add(period);
+
+                if (lesson.getModifier() != null) {
+                    period.addChangeTypeColor(lesson.getModifier().getColor());
+                }
             } else {
                 period.getItems().add(lesson);
             }
@@ -290,7 +302,6 @@ public class RealmUtils {
                 schema.create("Period")
                         .addField("day", int.class)
                         .addField("periodNum", int.class)
-                        .addField("isSingleChild", boolean.class)
                         .addRealmListField("lessons", schema.get("Lesson"))
                         .addRealmObjectField("firstLesson", schema.get("Lesson"))
                         .addRealmListField("changeTypeColors", int.class);

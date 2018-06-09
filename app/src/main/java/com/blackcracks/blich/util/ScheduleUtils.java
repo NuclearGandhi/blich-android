@@ -31,7 +31,6 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import timber.log.Timber;
 
 /**
  * A class containing utility methods for schedule.
@@ -79,7 +78,7 @@ public class ScheduleUtils {
         List<Period> data;
         if (isFilterOn) {
             RealmResults<Lesson> lessons = buildFilteredQuery(realm, day)
-                            .findAll();
+                    .findAll();
 
             data = RealmUtils.convertLessonListToPeriodList(realm, lessons, day);
         } else {
@@ -136,14 +135,19 @@ public class ScheduleUtils {
         String[] teacherSubjects = teacherFilter.split(";");
 
         RealmQuery<Lesson> query = realm.where(Lesson.class);
-        query.equalTo("owners.day", day)
+        query
+                .beginGroup()
+                .equalTo("owners.day", day)
+                .or()
+                .equalTo("otherOwners.day", day)
+                .endGroup()
                 .and()
                 .beginGroup()
-                    .beginGroup()
-                    .isNull("teacher")
-                    .and()
-                    .isNull("subject")
-                    .endGroup();
+                .beginGroup()
+                .isNull("teacher")
+                .and()
+                .isNull("subject")
+                .endGroup();
 
 
         for (String teacherSubject :
@@ -322,8 +326,8 @@ public class ScheduleUtils {
             if (today == day)
                 if (hour < 18)
                     todayNotificationChanges.add(lesson);
-            else if (tomorrow == day)
-                tomorrowNotificationChanges.add(lesson);
+                else if (tomorrow == day)
+                    tomorrowNotificationChanges.add(lesson);
         }
 
         if (todayNotificationChanges.size() != 0) {

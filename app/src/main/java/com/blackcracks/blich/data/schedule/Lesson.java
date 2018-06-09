@@ -17,6 +17,9 @@ public class Lesson extends RealmObject {
     @LinkingObjects("lessons")
     private final RealmResults<Period> owners = null;
 
+    @LinkingObjects("firstLesson")
+    private final RealmResults<Period> otherOwners = null;
+
     public Lesson() {}
 
     public Lesson(String subject, String teacher, String room) {
@@ -79,6 +82,10 @@ public class Lesson extends RealmObject {
 
     public RealmResults<Period> getOwners() {
         return owners;
+    }
+
+    public RealmResults<Period> getOtherOwners() {
+        return otherOwners;
     }
 
     @Override

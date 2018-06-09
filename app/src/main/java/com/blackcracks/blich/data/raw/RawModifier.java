@@ -51,7 +51,8 @@ public abstract class RawModifier {
      * {@code false} the lesson comes in addition to other lessons.
      */
     public boolean isAReplacer() {
-        return !oldTeacher.equals("") && !subject.equals("");
+        return (oldTeacher != null || subject != null) &&
+                !oldTeacher.equals("") && !subject.equals("");
     }
 
     /**
@@ -61,7 +62,8 @@ public abstract class RawModifier {
      * @return {@code true} replaces the given {@link RawLesson}.
      */
     public boolean isAReplacer(Lesson toReplace) {
-        return oldTeacher.equals(toReplace.getTeacher()) && subject.equals(toReplace.getSubject());
+        return (oldTeacher != null || subject != null) &&
+                oldTeacher.equals(toReplace.getTeacher()) && subject.equals(toReplace.getSubject());
     }
 
     /**

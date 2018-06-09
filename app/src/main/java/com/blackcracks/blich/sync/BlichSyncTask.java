@@ -76,9 +76,6 @@ public class BlichSyncTask {
         bundle.putInt(LOG_PARAM_STATUS_SYNC, status);
         firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
 
-        //TODO delete
-        ScheduleUtils.notifyUser(context);
-
         return status;
     }
 
@@ -227,8 +224,8 @@ public class BlichSyncTask {
 
             Date date = parseDate(jsonEvent.getString(Database.JSON_STRING_DATE));
 
-            String subject = "";
-            String teacher = "";
+            String subject = null;
+            String teacher = null;
             if (!jsonEvent.isNull(Database.JSON_OBJECT_STUDY_GROUP)) {
                 JSONObject studyGroup = jsonEvent.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
                 subject = studyGroup.getString(Database.JSON_STRING_SUBJECT);
@@ -260,8 +257,8 @@ public class BlichSyncTask {
             RawExam rawExam = new RawExam();
 
             Date date = parseDate(jsonExam.getString(Database.JSON_STRING_DATE));
-            String subject = "";
-            String teacher = "";
+            String subject = null;
+            String teacher = null;
             if (!jsonExam.isNull(Database.JSON_OBJECT_STUDY_GROUP)) {
                 JSONObject studyGroup = jsonExam.getJSONObject(Database.JSON_OBJECT_STUDY_GROUP);
                 subject = studyGroup.getString(Database.JSON_STRING_SUBJECT);

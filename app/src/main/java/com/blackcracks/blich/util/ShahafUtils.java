@@ -164,8 +164,7 @@ public class ShahafUtils {
                         List<Lesson> lessons = period.getItems();
 
                         if (!rawModifier.isAReplacer()) {
-                            lessons.clear();
-                            period.setSingleChild(true);
+                            period.removeAllNormalLessons();
                         }
 
                         boolean isReplacing = false;
