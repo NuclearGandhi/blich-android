@@ -78,8 +78,8 @@
 
     <string name="contentdes_drawer_logo">לוגו</string>
 
-    <string name="blank_page_message_no_data">אין מידע</string>
-    <string name="schedule_no_data">אין מידע לגבי מבחנים קרובים</string>
+    <string name="schedule_blank_page_message_no_data">אין מידע על יום זה</string>
+    <string name="exam_blank_page_message_no_data">אין מידע על מבחנים קרובים</string>
 
     <string name="toast_filter_not_setup">אנא בחר מורים בהגדרות כדי לאפשר סינון</string>
     <string name="about_principle">מנהלת בית הספר</string>

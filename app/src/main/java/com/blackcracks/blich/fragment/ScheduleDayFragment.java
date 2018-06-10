@@ -45,6 +45,7 @@ public class ScheduleDayFragment extends Fragment implements
 
     private RecyclerView mRecyclerView;
     private ScheduleAdapter mAdapter;
+    private View mDataStatusView;
 
     private Realm mRealm;
     private RealmChangeListener<Realm> mChangeListener;
@@ -64,8 +65,7 @@ public class ScheduleDayFragment extends Fragment implements
 
         View rootView = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 
-        //TODO update text accordingly
-        TextView statusTextView = rootView.findViewById(R.id.text_status);
+        mDataStatusView = rootView.findViewById(R.id.message_no_data);
 
         mRecyclerView = rootView.findViewById(R.id.recycler_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -154,6 +154,10 @@ public class ScheduleDayFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<List<Period>> loader, List<Period> data) {
         mAdapter.setData(data);
+        if (data.isEmpty())
+            mDataStatusView.setVisibility(View.VISIBLE);
+        else
+            mDataStatusView.setVisibility(View.GONE);
     }
 
     @Override

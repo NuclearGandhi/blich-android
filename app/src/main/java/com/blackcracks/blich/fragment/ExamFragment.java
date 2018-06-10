@@ -77,6 +77,7 @@ public class ExamFragment extends BlichBaseFragment implements
     Toolbar mToolbar;
     CollapsingToolbarLayout mCollapsingTb;
 
+    private View mDataStatusView;
     private ExamAdapter mAdapter;
 
     private final List<CalendarDay> mDates = new ArrayList<>();
@@ -144,8 +145,7 @@ public class ExamFragment extends BlichBaseFragment implements
             }
         });
 
-        //TODO update text accordingly
-        TextView statusMessage = rootView.findViewById(R.id.exam_no_data_status);
+        mDataStatusView = rootView.findViewById(R.id.message_no_data);
 
         mRecyclerView = rootView.findViewById(R.id.recycler_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -316,6 +316,10 @@ public class ExamFragment extends BlichBaseFragment implements
     @Override
     public void onLoadFinished(Loader<List<Exam>> loader, List<Exam> data) {
         mAdapter.setData(data);
+        if (data.isEmpty())
+            mDataStatusView.setVisibility(View.VISIBLE);
+        else
+            mDataStatusView.setVisibility(View.GONE);
 
         try {
             if (!data.isEmpty()) {
