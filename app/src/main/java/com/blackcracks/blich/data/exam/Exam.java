@@ -6,6 +6,7 @@
 package com.blackcracks.blich.data.exam;
 
 import com.blackcracks.blich.data.raw.RawExam;
+import com.google.android.gms.flags.impl.DataUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -103,10 +104,12 @@ public class Exam extends RealmObject implements ExamItem {
      * @return a {@link String}.
      */
     public String buildTeachersString() {
-        StringBuilder stringBuilder = new StringBuilder(teachers.get(0));
-        for (int i = 1; i < teachers.size(); i++) {
-            stringBuilder.append(", ").append(teachers.get(i));
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < teachers.size(); i++) {
+            if (teachers.get(i) != null)
+                stringBuilder.append(", ").append(teachers.get(i));
         }
+        stringBuilder.delete(0, 2);
         return stringBuilder.toString();
     }
 

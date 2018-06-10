@@ -75,8 +75,6 @@ public class BlichSyncTask {
         Bundle bundle = new Bundle();
         bundle.putInt(LOG_PARAM_STATUS_SYNC, status);
         firebaseAnalytics.logEvent(EVENT_END_SYNC, bundle);
-
-        ScheduleUtils.notifyUser(context);
         return status;
     }
 
