@@ -41,6 +41,7 @@ public class SplashActivity extends BaseStatusBarActivity {
         setContentView(R.layout.activity_splash);
 
         mPreferenceUtils = PreferenceUtils.getInstance(this);
+        RealmUtils.setUpRealm(this);
         applyTheme();
         migrateOldSettings();
         onUpdate();

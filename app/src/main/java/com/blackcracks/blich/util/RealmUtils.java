@@ -27,6 +27,7 @@ import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import io.realm.RealmMigration;
 import io.realm.RealmModel;
+import io.realm.RealmObjectSchema;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
@@ -171,7 +172,7 @@ public class RealmUtils {
 
     private static class BlichMigration implements RealmMigration {
 
-        private static final int DATABASE_VERSION = 14;
+        private static final int DATABASE_VERSION = 13;
 
         @SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
         @Override
@@ -267,21 +268,12 @@ public class RealmUtils {
                 oldVersion++;
             }
             if (oldVersion == 12) {
-                schema.rename("Lesson", "RawLesson");
-                schema.get("RawLesson")
-                        .removeField("changeType");
-                schema.rename("Hour", "RawPeriod");
-                schema.get("BlichData")
-                        .renameField("hours", "periods");
-                oldVersion++;
-            }
-            if (oldVersion == 13) {
-                schema.remove("RawLesson");
-                schema.remove("RawPeriod");
+                schema.remove("BlichData");
+                schema.remove("Hour");
+                schema.remove("Lesson");
                 schema.remove("Change");
                 schema.remove("Event");
                 schema.remove("Exam");
-                schema.remove("BlichData");
 
                 schema.create("Modifier")
                         .addField("modifierType", int.class)
@@ -318,6 +310,8 @@ public class RealmUtils {
                 schema.create("TeacherSubject")
                         .addField("teacher", String.class)
                         .addField("subject", String.class);
+
+                oldVersion++;
             }
         }
 

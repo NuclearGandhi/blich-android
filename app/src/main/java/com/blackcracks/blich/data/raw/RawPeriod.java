@@ -15,7 +15,7 @@ import io.realm.RealmObject;
 /**
  * A data class holding information about a single hour in the schedule.
  */
-public class RawPeriod extends RealmObject implements Comparable<RawPeriod> {
+public class RawPeriod implements Comparable<RawPeriod> {
 
     private int day;
     private int hour;

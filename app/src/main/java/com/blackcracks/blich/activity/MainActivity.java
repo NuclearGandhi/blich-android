@@ -69,7 +69,6 @@ public class MainActivity extends BaseThemedActivity {
         setAllowDrawBehindStatusBar();
         setAutoStatusBarColor(false);
 
-        RealmUtils.setUpRealm(this);
         mPreferenceUtils = PreferenceUtils.getInstance(this);
         mFirebaseAnalytic = FirebaseAnalytics.getInstance(this);
 

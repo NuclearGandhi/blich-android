@@ -13,7 +13,7 @@ import io.realm.annotations.Required;
 /**
  * A data class holding information about a single lesson in an hour.
  */
-public class RawLesson extends RealmObject {
+public class RawLesson {
 
     @Required private String subject;
     private String room;

@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Required;
 
 public class Period extends RealmObject implements Comparable<Period>, IExpandableGroup<Lesson> {
 
@@ -17,7 +18,7 @@ public class Period extends RealmObject implements Comparable<Period>, IExpandab
     private RealmList<Lesson> lessons;
 
     private Lesson firstLesson;
-    private RealmList<Integer> changeTypeColors;
+    @Required private RealmList<Integer> changeTypeColors;
 
     public Period() {
     }
