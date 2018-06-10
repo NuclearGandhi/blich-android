@@ -147,6 +147,10 @@ public class ScheduleDayFragment extends Fragment implements
                     @Override
                     public void onAsyncFinished(List<Period> data) {
                         mAdapter.setData(data);
+                        if (data.isEmpty())
+                            mDataStatusView.setVisibility(View.VISIBLE);
+                        else
+                            mDataStatusView.setVisibility(View.GONE);
                     }
                 });
     }
@@ -163,6 +167,7 @@ public class ScheduleDayFragment extends Fragment implements
     @Override
     public void onLoaderReset(Loader<List<Period>> loader) {
         mRecyclerView.setAdapter(null);
+        mDataStatusView.setVisibility(View.GONE);
     }
 
     /**
