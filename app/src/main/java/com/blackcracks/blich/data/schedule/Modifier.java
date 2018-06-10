@@ -42,6 +42,8 @@ public class Modifier extends RealmObject {
     private String oldTeacher;
     private String newTeacher;
 
+    private boolean isAReplacer;
+
     private Date date;
     private int beginPeriod;
     private int endPeriod;
@@ -77,6 +79,8 @@ public class Modifier extends RealmObject {
         subject = rawModifier.getSubject();
         oldTeacher = rawModifier.getOldTeacher();
         newTeacher = rawModifier.getNewTeacher();
+
+        isAReplacer = rawModifier.isAReplacer();
 
         date = rawModifier.getDate();
         beginPeriod = rawModifier.getBeginHour();
@@ -138,6 +142,14 @@ public class Modifier extends RealmObject {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public boolean isAReplacer() {
+        return isAReplacer;
+    }
+
+    public void setAReplacer(boolean AReplacer) {
+        isAReplacer = AReplacer;
     }
 
     public Date getDate() {

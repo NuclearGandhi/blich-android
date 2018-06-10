@@ -143,11 +143,7 @@ public class ScheduleUtils {
                 .endGroup()
                 .and()
                 .beginGroup()
-                .beginGroup()
-                .isNull("teacher")
-                .and()
-                .isNull("subject")
-                .endGroup();
+                .equalTo("modifier.isAReplacer", false);
 
 
         for (String teacherSubject :
@@ -185,6 +181,12 @@ public class ScheduleUtils {
                 .endGroup()
                 .or()
                 .beginGroup()
+                .equalTo("modifier.oldTeacher", teacher)
+                .and()
+                .equalTo("modifier.subject", subject)
+                .endGroup()
+                .or()
+                .beginGroup()
                 .equalTo("modifier.newTeacher", teacher)
                 .endGroup();
     }
@@ -193,7 +195,7 @@ public class ScheduleUtils {
             RealmQuery<Modifier> query,
             String teacher,
             String subject) {
-        query
+        query.or()
                 .beginGroup()
                 .equalTo("subject", subject)
                 .and()
@@ -277,8 +279,14 @@ public class ScheduleUtils {
             String teacherFilter = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key);
             String[] teacherSubjects = teacherFilter.split(";");
 
-            query.and()
-                    .beginGroup();
+            query
+                    .and()
+                    .beginGroup()
+                    .beginGroup()
+                    .isNull("oldTeacher")
+                    .and()
+                    .isNull("subject")
+                    .endGroup();
 
             for (int i = 0; i < teacherSubjects.length; i++) {
                 String teacherSubject = teacherSubjects[i];
@@ -288,7 +296,6 @@ public class ScheduleUtils {
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                if (i != 0) query.or();
                 addTeacherSubjectModifierFilter(query, teacher, subject);
             }
 
@@ -323,11 +330,13 @@ public class ScheduleUtils {
                 notificationList) {
             calendar.setTime(lesson.getDate());
             int day = calendar.get(Calendar.DAY_OF_WEEK);
-            if (today == day)
-                if (hour < 18)
+            if (today == day) {
+                if (hour < 18) {
                     todayNotificationChanges.add(lesson);
-                else if (tomorrow == day)
-                    tomorrowNotificationChanges.add(lesson);
+                }
+            } else if (tomorrow == day) {
+                tomorrowNotificationChanges.add(lesson);
+            }
         }
 
         if (todayNotificationChanges.size() != 0) {

@@ -289,6 +289,7 @@ public class RealmUtils {
                         .addField("subject", String.class)
                         .addField("oldTeacher", String.class)
                         .addField("newTeacher", String.class)
+                        .addField("isAReplacer", boolean.class)
                         .addField("date", Date.class)
                         .addField("beginPeriod", int.class)
                         .addField("endPeriod", int.class);

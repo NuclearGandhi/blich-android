@@ -15,9 +15,10 @@ public class Event extends RawModifier {
 
     @Override
     public String buildTitle() {
-        if (oldRoom.equals("")) return title;
-
-        return title + ", " + oldRoom;
+        String str = title;
+        if (oldTeacher != null) str += " לקבוצה של " + oldTeacher;
+        if (oldRoom != null) str += " בחדר " + oldRoom;
+        return str;
     }
 
     @Override
