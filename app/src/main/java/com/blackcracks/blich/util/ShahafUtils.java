@@ -5,6 +5,7 @@ import android.support.annotation.StringDef;
 
 import com.blackcracks.blich.BuildConfig;
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.raw.RawData;
 import com.blackcracks.blich.data.raw.RawExam;
@@ -220,6 +221,20 @@ public class ShahafUtils {
         }
 
         return toReturn;
+    }
+
+    public static RealmList<TeacherSubject> processTeacherSubjectData(RawData rawData) {
+        RealmList<TeacherSubject> teacherSubjects = new RealmList<>();
+
+        for (RawPeriod rawPeriod : rawData.getRawPeriods()) {
+            for (RawLesson rawLesson : rawPeriod.getLessons()) {
+                TeacherSubject teacherSubject = new TeacherSubject(rawLesson);
+                if (!teacherSubjects.contains(teacherSubject))
+                    teacherSubjects.add(teacherSubject);
+            }
+        }
+
+        return teacherSubjects;
     }
 
     @Retention(SOURCE)

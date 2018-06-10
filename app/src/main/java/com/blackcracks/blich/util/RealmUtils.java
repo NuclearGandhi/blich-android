@@ -314,6 +314,10 @@ public class RealmUtils {
                         .addField("beginPeriod", int.class)
                         .addField("endPeriod", int.class)
                         .addRealmListField("teachers", String.class);
+
+                schema.create("TeacherSubject")
+                        .addField("teacher", String.class)
+                        .addField("subject", String.class);
             }
         }
 

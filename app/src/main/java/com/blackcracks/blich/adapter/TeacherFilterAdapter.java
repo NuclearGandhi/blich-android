@@ -17,7 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.blackcracks.blich.R;
-import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.TeacherSubject;
 
 import java.lang.annotation.Retention;
 import java.util.List;
@@ -40,17 +40,17 @@ public class TeacherFilterAdapter extends BaseAdapter {
 
     private Context mContext;
     private RealmTeacherHelper mRealmTeacherHelper;
-    private List<Lesson> mFilteredTeachers;
+    private List<TeacherSubject> mFilteredTeachers;
 
     /**
-     * @param data list of {@link Lesson}s to display
-     * @param filteredTeachers list of previously chosen {@link Lesson}s.
+     * @param data list of {@link TeacherSubject}s to display
+     * @param filteredTeachers list of previously chosen {@link TeacherSubject}s.
      */
     @SuppressWarnings("SameParameterValue")
     public TeacherFilterAdapter(
             Context context,
-            @Nullable List<Lesson> data,
-            List<Lesson> filteredTeachers) {
+            @Nullable List<TeacherSubject> data,
+            List<TeacherSubject> filteredTeachers) {
 
         mContext = context;
         mRealmTeacherHelper = new RealmTeacherHelper(data);
@@ -59,12 +59,12 @@ public class TeacherFilterAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mRealmTeacherHelper.getLessonCount();
+        return mRealmTeacherHelper.getTeacherSubjectCount();
     }
 
     @Override
     public Object getItem(int position) {
-        return mRealmTeacherHelper.getLesson(position);
+        return mRealmTeacherHelper.getTeacherSubject(position);
     }
 
     @Override
@@ -99,8 +99,8 @@ public class TeacherFilterAdapter extends BaseAdapter {
         CheckBox checkBox = (CheckBox) view;
 
         //Set the formatted text, subject in bold
-        final Lesson lesson = (Lesson) getItem(position);
-        String text = "<b>" + lesson.getSubject() + "</b> - " + lesson.getTeacher();
+        final TeacherSubject TeacherSubject = (TeacherSubject) getItem(position);
+        String text = "<b>" + TeacherSubject.getSubject() + "</b> - " + TeacherSubject.getTeacher();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             holder.checkBox.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
         } else {
@@ -111,7 +111,7 @@ public class TeacherFilterAdapter extends BaseAdapter {
         checkBox.setOnCheckedChangeListener(null);
 
         //Check the checkbox if it has been previously selected
-        if (mFilteredTeachers.contains(lesson))
+        if (mFilteredTeachers.contains(TeacherSubject))
             checkBox.setChecked(true);
         else
             checkBox.setChecked(false);
@@ -120,10 +120,10 @@ public class TeacherFilterAdapter extends BaseAdapter {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //If the box has been checked, add it to the checked teachers list
-                if (isChecked && !mFilteredTeachers.contains(lesson))
-                    mFilteredTeachers.add(lesson);
+                if (isChecked && !mFilteredTeachers.contains(TeacherSubject))
+                    mFilteredTeachers.add(TeacherSubject);
                 else
-                    mFilteredTeachers.remove(lesson);
+                    mFilteredTeachers.remove(TeacherSubject);
             }
         });
     }
@@ -152,9 +152,9 @@ public class TeacherFilterAdapter extends BaseAdapter {
     }
 
     /**
-     * @return all the selected {@link Lesson}s.
+     * @return all the selected {@link TeacherSubject}s.
      */
-    public List<Lesson> getFilteredTeachers() {
+    public List<TeacherSubject> getFilteredTeachers() {
         return mFilteredTeachers;
     }
 
@@ -170,20 +170,20 @@ public class TeacherFilterAdapter extends BaseAdapter {
      * A helper class to easily handle realm data requests.
      */
     static class RealmTeacherHelper {
-        private List<Lesson> mData;
+        private List<TeacherSubject> mData;
         private boolean mIsDataValid;
 
         /**
          * @param data data to instantiate the helper class with.
          */
-        RealmTeacherHelper(List<Lesson> data) {
+        RealmTeacherHelper(List<TeacherSubject> data) {
             switchData(data);
         }
 
         /**
          * @param data data to switch to. Checks validity of the data.
          */
-        void switchData(List<Lesson> data) {
+        void switchData(List<TeacherSubject> data) {
             mData = data;
             mIsDataValid = data != null && mData.size() != 0;
         }
@@ -192,23 +192,23 @@ public class TeacherFilterAdapter extends BaseAdapter {
             return mIsDataValid;
         }
 
-        public List<Lesson> getData() {
+        public List<TeacherSubject> getData() {
             return mData;
         }
 
         /**
          * @param position position in the data list
-         * @return {@link Lesson} in the specified position.
+         * @return {@link TeacherSubject} in the specified position.
          */
-        public Lesson getLesson(int position) {
+        public TeacherSubject getTeacherSubject(int position) {
             if (!mIsDataValid) return null;
             return mData.get(position);
         }
 
         /**
-         * @return count of the number of {@link Lesson}s.
+         * @return count of the number of {@link TeacherSubject}s.
          */
-        public int getLessonCount() {
+        public int getTeacherSubjectCount() {
             if (mIsDataValid) {
                 return mData.size();
             } else {

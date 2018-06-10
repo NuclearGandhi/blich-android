@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.raw.Change;
 import com.blackcracks.blich.data.raw.Event;
@@ -65,7 +66,8 @@ public class BlichSyncTask {
         if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
             insertDataIntoRealm(
                     ShahafUtils.processScheduleRawData(rawData),
-                    ShahafUtils.processExamRawData(rawData)
+                    ShahafUtils.processExamRawData(rawData),
+                    ShahafUtils.processTeacherSubjectData(rawData)
             );
         }
 
@@ -278,7 +280,10 @@ public class BlichSyncTask {
         rawData.addModifiedLessons(rawExams);
     }
 
-    private static void insertDataIntoRealm(RealmList<Period> schedule, RealmList<Exam> exams) {
+    private static void insertDataIntoRealm(
+            RealmList<Period> schedule,
+            RealmList<Exam> exams,
+            RealmList<TeacherSubject> teacherSubjects) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
@@ -298,8 +303,13 @@ public class BlichSyncTask {
                 .findAll();
         oldExams.deleteAllFromRealm();
 
+        RealmResults<TeacherSubject> oldTeacherSubjects = realm.where(TeacherSubject.class)
+                .findAll();
+        oldTeacherSubjects.deleteAllFromRealm();
+
         realm.insert(schedule);
         realm.insert(exams);
+        realm.insert(teacherSubjects);
         realm.commitTransaction();
 
         realm.close();

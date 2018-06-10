@@ -19,7 +19,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.adapter.TeacherFilterAdapter;
-import com.blackcracks.blich.data.schedule.Lesson;
+import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.util.PreferenceUtils;
 
@@ -50,7 +50,7 @@ public class TeacherFilterDialog extends DialogFragment
         mRealm = Realm.getDefaultInstance();
 
         ListView listView = view.findViewById(R.id.list_view_teacher_filter);
-        List<Lesson> filteredTeachers = new ArrayList<>();
+        List<TeacherSubject> filteredTeachers = new ArrayList<>();
 
         //Get all the current filtered teachers
         String[] subjectsAndTeachers = PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).split(";");
@@ -61,8 +61,8 @@ public class TeacherFilterDialog extends DialogFragment
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                Lesson lesson = new Lesson(subject, teacher, null);
-                filteredTeachers.add(lesson);
+                TeacherSubject TeacherSubject = new TeacherSubject(subject, teacher);
+                filteredTeachers.add(TeacherSubject);
             }
         }
 
@@ -103,10 +103,10 @@ public class TeacherFilterDialog extends DialogFragment
     @Override
     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
         StringBuilder value = new StringBuilder();
-        for (Lesson lesson :
+        for (TeacherSubject TeacherSubject :
                 mAdapter.getFilteredTeachers()) {
-            String teacher = lesson.getTeacher();
-            String subject = lesson.getSubject();
+            String teacher = TeacherSubject.getTeacher();
+            String subject = TeacherSubject.getSubject();
 
             value.append(teacher).append(",").append(subject).append(";");
         }
@@ -137,10 +137,8 @@ public class TeacherFilterDialog extends DialogFragment
         void onPositiveClick(String value);
     }
 
-    private List<Lesson> fetchTeacherList() {
-        return mRealm.where(Lesson.class)
-                .isNull("modifier")
-                .distinctValues("teacher", "subject")
+    private List<TeacherSubject> fetchTeacherList() {
+        return mRealm.where(TeacherSubject.class)
                 .sort("subject")
                 .findAll();
     }
