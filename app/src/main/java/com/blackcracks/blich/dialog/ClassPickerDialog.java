@@ -258,18 +258,19 @@ public class ClassPickerDialog extends BaseDialog<ClassPickerDialog.Builder> {
         ClassGroup classGroup = RealmUtils.getGrade(realm, currentUserClassGroupId);
 
         //Set current value
+        int classIndex = 1;
         int gradeIndex;
         if (classGroup.isNormal()) {
             int grade = classGroup.getGrade();
-            int number = classGroup.getNumber();
+            classIndex = classGroup.getNumber();
 
             gradeIndex = grade - 9;
-            mClassIndexPicker.setValue(number);
         } else {
             gradeIndex = 4;
         }
         mGradePicker.setValue(gradeIndex);
         valueChangeListener.onValueChange(mGradePicker, 1, gradeIndex);
+        mClassIndexPicker.setValue(classIndex);
     }
 
     public void setOnPositiveClickListener(OnPositiveClickListener listener) {
