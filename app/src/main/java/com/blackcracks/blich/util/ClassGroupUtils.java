@@ -42,8 +42,8 @@ public class ClassGroupUtils {
                 .equalTo("grade", grade)
                 .findAll();
 
-        //noinspection ConstantConditions
-        return results.max("number").intValue();
+        Number number = results.max("number");
+        return number != null ? number.intValue() : 1;
     }
 
     /**

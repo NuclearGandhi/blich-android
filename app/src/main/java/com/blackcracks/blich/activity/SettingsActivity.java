@@ -60,6 +60,8 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        RealmUtils.setUpRealm(this);
+
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_settings, null, false);
         setContentView(mRootView);

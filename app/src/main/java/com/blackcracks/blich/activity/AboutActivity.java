@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.blackcracks.blich.R;
+import com.blackcracks.blich.util.RealmUtils;
 
 /**
  * Credits for the school, tech support and developers.
@@ -28,6 +29,8 @@ public class AboutActivity extends BaseThemedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        RealmUtils.setUpRealm(this);
 
         mRootView = LayoutInflater.from(this).inflate(
                 R.layout.activity_about, null , false);
