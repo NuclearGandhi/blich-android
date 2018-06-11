@@ -154,7 +154,7 @@ public abstract class BlichBaseFragment extends Fragment implements
     @Override
     @CallSuper
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (!isDetached() && key.equals(getString(R.string.pref_is_syncing_key))) {
+        if (getContext() != null && key.equals(getString(R.string.pref_is_syncing_key))) {
             mSwipeRefreshLayout.setRefreshing(PreferenceUtils.getInstance().getBoolean(R.string.pref_is_syncing_key));
         }
     }
