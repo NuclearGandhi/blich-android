@@ -1,5 +1,6 @@
 package com.blackcracks.blich.util;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.StringDef;
 
@@ -53,8 +54,8 @@ public class ShahafUtils {
      * @param command a {@link FetchCommand}.
      * @return a {@link URL}.
      */
-    public static URL buildUrlFromCommand(@FetchCommand String command) {
-        int classValue = PreferenceUtils.getInstance().getInt(R.string.pref_user_class_group_key);
+    public static URL buildUrlFromCommand(Context context, @FetchCommand String command) {
+        int classValue = PreferenceUtils.getInstance(context).getInt(R.string.pref_user_class_group_key);
 
         Uri scheduleUri = Uri.parse(BLICH_BASE_URI).buildUpon()
                 .appendQueryParameter(PARAM_SID, String.valueOf(BLICH_ID))

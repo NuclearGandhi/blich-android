@@ -27,7 +27,7 @@ public class ClassPickerPreference extends ATEDialogPreference {
 
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        int defValue = (int) PreferenceUtils.getInstance().getDefaultValue(R.string.pref_user_class_group_key);
+        int defValue = (int) PreferenceUtils.getInstance(getContext()).getDefaultValue(R.string.pref_user_class_group_key);
         if (restorePersistedValue) {
             mValue = getPersistedInt(defValue);
         } else {

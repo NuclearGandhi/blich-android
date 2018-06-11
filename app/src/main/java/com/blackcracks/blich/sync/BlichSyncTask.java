@@ -61,7 +61,7 @@ public class BlichSyncTask {
         firebaseAnalytics.logEvent(EVENT_BEGIN_SYNC, Bundle.EMPTY);
 
         RawData rawData = new RawData();
-        int status = fetchData(rawData);
+        int status = fetchData(context, rawData);
 
         if (status == SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL) {//Don't load data if fetch failed
             insertDataIntoRealm(
@@ -87,7 +87,7 @@ public class BlichSyncTask {
      * @return a {@link SyncCallbackUtils.FetchStatus}.
      */
     private static @SyncCallbackUtils.FetchStatus
-    int fetchData(RawData rawData) {
+    int fetchData(Context context, RawData rawData) {
         //Call four different requests from the server.
         for (int i = 0; i < 4; i++) {
             String json;
@@ -113,7 +113,7 @@ public class BlichSyncTask {
             }
 
             try {
-                json = ShahafUtils.getResponseFromUrl(ShahafUtils.buildUrlFromCommand(command));
+                json = ShahafUtils.getResponseFromUrl(ShahafUtils.buildUrlFromCommand(context, command));
 
                 if (json == null || json.equals(""))
                     return SyncCallbackUtils.FETCH_STATUS_UNSUCCESSFUL;
