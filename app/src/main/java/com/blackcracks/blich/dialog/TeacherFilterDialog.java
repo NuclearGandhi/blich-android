@@ -61,7 +61,7 @@ public class TeacherFilterDialog extends DialogFragment
                 String teacher = arr[0];
                 String subject = arr[1];
 
-                TeacherSubject TeacherSubject = new TeacherSubject(subject, teacher);
+                TeacherSubject TeacherSubject = new TeacherSubject(teacher, subject);
                 filteredTeachers.add(TeacherSubject);
             }
         }
@@ -111,7 +111,9 @@ public class TeacherFilterDialog extends DialogFragment
             value.append(teacher).append(",").append(subject).append(";");
         }
 
-        if (mPositiveClickListener != null) mPositiveClickListener.onPositiveClick(value.toString());
+        if (which == DialogAction.POSITIVE &&
+                mPositiveClickListener != null)
+            mPositiveClickListener.onPositiveClick(value.toString());
     }
 
     @Override

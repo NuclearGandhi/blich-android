@@ -35,8 +35,8 @@ import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.dialog.ClassPickerDialog;
-import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.dialog.TeacherFilterDialog;
+import com.blackcracks.blich.preference.ClassPickerPreference;
 import com.blackcracks.blich.preference.FilterPreference;
 import com.blackcracks.blich.sync.BlichSyncHelper;
 import com.blackcracks.blich.util.PreferenceUtils;
@@ -243,8 +243,11 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
             dialog.setOnDestroyListener(new TeacherFilterDialog.OnDestroyListener() {
                 @Override
                 public void onDestroy() {
-                    ((ATESwitchPreference) findPreference(getString(R.string.pref_filter_toggle_key)))
-                            .setChecked(!PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals(""));
+                    ATESwitchPreference filterToggle = (ATESwitchPreference) findPreference(getString(R.string.pref_filter_toggle_key));
+                    if (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("")) {
+                        PreferenceUtils.getInstance().putBoolean(R.string.pref_filter_toggle_key, false);
+                        filterToggle.setChecked(false);
+                    }
                 }
             });
 
@@ -265,13 +268,14 @@ public class SettingsActivity extends BaseThemedActivity implements ColorChooser
                 setFilterSelectSummery();
                 Utilities.updateWidget(getContext());
             }
-            if (key.equals(getString(R.string.pref_filter_toggle_key)))
+            if (key.equals(getString(R.string.pref_filter_toggle_key))) {
                 Utilities.updateWidget(getContext());
                 if ((PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key) &&
                         (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("")))) {
                     //If the filter is on and the filter teacher list is empty:
                     showFilterDialog();
                 }
+            }
         }
 
         private void invalidateSettings() {
