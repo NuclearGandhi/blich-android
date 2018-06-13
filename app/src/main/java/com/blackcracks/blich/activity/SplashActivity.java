@@ -22,10 +22,13 @@ import com.blackcracks.blich.sync.BlichSyncHelper;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.RealmUtils;
 import com.blackcracks.blich.util.Utilities;
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.google.firebase.crash.FirebaseCrash;
 
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class SplashActivity extends BaseStatusBarActivity {
@@ -49,9 +52,9 @@ public class SplashActivity extends BaseStatusBarActivity {
             createNotificationChannels();
         }
 
-        Timber.plant(new Timber.DebugTree());
+        configureCrashReporting();
 
-        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
+        Timber.plant(new Timber.DebugTree());
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -137,6 +140,13 @@ public class SplashActivity extends BaseStatusBarActivity {
             }
             mPreferenceUtils.putInt(R.string.pref_app_version_key, newVersion);
         }
+    }
+
+    private void configureCrashReporting() {
+        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build();
+        Fabric.with(this, new Crashlytics.Builder().core(crashlyticsCore).build());
     }
 
     @RequiresApi(api = 26)
