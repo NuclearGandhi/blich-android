@@ -11,7 +11,7 @@ import com.blackcracks.blich.util.PreferenceUtils;
 /**
  * A data class holding information about events.
  */
-public class Event extends RawModifier {
+public class RawEvent extends RawModifier {
 
     @Override
     public String buildTitle() {

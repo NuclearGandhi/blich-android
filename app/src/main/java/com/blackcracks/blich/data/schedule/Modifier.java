@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.raw.Change;
-import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.RawEvent;
 import com.blackcracks.blich.data.raw.RawExam;
 import com.blackcracks.blich.data.raw.RawModifier;
 import com.blackcracks.blich.util.Constants.Database;
@@ -66,7 +66,7 @@ public class Modifier extends RealmObject {
                 case Database.TYPE_CANCELED:
                     modifierType = MODIFIER_TYPE_CANCEL;
             }
-        } else if (rawModifier instanceof Event) {
+        } else if (rawModifier instanceof RawEvent) {
             modifierType = MODIFIER_TYPE_EVENT;
         } else if (rawModifier instanceof RawExam){
             modifierType = MODIFIER_TYPE_EXAM;

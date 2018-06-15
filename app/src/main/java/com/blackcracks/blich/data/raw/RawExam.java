@@ -17,10 +17,9 @@ public class RawExam extends RawModifier {
 
     @Override
     public String buildTitle() {
-        String str = title + " לקבוצה של " + oldTeacher;
-        if (oldRoom != null) {
-            str += ", בחדר " + oldRoom;
-        }
+        String str = title;
+        if (oldTeacher != null) str += " לקבוצה של " + oldTeacher;
+        if (oldRoom != null) str += " בחדר " + oldRoom;
         return  str;
     }
 

@@ -12,7 +12,7 @@ import com.blackcracks.blich.R;
 import com.blackcracks.blich.data.TeacherSubject;
 import com.blackcracks.blich.data.exam.Exam;
 import com.blackcracks.blich.data.raw.Change;
-import com.blackcracks.blich.data.raw.Event;
+import com.blackcracks.blich.data.raw.RawEvent;
 import com.blackcracks.blich.data.raw.RawExam;
 import com.blackcracks.blich.data.raw.RawData;
 import com.blackcracks.blich.data.raw.RawLesson;
@@ -22,7 +22,6 @@ import com.blackcracks.blich.data.schedule.Modifier;
 import com.blackcracks.blich.data.schedule.Period;
 import com.blackcracks.blich.util.Constants.Database;
 import com.blackcracks.blich.util.PreferenceUtils;
-import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -218,10 +217,10 @@ public class BlichSyncTask {
         JSONObject raw = new JSONObject(json);
 
         JSONArray jsonEvents = raw.getJSONArray(Database.JSON_ARRAY_EVENTS);
-        RealmList<Event> events = new RealmList<>();
+        RealmList<RawEvent> rawEvents = new RealmList<>();
         for (int i = 0; i < jsonEvents.length(); i++) {
             JSONObject jsonEvent = jsonEvents.getJSONObject(i);
-            Event event = new Event();
+            RawEvent rawEvent = new RawEvent();
 
             Date date = parseDate(jsonEvent.getString(Database.JSON_STRING_DATE));
 
@@ -234,18 +233,18 @@ public class BlichSyncTask {
             }
 
 
-            event.setDate(date);
-            event.setTitle(jsonEvent.getString(Database.JSON_NAME));
-            event.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
-            event.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
-            event.setOldRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
-            event.setSubject(subject);
-            event.setOldTeacher(teacher);
+            rawEvent.setDate(date);
+            rawEvent.setTitle(jsonEvent.getString(Database.JSON_NAME));
+            rawEvent.setBeginHour(jsonEvent.getInt(Database.JSON_INT_BEGIN_HOUR));
+            rawEvent.setEndHour(jsonEvent.getInt(Database.JSON_INT_END_HOUR));
+            rawEvent.setOldRoom(jsonEvent.getString(Database.JSON_STRING_ROOM));
+            rawEvent.setSubject(subject);
+            rawEvent.setOldTeacher(teacher);
 
-            events.add(event);
+            rawEvents.add(rawEvent);
         }
 
-        rawData.addModifiedLessons(events);
+        rawData.addModifiedLessons(rawEvents);
     }
 
     private static void insertExamsJsonIntoData(String json, RawData rawData) throws JSONException {
