@@ -59,7 +59,7 @@ public class BlichSyncHelper {
                 intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
-        boolean isNotificationsOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_notification_toggle_key);
+        boolean isNotificationsOn = PreferenceUtils.getInstance(context).getBoolean(R.string.pref_notification_toggle_key);
         if (isNotificationsOn) {
             pm.setComponentEnabledSetting(receiver,
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
