@@ -38,6 +38,8 @@ import com.blackcracks.blich.adapter.SchedulePagerAdapter;
 import com.blackcracks.blich.util.PreferenceUtils;
 import com.blackcracks.blich.util.ScheduleUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
+import com.blackcracks.blich.util.Utilities;
+
 /**
  * The {@link ScheduleFragment} class is responsible for getting and displaying the desired schedule
  * for the user.
@@ -198,7 +200,6 @@ public class ScheduleFragment extends BlichBaseFragment {
 
     private void toggleFilterAction() {
         //Get the filter toggle state
-        String prefKey = getString(R.string.pref_filter_toggle_key);
         boolean isFilterOn = PreferenceUtils.getInstance().getBoolean(R.string.pref_filter_toggle_key);
 
         if (PreferenceUtils.getInstance().getString(R.string.pref_filter_select_key).equals("") && !isFilterOn) {
@@ -209,10 +210,10 @@ public class ScheduleFragment extends BlichBaseFragment {
         }
 
         //Reverse the filter toggle state
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-                .edit()
-                .putBoolean(prefKey, !isFilterOn)
-                .apply();
+        PreferenceUtils.getInstance()
+                .putBoolean(R.string.pref_filter_toggle_key, !isFilterOn);
+        //Update the widget
+        Utilities.updateWidget(getContext());
 
         startFilterActionAnimation(!isFilterOn);
     }
