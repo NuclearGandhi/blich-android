@@ -34,7 +34,12 @@ public abstract class RawModifier {
      *
      * @return a label.
      */
-    public abstract String buildTitle();
+    public String buildTitle() {
+        String str = title;
+        if (oldTeacher != null && !oldTeacher.equals("")) str += " לקבוצה של " + oldTeacher;
+        if (oldRoom != null && !oldRoom.equals("")) str += " בחדר " + oldRoom;
+        return str;
+    }
 
     public boolean isInWeek(int weekOffset) {
         Calendar today = Calendar.getInstance();
