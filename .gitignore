@@ -8,3 +8,4 @@ gradle.properties
 /app/build
 /app/lint.xml
 /app/google-services.json
+/app/src/main/gen/
