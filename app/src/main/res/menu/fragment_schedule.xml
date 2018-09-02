@@ -19,4 +19,11 @@
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="@string/action_button_refresh"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_debug_notification"
+        android:title="@string/action_debug_notification"
+        android:icon="@drawable/ic_notifications_white_24dp"
+        app:showAsAction="ifRoom"
+        android:visible="@bool/debug" />
 </menu>

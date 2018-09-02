@@ -35,6 +35,11 @@ android {
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.Blich
+
+            resValue "bool", "debug", "true"
+        }
+        debug {
+            resValue "bool", "debug", "true"
         }
     }
     buildTypes.each {

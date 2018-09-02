@@ -172,6 +172,9 @@ public class ScheduleFragment extends BlichBaseFragment {
                 SyncCallbackUtils.syncDatabase(getContext());
                 return true;
             }
+            case R.id.action_debug_notification: {
+                ScheduleUtils.notifyUser(getContext());
+            }
             default:
                 return super.onOptionsItemSelected(item);
         }

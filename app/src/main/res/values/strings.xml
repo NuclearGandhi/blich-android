@@ -91,5 +91,6 @@
     <string name="about_dev_android_name"><b>אנדרואיד: </b>עידו פנג בנטוב</string>
     <string name="about_dev_ios_name"><b>אייפון: </b>בן רז ואתגר שמואלי</string>
     <string name="about_email">מייל לתמיכה</string>
+    <string name="action_debug_notification">Debug Notification</string>
 
 </resources>
