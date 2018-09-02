@@ -256,6 +256,10 @@ public class ScheduleUtils {
      */
     private static List<Modifier> fetchNotificationList(Realm realm) {
         Calendar calendar = Calendar.getInstance();
+        boolean isEvening = calendar.get(Calendar.HOUR_OF_DAY) > 18;
+
+        if (isEvening)
+            calendar.add(Calendar.DAY_OF_WEEK, 1);
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
@@ -264,7 +268,8 @@ public class ScheduleUtils {
 
         Date minDate = calendar.getTime();
 
-        calendar.add(Calendar.DAY_OF_WEEK, 1);
+        if (!isEvening)
+            calendar.add(Calendar.DAY_OF_WEEK, 1);
 
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
@@ -321,7 +326,6 @@ public class ScheduleUtils {
         calendar.add(Calendar.DAY_OF_WEEK, 1);
         int tomorrow = calendar.get(Calendar.DAY_OF_WEEK);
 
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
         NotificationCompat.InboxStyle inboxStyle =
                 new NotificationCompat.InboxStyle();
 
@@ -333,9 +337,7 @@ public class ScheduleUtils {
             calendar.setTime(lesson.getDate());
             int day = calendar.get(Calendar.DAY_OF_WEEK);
             if (today == day) {
-                if (hour < 18) {
-                    todayNotificationChanges.add(lesson);
-                }
+                todayNotificationChanges.add(lesson);
             } else if (tomorrow == day) {
                 tomorrowNotificationChanges.add(lesson);
             }
