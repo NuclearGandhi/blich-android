@@ -260,7 +260,9 @@ public class ClassPickerDialog extends BaseDialog<ClassPickerDialog.Builder> {
         //Set current value
         int classIndex = 1;
         int gradeIndex;
-        if (classGroup.isNormal()) {
+        if (classGroup == null) {
+            gradeIndex = 0;
+        } else if (classGroup.isNormal()) {
             int grade = classGroup.getGrade();
             classIndex = classGroup.getNumber();
 
