@@ -2,7 +2,8 @@
 .gradle
 gradle.properties
 /local.properties
-.idea/
+/.idea
+/projectFilesBackup
 /build
 /captures
 /app/build
