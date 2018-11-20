@@ -24,7 +24,7 @@
   -->
 
 <resources>
-    <color name="defaultLightPrimaryColor">#cfd8dc</color>
+    <color name="defaultLightPrimaryColor">#fafafa</color>
     <color name="defaultLightAccentColor">#3D5AFE</color>
 
     <color name="defaultDarkPrimaryColor">#3F51B5</color>
