@@ -1,6 +1,8 @@
 *.iml
 .gradle
 gradle.properties
+blich.jks
+keystore.properties
 /local.properties
 /.idea
 /projectFilesBackup
