@@ -23,34 +23,46 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragment.ScheduleDayFragment">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/message_no_data"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="64dp"
-        android:gravity="center_horizontal"
+        android:layout_marginBottom="64dp"
+        android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ImageView
+            android:id="@+id/no_data_icon"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_clear_white_24dp"
-            android:tag="tint|icon_color" />
+            android:src="@drawable/ic_calendar_blank_white_24dp"
+            android:tag="tint|icon_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.32999998" />
 
         <TextView
+            android:id="@+id/no_data_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginTop="8dp"
             android:tag="text_color|secondary_text"
-            android:text="@string/schedule_blank_page_message_no_data" />
-    </LinearLayout>
-
+            android:text="@string/schedule_blank_page_message_no_data"
+            app:layout_constraintEnd_toEndOf="@+id/no_data_icon"
+            app:layout_constraintStart_toStartOf="@+id/no_data_icon"
+            app:layout_constraintTop_toBottomOf="@+id/no_data_icon" />
+    </android.support.constraint.ConstraintLayout>0
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_list"

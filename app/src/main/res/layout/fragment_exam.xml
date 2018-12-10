@@ -99,14 +99,14 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:scaleType="center"
-            android:src="@drawable/ic_clear_white_24dp"
+            android:src="@drawable/ic_calendar_blank_white_24dp"
             android:tag="tint|icon_color" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:tag="text_color|secondary_text"
-            android:text="@string/schedule_blank_page_message_no_data" />
+            android:text="@string/exam_blank_page_message_no_data" />
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -114,7 +114,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_list"
