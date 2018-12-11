@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
 
     implementation 'com.github.NuclearGandhi:material-calendarview:v1.4.5'
-    implementation 'com.github.NuclearGandhi:app-theme-engine:1.5.10'
+    implementation 'com.github.NuclearGandhi:app-theme-engine:1.5.11'
     implementation 'com.github.NuclearGandhi.expandable-recycler-view:expandablerecyclerview:v1.6.2'
 
     implementation ('com.crashlytics.sdk.android:crashlytics:2.9.7@aar') {
