@@ -56,7 +56,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.Blich
 
-            resValue "bool", "debug", "true"
+            resValue "bool", "debug", "false"
         }
         debug {
             resValue "bool", "debug", "true"
