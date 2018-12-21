@@ -27,6 +27,7 @@ package com.blackcracks.blich.sync;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.blackcracks.blich.data.raw.ClassGroup;
 import com.blackcracks.blich.util.Constants.Database;
@@ -34,6 +35,7 @@ import com.blackcracks.blich.util.ShahafUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils;
 import com.blackcracks.blich.util.SyncCallbackUtils.FetchStatus;
 import com.blackcracks.blich.util.Utilities;
+import com.getkeepsafe.relinker.ReLinker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,10 +44,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.logging.Logger;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
+import timber.log.Timber;
 
 /**
  * An {@link IntentService} to fetch the current class groups that are at Blich.
@@ -94,8 +98,10 @@ public class SyncClassGroupsService extends IntentService {
             insertClassesJsonIntoData(json, data);
 
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            Timber.e(e, null);
         }
+
+        Timber.d("Data:\n" + data.toArray().toString());
 
         loadDataIntoRealm(data);
         return SyncCallbackUtils.FETCH_STATUS_SUCCESSFUL;
